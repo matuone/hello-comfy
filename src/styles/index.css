@@ -1,32 +1,48 @@
-/* ===============================
-   ANNOUNCEMENT BAR - Hello Comfy (Ticker infinito sin iguales consecutivos)
-   =============================== */
+/* ======================================
+   TIPOGRAFÍA
+   ====================================== */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap");
 
-/* Barra principal */
+/* ======================================
+   RESET / BASE
+   ====================================== */
+html,
+body,
+main,
+section {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  background: #fff;
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* ======================================
+   ANNOUNCEMENT BAR
+   ====================================== */
 .announcement-bar {
   position: sticky;
   top: 0;
   left: 0;
   right: 0;
-  width: 100vw;
+  width: 100%;
   margin: 0;
   padding: 6px 12px;
-
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   gap: 14px;
-
+  justify-content: flex-start;
   background: #111;
   color: #fff;
-  border-bottom: 1px solid #222;
-
   font-size: 14px;
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
   z-index: 9999;
 }
 
-/* Marca clickeable (Hello Comfy 🐻) */
 .ab-brand {
   display: inline-flex;
   align-items: center;
@@ -38,68 +54,185 @@
 }
 
 .ab-brand:hover {
-  opacity: 0.9;
+  opacity: .9;
 }
 
-.ab-bear {
-  line-height: 1;
-}
-
-/* Contenedor del ticker */
 .ab-ticker {
-  position: relative;
   flex: 1;
-  min-width: 160px;
-  height: 22px;
   overflow: hidden;
-  /* oculta el texto que sale de los bordes */
+  height: 22px;
 }
 
-/* Pista animada que se mueve constantemente */
 .ab-track {
   display: inline-flex;
   white-space: nowrap;
-  will-change: transform;
-  animation: scrollLoop var(--duration, 35s) linear infinite;
+  animation: scrollLoop 35s linear infinite;
 }
 
-/* Bloques duplicados para bucle perfecto */
 .ab-seq {
-  display: inline-block;
   padding-left: 16px;
-  /* arranque cerca del osito */
   margin-right: 80px;
-  /* más espacio entre bloques */
 }
 
-/* Animación fluida sin fin */
 @keyframes scrollLoop {
   0% {
-    transform: translateX(0);
+    transform: translateX(0)
   }
 
   100% {
-    transform: translateX(var(--distance, -1000px));
+    transform: translateX(-1000px)
   }
 }
 
-/* Reseteo general */
-html,
-body {
-  margin: 0;
-  padding: 0;
+/* ======================================
+   NAVBAR (links centrados + carrito a la derecha)
+   ====================================== */
+header,
+.navbar {
+  position: relative;
+  background: #ffb6b3;
+  height: 56px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  /* izq / centro / der */
+  align-items: center;
+  padding: 0 16px;
+  z-index: 10;
+  border: 0;
+  box-shadow: none;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-  .announcement-bar {
-    font-size: 13px;
-    padding: 6px 8px;
-    gap: 10px;
+/* Centro de la nav (los links) */
+.nav {
+  justify-self: center;
+  display: flex;
+  gap: 28px;
+}
+
+/* Carrito a la derecha SIEMPRE */
+.cart-chip {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Links */
+.navlink {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: .2px;
+  padding: 6px 2px;
+}
+
+.navlink:hover,
+.navlink.active {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ========== Anti-hairline (línea blanca) definitivo ========== */
+/* 1) Capa rosa de 2px pintada justo debajo del header */
+header::after,
+.navbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  /* se apoya 2px debajo */
+  height: 2px;
+  background: #ffb6b3;
+  /* mismo rosa */
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* 2) El banner se solapa 2px hacia arriba (siempre) */
+header+.full-banner,
+.navbar+.full-banner {
+  margin-top: -2px !important;
+}
+
+/* ======================================
+   BANNER FULL-BLEED centrado
+   ====================================== */
+.full-banner {
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  overflow: hidden;
+  line-height: 0;
+  z-index: 1;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Faja rosa por si algún navegador redondea mal */
+.full-banner::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ffb6b3;
+  z-index: 2;
+}
+
+.full-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center center;
+  /* centrado real */
+}
+
+/* ======================================
+   ADYACENCIAS / ESPACIADOS
+   ====================================== */
+/* evita cualquier borde entre barra/header/banner */
+.announcement-bar+header,
+.announcement-bar+.navbar {
+  border-top: 0;
+  margin-top: 0;
+}
+
+/* separador visual normal para las secciones siguientes */
+.full-banner+* {
+  margin-top: 0;
+  /* nunca añadir margen accidental */
+}
+
+.home-copy {
+  text-align: center;
+  padding: 40px 16px;
+  /* separación clara post-banner */
+}
+
+/* ======================================
+   RESPONSIVE
+   ====================================== */
+@media (max-width: 720px) {
+
+  header,
+  .navbar {
+    height: 52px;
+    padding: 0 12px;
   }
 
-  .ab-seq {
-    padding-left: 12px;
-    margin-right: 48px;
+  .nav {
+    gap: 18px;
+  }
+
+  .navlink {
+    font-size: 14px;
   }
 }

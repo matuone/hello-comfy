@@ -1,32 +1,28 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 
 export default function Navbar() {
   const { cart } = useShop();
   const count = cart.reduce((a, i) => a + (i.qty ?? 0), 0);
 
-  const active = ({ isActive }) => (isActive ? { textDecoration: "underline" } : undefined);
-
   return (
-    <header style={{
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      gap: 16, padding: "12px 16px", borderBottom: "1px solid #eee", background: "#fff"
-    }}>
-      <Link to="/" style={{ fontWeight: 800, color: "#111", textDecoration: "none" }}>
-        Hello-Comfy
-      </Link>
+    <header className="navbar">
+      {/* Placeholder a la izquierda para centrar el nav */}
+      <div className="nav-spacer" aria-hidden="true" />
 
-      <nav style={{ display: "flex", gap: 12 }}>
-        <NavLink to="/" style={active}>Inicio</NavLink>
-        <NavLink to="/productos" style={active}>Productos</NavLink>
-        <NavLink to="/nosotros" style={active}>Nosotros</NavLink>
-        <NavLink to="/contacto" style={active}>Contacto</NavLink>
-        <NavLink to="/carrito" style={active}>Carrito</NavLink>
+      {/* Links centrados */}
+      <nav className="nav nav--center">
+        <NavLink to="/" className="navlink">Inicio</NavLink>
+        <NavLink to="/productos" className="navlink">Productos</NavLink>
+        <NavLink to="/nosotros" className="navlink">Nosotros</NavLink>
+        <NavLink to="/contacto" className="navlink">Contacto</NavLink>
+        <NavLink to="/carrito" className="navlink">Carrito</NavLink>
       </nav>
 
-      <Link to="/carrito" style={{ textDecoration: "none", color: "#111" }}>
-        🛒 {count}
-      </Link>
+      {/* Chip de carrito a la derecha (opcional) */}
+      <div className="cart-chip" aria-label={`Carrito: ${count} ítems`}>
+        🛒 <span>{count}</span>
+      </div>
     </header>
   );
 }
