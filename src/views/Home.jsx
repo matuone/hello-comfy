@@ -8,13 +8,14 @@ export default function Home() {
       <PromoBanner
         fullBleed
         height="clamp(520px, 72vw, 880px)"
-        objectPositions={["center 35%", "center 40%", "center 35%"]}
+        //            [slide1       , slide2 (cabeza visible) , slide3      ]
+        objectPositions={["center 35%", "center top", "center 35%"]}
         autoplay
         interval={5000}
       />
 
-      {/* Contenido del home */}
-      <section className="home-copy" style={{ textAlign: "center", padding: "40px 16px" }}>
+      {/* Contenido */}
+      <section className="home-copy">
         <h1>Bienvenid@ a Hello-Comfy</h1>
         <p>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt aliquam accusantium porro,

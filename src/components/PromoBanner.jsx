@@ -5,12 +5,12 @@ import banner2 from "../assets/banner2.png";
 import banner3 from "../assets/banner3.png";
 
 export default function PromoBanner({
-  height = "clamp(520px, 72vw, 880px)", // banner más alto y fluido
+  height = "clamp(520px, 72vw, 880px)",
   autoplay = true,
   interval = 5000,
-  fullBleed = true,                      // ocupa 100% del ancho de la ventana
-  radius = 12,                           // radio cuando NO es fullBleed
-  objectPositions = ["center 35%", "center 40%", "center 35%"], // foco por imagen
+  fullBleed = true,
+  radius = 12,
+  objectPositions = ["center 35%", "center top", "center 35%"],
 }) {
   const IMGS = useMemo(() => [banner1, banner2, banner3], []);
   const [i, setI] = useState(0);
@@ -19,7 +19,6 @@ export default function PromoBanner({
   const next = () => setI((p) => (p + 1) % IMGS.length);
   const prev = () => setI((p) => (p - 1 + IMGS.length) % IMGS.length);
 
-  // autoplay con pausa cuando la pestaña no está visible
   useEffect(() => {
     if (!autoplay) return;
     const start = () => {
@@ -35,7 +34,6 @@ export default function PromoBanner({
     };
   }, [autoplay, interval]);
 
-  // teclado ← →
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "ArrowLeft") prev();
@@ -45,13 +43,11 @@ export default function PromoBanner({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // pre-carga vecinos
   useEffect(() => {
     const a = new Image(); a.src = IMGS[(i + 1) % IMGS.length];
     const b = new Image(); b.src = IMGS[(i - 1 + IMGS.length) % IMGS.length];
   }, [i, IMGS]);
 
-  // base
   const wrapBase = {
     position: "relative",
     width: "100%",
@@ -61,13 +57,8 @@ export default function PromoBanner({
     borderRadius: fullBleed ? 0 : radius,
   };
 
-  // full-bleed: rompe el contenedor y usa 100vw
   const fullBleedStyles = fullBleed
-    ? {
-      width: "100vw",
-      marginLeft: "calc(50% - 50vw)",
-      marginRight: "calc(50% - 50vw)",
-    }
+    ? { width: "100vw", marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)" }
     : {};
 
   const slide = {
@@ -96,7 +87,6 @@ export default function PromoBanner({
     zIndex: 5,
     boxShadow: "0 2px 10px rgba(0,0,0,.08)",
   };
-
   const glyph = { fontSize: 26, lineHeight: 1, marginTop: -2 };
 
   return (
@@ -132,7 +122,6 @@ export default function PromoBanner({
         <span style={glyph}>›</span>
       </button>
 
-      {/* Texto accesible con estado (oculto visualmente) */}
       <span
         style={{
           position: "absolute",

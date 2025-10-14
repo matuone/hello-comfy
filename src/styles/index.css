@@ -1,3 +1,5 @@
+/* src/styles/index.css */
+
 /* ======================================
    TIPOGRAFÍA
    ====================================== */
@@ -19,10 +21,11 @@ body {
   overflow-x: hidden;
   background: #fff;
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #111;
 }
 
 /* ======================================
-   ANNOUNCEMENT BAR
+   ANNOUNCEMENT BAR (arriba del navbar)
    ====================================== */
 .announcement-bar {
   position: sticky;
@@ -85,80 +88,7 @@ body {
 }
 
 /* ======================================
-   NAVBAR (links centrados + carrito a la derecha)
-   ====================================== */
-header,
-.navbar {
-  position: relative;
-  background: #ffb6b3;
-  height: 56px;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  /* izq / centro / der */
-  align-items: center;
-  padding: 0 16px;
-  z-index: 10;
-  border: 0;
-  box-shadow: none;
-}
-
-/* Centro de la nav (los links) */
-.nav {
-  justify-self: center;
-  display: flex;
-  gap: 28px;
-}
-
-/* Carrito a la derecha SIEMPRE */
-.cart-chip {
-  justify-self: end;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #fff;
-  font-weight: 600;
-}
-
-/* Links */
-.navlink {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  letter-spacing: .2px;
-  padding: 6px 2px;
-}
-
-.navlink:hover,
-.navlink.active {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* ========== Anti-hairline (línea blanca) definitivo ========== */
-/* 1) Capa rosa de 2px pintada justo debajo del header */
-header::after,
-.navbar::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  /* se apoya 2px debajo */
-  height: 2px;
-  background: #ffb6b3;
-  /* mismo rosa */
-  pointer-events: none;
-  z-index: 11;
-}
-
-/* 2) El banner se solapa 2px hacia arriba (siempre) */
-header+.full-banner,
-.navbar+.full-banner {
-  margin-top: -2px !important;
-}
-
-/* ======================================
-   BANNER FULL-BLEED centrado
+   BANNER FULL-BLEED
    ====================================== */
 .full-banner {
   position: relative;
@@ -174,7 +104,7 @@ header+.full-banner,
   box-shadow: none;
 }
 
-/* Faja rosa por si algún navegador redondea mal */
+/* Faja del color del NAVBAR (rosa) para tapar hairline bajo el navbar */
 .full-banner::before {
   content: "";
   position: absolute;
@@ -183,6 +113,7 @@ header+.full-banner,
   right: 0;
   height: 2px;
   background: #ffb6b3;
+  /* ← mismo rosa que el navbar */
   z-index: 2;
 }
 
@@ -192,47 +123,60 @@ header+.full-banner,
   height: auto;
   object-fit: cover;
   object-position: center center;
-  /* centrado real */
 }
 
 /* ======================================
    ADYACENCIAS / ESPACIADOS
    ====================================== */
-/* evita cualquier borde entre barra/header/banner */
-.announcement-bar+header,
 .announcement-bar+.navbar {
   border-top: 0;
   margin-top: 0;
 }
 
-/* separador visual normal para las secciones siguientes */
+/* Evita margen fantasma después del banner */
 .full-banner+* {
   margin-top: 0;
-  /* nunca añadir margen accidental */
 }
 
 .home-copy {
   text-align: center;
   padding: 40px 16px;
-  /* separación clara post-banner */
 }
 
 /* ======================================
    RESPONSIVE
    ====================================== */
 @media (max-width: 720px) {
-
-  header,
-  .navbar {
-    height: 52px;
-    padding: 0 12px;
+  .home-copy {
+    padding: 32px 14px;
   }
+}
 
-  .nav {
-    gap: 18px;
-  }
+/* ===== Footer ===== */
+.site-footer {
+  border-top: 1px solid #eee;
+  margin-top: 48px;
+  background: #fff;
+}
 
-  .navlink {
-    font-size: 14px;
-  }
+.site-footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+/* Si quedaran listas/links residuales de un footer viejo, las neutralizamos */
+.site-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-footer ul,
+.site-footer li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
