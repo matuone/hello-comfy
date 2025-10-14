@@ -13,10 +13,12 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar__inner">
-        {/* Columna izquierda vacía (ayuda a centrar) */}
-        <div />
+        {/* Izquierda: botón osito → Home (sin fondo) */}
+        <Link to="/" className="navbar__bear" aria-label="Inicio" title="Inicio">
+          <span aria-hidden="true">🐻</span>
+        </Link>
 
-        {/* Navegación central */}
+        {/* Centro: navegación (orden pedido) */}
         <nav className="navbar__nav" aria-label="Navegación principal">
           <NavLink to="/categorias" className={linkClass}>Categorías</NavLink>
           <NavLink to="/talles" className={linkClass}>Guía de talles</NavLink>
@@ -25,11 +27,9 @@ export default function Navbar() {
           <NavLink to="/cuenta-dni" className={linkClass}>CUENTA DNI</NavLink>
         </nav>
 
-        {/* Derecha: Mi cuenta (mismo look & efecto) + Carrito */}
+        {/* Derecha: Mi cuenta (mismo look) + Carrito */}
         <div className="navbar__right">
-          <NavLink to="/mi-cuenta" className={linkClass}>
-            Mi cuenta
-          </NavLink>
+          <NavLink to="/mi-cuenta" className={linkClass}>Mi cuenta</NavLink>
           <Link to="/cart" className="cart-pill" aria-label={`Carrito (${count})`}>
             🛒 <span>{count}</span>
           </Link>
