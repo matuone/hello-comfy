@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const DEFAULT_MESSAGES = [
   "Envío gratis en compras +$190.000 🚀",
@@ -7,6 +8,7 @@ const DEFAULT_MESSAGES = [
   "Envío gratis en compras +$190.000 💸",
 ];
 
+// Detecta preferencia de “reduced motion”
 function usePrefersReducedMotion() {
   const [prefers, setPrefers] = useState(false);
   useEffect(() => {
@@ -21,29 +23,34 @@ function usePrefersReducedMotion() {
 
 export default function AnnouncementBar({
   messages = DEFAULT_MESSAGES,
-  interval = 3500,
+  brand = "Hello Comfy",   // sin guion
+  showBear = true,
+  speed = 22,              // segundos por vuelta (ajustá a gusto)
+  separator = "•",         // separador entre mensajes
 }) {
-  const [index, setIndex] = useState(0);
-  const timerRef = useRef(null);
   const reduced = usePrefersReducedMotion();
 
-  useEffect(() => {
-    if (reduced || messages.length <= 1) return;
-    timerRef.current = setInterval(
-      () => setIndex((i) => (i + 1) % messages.length),
-      interval
-    );
-    return () => clearInterval(timerRef.current);
-  }, [messages.length, interval, reduced]);
+  // Construye la secuencia de mensajes con separadores
+  const sequence = messages.join(`  ${separator}  `);
 
   return (
     <div className="announcement-bar" role="region" aria-label="Promociones">
-      <div className="ab-viewport" aria-live="polite">
-        {messages.map((msg, i) => (
-          <div key={i} className={`ab-slide ${i === index ? "is-active" : ""}`}>
-            {msg}
-          </div>
-        ))}
+      {/* Marca clickeable */}
+      <Link to="/" className="ab-brand" aria-label={`${brand} (volver al inicio)`}>
+        <span className="ab-brand-text">{brand}</span>
+        {showBear && <span className="ab-bear" aria-hidden="true"> 🐻</span>}
+      </Link>
+
+      {/* Ticker/marquée continuo */}
+      <div className="ab-ticker" aria-hidden={!reduced ? true : undefined}>
+        <div
+          className={`ab-track ${reduced ? "no-motion" : ""}`}
+          style={{ "--duration": `${speed}s` }}
+        >
+          {/* Duplicamos la secuencia para que el loop sea seamless */}
+          <div className="ab-seq">{sequence}</div>
+          <div className="ab-seq" aria-hidden="true">{sequence}</div>
+        </div>
       </div>
     </div>
   );
