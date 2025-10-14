@@ -4,6 +4,7 @@ import Home from "../views/Home";
 import Products from "../views/Products";
 import About from "../views/About";
 import Contact from "../views/Contact";
+import Cart from "../views/Cart";
 import NotFound from "../views/NotFound";
 
 export default function AppRouter() {
@@ -14,6 +15,7 @@ export default function AppRouter() {
         <Route path="productos" element={<Products />} />
         <Route path="nosotros" element={<About />} />
         <Route path="contacto" element={<Contact />} />
+        <Route path="carrito" element={<Cart />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

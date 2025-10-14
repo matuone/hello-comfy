@@ -2,10 +2,15 @@ import { useShop } from "../context/ShopContext";
 
 export default function Products() {
   const { products, addToCart } = useShop();
+
   return (
     <section>
       <h1>Productos</h1>
-      <ul style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 16, listStyle: "none", padding: 0 }}>
+      <ul style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))",
+        gap: 16, listStyle: "none", padding: 0, marginTop: 12
+      }}>
         {products.map((p) => (
           <li key={p.id} style={{ border: "1px solid #eee", borderRadius: 12, padding: 16 }}>
             <strong>{p.name}</strong>

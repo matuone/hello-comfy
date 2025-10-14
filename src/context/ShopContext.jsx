@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState, useEffect } from "react";
 
 const ShopContext = createContext(null);
 
@@ -11,11 +11,22 @@ export function ShopProvider({ children }) {
     { id: "3", name: "Hoodie", price: 24999 },
   ]);
 
+  // Cargar carrito del localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("hello-comfy:cart");
+    if (saved) setCart(JSON.parse(saved));
+  }, []);
+
+  // Guardar carrito cuando cambie
+  useEffect(() => {
+    localStorage.setItem("hello-comfy:cart", JSON.stringify(cart));
+  }, [cart]);
+
   const addToCart = (p) =>
     setCart((prev) => {
       const found = prev.find((i) => i.id === p.id);
       return found
-        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i))
+        ? prev.map((i) => (i.id === p.id ? { ...i, qty: (i.qty ?? 0) + 1 } : i))
         : [...prev, { ...p, qty: 1 }];
     });
 

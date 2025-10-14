@@ -15,13 +15,18 @@ export default function Navbar() {
       <Link to="/" style={{ fontWeight: 800, color: "#111", textDecoration: "none" }}>
         Hello-Comfy
       </Link>
+
       <nav style={{ display: "flex", gap: 12 }}>
         <NavLink to="/" style={active}>Inicio</NavLink>
         <NavLink to="/productos" style={active}>Productos</NavLink>
         <NavLink to="/nosotros" style={active}>Nosotros</NavLink>
         <NavLink to="/contacto" style={active}>Contacto</NavLink>
+        <NavLink to="/carrito" style={active}>Carrito</NavLink>
       </nav>
-      <div>🛒 {count}</div>
+
+      <Link to="/carrito" style={{ textDecoration: "none", color: "#111" }}>
+        🛒 {count}
+      </Link>
     </header>
   );
 }
