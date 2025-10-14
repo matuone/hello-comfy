@@ -1,251 +1,409 @@
-/* ====== NAVBAR base ====== */
+/* ===== Paleta Hello-Comfy ===== */
+:root {
+  --pink: #ffb6b3;
+  --pink-strong: #ff9e9a;
+  --text: #111;
+  --white: #fff;
+  --soft-shadow: 0 6px 28px rgba(0, 0, 0, .18), 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+/* ===== Contenedor principal ===== */
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 50;
-  background: #ffb6b3;
-  border-bottom: 0;
+  z-index: 70;
+  background: var(--pink);
 }
 
-.navbar__inner {
-  width: 100%;
-  margin: 0;
-  padding: 12px 16px;
+/* ===== Top bar (botón / brand / carrito) ===== */
+.navbar__top {
+  height: 56px;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 48px 1fr 48px;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
+  padding: 0 8px;
 }
 
-.navbar__bear,
-.navbar__brand,
-.cart-pill {
-  text-decoration: none;
-  color: #fff;
-  font-weight: 800;
-}
-
-.navbar__bear {
-  justify-self: start;
-  display: inline-grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  background: transparent;
-}
-
+/* Marca centrada con osito + texto */
 .navbar__brand {
   justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 900;
   letter-spacing: .3px;
 }
 
-.cart-pill {
-  justify-self: end;
+.brand-bear {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.brand-text {
+  line-height: 1;
+}
+
+.iconbtn {
   position: relative;
-  display: inline-grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
+  border: 0;
   border-radius: 999px;
+  display: grid;
+  place-items: center;
   background: transparent;
+  color: var(--white);
+}
+
+.cartbtn {
+  justify-self: end;
 }
 
 .cart__badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 2px;
+  right: 2px;
   min-width: 18px;
   height: 18px;
-  padding: 0 6px;
+  padding: 0 5px;
   border-radius: 999px;
-  background: #fff;
+  background: var(--white);
   color: #c43e3a;
-  font-size: 12px;
-  font-weight: 900;
+  font: 900 12px/18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   display: grid;
   place-items: center;
-  line-height: 1;
 }
 
-/* ====== CATBAR con progreso + nudge + fades ====== */
-.catbar {
-  --catbar-progress: 0%;
+/* Iconos con CSS */
+.icon {
+  width: 22px;
+  height: 22px;
+  display: inline-block;
   position: relative;
-  display: flex;
-  gap: 8px;
-  padding: 0 16px 12px 16px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  scroll-snap-type: x proximity;
-  /* línea de fondo (pista) */
-  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, .25);
 }
 
-.catbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* barra de progreso */
-.catbar::marker {
-  content: "";
-}
-
-/* evita estilos raros en algunos navegadores */
-.catbar::after {
+.icon.menu::before,
+.icon.menu::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 2px;
+  right: 2px;
   height: 2px;
-  background: transparent;
-  pointer-events: none;
-  /* foreground: usa un gradiente que se "corta" con --catbar-progress */
-  background-image: linear-gradient(to right, #fff 0 var(--catbar-progress), transparent var(--catbar-progress) 100%);
+  background: var(--white);
 }
 
-/* Fades laterales */
-.catbar::before,
-.catbar>.catbar__fadeR {
+.icon.menu::before {
+  top: 6px;
+  box-shadow: 0 6px 0 0 var(--white);
+}
+
+.icon.menu::after {
+  top: 16px;
+}
+
+.icon.close::before,
+.icon.close::after {
   content: "";
-  position: sticky;
-  top: 0;
-  width: 28px;
-  min-height: 100%;
-  pointer-events: none;
-  z-index: 1;
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 10px;
+  height: 2px;
+  background: var(--white);
 }
 
-.catbar::before {
-  left: 0;
-  margin-left: -16px;
-  background: linear-gradient(to right, rgba(255, 182, 179, 1), rgba(255, 182, 179, 0));
+.icon.close::before {
+  transform: rotate(45deg);
 }
 
-.catbar>.catbar__fadeR {
-  margin-left: auto;
-  right: 0;
-  margin-right: -16px;
-  background: linear-gradient(to left, rgba(255, 182, 179, 1), rgba(255, 182, 179, 0));
+.icon.close::after {
+  transform: rotate(-45deg);
 }
 
-.catbar.has-scrolled::before {
-  opacity: .15;
+.icon.cart::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--white);
+  border-radius: 6px;
 }
 
-.catbar.is-at-end>.catbar__fadeR {
-  opacity: .15;
+.icon.cart::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 4px;
+  width: 14px;
+  height: 2px;
+  background: var(--white);
 }
 
-/* Ítem */
-.catbar__link {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-  white-space: nowrap;
-  padding: 8px 12px;
+.icon.user::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 3px;
+  height: 8px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+  background: var(--pink);
+  box-shadow: inset 0 0 0 2px var(--text);
 }
 
-.catbar__link:hover {
-  transform: translateY(-1px);
+.icon.user::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  height: 9px;
+  border-radius: 9px 9px 3px 3px / 9px 9px 3px 3px;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--text);
 }
 
-.catbar__link.is-active {
-  background: #fff;
-  color: #c43e3a;
-  border-color: #fff;
+.icon.chat::before {
+  content: "";
+  position: absolute;
+  inset: 2px 2px 8px 2px;
+  border: 2px solid var(--text);
+  border-radius: 8px;
 }
 
-/* Icono 👉 de nudge (no bloquea clics) */
-.catbar__nudge {
-  position: sticky;
+.icon.chat::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 8px;
+  width: 10px;
+  height: 8px;
+  border-left: 2px solid var(--text);
+  border-bottom: 2px solid var(--text);
+  transform: skewX(-25deg);
+}
+
+.icon.pin::before {
+  content: "";
+  position: absolute;
+  left: 8px;
   right: 8px;
-  margin-left: auto;
-  /* lo empuja a la derecha del carril */
-  align-self: center;
-  font-size: 18px;
-  opacity: .9;
-  transform: translateX(0);
-  animation: nudge-move 1.2s ease-in-out infinite;
-  pointer-events: none;
-  /* ¡no tapa clics! */
-  z-index: 2;
+  top: 2px;
+  bottom: 8px;
+  border: 2px solid var(--text);
+  border-radius: 14px 14px 14px 14px/18px 18px 10px 10px;
 }
 
-.catbar.has-scrolled .catbar__nudge {
+.icon.pin::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 2px;
+  height: 10px;
+  background: var(--text);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+/* Redes */
+.icon.ig::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 2px solid var(--text);
+  border-radius: 6px;
+}
+
+.icon.ig::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 2px solid var(--text);
+  border-radius: 999px;
+  left: 7px;
+  top: 7px;
+}
+
+.icon.fb::before {
+  content: "f";
+  position: absolute;
+  inset: 0;
+  color: var(--text);
+  font-weight: 900;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  text-align: center;
+  line-height: 22px;
+}
+
+.icon.tk::before {
+  content: "♪";
+  position: absolute;
+  inset: 0;
+  color: var(--text);
+  text-align: center;
+  line-height: 22px;
+}
+
+/* ===== Nav desktop ===== */
+.navbar__desk {
   display: none;
 }
 
-/* ocultar tras scroll */
-@keyframes nudge-move {
-
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  50% {
-    transform: translateX(6px);
-  }
-}
-
-/* Desktop */
-@media (min-width: 900px) {
-  .catbar {
+@media (min-width:900px) {
+  .navbar__desk {
+    display: flex;
     justify-content: center;
-    overflow: visible;
-    flex-wrap: wrap;
-    gap: 10px 14px;
-    padding-bottom: 14px;
+    gap: 14px;
+    padding: 6px 10px 12px;
   }
 
-  .catbar::before,
-  .catbar>.catbar__fadeR,
-  .catbar__nudge {
-    display: none;
+  .navbar__link {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-radius: 8px;
   }
 
-  .catbar::after {
-    display: none;
-  }
-
-  /* oculta barra de progreso si querés */
-  .catbar__link {
-    background: transparent;
-    border: 0;
-    padding: 10px 14px;
-  }
-
-  .catbar__link.is-active {
-    background: transparent;
-    color: #fff;
+  .navbar__link.is-active {
     text-decoration: underline;
     text-underline-offset: 3px;
   }
 }
 
-/* Harden overlay viejo */
-.navbar,
-.navbar * {
+/* ===== Drawer ===== */
+.drawer__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  z-index: 80;
+}
+
+.drawer__overlay.is-open {
+  opacity: 1;
   pointer-events: auto;
 }
 
-.navbar__mobile,
-.navbar__backdrop,
-.navbar__mobile-panel,
-.navbar__mobile-nav,
-.overlay,
-.backdrop,
-.menu-mask {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+.drawer {
+  position: fixed;
+  inset: auto 0 0 auto;
+  top: 0;
+  height: 100dvh;
+  width: 88vw;
+  max-width: 380px;
+  background: var(--white);
+  transform: translateX(100%);
+  transition: transform .28s ease;
+  box-shadow: var(--soft-shadow);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer.is-open {
+  transform: translateX(0);
+}
+
+.drawer__head {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid #eee;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.drawer__list {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 8px;
+}
+
+.drawer__item {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+  padding: 12px 8px;
+  font-size: 18px;
+  border-radius: 8px;
+}
+
+.drawer__item:hover {
+  background: #f6f6f6;
+}
+
+.drawer__divider {
+  height: 1px;
+  background: #eee;
+  margin: 8px 0;
+}
+
+.drawer__shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 12px 8px;
+}
+
+.shortcut {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.shortcut .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.shortcut small {
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+}
+
+.drawer__socials {
+  display: flex;
+  gap: 14px;
+  padding: 14px 12px 18px;
+}
+
+.drawer__socials .social {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #f5f5f5;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.drawer__socials .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Desktop: ocultar botón menú y drawer, mostrar nav */
+@media (min-width:900px) {
+  .iconbtn:first-child {
+    display: none;
+  }
+
+  /* botón menú */
+  .drawer,
+  .drawer__overlay {
+    display: none;
+  }
 }

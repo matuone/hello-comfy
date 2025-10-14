@@ -1,89 +1,175 @@
 // src/components/Navbar.jsx
-import { useEffect, useRef } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import "../styles/navbar.css";
 
 export default function Navbar() {
-  const { cart } = (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
+  const { cart } =
+    (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
 
-  const linkClass = ({ isActive }) =>
-    "catbar__link" + (isActive ? " is-active" : "");
+  const [open, setOpen] = useState(false);
+  const drawerRef = useRef(null);
+  const location = useLocation();
 
-  const catbarRef = useRef(null);
+  const toggle = () => setOpen((v) => !v);
+  const close = () => setOpen(false);
 
-  // Señales: progreso + esconder nudge + "auto-nudge" inicial
+  // Cerrar al navegar
   useEffect(() => {
-    const el = catbarRef.current;
-    if (!el) return;
+    close();
+  }, [location.pathname]);
 
-    // Actualiza la barra de progreso
-    const updateProgress = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      const p = max > 0 ? Math.min(1, el.scrollLeft / max) : 0;
-      el.style.setProperty("--catbar-progress", `${p * 100}%`);
-      if (el.scrollLeft > 1) el.classList.add("has-scrolled");
-      else el.classList.remove("has-scrolled");
-
-      if (Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth) {
-        el.classList.add("is-at-end");
-      } else {
-        el.classList.remove("is-at-end");
-      }
-    };
-
-    el.addEventListener("scroll", updateProgress, { passive: true });
-    updateProgress();
-
-    // Auto-nudge (si hay movimiento permitido y hay overflow)
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!prefersReduced && el.scrollWidth > el.clientWidth) {
-      const nudge = () => {
-        const start = el.scrollLeft;
-        el.scrollTo({ left: start + 24, behavior: "smooth" });
-        // volver un poquito para que se note el gesto
-        setTimeout(() => el.scrollTo({ left: start + 8, behavior: "smooth" }), 450);
-        el.classList.add("has-scrolled"); // oculta el icono 👉
-      };
-      const t = setTimeout(nudge, 900);
-      // Seguridad: quitar el icono 👉 a los 4s aunque no haya scroll
-      const hide = setTimeout(() => el.classList.add("has-scrolled"), 4000);
-      return () => { clearTimeout(t); clearTimeout(hide); el.removeEventListener("scroll", updateProgress); };
+  // ESC para cerrar + bloqueo de scroll del body
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && close();
+    if (open) {
+      document.addEventListener("keydown", onKey);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
     }
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
-    const hide = setTimeout(() => el.classList.add("has-scrolled"), 4000);
-    return () => { clearTimeout(hide); el.removeEventListener("scroll", updateProgress); };
-  }, []);
+  const linkActive = ({ isActive }) =>
+    "navbar__link" + (isActive ? " is-active" : "");
 
   return (
     <header className="navbar">
-      <div className="navbar__inner">
-        <Link to="/" className="navbar__bear" aria-label="Inicio" title="Inicio">
-          <span aria-hidden="true">🐻</span>
+      {/* Barra superior */}
+      <div className="navbar__top">
+        <button
+          className="iconbtn"
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-controls="drawer"
+          aria-expanded={open}
+          onClick={toggle}
+          type="button"
+        >
+          {open ? (
+            <span className="icon close" aria-hidden="true" />
+          ) : (
+            <span className="icon menu" aria-hidden="true" />
+          )}
+        </button>
+
+        {/* Marca centrada: 🐻 Hello Comfy */}
+        <Link to="/" className="navbar__brand" title="Hello Comfy">
+          <span className="brand-bear" aria-hidden="true">🐻</span>
+          <span className="brand-text">Hello Comfy</span>
         </Link>
 
-        <Link to="/" className="navbar__brand" title="Hello-Comfy">
-          Hello-Comfy
-        </Link>
-
-        <Link to="/cart" className="cart-pill" aria-label={`Carrito (${count})`} title="Carrito">
-          🛒{count > 0 && <span className="cart__badge">{count}</span>}
+        <Link
+          to="/cart"
+          className="iconbtn cartbtn"
+          aria-label={`Carrito (${count})`}
+          title="Carrito"
+        >
+          <span className="icon cart" aria-hidden="true" />
+          {count > 0 && <span className="cart__badge">{count}</span>}
         </Link>
       </div>
 
-      {/* Barra de categorías con señales visibles */}
-      <nav ref={catbarRef} className="catbar" aria-label="Navegación principal">
-        {/* icono 👉 flotante (no bloquea clics) */}
-        <span className="catbar__nudge" aria-hidden="true">👉</span>
-
-        <NavLink to="/categorias" className={linkClass}>Categorías</NavLink>
-        <NavLink to="/talles" className={linkClass}>Guía de talles</NavLink>
-        <NavLink to="/algodon" className={linkClass}>Algodón y sus cuidados</NavLink>
-        <NavLink to="/faq" className={linkClass}>Preguntas Frecuentes</NavLink>
-        <NavLink to="/cuenta-dni" className={linkClass}>CUENTA DNI</NavLink>
-        <NavLink to="/mi-cuenta" className={linkClass}>Mi cuenta</NavLink>
+      {/* NAV DESKTOP */}
+      <nav className="navbar__desk" aria-label="Navegación principal">
+        <NavLink to="/categorias" className={linkActive}>
+          Categorías
+        </NavLink>
+        <NavLink to="/talles" className={linkActive}>
+          Guía de talles
+        </NavLink>
+        <NavLink to="/algodon" className={linkActive}>
+          Algodón y sus cuidados
+        </NavLink>
+        <NavLink to="/faq" className={linkActive}>
+          Preguntas Frecuentes
+        </NavLink>
+        <NavLink to="/cuenta-dni" className={linkActive}>
+          CUENTA DNI
+        </NavLink>
+        <NavLink to="/mi-cuenta" className={linkActive}>
+          Mi cuenta
+        </NavLink>
       </nav>
+
+      {/* OVERLAY */}
+      <button
+        type="button"
+        className={`drawer__overlay ${open ? "is-open" : ""}`}
+        aria-hidden={!open}
+        onClick={close}
+        tabIndex={open ? 0 : -1}
+      />
+
+      {/* DRAWER */}
+      <aside
+        id="drawer"
+        ref={drawerRef}
+        className={`drawer ${open ? "is-open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú"
+      >
+        <div className="drawer__head">
+          <span>Menú</span>
+          <button
+            className="iconbtn"
+            aria-label="Cerrar menú"
+            onClick={close}
+            type="button"
+          >
+            <span className="icon close" aria-hidden="true" />
+          </button>
+        </div>
+
+        <nav className="drawer__list" aria-label="Categorías">
+          <NavLink to="/categorias" className="drawer__item">Categorías</NavLink>
+          <NavLink to="/talles" className="drawer__item">Guía de talles</NavLink>
+          <NavLink to="/algodon" className="drawer__item">Algodón y sus cuidados</NavLink>
+          <NavLink to="/faq" className="drawer__item">Preguntas Frecuentes</NavLink>
+          <NavLink to="/cuenta-dni" className="drawer__item">CUENTA DNI</NavLink>
+          <NavLink to="/mi-cuenta" className="drawer__item">Mi cuenta</NavLink>
+        </nav>
+
+        <div className="drawer__divider" />
+
+        {/* Atajos */}
+        <div className="drawer__shortcuts" aria-label="Atajos">
+          <Link to="/mi-cuenta" className="shortcut">
+            <span className="icon user" aria-hidden="true" />
+            <small>Mi cuenta</small>
+          </Link>
+          <Link to="/faq" className="shortcut">
+            <span className="icon chat" aria-hidden="true" />
+            <small>Dudas</small>
+          </Link>
+          <Link to="/pickup-points" className="shortcut" aria-label="Pickup points">
+            <span className="icon pin" aria-hidden="true" />
+            <small>Pickup points</small>
+          </Link>
+        </div>
+
+        <div className="drawer__divider" />
+
+        {/* Redes */}
+        <div className="drawer__socials" aria-label="Redes sociales">
+          <a href="https://instagram.com/hellocomfy" target="_blank" rel="noreferrer" aria-label="Instagram" className="social">
+            <span className="icon ig" aria-hidden="true" />
+          </a>
+          <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook" className="social">
+            <span className="icon fb" aria-hidden="true" />
+          </a>
+          <a href="https://tiktok.com" target="_blank" rel="noreferrer" aria-label="TikTok" className="social">
+            <span className="icon tk" aria-hidden="true" />
+          </a>
+        </div>
+      </aside>
     </header>
   );
 }
