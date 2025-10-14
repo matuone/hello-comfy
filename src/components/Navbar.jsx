@@ -13,14 +13,19 @@ export default function Navbar() {
 
   const catbarRef = useRef(null);
 
-  // Oculta el hint al primer scroll del contenedor
+  // Señales: progreso + esconder nudge + "auto-nudge" inicial
   useEffect(() => {
     const el = catbarRef.current;
     if (!el) return;
 
-    const onScroll = () => {
-      el.classList.add("has-scrolled");
-      // Si llegó al final, también podés marcarlo:
+    // Actualiza la barra de progreso
+    const updateProgress = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      const p = max > 0 ? Math.min(1, el.scrollLeft / max) : 0;
+      el.style.setProperty("--catbar-progress", `${p * 100}%`);
+      if (el.scrollLeft > 1) el.classList.add("has-scrolled");
+      else el.classList.remove("has-scrolled");
+
       if (Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth) {
         el.classList.add("is-at-end");
       } else {
@@ -28,10 +33,27 @@ export default function Navbar() {
       }
     };
 
-    el.addEventListener("scroll", onScroll, { passive: true });
-    // Si ya arranca scrolleado por cualquier razón:
-    onScroll();
-    return () => el.removeEventListener("scroll", onScroll);
+    el.addEventListener("scroll", updateProgress, { passive: true });
+    updateProgress();
+
+    // Auto-nudge (si hay movimiento permitido y hay overflow)
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!prefersReduced && el.scrollWidth > el.clientWidth) {
+      const nudge = () => {
+        const start = el.scrollLeft;
+        el.scrollTo({ left: start + 24, behavior: "smooth" });
+        // volver un poquito para que se note el gesto
+        setTimeout(() => el.scrollTo({ left: start + 8, behavior: "smooth" }), 450);
+        el.classList.add("has-scrolled"); // oculta el icono 👉
+      };
+      const t = setTimeout(nudge, 900);
+      // Seguridad: quitar el icono 👉 a los 4s aunque no haya scroll
+      const hide = setTimeout(() => el.classList.add("has-scrolled"), 4000);
+      return () => { clearTimeout(t); clearTimeout(hide); el.removeEventListener("scroll", updateProgress); };
+    }
+
+    const hide = setTimeout(() => el.classList.add("has-scrolled"), 4000);
+    return () => { clearTimeout(hide); el.removeEventListener("scroll", updateProgress); };
   }, []);
 
   return (
@@ -50,12 +72,10 @@ export default function Navbar() {
         </Link>
       </div>
 
-      {/* Barra de categorías con pista visual de scroll */}
+      {/* Barra de categorías con señales visibles */}
       <nav ref={catbarRef} className="catbar" aria-label="Navegación principal">
-        {/* Hint “Deslizá →” (solo mobile, se oculta al scrollear) */}
-        <span className="catbar__hint" aria-hidden="true">
-          Deslizá <span className="catbar__hint-arrow">→</span>
-        </span>
+        {/* icono 👉 flotante (no bloquea clics) */}
+        <span className="catbar__nudge" aria-hidden="true">👉</span>
 
         <NavLink to="/categorias" className={linkClass}>Categorías</NavLink>
         <NavLink to="/talles" className={linkClass}>Guía de talles</NavLink>

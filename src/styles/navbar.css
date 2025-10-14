@@ -1,4 +1,4 @@
-/* ====== BASE QUE YA TENÍAS (sin cambios grandes) ====== */
+/* ====== NAVBAR base ====== */
 .navbar {
   position: sticky;
   top: 0;
@@ -68,8 +68,9 @@
   line-height: 1;
 }
 
-/* ====== CATBAR con FADES laterales + hint ====== */
+/* ====== CATBAR con progreso + nudge + fades ====== */
 .catbar {
+  --catbar-progress: 0%;
   position: relative;
   display: flex;
   gap: 8px;
@@ -78,12 +79,67 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   scroll-snap-type: x proximity;
+  /* línea de fondo (pista) */
+  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, .25);
 }
 
 .catbar::-webkit-scrollbar {
   display: none;
 }
 
+/* barra de progreso */
+.catbar::marker {
+  content: "";
+}
+
+/* evita estilos raros en algunos navegadores */
+.catbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: transparent;
+  pointer-events: none;
+  /* foreground: usa un gradiente que se "corta" con --catbar-progress */
+  background-image: linear-gradient(to right, #fff 0 var(--catbar-progress), transparent var(--catbar-progress) 100%);
+}
+
+/* Fades laterales */
+.catbar::before,
+.catbar>.catbar__fadeR {
+  content: "";
+  position: sticky;
+  top: 0;
+  width: 28px;
+  min-height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.catbar::before {
+  left: 0;
+  margin-left: -16px;
+  background: linear-gradient(to right, rgba(255, 182, 179, 1), rgba(255, 182, 179, 0));
+}
+
+.catbar>.catbar__fadeR {
+  margin-left: auto;
+  right: 0;
+  margin-right: -16px;
+  background: linear-gradient(to left, rgba(255, 182, 179, 1), rgba(255, 182, 179, 0));
+}
+
+.catbar.has-scrolled::before {
+  opacity: .15;
+}
+
+.catbar.is-at-end>.catbar__fadeR {
+  opacity: .15;
+}
+
+/* Ítem */
 .catbar__link {
   flex: 0 0 auto;
   scroll-snap-align: start;
@@ -108,70 +164,28 @@
   border-color: #fff;
 }
 
-/* ——— 1) Desvanecidos laterales (insinúan overflow) ——— */
-.catbar::before,
-.catbar::after {
-  content: "";
+/* Icono 👉 de nudge (no bloquea clics) */
+.catbar__nudge {
   position: sticky;
-  top: 0;
-  width: 28px;
-  min-height: 100%;
+  right: 8px;
+  margin-left: auto;
+  /* lo empuja a la derecha del carril */
+  align-self: center;
+  font-size: 18px;
+  opacity: .9;
+  transform: translateX(0);
+  animation: nudge-move 1.2s ease-in-out infinite;
   pointer-events: none;
-  z-index: 1;
+  /* ¡no tapa clics! */
+  z-index: 2;
 }
 
-.catbar::before {
-  left: 0;
-  margin-left: -16px;
-  /* compensa padding */
-  background: linear-gradient(to right, rgba(255, 182, 179, 1), rgba(255, 182, 179, 0));
-}
-
-.catbar::after {
-  right: 0;
-  margin-right: -16px;
-  background: linear-gradient(to left, rgba(255, 182, 179, 1), rgba(255, 182, 179, 0));
-}
-
-/* Si el usuario ya scrolleó algo, atenuamos el fade izquierdo */
-.catbar.has-scrolled::before {
-  opacity: .15;
-}
-
-/* Si llegó al final, atenuamos el fade derecho también */
-.catbar.is-at-end::after {
-  opacity: .15;
-}
-
-/* ——— 2) Hint “Deslizá →” (solo mobile, se oculta al scrollear) ——— */
-.catbar__hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
-  color: #7a1f1b;
-  font-weight: 700;
-  text-transform: none;
-  opacity: .95;
-  animation: hint-pop 1.4s ease-out 0s 1, hint-pulse 1.8s ease-in-out 1.4s 3;
-}
-
-.catbar.has-scrolled .catbar__hint {
+.catbar.has-scrolled .catbar__nudge {
   display: none;
 }
 
-/* se oculta al primer scroll */
-
-.catbar__hint-arrow {
-  display: inline-block;
-  animation: arrow-move 1.2s ease-in-out infinite;
-}
-
-/* Animaciones suaves (respeta reduce motion) */
-@keyframes arrow-move {
+/* ocultar tras scroll */
+@keyframes nudge-move {
 
   0%,
   100% {
@@ -183,59 +197,7 @@
   }
 }
 
-@keyframes hint-pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.04);
-  }
-}
-
-@keyframes hint-pop {
-  0% {
-    transform: scale(.9);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: .95;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  .catbar__hint,
-  .catbar__hint-arrow {
-    animation: none;
-  }
-}
-
-/* ——— 3) Chevrons laterales sutiles (opcional, visibles solo mobile) ——— */
-@media (max-width: 899px) {
-  .catbar::after {
-    /* ya tenemos el fade; añadimos un “>” sutil sin bloquear clics */
-    background:
-      linear-gradient(to left, rgba(255, 182, 179, 1), rgba(255, 182, 179, 0)),
-      radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.9) 0 2px, transparent 3px);
-    background-repeat: no-repeat;
-    background-size: 28px 100%, 6px 6px;
-    background-position: right center, calc(100% - 10px) 50%;
-    opacity: .9;
-  }
-
-  .catbar.is-at-end::after {
-    opacity: .2;
-  }
-
-  /* al final, se atenúa */
-}
-
-/* ====== Desktop: centrado, sin scroll ====== */
+/* Desktop */
 @media (min-width: 900px) {
   .catbar {
     justify-content: center;
@@ -245,17 +207,17 @@
     padding-bottom: 14px;
   }
 
-  .catbar__hint {
+  .catbar::before,
+  .catbar>.catbar__fadeR,
+  .catbar__nudge {
     display: none;
   }
 
-  /* en desktop no hace falta el hint */
-  .catbar::before,
   .catbar::after {
     display: none;
   }
 
-  /* sin fades en desktop */
+  /* oculta barra de progreso si querés */
   .catbar__link {
     background: transparent;
     border: 0;
@@ -270,7 +232,7 @@
   }
 }
 
-/* HARDEN: por si quedó algo del menú viejo */
+/* Harden overlay viejo */
 .navbar,
 .navbar * {
   pointer-events: auto;
