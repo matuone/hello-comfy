@@ -15,10 +15,10 @@
   }
 }
 
-/* Header superpuesto (transparente -> sólido on scroll) */
+/* Header superpuesto */
 .mheader {
   position: fixed;
-  /* el 'top' lo inyecta el componente según .announcement-bar */
+  /* top lo setea el componente */
   left: 0;
   right: 0;
   height: 56px;
@@ -37,7 +37,6 @@
   backdrop-filter: none;
 }
 
-/* Lados */
 .mheader__side {
   display: flex;
   align-items: center;
@@ -48,7 +47,7 @@
   justify-self: end;
 }
 
-/* Centro: texto + osito, todo clickeable */
+/* Centro: texto + osito */
 .mheader__brandStack {
   justify-self: center;
   display: inline-flex;
@@ -83,7 +82,7 @@
   color: var(--mh-white);
 }
 
-/* Badge carrito */
+/* Badge */
 .mh-badge {
   position: absolute;
   top: -3px;
@@ -99,7 +98,7 @@
   place-items: center;
 }
 
-/* ===== Icons (puros CSS) ===== */
+/* ===== Icons (CSS) ===== */
 .mh-icon {
   width: 22px;
   height: 22px;
@@ -209,7 +208,7 @@
   top: 1px;
 }
 
-/* pin/chat for shortcuts */
+/* pin/chat */
 .mh-icon.is-pin::before {
   content: "";
   position: absolute;
@@ -271,7 +270,7 @@
   clip-path: circle(46% at 50% 50%);
 }
 
-/* ===== Drawer ===== */
+/* ===== Drawer (desde la IZQUIERDA) ===== */
 .mdrawer__overlay {
   position: fixed;
   inset: 0;
@@ -287,16 +286,19 @@
   pointer-events: auto;
 }
 
+/* Cambios clave: left:0; transform inicial a la IZQUIERDA */
 .mdrawer {
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
   bottom: 0;
+  /* ⬅️ */
   width: 86vw;
   max-width: 380px;
   z-index: 10022;
   background: var(--mh-white);
-  transform: translateX(100%);
+  transform: translateX(-100%);
+  /* ⬅️ */
   transition: transform .28s ease;
   box-shadow: 0 6px 28px rgba(0, 0, 0, .18), 0 2px 8px rgba(0, 0, 0, .08);
   display: flex;
@@ -307,21 +309,26 @@
   transform: translateX(0);
 }
 
-.mdrawer__head {
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
-  border-bottom: 1px solid #eee;
+.mdrawer__close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  /* ⬅️ X fija arriba derecha */
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
   color: var(--mh-text);
-  font-weight: 800;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
 }
 
 .mdrawer__list {
   display: flex;
   flex-direction: column;
-  padding: 10px 8px;
+  padding: 18px 12px 10px 12px;
+  /* un poco más de padding top para despegar de la X */
 }
 
 .mdrawer__item {

@@ -18,7 +18,7 @@ export default function MobileHeader() {
   // Cerrar al navegar
   useEffect(() => { close(); }, [location.pathname]);
 
-  // Esc + bloqueo scroll cuando el drawer está abierto
+  // ESC + bloqueo scroll al abrir
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && close();
     if (open) {
@@ -34,7 +34,7 @@ export default function MobileHeader() {
     };
   }, [open]);
 
-  // Cambiar header transparente → sólido al hacer scroll
+  // Header transparente → sólido
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 12);
     onScroll();
@@ -42,27 +42,21 @@ export default function MobileHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Colocar el header justo bajo la announcement bar si existe
+  // Colocar header debajo de la announcement bar
   useEffect(() => {
     const ab = document.querySelector(".announcement-bar");
     if (!ab) { setOffsetTop(0); return; }
-
     const setTop = () => setOffsetTop(ab.getBoundingClientRect().height || 0);
     setTop();
-
     const ro = new ResizeObserver(setTop);
     ro.observe(ab);
     window.addEventListener("resize", setTop, { passive: true });
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", setTop);
-    };
+    return () => { ro.disconnect(); window.removeEventListener("resize", setTop); };
   }, []);
 
   return (
     <>
-      {/* Header móvil: top dinámico debajo de la announcement bar */}
+      {/* Header móvil */}
       <header className={`mheader ${solid ? "is-solid" : ""}`} style={{ top: offsetTop }}>
         <div className="mheader__side">
           <button className="mheader__iconbtn" aria-label="Abrir menú" onClick={toggle}>
@@ -73,7 +67,7 @@ export default function MobileHeader() {
           </button>
         </div>
 
-        {/* Centro: texto + osito, todo clickeable al home */}
+        {/* Centro: texto + osito (link al home) */}
         <Link to="/" className="mheader__brandStack" aria-label="Inicio">
           <span className="mheader__brand">Hello Comfy</span>
           <span className="mheader__bear" aria-hidden="true">🐻</span>
@@ -98,15 +92,19 @@ export default function MobileHeader() {
         type="button"
       />
 
-      {/* Drawer */}
-      <aside className={`mdrawer ${open ? "is-open" : ""}`} role="dialog" aria-modal="true" aria-label="Menú">
-        <div className="mdrawer__head">
-          <span>Menú</span>
-          <button className="mheader__iconbtn" aria-label="Cerrar menú" onClick={close}>
-            <span className="mh-icon is-close" aria-hidden="true" />
-          </button>
-        </div>
+      {/* Drawer DESDE LA IZQUIERDA */}
+      <aside
+        className={`mdrawer ${open ? "is-open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú"
+      >
+        {/* X fija arriba a la derecha */}
+        <button className="mdrawer__close" aria-label="Cerrar menú" onClick={close} type="button">
+          <span className="mh-icon is-close" aria-hidden="true" />
+        </button>
 
+        {/* Contenido del menú */}
         <nav className="mdrawer__list" aria-label="Navegación">
           <NavLink to="/categorias" className="mdrawer__item" onClick={close}>Categorías</NavLink>
           <NavLink to="/talles" className="mdrawer__item" onClick={close}>Guía de talles</NavLink>
