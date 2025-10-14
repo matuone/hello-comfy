@@ -1,46 +1,257 @@
-* {
-  box-sizing: border-box;
+/* Announcement Bar */
+.announcement-bar {
+  position: sticky;
+  /* queda pegado arriba al scrollear */
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: #111;
+  /* podés cambiar por el color de tu marca */
+  color: #fff;
+  border-bottom: 1px solid #222;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+.ab-viewport {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  /* alto de la línea */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ab-slide {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 250ms ease, transform 250ms ease;
+  white-space: nowrap;
+  /* evita quiebre; podés quitarlo si querés multi-línea */
+}
+
+.ab-slide.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Botones flecha (opcionales) */
+.ab-btn {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.ab-btn:hover {
+  opacity: 1;
+}
+
+.ab-prev {
+  margin-left: 2px;
+}
+
+.ab-next {
+  margin-right: 2px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .announcement-bar {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .ab-slide {
+    left: 8px;
+    right: 8px;
+  }
+}
+
+/* Announcement Bar */
+.announcement-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #111;
+  color: #fff;
+  border-bottom: 1px solid #222;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+.ab-viewport {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ab-slide {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 250ms ease, transform 250ms ease;
+  white-space: nowrap;
+}
+
+.ab-slide.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ab-btn {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.ab-btn:hover {
+  opacity: 1;
+}
+
+.ab-prev {
+  margin-left: 2px;
+}
+
+.ab-next {
+  margin-right: 2px;
+}
+
+@media (max-width: 480px) {
+  .announcement-bar {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .ab-slide {
+    left: 8px;
+    right: 8px;
+  }
+}
+
+/* Forzar que el carrusel ocupe todo el ancho */
+.announcement-bar {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  /* ocupa el ancho total del viewport */
   margin: 0;
+  /* sin márgenes */
+  border: none;
+  /* podés dejarlo o quitarlo según tu estilo */
+  border-bottom: 1px solid #222;
+  display: flex;
+  justify-content: center;
+  /* centra el texto */
+  align-items: center;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  z-index: 9999;
+}
+
+.ab-viewport {
+  width: 100%;
+  max-width: none;
+  /* elimina límites heredados de otros contenedores */
+  overflow: hidden;
+  text-align: center;
+}
+
+body,
+html {
+  margin: 0;
+  /* por si tu body tenía margen */
   padding: 0;
 }
 
-:root {
-  --bg: #f9fafb;
-  --ink: #111;
-  --muted: #6b7280;
-  --brand: #ff8ac4;
+/* === Announcement Bar === */
+.announcement-bar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  /* ocupa todo el ancho del viewport */
+  margin: 0;
+  padding: 6px 12px;
+  background: #111;
+  color: #fff;
+  border-bottom: 1px solid #222;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 
-html,
-body,
-#root {
-  height: 100%;
+.ab-viewport {
+  position: relative;
+  width: 100%;
+  height: 22px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
+.ab-slide {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 300ms ease, transform 300ms ease;
+  white-space: nowrap;
 }
 
-h1 {
-  font-size: clamp(24px, 3vw, 32px);
-  margin-bottom: 12px;
+.ab-slide.is-active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-p {
-  color: var(--muted);
-}
-
-button {
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: none;
-  background: var(--brand);
-  cursor: pointer;
-  font-weight: 700;
-}
-
-button:hover {
-  filter: brightness(0.95);
+@media (max-width: 480px) {
+  .announcement-bar {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
 }
