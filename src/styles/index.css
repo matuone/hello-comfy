@@ -1,5 +1,5 @@
 /* ===============================
-   ANNOUNCEMENT BAR - Hello Comfy (Ticker)
+   ANNOUNCEMENT BAR - Hello Comfy (Ticker infinito sin cortes)
    =============================== */
 
 /* Barra principal */
@@ -54,40 +54,34 @@
   overflow: hidden;
 }
 
-/* Pista que se desplaza continuamente */
+/* Pista animada */
 .ab-track {
-  display: flex;
-  width: max-content;
+  display: inline-flex;
   white-space: nowrap;
   will-change: transform;
-  animation: ticker var(--duration, 22s) linear infinite;
+  animation: scrollLoop var(--duration, 35s) linear infinite;
 }
 
-/* Si el usuario prefiere menos movimiento, desactiva animación */
-.ab-track.no-motion {
-  animation: none;
-}
-
-/* Secuencias duplicadas para bucle infinito */
+/* Mitades duplicadas */
 .ab-seq {
-  display: inline-flex;
-  align-items: center;
-  gap: 32px;
+  display: inline-block;
   padding-left: 16px;
+  margin-right: 48px;
+  /* ← espacio extra al final de cada bloque */
 }
 
-/* Animación: desplazamiento continuo */
-@keyframes ticker {
+/* Animación fluida sin fin */
+@keyframes scrollLoop {
   0% {
     transform: translateX(0);
   }
 
   100% {
-    transform: translateX(-50%);
+    transform: translateX(var(--distance, -1000px));
   }
 }
 
-/* Reset general */
+/* Reset */
 html,
 body {
   margin: 0;
@@ -103,7 +97,7 @@ body {
   }
 
   .ab-seq {
-    gap: 24px;
     padding-left: 12px;
+    margin-right: 32px;
   }
 }

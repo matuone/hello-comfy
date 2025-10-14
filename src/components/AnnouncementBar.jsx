@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 const DEFAULT_MESSAGES = [
@@ -8,48 +8,69 @@ const DEFAULT_MESSAGES = [
   "Envío gratis en compras +$190.000 💸",
 ];
 
-// Detecta preferencia de “reduced motion”
-function usePrefersReducedMotion() {
-  const [prefers, setPrefers] = useState(false);
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setPrefers(!!mql.matches);
-    onChange();
-    mql.addEventListener?.("change", onChange);
-    return () => mql.removeEventListener?.("change", onChange);
-  }, []);
-  return prefers;
-}
-
 export default function AnnouncementBar({
   messages = DEFAULT_MESSAGES,
-  brand = "Hello Comfy",   // sin guion
+  brand = "Hello Comfy",
   showBear = true,
-  speed = 22,              // segundos por vuelta (ajustá a gusto)
-  separator = "•",         // separador entre mensajes
+  separator = "•",
+  speed = 35,
 }) {
-  const reduced = usePrefersReducedMotion();
+  const tickerRef = useRef(null);
+  const seqRef = useRef(null);
+  const [repeat, setRepeat] = useState(1);
+  const [seqWidth, setSeqWidth] = useState(0);
 
-  // Construye la secuencia de mensajes con separadores
-  const sequence = messages.join(`  ${separator}  `);
+  // añadimos un espacio extra entre los bloques
+  const joined = messages.join(`   ${separator}   `) + "      "; // ← extra gap visual
+
+  useLayoutEffect(() => {
+    function fit() {
+      const tickerW = tickerRef.current?.offsetWidth ?? 0;
+      const target = tickerW + 80;
+      let r = 1;
+      setRepeat(1);
+      requestAnimationFrame(() => {
+        const measure = () => {
+          setRepeat(r);
+          requestAnimationFrame(() => {
+            const w = seqRef.current?.offsetWidth ?? 0;
+            if (w < target && r < 20) {
+              r += 1;
+              measure();
+            } else {
+              setSeqWidth(w);
+            }
+          });
+        };
+        measure();
+      });
+    }
+
+    fit();
+    const onResize = () => fit();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [joined]);
+
+  const block = Array.from({ length: repeat }, () => joined).join("");
 
   return (
     <div className="announcement-bar" role="region" aria-label="Promociones">
-      {/* Marca clickeable */}
       <Link to="/" className="ab-brand" aria-label={`${brand} (volver al inicio)`}>
         <span className="ab-brand-text">{brand}</span>
         {showBear && <span className="ab-bear" aria-hidden="true"> 🐻</span>}
       </Link>
 
-      {/* Ticker/marquée continuo */}
-      <div className="ab-ticker" aria-hidden={!reduced ? true : undefined}>
+      <div className="ab-ticker" ref={tickerRef}>
         <div
-          className={`ab-track ${reduced ? "no-motion" : ""}`}
-          style={{ "--duration": `${speed}s` }}
+          className="ab-track"
+          style={{
+            "--distance": seqWidth ? `-${seqWidth}px` : "-1000px",
+            "--duration": `${speed}s`,
+          }}
         >
-          {/* Duplicamos la secuencia para que el loop sea seamless */}
-          <div className="ab-seq">{sequence}</div>
-          <div className="ab-seq" aria-hidden="true">{sequence}</div>
+          <div className="ab-seq" ref={seqRef}>{block}</div>
+          <div className="ab-seq" aria-hidden="true">{block}</div>
         </div>
       </div>
     </div>
