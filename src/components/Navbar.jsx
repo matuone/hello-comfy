@@ -1,146 +1,69 @@
 // src/components/Navbar.jsx
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import "../styles/navbar.css";
 
 export default function Navbar() {
-  const { cart } = useShop?.() ?? { cart: [] };
+  const { cart } = (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
-  const [open, setOpen] = useState(false);
 
   const linkClass = ({ isActive }) =>
-    "navbar__link" + (isActive ? " is-active" : "");
+    "catbar__link" + (isActive ? " is-active" : "");
 
-  const closeMenu = () => setOpen(false);
+  const catbarRef = useRef(null);
+
+  // Oculta el hint al primer scroll del contenedor
+  useEffect(() => {
+    const el = catbarRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      el.classList.add("has-scrolled");
+      // Si llegó al final, también podés marcarlo:
+      if (Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth) {
+        el.classList.add("is-at-end");
+      } else {
+        el.classList.remove("is-at-end");
+      }
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    // Si ya arranca scrolleado por cualquier razón:
+    onScroll();
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <>
-      <header className="navbar">
-        <div className="navbar__inner">
-          {/* Izquierda: botón osito → Home */}
-          <Link
-            to="/"
-            className="navbar__bear"
-            aria-label="Inicio"
-            title="Inicio"
-            onClick={closeMenu}
-          >
-            <span aria-hidden="true">🐻</span>
-          </Link>
+    <header className="navbar">
+      <div className="navbar__inner">
+        <Link to="/" className="navbar__bear" aria-label="Inicio" title="Inicio">
+          <span aria-hidden="true">🐻</span>
+        </Link>
 
-          {/* Centro: navegación (DESKTOP) */}
-          <nav className="navbar__nav" aria-label="Navegación principal">
-            <NavLink to="/categorias" className={linkClass} onClick={closeMenu}>
-              Categorías
-            </NavLink>
-            <NavLink to="/talles" className={linkClass} onClick={closeMenu}>
-              Guía de talles
-            </NavLink>
-            <NavLink to="/algodon" className={linkClass} onClick={closeMenu}>
-              Algodón y sus cuidados
-            </NavLink>
-            <NavLink to="/faq" className={linkClass} onClick={closeMenu}>
-              Preguntas Frecuentes
-            </NavLink>
-            <NavLink to="/cuenta-dni" className={linkClass} onClick={closeMenu}>
-              CUENTA DNI
-            </NavLink>
-          </nav>
+        <Link to="/" className="navbar__brand" title="Hello-Comfy">
+          Hello-Comfy
+        </Link>
 
-          {/* Derecha: Mi cuenta + Carrito + Hamburguesa (mobile) */}
-          <div className="navbar__right">
-            {/* DESKTOP: Mi cuenta */}
-            <NavLink to="/mi-cuenta" className={linkClass} onClick={closeMenu}>
-              Mi cuenta
-            </NavLink>
-
-            {/* Carrito (Desktop y Mobile) */}
-            <Link
-              to="/cart"
-              className="cart-pill"
-              aria-label={`Carrito (${count})`}
-              onClick={closeMenu}
-            >
-              🛒 <span>{count}</span>
-            </Link>
-
-            {/* Botón Hamburguesa (solo visible en mobile via CSS) */}
-            <button
-              className="navbar__menuBtn"
-              aria-label={open ? "Cerrar menú" : "Abrir menú"}
-              aria-controls="mobile-menu"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-              title={open ? "Cerrar menú" : "Abrir menú"}
-              type="button"
-            >
-              {open ? (
-                // Ícono cerrar
-                <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
-                  <path
-                    d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.41 4.29 19.71 2.88 18.3 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"
-                    fill="currentColor"
-                  />
-                </svg>
-              ) : (
-                // Ícono hamburguesa
-                <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
-                  <path
-                    d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"
-                    fill="currentColor"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* MENÚ MOBILE desplegable */}
-      <div
-        id="mobile-menu"
-        className={`navbar__mobile ${open ? "is-open" : ""}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Menú móvil"
-      >
-        <div className="navbar__mobile-panel">
-          <nav className="navbar__mobile-nav">
-            <NavLink to="/categorias" onClick={closeMenu}>
-              Categorías
-            </NavLink>
-            <NavLink to="/talles" onClick={closeMenu}>
-              Guía de talles
-            </NavLink>
-            <NavLink to="/algodon" onClick={closeMenu}>
-              Algodón y sus cuidados
-            </NavLink>
-            <NavLink to="/faq" onClick={closeMenu}>
-              Preguntas Frecuentes
-            </NavLink>
-            <NavLink to="/cuenta-dni" onClick={closeMenu}>
-              CUENTA DNI
-            </NavLink>
-
-            {/* Acciones también en mobile */}
-            <NavLink to="/mi-cuenta" onClick={closeMenu}>
-              Mi cuenta
-            </NavLink>
-            <Link to="/cart" onClick={closeMenu}>
-              Carrito {count > 0 ? `(${count})` : ""}
-            </Link>
-          </nav>
-        </div>
-
-        {/* Fondo clickeable para cerrar */}
-        <button
-          className="navbar__backdrop"
-          aria-label="Cerrar menú"
-          onClick={closeMenu}
-          type="button"
-        />
+        <Link to="/cart" className="cart-pill" aria-label={`Carrito (${count})`} title="Carrito">
+          🛒{count > 0 && <span className="cart__badge">{count}</span>}
+        </Link>
       </div>
-    </>
+
+      {/* Barra de categorías con pista visual de scroll */}
+      <nav ref={catbarRef} className="catbar" aria-label="Navegación principal">
+        {/* Hint “Deslizá →” (solo mobile, se oculta al scrollear) */}
+        <span className="catbar__hint" aria-hidden="true">
+          Deslizá <span className="catbar__hint-arrow">→</span>
+        </span>
+
+        <NavLink to="/categorias" className={linkClass}>Categorías</NavLink>
+        <NavLink to="/talles" className={linkClass}>Guía de talles</NavLink>
+        <NavLink to="/algodon" className={linkClass}>Algodón y sus cuidados</NavLink>
+        <NavLink to="/faq" className={linkClass}>Preguntas Frecuentes</NavLink>
+        <NavLink to="/cuenta-dni" className={linkClass}>CUENTA DNI</NavLink>
+        <NavLink to="/mi-cuenta" className={linkClass}>Mi cuenta</NavLink>
+      </nav>
+    </header>
   );
 }
