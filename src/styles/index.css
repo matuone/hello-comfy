@@ -1,5 +1,5 @@
 /* ===============================
-   ANNOUNCEMENT BAR - Hello Comfy (Ticker infinito sin cortes)
+   ANNOUNCEMENT BAR - Hello Comfy (Ticker infinito sin iguales consecutivos)
    =============================== */
 
 /* Barra principal */
@@ -52,9 +52,10 @@
   min-width: 160px;
   height: 22px;
   overflow: hidden;
+  /* oculta el texto que sale de los bordes */
 }
 
-/* Pista animada */
+/* Pista animada que se mueve constantemente */
 .ab-track {
   display: inline-flex;
   white-space: nowrap;
@@ -62,12 +63,13 @@
   animation: scrollLoop var(--duration, 35s) linear infinite;
 }
 
-/* Mitades duplicadas */
+/* Bloques duplicados para bucle perfecto */
 .ab-seq {
   display: inline-block;
   padding-left: 16px;
-  margin-right: 48px;
-  /* ← espacio extra al final de cada bloque */
+  /* arranque cerca del osito */
+  margin-right: 80px;
+  /* más espacio entre bloques */
 }
 
 /* Animación fluida sin fin */
@@ -81,7 +83,7 @@
   }
 }
 
-/* Reset */
+/* Reseteo general */
 html,
 body {
   margin: 0;
@@ -98,6 +100,6 @@ body {
 
   .ab-seq {
     padding-left: 12px;
-    margin-right: 32px;
+    margin-right: 48px;
   }
 }
