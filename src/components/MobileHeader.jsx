@@ -1,24 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import "../styles/mobile-header.css";
 
 export default function MobileHeader() {
-  const { cart } = (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
+  const { cart } =
+    (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
 
-  const [open, setOpen] = useState(false);
-  const [solid, setSolid] = useState(false);
-  const [offsetTop, setOffsetTop] = useState(0);
+  const [open, setOpen] = useState(false);        // drawer
+  const [offsetTop, setOffsetTop] = useState(0);  // altura de la announcement bar
+  const [catsOpen, setCatsOpen] = useState(false);
+
   const location = useLocation();
 
-  const toggle = () => setOpen(v => !v);
+  // refs para “click afuera”
+  const drawerRef = useRef(null);
+  const catsRef = useRef(null);
+  const menuBtnRef = useRef(null);
+
+  const toggle = () => setOpen((v) => !v);
   const close = () => setOpen(false);
 
-  // Cerrar al navegar
-  useEffect(() => { close(); }, [location.pathname]);
+  // Cerrar todo al navegar
+  useEffect(() => {
+    setCatsOpen(false);
+    close();
+  }, [location.pathname]);
 
-  // ESC + bloqueo scroll al abrir
+  // Bloqueo de scroll + Escape
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && close();
     if (open) {
@@ -34,42 +44,77 @@ export default function MobileHeader() {
     };
   }, [open]);
 
-  // Header transparente → sólido
-  useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Colocar header debajo de la announcement bar
+  // Altura de la announcement bar
   useEffect(() => {
     const ab = document.querySelector(".announcement-bar");
-    if (!ab) { setOffsetTop(0); return; }
-    const setTop = () => setOffsetTop(ab.getBoundingClientRect().height || 0);
+    const setTop = () =>
+      setOffsetTop(ab ? ab.getBoundingClientRect().height || 0 : 0);
     setTop();
-    const ro = new ResizeObserver(setTop);
-    ro.observe(ab);
+    const ro = ab ? new ResizeObserver(setTop) : null;
+    if (ro && ab) ro.observe(ab);
     window.addEventListener("resize", setTop, { passive: true });
-    return () => { ro.disconnect(); window.removeEventListener("resize", setTop); };
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener("resize", setTop);
+    };
   }, []);
+
+  // CLICK AFUERA para cerrar el DRAWER (cualquier lado, incluido header/banners)
+  useEffect(() => {
+    function handleOutsideDrawer(e) {
+      if (!open) return;
+      const drawer = drawerRef.current;
+      const trigger = menuBtnRef.current;
+      if (!drawer) return;
+      // Si el click no cae dentro del drawer y tampoco es el botón que lo abre → cerrar
+      if (!drawer.contains(e.target) && trigger && !trigger.contains(e.target)) {
+        setOpen(false);
+        setCatsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideDrawer);
+    return () => document.removeEventListener("mousedown", handleOutsideDrawer);
+  }, [open]);
+
+  // CLICK AFUERA para cerrar el submenú CATEGORÍAS
+  useEffect(() => {
+    function handleOutsideCats(e) {
+      if (!catsOpen) return;
+      if (catsRef.current && !catsRef.current.contains(e.target)) {
+        setCatsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideCats);
+    return () => document.removeEventListener("mousedown", handleOutsideCats);
+  }, [catsOpen]);
+
+  const navAndClose = () => {
+    setCatsOpen(false);
+    close();
+  };
 
   return (
     <>
-      {/* Header móvil */}
-      <header className={`mheader ${solid ? "is-solid" : ""}`} style={{ top: offsetTop }}>
+      {/* Header móvil: SIEMPRE TRANSPARENTE y FIJO (overlay) */}
+      <header className="mheader" style={{ top: offsetTop }}>
         <div className="mheader__side">
-          <button className="mheader__iconbtn" aria-label="Abrir menú" onClick={toggle}>
+          <button
+            ref={menuBtnRef}
+            className="mheader__iconbtn"
+            aria-label="Abrir menú"
+            onClick={toggle}
+          >
             <span className="mh-icon is-menu" aria-hidden="true" />
           </button>
+
           <button className="mheader__iconbtn" aria-label="Buscar">
             <span className="mh-icon is-search" aria-hidden="true" />
           </button>
         </div>
 
-        {/* Centro: texto + osito (link al home) */}
         <Link to="/" className="mheader__brandStack" aria-label="Inicio">
           <span className="mheader__brand">Hello Comfy</span>
+          {/* ← osito cambiado a 🐻 */}
           <span className="mheader__bear" aria-hidden="true">🐻</span>
         </Link>
 
@@ -84,7 +129,7 @@ export default function MobileHeader() {
         </div>
       </header>
 
-      {/* Overlay */}
+      {/* Overlay visual (sigue estando, pero ahora también cerramos con click global) */}
       <button
         className={`mdrawer__overlay ${open ? "is-open" : ""}`}
         aria-hidden={!open}
@@ -92,21 +137,45 @@ export default function MobileHeader() {
         type="button"
       />
 
-      {/* Drawer DESDE LA IZQUIERDA */}
+      {/* Drawer */}
       <aside
+        ref={drawerRef}
         className={`mdrawer ${open ? "is-open" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Menú"
       >
-        {/* X fija arriba a la derecha */}
         <button className="mdrawer__close" aria-label="Cerrar menú" onClick={close} type="button">
           <span className="mh-icon is-close" aria-hidden="true" />
         </button>
 
-        {/* Contenido del menú */}
         <nav className="mdrawer__list" aria-label="Navegación">
-          <NavLink to="/categorias" className="mdrawer__item" onClick={close}>Categorías</NavLink>
+          {/* CATEGORÍAS (colapsable) */}
+          <div ref={catsRef} className={`mnav__item has-children ${catsOpen ? "is-open" : ""}`}>
+            <button
+              type="button"
+              className="mnav__link mnav__toggle"
+              aria-expanded={catsOpen ? "true" : "false"}
+              onClick={() => setCatsOpen(v => !v)}
+            >
+              <span>Categorías</span>
+              {catsOpen ? (
+                <span className="mnav__x" aria-hidden="true">×</span>
+              ) : (
+                <span className="mnav__chev" aria-hidden="true">▾</span>
+              )}
+            </button>
+
+            <div className="mnav__submenu">
+              <NavLink to="/talles" className="mnav__sublink" onClick={navAndClose}>Guía de talles</NavLink>
+              <NavLink to="/algodon" className="mnav__sublink" onClick={navAndClose}>Algodón y sus cuidados</NavLink>
+              <NavLink to="/faq" className="mnav__sublink" onClick={navAndClose}>Preguntas Frecuentes</NavLink>
+              <NavLink to="/cuenta-dni" className="mnav__sublink" onClick={navAndClose}>CUENTA DNI</NavLink>
+              <NavLink to="/mi-cuenta" className="mnav__sublink" onClick={navAndClose}>Mi cuenta</NavLink>
+            </div>
+          </div>
+
+          {/* Resto */}
           <NavLink to="/talles" className="mdrawer__item" onClick={close}>Guía de talles</NavLink>
           <NavLink to="/algodon" className="mdrawer__item" onClick={close}>Algodón y sus cuidados</NavLink>
           <NavLink to="/faq" className="mdrawer__item" onClick={close}>Preguntas Frecuentes</NavLink>

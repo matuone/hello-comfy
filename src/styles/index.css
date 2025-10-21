@@ -113,7 +113,6 @@ body {
   right: 0;
   height: 2px;
   background: #ffb6b3;
-  /* ← mismo rosa que el navbar */
   z-index: 2;
 }
 
@@ -133,7 +132,6 @@ body {
   margin-top: 0;
 }
 
-/* Evita margen fantasma después del banner */
 .full-banner+* {
   margin-top: 0;
 }
@@ -168,7 +166,6 @@ body {
   font-size: 14px;
 }
 
-/* Si quedaran listas/links residuales de un footer viejo, las neutralizamos */
 .site-footer a {
   color: inherit;
   text-decoration: none;
