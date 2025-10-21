@@ -4,12 +4,11 @@ import { useShop } from "../context/ShopContext";
 import "../styles/mobile-header.css";
 
 export default function MobileHeader() {
-  const { cart } =
-    (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
+  const { cart } = (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
 
-  const [open, setOpen] = useState(false);        // drawer
-  const [offsetTop, setOffsetTop] = useState(0);  // altura de la announcement bar
+  const [open, setOpen] = useState(false);       // drawer
+  const [offsetTop, setOffsetTop] = useState(0); // altura announcement bar
   const [catsOpen, setCatsOpen] = useState(false);
 
   const location = useLocation();
@@ -19,16 +18,13 @@ export default function MobileHeader() {
   const catsRef = useRef(null);
   const menuBtnRef = useRef(null);
 
-  const toggle = () => setOpen((v) => !v);
+  const toggle = () => setOpen(v => !v);
   const close = () => setOpen(false);
 
-  // Cerrar todo al navegar
-  useEffect(() => {
-    setCatsOpen(false);
-    close();
-  }, [location.pathname]);
+  // Cerrar al navegar
+  useEffect(() => { setCatsOpen(false); close(); }, [location.pathname]);
 
-  // Bloqueo de scroll + Escape
+  // Bloqueo scroll + ESC
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && close();
     if (open) {
@@ -44,29 +40,24 @@ export default function MobileHeader() {
     };
   }, [open]);
 
-  // Altura de la announcement bar
+  // Altura announcement bar
   useEffect(() => {
     const ab = document.querySelector(".announcement-bar");
-    const setTop = () =>
-      setOffsetTop(ab ? ab.getBoundingClientRect().height || 0 : 0);
+    const setTop = () => setOffsetTop(ab ? ab.getBoundingClientRect().height || 0 : 0);
     setTop();
     const ro = ab ? new ResizeObserver(setTop) : null;
     if (ro && ab) ro.observe(ab);
     window.addEventListener("resize", setTop, { passive: true });
-    return () => {
-      if (ro) ro.disconnect();
-      window.removeEventListener("resize", setTop);
-    };
+    return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", setTop); };
   }, []);
 
-  // CLICK AFUERA para cerrar el DRAWER (cualquier lado, incluido header/banners)
+  // Click afuera → cierra drawer
   useEffect(() => {
     function handleOutsideDrawer(e) {
       if (!open) return;
       const drawer = drawerRef.current;
       const trigger = menuBtnRef.current;
       if (!drawer) return;
-      // Si el click no cae dentro del drawer y tampoco es el botón que lo abre → cerrar
       if (!drawer.contains(e.target) && trigger && !trigger.contains(e.target)) {
         setOpen(false);
         setCatsOpen(false);
@@ -76,37 +67,70 @@ export default function MobileHeader() {
     return () => document.removeEventListener("mousedown", handleOutsideDrawer);
   }, [open]);
 
-  // CLICK AFUERA para cerrar el submenú CATEGORÍAS
+  // Click afuera → cierra submenú categorías
   useEffect(() => {
     function handleOutsideCats(e) {
       if (!catsOpen) return;
-      if (catsRef.current && !catsRef.current.contains(e.target)) {
-        setCatsOpen(false);
-      }
+      if (catsRef.current && !catsRef.current.contains(e.target)) setCatsOpen(false);
     }
     document.addEventListener("mousedown", handleOutsideCats);
     return () => document.removeEventListener("mousedown", handleOutsideCats);
   }, [catsOpen]);
 
-  const navAndClose = () => {
-    setCatsOpen(false);
-    close();
-  };
+  const navAndClose = () => { setCatsOpen(false); close(); };
+
+  // ======= MISMAS CATEGORÍAS QUE EN DESKTOP =======
+  const COLS = [
+    {
+      title: ["REMERAS", "remeras"],
+      items: [
+        ["Estampadas", "estampadas"],
+        ["Bordadas", "bordadas"],
+        ["Crop tops", "crop-tops"],
+        ["Aterciopeladas", "aterciopeladas"],
+        ["XXL/3XL", "xxl-3xl"],
+        ["Baby tees", "baby-tees"],
+        ["Personalizado", "personalizado"],
+      ],
+    },
+    {
+      title: ["MERCH", "merch"],
+      items: [
+        ["Harry Styles", "harry-styles"],
+        ["Taylor Swift", "taylor-swift"],
+        ["Justin Bieber", "justin-bieber"],
+        ["Green Day", "green-day"],
+        ["Lana del Rey", "lana-del-rey"],
+        ["Oasis", "oasis"],
+        ["Arctic Monkeys", "arctic-monkeys"],
+        ["Miley Cyrus", "miley-cyrus"],
+        ["The Weeknd", "the-weeknd"],
+        ["Phoebe Bridgers", "phoebe-bridgers"],
+        ["Jonas Brothers", "jonas-brothers"],
+        ["Olivia Rodrigo", "olivia-rodrigo"],
+      ],
+    },
+    {
+      title: ["TOTEBAGS", "totebags"],
+      items: [
+        ["OUTLET", "outlet"],
+        ["Buzos", "buzos"],
+        ["Medias", "medias"],
+        ["SHORTS/PANTALONES", "shorts-pantalones"],
+        ["Pijamas", "pijamas"],
+        ["Personalizado", "personalizado"],
+      ],
+    },
+  ];
 
   return (
     <>
-      {/* Header móvil: SIEMPRE TRANSPARENTE y FIJO (overlay) */}
+      {/* Header móvil: transparente y fijo */}
       <header className="mheader" style={{ top: offsetTop }}>
         <div className="mheader__side">
-          <button
-            ref={menuBtnRef}
-            className="mheader__iconbtn"
-            aria-label="Abrir menú"
-            onClick={toggle}
-          >
+          <button ref={menuBtnRef} className="mheader__iconbtn" aria-label="Abrir menú" onClick={toggle}>
             <span className="mh-icon is-menu" aria-hidden="true" />
           </button>
-
           <button className="mheader__iconbtn" aria-label="Buscar">
             <span className="mh-icon is-search" aria-hidden="true" />
           </button>
@@ -114,7 +138,7 @@ export default function MobileHeader() {
 
         <Link to="/" className="mheader__brandStack" aria-label="Inicio">
           <span className="mheader__brand">Hello Comfy</span>
-          {/* ← osito cambiado a 🐻 */}
+          {/* 🐻 igual que el de la announcement bar */}
           <span className="mheader__bear" aria-hidden="true">🐻</span>
         </Link>
 
@@ -129,7 +153,7 @@ export default function MobileHeader() {
         </div>
       </header>
 
-      {/* Overlay visual (sigue estando, pero ahora también cerramos con click global) */}
+      {/* Overlay visual del drawer */}
       <button
         className={`mdrawer__overlay ${open ? "is-open" : ""}`}
         aria-hidden={!open}
@@ -150,7 +174,7 @@ export default function MobileHeader() {
         </button>
 
         <nav className="mdrawer__list" aria-label="Navegación">
-          {/* CATEGORÍAS (colapsable) */}
+          {/* ===== CATEGORÍAS ===== */}
           <div ref={catsRef} className={`mnav__item has-children ${catsOpen ? "is-open" : ""}`}>
             <button
               type="button"
@@ -159,23 +183,39 @@ export default function MobileHeader() {
               onClick={() => setCatsOpen(v => !v)}
             >
               <span>Categorías</span>
-              {catsOpen ? (
-                <span className="mnav__x" aria-hidden="true">×</span>
-              ) : (
-                <span className="mnav__chev" aria-hidden="true">▾</span>
-              )}
+              {catsOpen ? <span className="mnav__x" aria-hidden="true">×</span> : <span className="mnav__chev" aria-hidden="true">▾</span>}
             </button>
 
+            {/* GRID con mismo contenido que el mega menú de desktop */}
             <div className="mnav__submenu">
-              <NavLink to="/talles" className="mnav__sublink" onClick={navAndClose}>Guía de talles</NavLink>
-              <NavLink to="/algodon" className="mnav__sublink" onClick={navAndClose}>Algodón y sus cuidados</NavLink>
-              <NavLink to="/faq" className="mnav__sublink" onClick={navAndClose}>Preguntas Frecuentes</NavLink>
-              <NavLink to="/cuenta-dni" className="mnav__sublink" onClick={navAndClose}>CUENTA DNI</NavLink>
-              <NavLink to="/mi-cuenta" className="mnav__sublink" onClick={navAndClose}>Mi cuenta</NavLink>
+              <div className="mnav__cols">
+                {COLS.map(({ title, items }) => (
+                  <div className="mnav__col" key={title[1]}>
+                    <NavLink
+                      to={`/categorias?cat=${encodeURIComponent(title[1])}`}
+                      className="mnav__parent"
+                      onClick={navAndClose}
+                    >
+                      {title[0]}
+                    </NavLink>
+
+                    {items.map(([label, slug]) => (
+                      <NavLink
+                        key={slug}
+                        to={`/categorias?cat=${encodeURIComponent(slug)}`}
+                        className="mnav__sublink"
+                        onClick={navAndClose}
+                      >
+                        {label}
+                      </NavLink>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Resto */}
+          {/* Páginas informativas */}
           <NavLink to="/talles" className="mdrawer__item" onClick={close}>Guía de talles</NavLink>
           <NavLink to="/algodon" className="mdrawer__item" onClick={close}>Algodón y sus cuidados</NavLink>
           <NavLink to="/faq" className="mdrawer__item" onClick={close}>Preguntas Frecuentes</NavLink>

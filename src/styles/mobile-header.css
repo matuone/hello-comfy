@@ -1,4 +1,7 @@
 /* ====== MOBILE HEADER (<= 899px) ====== */
+/* Todo el CSS está scopeado con .mheader/.mdrawer para no tocar el header desktop */
+
+/* Solo se muestra en móvil */
 @media (min-width: 900px) {
 
   .mheader,
@@ -8,26 +11,26 @@
   }
 }
 
-/* ---------- Header móvil: TRANSPARENTE y FIJO (overlay) ---------- */
+/* ---------- Barra superior móvil (transparente) ---------- */
 .mheader {
   position: fixed;
-  /* <- para que se vea el banner detrás */
   left: 0;
   right: 0;
   top: 0;
-  /* desplazamos con inline-style desde React */
-  z-index: 80;
-  /* por encima del overlay visual */
+  z-index: 60;
+  width: 100%;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 8px;
-  padding: 12px 14px;
-  background: transparent;
-  /* siempre transparente */
+  padding: 10px 12px;
+  background: transparent !important;
   color: #fff;
-  /* íconos oscuros */
-  pointer-events: auto;
+  box-shadow: none !important;
+}
+
+.mheader * {
+  color: #fff;
 }
 
 .mheader__side {
@@ -45,17 +48,14 @@
   text-decoration: none;
   color: inherit;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  line-height: 1;
+  flex-direction: column;
   gap: 2px;
-
 }
-
 
 .mheader__brand {
   font-weight: 800;
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: .2px;
 }
 
@@ -64,10 +64,9 @@
   font-size: 18px;
 }
 
-/* Botones */
+/* Botones de icono */
 .mheader__iconbtn {
   appearance: none;
-  -webkit-appearance: none;
   border: 0;
   background: transparent;
   color: inherit;
@@ -79,24 +78,20 @@
   justify-content: center;
 }
 
+.mheader__iconbtn:focus,
 .mheader__iconbtn:hover {
   background: rgba(255, 255, 255, .18);
 }
 
-/* Iconos por mask (mismo set que ya usabas) */
+/* Iconos “fake” */
 .mh-icon {
   display: inline-block;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   background: currentColor;
   mask-size: cover;
   -webkit-mask-size: cover;
 }
-
-.mheader__brand {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
-}
-
 
 .mh-icon.is-menu {
   mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 6h18M3 12h18M3 18h18' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E");
@@ -138,7 +133,7 @@
   mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 3v6a5 5 0 1 1-5-5' stroke='%23000' stroke-width='2' fill='none'/%3E%3C/svg%3E");
 }
 
-/* badge del carrito */
+/* badge carrito */
 .mh-badge {
   position: absolute;
   top: -3px;
@@ -154,7 +149,7 @@
   font-weight: 800;
 }
 
-/* ---------- Drawer + overlay ---------- */
+/* ---------- Drawer ---------- */
 .mdrawer__overlay {
   position: fixed;
   inset: 0;
@@ -162,8 +157,7 @@
   opacity: 0;
   visibility: hidden;
   transition: .15s ease;
-  z-index: 9998;
-  /* debajo del drawer (70) y del header (80) */
+  z-index: 69;
 }
 
 .mdrawer__overlay.is-open {
@@ -180,7 +174,7 @@
   color: #111;
   transform: translateX(-100%);
   transition: transform .2s ease;
-  z-index: 9999;
+  z-index: 70;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
 }
@@ -206,17 +200,14 @@
   padding: 12px;
 }
 
-/* Estilo unificado */
 .mdrawer__item,
 .mnav__link {
   display: block;
-  padding: 12px 14px;
-  border-radius: 12px;
-  color: #111;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: inherit;
   text-decoration: none;
   background: #f7f7f7;
-  font-weight: 600;
-  border: 1px solid #efefef;
 }
 
 .mdrawer__item:hover,
@@ -224,21 +215,14 @@
   background: #efefef;
 }
 
-/* Submenú */
+/* ===== Submenú CATEGORÍAS (misma estructura que desktop) ===== */
+.mnav__item.has-children {}
+
 .mnav__toggle {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-}
-
-.mnav__chev {
-  transform: translateY(-1px);
-}
-
-.mnav__x {
-  font-size: 18px;
-  line-height: 1;
 }
 
 .mnav__submenu {
@@ -250,10 +234,43 @@
   display: block;
 }
 
-.mnav__sublink {
+.mnav__cols {
+  display: grid;
+  gap: 14px;
+}
+
+.mnav__col {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+/* Link del “título madre” */
+.mnav__parent {
   display: block;
   padding: 10px 12px;
   border-radius: 10px;
+  color: #111;
+  text-decoration: none;
+  background: #f2f2f2;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  text-underline-offset: 4px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.mnav__parent:hover {
+  background: #eaeaea;
+}
+
+/* Hijas */
+.mnav__sublink {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 8px;
   text-decoration: none;
   color: #111;
 }
@@ -262,6 +279,17 @@
   background: #f2f2f2;
 }
 
+/* Indicadores en el botón Categorías */
+.mnav__chev {
+  font-size: 18px;
+}
+
+.mnav__x {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Shortcuts + socials */
 .mdrawer__divider {
   height: 1px;
   background: #eee;
