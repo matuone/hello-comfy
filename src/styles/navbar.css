@@ -28,7 +28,6 @@
   width: 100%;
   margin: 0;
   padding: 6px 16px;
-  /* volvemos al padding normal */
   height: 44px;
   position: relative;
 }
@@ -49,11 +48,9 @@
   white-space: nowrap;
 }
 
-/* >>> CORRIMIENTO FUERTE A LA IZQUIERDA <<< */
 .navbar__right {
   position: absolute;
   right: 48px;
-  /* <— antes 16/28. Aumentá o bajá este valor si querés más/menos */
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -72,6 +69,13 @@
   color: #fff;
   text-decoration: none;
   font-size: 22px;
+}
+
+/* Contenedor interno centrado (sin position para no mover absolutos) */
+.navbar__inner {
+  max-width: 1350px;
+  margin: 0 auto;
+  height: 100%;
 }
 
 /* Menú centro */
@@ -105,12 +109,6 @@
   line-height: 1;
 }
 
-.nav-link--btn {
-  -webkit-appearance: none;
-  appearance: none;
-  letter-spacing: .02em;
-}
-
 .nav-link:hover,
 .nav-link:focus {
   background: var(--hc-ring);
@@ -127,10 +125,6 @@
   border-radius: 10px;
   padding: 2px 4px;
   transition: background .15s ease, transform .06s ease;
-}
-
-.nav-action--last {
-  margin-right: 0;
 }
 
 .nav-action:hover,
@@ -185,28 +179,38 @@
   font-weight: 800;
 }
 
-/* Mega menú */
+/* ================== MEGA MENÚ ================== */
+
+/* Para anclar correctamente el despliegue */
 .nav-item--categories {
-  position: relative;
+  position: static;
 }
 
 .mega {
   position: absolute;
-  left: 0;
+  left: 50%;
   top: calc(100% + 8px);
-  min-width: 720px;
-  max-width: min(90vw, 1100px);
+
+  /* Tarjeta centrada y casi a todo lo ancho,
+     con un pequeño margen lateral */
+  width: calc(100vw - 40px);
+  max-width: 1350px;
+
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 20px 24px;
+  /* columnas auto-ajustables: si entran 8, muestra 8;
+     si no, salta a 2 filas pero sin salirse del fondo blanco */
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 18px 26px;
+
+  padding: 28px 32px;
   background: var(--hc-bg);
-  border-radius: 14px;
+  border-radius: 24px;
   box-shadow: var(--hc-shadow);
   border: 1px solid rgba(0, 0, 0, .06);
+
   opacity: 0;
   visibility: hidden;
-  transform: translateY(6px);
+  transform: translate(-50%, 6px);
   transition: opacity .15s ease, transform .15s ease, visibility .15s;
   z-index: 60;
 }
@@ -216,22 +220,25 @@
 .nav-item--categories .mega:focus-within {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translate(-50%, 0);
 }
 
 .mega__col {
-  display: grid;
-  gap: 10px;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
+/* Link base */
 .mega__link {
+  display: inline-block;
   color: var(--hc-text);
   text-decoration: none;
-  font-size: 15px;
-  line-height: 1.2;
-  padding: 6px 8px;
-  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 3px 4px;
+  border-radius: 6px;
+  margin: 1px 0;
 }
 
 .mega__link:hover,
@@ -239,15 +246,26 @@
   background: rgba(0, 0, 0, .06);
 }
 
+/* Título columna */
 .mega__title {
-  font-size: 18px;
-  font-weight: 900;
-  margin-bottom: 10px;
-  letter-spacing: .04em;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: .08em;
   text-transform: uppercase;
   text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  padding: 0;
+
+  white-space: normal;
+  word-break: normal;
+}
+
+/* evita chip visual */
+.mega__title.mega__link {
+  padding: 0;
+  border-radius: 0;
 }
 
 a.nav-link.active {

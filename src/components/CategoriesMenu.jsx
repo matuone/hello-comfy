@@ -1,11 +1,10 @@
 import { NavLink } from "react-router-dom";
 
 /**
- * Mega menú de categorías (3 columnas) con títulos por columna.
- * Los títulos (REMERAS, MERCH, TOTEBAGS) están en mayúsculas, subrayados
- * y siguen siendo enlaces a sus listados principales.
+ * Mega menú de categorías con columnas individuales.
+ * Cada categoría principal tiene su propia columna.
  *
- * Estilos en /src/styles/navbar.css
+ * Personalizado solo existe en REMERAS y MERCH.
  */
 export default function CategoriesMenu({ onNavigate }) {
   const handleClick = () => {
@@ -13,6 +12,7 @@ export default function CategoriesMenu({ onNavigate }) {
   };
 
   const COLS = [
+    // === REMERAS ===
     {
       title: ["REMERAS", "remeras"],
       items: [
@@ -25,6 +25,8 @@ export default function CategoriesMenu({ onNavigate }) {
         ["Personalizado", "personalizado"],
       ],
     },
+
+    // === MERCH ===
     {
       title: ["MERCH", "merch"],
       items: [
@@ -40,18 +42,44 @@ export default function CategoriesMenu({ onNavigate }) {
         ["Phoebe Bridgers", "phoebe-bridgers"],
         ["Jonas Brothers", "jonas-brothers"],
         ["Olivia Rodrigo", "olivia-rodrigo"],
-      ],
-    },
-    {
-      title: ["TOTEBAGS", "totebags"],
-      items: [
-        ["OUTLET", "outlet"],
-        ["Buzos", "buzos"],
-        ["Medias", "medias"],
-        ["SHORTS/PANTALONES", "shorts-pantalones"],
-        ["Pijamas", "pijamas"],
         ["Personalizado", "personalizado"],
       ],
+    },
+
+    // === TOTEBAGS ===
+    {
+      title: ["TOTEBAGS", "totebags"],
+      items: [],
+    },
+
+    // === OUTLET ===
+    {
+      title: ["OUTLET", "outlet"],
+      items: [],
+    },
+
+    // === BUZOS ===
+    {
+      title: ["BUZOS", "buzos"],
+      items: [],
+    },
+
+    // === MEDIAS ===
+    {
+      title: ["MEDIAS", "medias"],
+      items: [],
+    },
+
+    // === SHORTS / PANTALONES ===
+    {
+      title: ["SHORTS / PANTALONES", "shorts-pantalones"],
+      items: [],
+    },
+
+    // === PIJAMAS ===
+    {
+      title: ["PIJAMAS", "pijamas"],
+      items: [],
     },
   ];
 
@@ -68,7 +96,7 @@ export default function CategoriesMenu({ onNavigate }) {
             {title[0]}
           </NavLink>
 
-          {/* Hijas */}
+          {/* Subcategorías (solo REMERAS y MERCH) */}
           {items.map(([label, slug]) => (
             <NavLink
               key={slug}
