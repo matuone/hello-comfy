@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import banner1 from "../assets/banner.png";
 import banner2 from "../assets/banner2.png";
 import banner3 from "../assets/banner3.png";
+import "../styles/PromoBanner.css";
 
 export default function PromoBanner({
   height = "clamp(520px, 72vw, 880px)",
@@ -15,25 +16,37 @@ export default function PromoBanner({
   const IMGS = useMemo(() => [banner1, banner2, banner3], []);
   const [i, setI] = useState(0);
   const timerRef = useRef(null);
+  const hideTimerRef = useRef(null);
+
+  // Estado para mostrar / ocultar dots (como Apple TV)
+  const [showDots, setShowDots] = useState(true);
 
   const next = () => setI((p) => (p + 1) % IMGS.length);
   const prev = () => setI((p) => (p - 1 + IMGS.length) % IMGS.length);
 
+  /* ------------------- AUTOPLAY ------------------- */
   useEffect(() => {
     if (!autoplay) return;
+
     const start = () => {
       clearInterval(timerRef.current);
       timerRef.current = setInterval(next, interval);
     };
+
     start();
-    const onVis = () => (document.hidden ? clearInterval(timerRef.current) : start());
+
+    const onVis = () =>
+      document.hidden ? clearInterval(timerRef.current) : start();
+
     document.addEventListener("visibilitychange", onVis);
+
     return () => {
       clearInterval(timerRef.current);
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [autoplay, interval]);
 
+  /* ------------------- TECLAS ← → ------------------- */
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "ArrowLeft") prev();
@@ -43,95 +56,75 @@ export default function PromoBanner({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  /* ------------------- PRELOAD SIGUIENTES SLIDES ------------------- */
   useEffect(() => {
-    const a = new Image(); a.src = IMGS[(i + 1) % IMGS.length];
-    const b = new Image(); b.src = IMGS[(i - 1 + IMGS.length) % IMGS.length];
+    new Image().src = IMGS[(i + 1) % IMGS.length];
+    new Image().src = IMGS[(i - 1 + IMGS.length) % IMGS.length];
   }, [i, IMGS]);
 
-  const wrapBase = {
-    position: "relative",
-    width: "100%",
-    height,
-    overflow: "hidden",
-    background: "#f3f3f3",
-    borderRadius: fullBleed ? 0 : radius,
+  /* ------------------- MOSTRAR/OCULTAR DOTS (Apple TV) ------------------- */
+  const handleUserActivity = () => {
+    setShowDots(true);
+    clearTimeout(hideTimerRef.current);
+
+    hideTimerRef.current = setTimeout(() => {
+      setShowDots(false);
+    }, 1500); // 1.5s sin actividad → se ocultan
   };
 
-  const fullBleedStyles = fullBleed
-    ? { width: "100vw", marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)" }
-    : {};
+  useEffect(() => {
+    window.addEventListener("mousemove", handleUserActivity);
+    window.addEventListener("touchstart", handleUserActivity);
 
-  const slide = {
-    position: "absolute",
-    inset: 0,
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    transition: "opacity 400ms ease, transform 400ms ease",
-    willChange: "opacity, transform",
-  };
-
-  const arrowBase = {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    width: 44,
-    height: 44,
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,.15)",
-    background: "rgba(255,255,255,.92)",
-    display: "grid",
-    placeItems: "center",
-    cursor: "pointer",
-    userSelect: "none",
-    zIndex: 5,
-    boxShadow: "0 2px 10px rgba(0,0,0,.08)",
-  };
-  const glyph = { fontSize: 26, lineHeight: 1, marginTop: -2 };
+    return () => {
+      window.removeEventListener("mousemove", handleUserActivity);
+      window.removeEventListener("touchstart", handleUserActivity);
+    };
+  }, []);
 
   return (
     <section
       aria-roledescription="carousel"
       aria-label="Promos Hello-Comfy"
-      style={{ ...wrapBase, ...fullBleedStyles }}
+      className={`promoBanner ${fullBleed ? "fullBleed" : ""}`}
+      style={{ height, borderRadius: fullBleed ? 0 : radius }}
     >
+      {/* Slides */}
       {IMGS.map((src, idx) => {
         const active = idx === i;
         const objPos = objectPositions[idx] ?? "center";
+
         return (
           <img
             key={idx}
             src={src}
             alt=""
             draggable={false}
+            className="promoBanner__slide"
             style={{
-              ...slide,
-              objectPosition: objPos,
               opacity: active ? 1 : 0,
               transform: active ? "scale(1)" : "scale(1.02)",
+              objectPosition: objPos,
             }}
             loading={active ? "eager" : "lazy"}
           />
         );
       })}
 
-      <button aria-label="Anterior" onClick={prev} style={{ ...arrowBase, left: 16 }}>
-        <span style={glyph}>‹</span>
-      </button>
-      <button aria-label="Siguiente" onClick={next} style={{ ...arrowBase, right: 16 }}>
-        <span style={glyph}>›</span>
-      </button>
+      {/* DOTS ESTILO APPLE TV */}
+      <div className={`promoBanner__dots ${showDots ? "visible" : ""}`}>
+        {IMGS.map((_, idx) => (
+          <button
+            key={idx}
+            className={`promoBanner__dot ${i === idx ? "active" : ""}`}
+            onClick={() => setI(idx)}
+            aria-label={`Ir al slide ${idx + 1}`}
+          />
+        ))}
+      </div>
 
-      <span
-        style={{
-          position: "absolute",
-          width: 1,
-          height: 1,
-          overflow: "hidden",
-          clip: "rect(0 0 0 0)",
-          whiteSpace: "nowrap",
-        }}
-      >
+      {/* A11Y */}
+      <span className="promoBanner__a11yText">
         Slide {i + 1} de {IMGS.length}
       </span>
     </section>

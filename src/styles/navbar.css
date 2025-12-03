@@ -1,61 +1,112 @@
-/* ====== NAVBAR (Desktop) ====== */
+/* ====== VARIABLES ====== */
 :root {
   --hc-pink: #ffb6b3;
   --hc-text: #111;
   --hc-bg: #fff;
   --hc-white: #fff;
   --hc-shadow: 0 8px 32px rgba(0, 0, 0, .12);
-  --hc-ring: rgba(255, 255, 255, .18);
+  --hc-ring: rgba(0, 0, 0, .06);
 }
 
+/* Ocultar navbar de escritorio en mobile */
 @media (max-width: 899px) {
   .navbar {
     display: none !important;
   }
 }
 
+/* ================= NAVBAR CONTENEDOR ================= */
 .navbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--hc-pink);
-  color: var(--hc-white);
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 24px;
+  z-index: 60;
   line-height: 1;
+  margin: 0;
+  padding: 0;
+  border: none;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    backdrop-filter 0.2s ease;
 }
 
-/* CONTENEDOR FULL WIDTH */
+/* Extiende el fondo 3px hacia abajo para tapar cualquier hairline */
+.navbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 3px;
+  background: inherit;
+  pointer-events: none;
+}
+
+/* Estado arriba de todo: gris translúcido estilo Apple */
+.navbar--top {
+  background: rgba(225, 225, 225, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: none;
+}
+
+/* Estado con scroll: más sólido + sombra suave */
+.navbar--scrolled {
+  background: rgba(235, 235, 235, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+}
+
+/* ====== LAYOUT PRINCIPAL ====== */
 .navbar__container {
   width: 100%;
   margin: 0;
   padding: 6px 16px;
-  height: 44px;
-  position: relative;
+  height: auto;
+  box-sizing: border-box;
 }
 
-/* POSICIONAMIENTO */
+/* UNA SOLA FILA: left | center | right ocupando todo el ancho */
+.navbar__inner {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* Quitamos cualquier cosa rara */
+.navbar__left,
+.navbar__center,
+.navbar__right {
+  position: static;
+  transform: none;
+  margin: 0;
+  padding: 0;
+}
+
 .navbar__left {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  order: 1;
 }
 
 .navbar__center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
+  order: 2;
 }
 
 .navbar__right {
-  position: absolute;
-  right: 48px;
-  top: 50%;
-  transform: translateY(-50%);
+  order: 3;
+}
+
+/* ====== LEFT — Osito + Search ====== */
+.navbar__left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 /* Osito */
@@ -63,22 +114,52 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
-  color: #fff;
   text-decoration: none;
-  font-size: 22px;
+  font-size: 20px;
+  background: transparent;
+  box-shadow: none;
 }
 
-/* Contenedor interno centrado (sin position para no mover absolutos) */
-.navbar__inner {
-  max-width: 1350px;
-  margin: 0 auto;
-  height: 100%;
+/* Search */
+.navbar__search {
+  display: flex;
+  align-items: center;
 }
 
-/* Menú centro */
+.navbar__search-input {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  color: #111;
+  font-size: 0.85rem;
+  outline: none;
+  min-width: 210px;
+  max-width: 260px;
+  line-height: normal;
+}
+
+.navbar__search-input::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+
+}
+
+.navbar__search-input:focus {
+  border-color: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ====== CENTER — Menú ====== */
+.navbar__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
 .navlist {
   display: flex;
   align-items: center;
@@ -95,13 +176,13 @@
 .nav-link {
   display: inline-flex;
   align-items: center;
-  gap: .45rem;
+  gap: 0.45rem;
   padding: 6px 10px;
   border-radius: 10px;
   background: transparent;
   border: 0;
   cursor: pointer;
-  color: #fff;
+  color: #111;
   font-weight: 800;
   text-decoration: none;
   font-family: inherit;
@@ -111,25 +192,36 @@
 
 .nav-link:hover,
 .nav-link:focus {
-  background: var(--hc-ring);
+  background: rgba(0, 0, 0, 0.06);
 }
 
-/* Acciones derecha */
+a.nav-link.active {
+  text-decoration: underline;
+}
+
+/* ====== RIGHT — Mi cuenta + Carrito ====== */
+.navbar__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
 .nav-action {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   text-decoration: none;
-  color: #fff;
+  color: #111;
   border-radius: 10px;
   padding: 2px 4px;
-  transition: background .15s ease, transform .06s ease;
+  transition: background 0.15s ease, transform 0.06s ease;
 }
 
 .nav-action:hover,
 .nav-action:focus {
-  background: var(--hc-ring);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .nav-action:active {
@@ -149,7 +241,7 @@
 .nav-icon__svg {
   width: 19px;
   height: 19px;
-  stroke: #fff;
+  stroke: #111;
   stroke-width: 1.8;
   fill: none;
   display: block;
@@ -159,8 +251,8 @@
   font-size: 10px;
   line-height: 1;
   font-weight: 800;
-  color: #fff;
-  opacity: .95;
+  color: #111;
+  opacity: 0.9;
 }
 
 .badge {
@@ -179,39 +271,29 @@
   font-weight: 800;
 }
 
-/* ================== MEGA MENÚ ================== */
-
-/* Para anclar correctamente el despliegue */
+/* ====== MEGA MENÚ ====== */
 .nav-item--categories {
-  position: static;
+  position: relative;
 }
 
 .mega {
   position: absolute;
   left: 50%;
   top: calc(100% + 8px);
-
-  /* Tarjeta centrada y casi a todo lo ancho,
-     con un pequeño margen lateral */
   width: calc(100vw - 40px);
   max-width: 1350px;
-
   display: grid;
-  /* columnas auto-ajustables: si entran 8, muestra 8;
-     si no, salta a 2 filas pero sin salirse del fondo blanco */
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 18px 26px;
-
   padding: 28px 32px;
   background: var(--hc-bg);
   border-radius: 24px;
   box-shadow: var(--hc-shadow);
-  border: 1px solid rgba(0, 0, 0, .06);
-
+  border: 1px solid rgba(0, 0, 0, 0.06);
   opacity: 0;
   visibility: hidden;
   transform: translate(-50%, 6px);
-  transition: opacity .15s ease, transform .15s ease, visibility .15s;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
   z-index: 60;
 }
 
@@ -229,7 +311,6 @@
   align-items: flex-start;
 }
 
-/* Link base */
 .mega__link {
   display: inline-block;
   color: var(--hc-text);
@@ -243,31 +324,23 @@
 
 .mega__link:hover,
 .mega__link:focus {
-  background: rgba(0, 0, 0, .06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
-/* Título columna */
 .mega__title {
   font-size: 13px;
   font-weight: 800;
   margin-bottom: 8px;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: underline;
-  text-underline-offset: 3px;
   text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
   padding: 0;
-
   white-space: normal;
-  word-break: normal;
 }
 
-/* evita chip visual */
 .mega__title.mega__link {
   padding: 0;
   border-radius: 0;
-}
-
-a.nav-link.active {
-  text-decoration: underline;
 }

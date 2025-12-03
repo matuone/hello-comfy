@@ -11,11 +11,17 @@ export default function Layout() {
       {/* Header exclusivo para mobile (<900px). El CSS lo oculta en desktop */}
       <MobileHeader />
 
-      {/* Navbar original de escritorio (se oculta en mobile por CSS) */}
+      {/* Navbar de escritorio fija estilo Apple */}
       <Navbar />
 
-      {/* Contenido centrado. Sin margin-top para que el banner pegue al navbar */}
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "0 16px" }}>
+      {/* Contenido centrado con espacio para la navbar fija */}
+      <main
+        style={{
+          maxWidth: 1100,
+          margin: "0 auto",
+          padding: "0px 16px 0 16px",
+        }}
+      >
         <Outlet />
       </main>
 

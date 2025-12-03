@@ -1,5 +1,6 @@
 // src/components/Navbar.jsx
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useShop } from "../context/ShopContext";
 import CategoriesMenu from "./CategoriesMenu";
 import "../styles/navbar.css";
@@ -10,21 +11,49 @@ export default function Navbar() {
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
   const { pathname } = useLocation();
 
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+  };
+
   return (
-    <nav className="navbar" role="navigation" aria-label="Principal">
+    <nav
+      className={`navbar ${scrolled ? "navbar--scrolled" : "navbar--top"}`}
+      role="navigation"
+      aria-label="Principal"
+    >
       <div className="navbar__container">
         <div className="navbar__inner">
-          {/* IZQUIERDA — osito = 🐻 */}
+          {/* IZQUIERDA — osito + buscador */}
           <div className="navbar__left">
             <Link to="/" className="navbar__bear" aria-label="Inicio">
               🐻
             </Link>
+
+            <form className="navbar__search" onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                className="navbar__search-input"
+                placeholder="Buscar productos..."
+                aria-label="Buscar productos"
+              />
+            </form>
           </div>
 
           {/* CENTRO — menú */}
           <div className="navbar__center">
             <ul className="navlist">
-              {/* Categorías con mega menú */}
               <li className="nav-item nav-item--categories">
                 <button
                   type="button"
@@ -82,7 +111,7 @@ export default function Navbar() {
           </div>
 
           {/* DERECHA — Mi cuenta + Carrito */}
-          <div className="navbar__right navbar__actions">
+          <div className="navbar__right">
             <Link to="/mi-cuenta" className="nav-action" aria-label="Mi cuenta">
               <span className="nav-glyph" aria-hidden="true">
                 <svg
@@ -97,7 +126,11 @@ export default function Navbar() {
               <span className="nav-label">Mi cuenta</span>
             </Link>
 
-            <Link to="/cart" className="nav-action nav-action--last" aria-label="Carrito">
+            <Link
+              to="/cart"
+              className="nav-action nav-action--last"
+              aria-label="Carrito"
+            >
               <span className="nav-glyph" aria-hidden="true">
                 <svg
                   className="nav-icon__svg"

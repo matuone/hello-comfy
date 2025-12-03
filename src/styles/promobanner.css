@@ -1,0 +1,84 @@
+/* =============================
+   Promo Banner base
+   ============================= */
+
+.promoBanner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #f3f3f3;
+  line-height: 0;
+}
+
+.promoBanner.fullBleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: -1px;
+}
+
+.promoBanner__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 400ms ease, transform 400ms ease;
+  will-change: opacity, transform;
+  display: block;
+}
+
+/* =============================
+   DOTS ESTILO APPLE TV
+   ============================= */
+
+.promoBanner__dots {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  gap: 8px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 350ms ease;
+}
+
+/* Cuando deben mostrarse */
+.promoBanner__dots.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Dot mínimo Apple TV */
+.promoBanner__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 240ms ease, transform 240ms ease;
+}
+
+.promoBanner__dot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.promoBanner__dot.active {
+  background: rgba(255, 255, 255, 0.95);
+  transform: scale(1.9);
+}
+
+/* A11Y */
+.promoBanner__a11yText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

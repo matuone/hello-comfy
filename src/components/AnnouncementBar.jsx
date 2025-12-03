@@ -1,3 +1,4 @@
+// src/components/AnnouncementBar.jsx
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -20,6 +21,7 @@ export default function AnnouncementBar({
 }) {
   const tickerRef = useRef(null);
   const seqRef = useRef(null);
+  const rootRef = useRef(null); // 👈 NUEVO: referencia al contenedor
 
   const [repeat, setRepeat] = useState(1);
   const [seqWidth, setSeqWidth] = useState(0);
@@ -32,7 +34,7 @@ export default function AnnouncementBar({
     for (let r = 0; r < rotations; r++) {
       const rot = rotate(base, r % base.length);
       for (const msg of rot) {
-        if (msg === last) continue;            // evita iguales consecutivos
+        if (msg === last) continue; // evita iguales consecutivos
         out.push(msg);
         last = msg;
       }
@@ -100,14 +102,41 @@ export default function AnnouncementBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(messages)]);
 
+  // 👇 NUEVO: medir la altura real de la announcement-bar y exponerla como variable CSS
+  useLayoutEffect(() => {
+    const updateHeight = () => {
+      if (!rootRef.current) return;
+      const h = rootRef.current.offsetHeight || 0;
+      document.documentElement.style.setProperty("--ab-height", `${h}px`);
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
   // bloque final seguro (con r rotaciones que evitan iguales vecinos)
   const safeBlock = buildSafeSequence(messages, repeat);
 
   return (
-    <div className="announcement-bar" role="region" aria-label="Promociones">
-      <Link to="/" className="ab-brand" aria-label={`${brand} (volver al inicio)`}>
+    <div
+      ref={rootRef} // 👈 importante para medir la altura
+      className="announcement-bar"
+      role="region"
+      aria-label="Promociones"
+    >
+      <Link
+        to="/"
+        className="ab-brand"
+        aria-label={`${brand} (volver al inicio)`}
+      >
         <span className="ab-brand-text">{brand}</span>
-        {showBear && <span className="ab-bear" aria-hidden="true"> 🐻</span>}
+        {showBear && (
+          <span className="ab-bear" aria-hidden="true">
+            {" "}
+            🐻
+          </span>
+        )}
       </Link>
 
       <div className="ab-ticker" ref={tickerRef}>
@@ -119,8 +148,12 @@ export default function AnnouncementBar({
           }}
         >
           {/* Dos mitades idénticas para loop perfecto */}
-          <div className="ab-seq" ref={seqRef}>{safeBlock}</div>
-          <div className="ab-seq" aria-hidden="true">{safeBlock}</div>
+          <div className="ab-seq" ref={seqRef}>
+            {safeBlock}
+          </div>
+          <div className="ab-seq" aria-hidden="true">
+            {safeBlock}
+          </div>
         </div>
       </div>
     </div>
