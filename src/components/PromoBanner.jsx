@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import banner1 from "../assets/banner.png";
 import banner2 from "../assets/banner2.png";
 import banner3 from "../assets/banner3.png";
-import "../styles/PromoBanner.css";
+import "../styles/promobanner.css";
 
 export default function PromoBanner({
   height = "clamp(520px, 72vw, 880px)",
