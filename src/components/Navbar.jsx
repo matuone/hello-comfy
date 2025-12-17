@@ -17,7 +17,6 @@ export default function Navbar() {
     const onScroll = () => {
       setScrolled(window.scrollY > 10);
     };
-
     onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
@@ -40,7 +39,6 @@ export default function Navbar() {
             <Link to="/" className="navbar__bear" aria-label="Inicio">
               🐻
             </Link>
-
             <form className="navbar__search" onSubmit={handleSearchSubmit}>
               <input
                 type="text"
@@ -54,6 +52,7 @@ export default function Navbar() {
           {/* CENTRO — menú */}
           <div className="navbar__center">
             <ul className="navlist">
+              {/* Botón Categorías */}
               <li className="nav-item nav-item--categories">
                 <button
                   type="button"
@@ -63,9 +62,14 @@ export default function Navbar() {
                 >
                   Categorías
                 </button>
+              </li>
+
+              {/* Mega menú como hermano dentro del ul */}
+              <li className="mega-wrap">
                 <CategoriesMenu />
               </li>
 
+              {/* Otros enlaces */}
               <li className="nav-item">
                 <NavLink
                   to="/talles"
@@ -75,7 +79,6 @@ export default function Navbar() {
                   Talles
                 </NavLink>
               </li>
-
               <li className="nav-item">
                 <NavLink
                   to="/algodon"
@@ -85,7 +88,6 @@ export default function Navbar() {
                   Algodón y sus cuidados
                 </NavLink>
               </li>
-
               <li className="nav-item">
                 <NavLink
                   to="/faq"
@@ -95,14 +97,11 @@ export default function Navbar() {
                   FAQ
                 </NavLink>
               </li>
-
               <li className="nav-item">
                 <NavLink
                   to="/cuenta-dni"
                   className="nav-link"
-                  aria-current={
-                    pathname === "/cuenta-dni" ? "page" : undefined
-                  }
+                  aria-current={pathname === "/cuenta-dni" ? "page" : undefined}
                 >
                   CUENTA DNI
                 </NavLink>

@@ -21,9 +21,7 @@
   left: 0;
   right: 0;
   top: var(--ab-height);
-  /* 👈 Ajuste: debajo del AnnouncementBar */
   z-index: 999;
-  /* 👈 más alto que el contenido, pero debajo del announcement bar */
   line-height: 1;
   margin: 0;
   padding: 0;
@@ -33,10 +31,8 @@
     box-shadow 0.2s ease,
     backdrop-filter 0.2s ease,
     top 0.3s ease;
-  /* suaviza el movimiento si cambia la altura */
 }
 
-/* Extiende el fondo 3px hacia abajo para tapar cualquier hairline */
 .navbar::after {
   content: "";
   position: absolute;
@@ -48,7 +44,7 @@
   pointer-events: none;
 }
 
-/* Estado arriba de todo: gris translúcido estilo Apple */
+/* Estado arriba de todo */
 .navbar--top {
   background: rgba(225, 225, 225, 0.78);
   backdrop-filter: blur(16px);
@@ -56,7 +52,7 @@
   box-shadow: none;
 }
 
-/* Estado con scroll: más sólido + sombra suave */
+/* Estado con scroll */
 .navbar--scrolled {
   background: rgba(235, 235, 235, 0.96);
   backdrop-filter: blur(16px);
@@ -69,51 +65,26 @@
   width: 100%;
   margin: 0;
   padding: 6px 16px;
-  height: auto;
   box-sizing: border-box;
 }
 
-/* UNA SOLA FILA: left | center | right ocupando todo el ancho */
 .navbar__inner {
   width: 100%;
-  margin: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
 }
 
-/* Quitamos cualquier cosa rara */
-.navbar__left,
-.navbar__center,
-.navbar__right {
-  position: static;
-  transform: none;
-  margin: 0;
-  padding: 0;
-}
-
+/* ====== LEFT ====== */
 .navbar__left {
   order: 1;
-}
-
-.navbar__center {
-  order: 2;
-}
-
-.navbar__right {
-  order: 3;
-}
-
-/* ====== LEFT — Osito + Search ====== */
-.navbar__left {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-/* Osito */
 .navbar__bear {
   display: inline-flex;
   align-items: center;
@@ -124,7 +95,6 @@
   text-decoration: none;
   font-size: 20px;
   background: transparent;
-  box-shadow: none;
 }
 
 /* Search */
@@ -144,7 +114,6 @@
   outline: none;
   min-width: 210px;
   max-width: 260px;
-  line-height: normal;
 }
 
 .navbar__search-input::placeholder {
@@ -156,11 +125,14 @@
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
 
-/* ====== CENTER — Menú ====== */
+/* ====== CENTER ====== */
 .navbar__center {
+  order: 2;
   flex: 1;
   display: flex;
   justify-content: center;
+  position: relative;
+  /* necesario para posicionar el mega menú */
 }
 
 .navlist {
@@ -176,6 +148,7 @@
   position: relative;
 }
 
+/* Enlace y botón con la misma tipografía/estilo */
 .nav-link {
   display: inline-flex;
   align-items: center;
@@ -187,10 +160,24 @@
   cursor: pointer;
   color: #111;
   font-weight: 800;
+  font-family: inherit;
+  /* asegura Poppins */
   text-decoration: none;
+  font-size: 18px;
+}
+
+.nav-link--btn {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
   font-family: inherit;
   font-size: 18px;
-  line-height: 1;
+  font-weight: 800;
+  padding: 6px 10px;
+  cursor: pointer;
 }
 
 .nav-link:hover,
@@ -202,8 +189,9 @@ a.nav-link.active {
   text-decoration: underline;
 }
 
-/* ====== RIGHT — Mi cuenta + Carrito ====== */
+/* ====== RIGHT ====== */
 .navbar__right {
+  order: 3;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -247,12 +235,10 @@ a.nav-link.active {
   stroke: #111;
   stroke-width: 1.8;
   fill: none;
-  display: block;
 }
 
 .nav-label {
   font-size: 10px;
-  line-height: 1;
   font-weight: 800;
   color: #111;
   opacity: 0.9;
@@ -275,16 +261,17 @@ a.nav-link.active {
 }
 
 /* ====== MEGA MENÚ ====== */
-.nav-item--categories {
-  position: relative;
+.mega-wrap {
+  position: static;
 }
 
 .mega {
   position: absolute;
-  left: 50%;
   top: calc(100% + 8px);
-  width: calc(100vw - 40px);
-  max-width: 1350px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1000px;
+  max-width: 90vw;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 18px 26px;
@@ -295,17 +282,17 @@ a.nav-link.active {
   border: 1px solid rgba(0, 0, 0, 0.06);
   opacity: 0;
   visibility: hidden;
-  transform: translate(-50%, 6px);
   transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
   z-index: 60;
 }
 
-.nav-item--categories:is(:hover, :focus-within) .mega,
-.nav-item--categories .nav-link:focus+.mega,
-.nav-item--categories .mega:focus-within {
+/* Mostrar el mega menú al hover/focus del botón Categorías */
+.nav-item--categories:hover~.mega-wrap .mega,
+.nav-item--categories:focus-within~.mega-wrap .mega,
+.mega-wrap:hover .mega {
   opacity: 1;
   visibility: visible;
-  transform: translate(-50%, 0);
+  transform: translateX(-50%);
 }
 
 .mega__col {
@@ -341,8 +328,10 @@ a.nav-link.active {
   text-underline-offset: 3px;
   padding: 0;
   white-space: normal;
+  /* 👈 evita que se corte raro en columnas */
 }
 
+/* Variante cuando el título es también un enlace */
 .mega__title.mega__link {
   padding: 0;
   border-radius: 0;
