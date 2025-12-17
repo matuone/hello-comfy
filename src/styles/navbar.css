@@ -20,8 +20,10 @@
   position: fixed;
   left: 0;
   right: 0;
-  top: 24px;
-  z-index: 60;
+  top: var(--ab-height);
+  /* 👈 Ajuste: debajo del AnnouncementBar */
+  z-index: 999;
+  /* 👈 más alto que el contenido, pero debajo del announcement bar */
   line-height: 1;
   margin: 0;
   padding: 0;
@@ -29,7 +31,9 @@
   transition:
     background 0.2s ease,
     box-shadow 0.2s ease,
-    backdrop-filter 0.2s ease;
+    backdrop-filter 0.2s ease,
+    top 0.3s ease;
+  /* suaviza el movimiento si cambia la altura */
 }
 
 /* Extiende el fondo 3px hacia abajo para tapar cualquier hairline */
@@ -145,7 +149,6 @@
 
 .navbar__search-input::placeholder {
   color: rgba(0, 0, 0, 0.45);
-
 }
 
 .navbar__search-input:focus {
