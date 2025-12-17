@@ -1,6 +1,7 @@
 // src/views/Home.jsx
 import PromoBanner from "../components/PromoBanner";
 import BestSellers from "../components/BestSellers";
+import NewIn from "../components/NewIn";
 
 export default function Home() {
   return (
@@ -27,6 +28,9 @@ export default function Home() {
 
       {/* Sección de más vendidos */}
       <BestSellers />
+
+      {/* Sección de New In */}
+      <NewIn />
     </>
   );
 }

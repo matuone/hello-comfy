@@ -1,14 +1,14 @@
-.bestsellers {
+.newin {
   padding: 48px 16px;
-  background: none;
+  background: #fff;
 }
 
-.bestsellers__container {
+.newin__container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.bestsellers__title {
+.newin__title {
   font-size: 28px;
   font-weight: 800;
   text-align: center;
@@ -16,14 +16,14 @@
   color: var(--hc-text);
 }
 
-.bestsellers__carousel {
+.newin__carousel {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.bestsellers__grid {
+.newin__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
@@ -31,8 +31,8 @@
   max-width: 1200px;
 }
 
-.bestsellers__item {
-  background: #fff;
+.newin__item {
+  background: #fafafa;
   border-radius: 12px;
   box-shadow: var(--hc-shadow);
   padding: 16px;
@@ -40,11 +40,11 @@
   transition: transform 0.2s ease;
 }
 
-.bestsellers__item:hover {
+.newin__item:hover {
   transform: translateY(-4px);
 }
 
-.bestsellers__image {
+.newin__image {
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
@@ -53,14 +53,14 @@
   background: #eee;
 }
 
-.bestsellers__name {
+.newin__name {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 8px;
   color: var(--hc-text);
 }
 
-.bestsellers__desc {
+.newin__desc {
   font-size: 14px;
   color: #555;
   line-height: 1.5;
@@ -73,13 +73,12 @@
   letter-spacing: 2px;
 }
 
-/* Flechas más grandes y separadas */
+/* Flechas grandes y separadas */
 .carousel__arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   font-size: 48px;
-  /* más grande */
   font-weight: bold;
   background: transparent;
   border: none;
@@ -91,12 +90,10 @@
 
 .carousel__arrow.left {
   left: -48px;
-  /* más separado */
 }
 
 .carousel__arrow.right {
   right: -48px;
-  /* más separado */
 }
 
 .carousel__arrow:hover {
