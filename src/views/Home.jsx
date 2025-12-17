@@ -1,5 +1,6 @@
 // src/views/Home.jsx
 import PromoBanner from "../components/PromoBanner";
+import BestSellers from "../components/BestSellers";
 
 export default function Home() {
   return (
@@ -23,6 +24,9 @@ export default function Home() {
           reprehenderit excepturi magni quasi?
         </p>
       </section>
+
+      {/* Sección de más vendidos */}
+      <BestSellers />
     </>
   );
 }
