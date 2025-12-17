@@ -38,7 +38,6 @@
   margin-bottom: 16px;
   object-fit: cover;
   border: 3px solid #f5a623;
-  /* borde naranja estilo comfy */
 }
 
 .popup__input {
@@ -48,6 +47,51 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 14px;
+  box-sizing: border-box;
+  /* asegura que el padding no rompa el ancho */
+}
+
+/* Contenedor de contraseña con botón ojo */
+.popup__password {
+  position: relative;
+  width: 100%;
+}
+
+.popup__password .popup__input {
+  width: 100%;
+  padding-right: 48px;
+  /* más espacio para el botón ojo, evita solapado del placeholder */
+}
+
+.popup__eye {
+  position: absolute;
+  right: 12px;
+  /* pequeño ajuste para quedar dentro del input */
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  width: 24px;
+  /* asegura área de clic consistente */
+  height: 24px;
+  /* asegura área de clic consistente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.popup__eye:hover {
+  color: #000;
+}
+
+.popup__eye svg {
+  width: 20px;
+  /* evita que el SVG se desborde */
+  height: 20px;
+  /* evita que el SVG se desborde */
 }
 
 .popup__buttons {

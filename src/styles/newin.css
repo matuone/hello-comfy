@@ -67,13 +67,21 @@
   margin-bottom: 8px;
 }
 
+/* Estrellas con efecto hover */
 .stars {
   font-size: 18px;
   color: #f5a623;
   letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
-/* Flechas grandes y separadas */
+.stars:hover {
+  transform: scale(1.2);
+  color: #ffcc00;
+}
+
+/* Flechas grandes */
 .carousel__arrow {
   position: absolute;
   top: 50%;

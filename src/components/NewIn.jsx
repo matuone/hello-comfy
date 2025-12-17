@@ -1,11 +1,10 @@
-// src/components/NewIn.jsx
 import "../styles/newin.css";
 import { useState, useEffect } from "react";
 
-import remera1 from "../assets/remera1.png";
-import remera2 from "../assets/remera2.png";
-import remera3 from "../assets/remera3.png";
-import remera4 from "../assets/remera4.png";
+import remera1 from "../assets/productos/remera1.png";
+import remera2 from "../assets/productos/remera2.png";
+import remera3 from "../assets/productos/remera3.png";
+import remera4 from "../assets/productos/remera4.png";
 
 const NEW_PRODUCTS = [
   {
@@ -42,44 +41,50 @@ export default function NewIn() {
   const [startIndex, setStartIndex] = useState(0);
   const visibleCount = 4;
 
-  const prev = () => {
-    setStartIndex((prev) =>
-      prev === 0 ? NEW_PRODUCTS.length - visibleCount : prev - 1
-    );
-  };
+  function prev() {
+    if (startIndex === 0) {
+      setStartIndex(NEW_PRODUCTS.length - visibleCount);
+    } else {
+      setStartIndex(startIndex - 1);
+    }
+  }
 
-  const next = () => {
-    setStartIndex((prev) =>
-      prev + visibleCount >= NEW_PRODUCTS.length ? 0 : prev + 1
-    );
-  };
+  function next() {
+    if (startIndex + visibleCount >= NEW_PRODUCTS.length) {
+      setStartIndex(0);
+    } else {
+      setStartIndex(startIndex + 1);
+    }
+  }
 
   // Autoplay cada 4 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
+  useEffect(function () {
+    const interval = setInterval(function () {
       next();
     }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    return function () {
+      clearInterval(interval);
+    };
+  }, [startIndex]);
 
   const visibleProducts = NEW_PRODUCTS.slice(
     startIndex,
     startIndex + visibleCount
   );
 
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  function renderStars(rating) {
+    var fullStars = Math.floor(rating);
+    var halfStar = rating % 1 >= 0.5;
+    var emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
     return (
       <div className="stars">
         {"★".repeat(fullStars)}
-        {halfStar && "½"}
+        {halfStar ? "½" : ""}
         {"☆".repeat(emptyStars)}
       </div>
     );
-  };
+  }
 
   return (
     <section className="newin">
@@ -92,14 +97,16 @@ export default function NewIn() {
           </button>
 
           <div className="newin__grid">
-            {visibleProducts.map((p) => (
-              <div key={p.id} className="newin__item">
-                <img src={p.img} alt={p.name} className="newin__image" />
-                <h3 className="newin__name">{p.name}</h3>
-                <p className="newin__desc">{p.desc}</p>
-                {renderStars(p.rating)}
-              </div>
-            ))}
+            {visibleProducts.map(function (p) {
+              return (
+                <div key={p.id} className="newin__item">
+                  <img src={p.img} alt={p.name} className="newin__image" />
+                  <h3 className="newin__name">{p.name}</h3>
+                  <p className="newin__desc">{p.desc}</p>
+                  {renderStars(p.rating)}
+                </div>
+              );
+            })}
           </div>
 
           <button className="carousel__arrow right" onClick={next}>
