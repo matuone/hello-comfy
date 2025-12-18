@@ -86,12 +86,16 @@
 /* 🐻 Oso independiente */
 .cotton-care-bear {
   position: absolute;
-  right: 100%;
-  top: 0;
-  transform: translateX(-40px);
+  left: -130px;
+  /* lo coloca a la izquierda del contenedor */
+  top: auto;
+  /* elimina la posición fija arriba */
+  bottom: 250px;
+  /* lo baja hacia la altura de la lista */
   width: 300px;
-  pointer-events: none;
+
 }
+
 
 .cotton-care-bear img {
   width: 100%;
