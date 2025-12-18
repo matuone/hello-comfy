@@ -6,7 +6,6 @@ import NewIn from "../components/NewIn";
 export default function Home() {
   return (
     <>
-      {/* HERO / BANNER full-bleed */}
       <PromoBanner
         fullBleed
         height="clamp(520px, 72vw, 880px)"
@@ -15,7 +14,6 @@ export default function Home() {
         interval={5000}
       />
 
-      {/* Contenido debajo del hero */}
       <section className="home-copy">
         <h1>Bienvenid@ a Hello-Comfy</h1>
         <p>
@@ -26,10 +24,7 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Sección de más vendidos */}
       <BestSellers />
-
-      {/* Sección de New In */}
       <NewIn />
     </>
   );

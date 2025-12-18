@@ -4,17 +4,13 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import MobileHeader from "../components/MobileHeader";
 import NewsletterModal from "../components/NewsletterModal";
+import FloatingBear from "../components/FloatingBear"; // 👈 nuevo osito
 
 export default function Layout() {
   return (
     <>
-      {/* Header exclusivo para mobile (<900px). El CSS lo oculta en desktop */}
       <MobileHeader />
-
-      {/* Navbar de escritorio fija estilo Apple */}
       <Navbar />
-
-      {/* Contenido centrado con espacio para la navbar fija */}
       <main
         style={{
           maxWidth: 1100,
@@ -24,11 +20,9 @@ export default function Layout() {
       >
         <Outlet />
       </main>
-
       <Footer />
-
-      {/* Popup de newsletter global */}
       <NewsletterModal />
+      <FloatingBear /> {/* 👈 aparece en todas las páginas */}
     </>
   );
 }
