@@ -44,7 +44,7 @@
   top: -70px;
   left: 50%;
   transform: translateX(-50%);
-  background: #000;
+  background: #d17b7b;
   /* fondo negro */
   color: #fff;
   /* texto blanco */
@@ -89,7 +89,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  background: #000;
+  background: #c09393;
   /* puntitos negros */
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
