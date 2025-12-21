@@ -33,9 +33,9 @@ export default function FAQ() {
       desc: "Podés retirar tu compra en nuestro punto de retiro en Temperley, cerca de Av. Almirante Brown al 4200."
     },
     {
-      title: "📍 Pickup Point en Capital",
+      title: "📍 Pickup Point en CABA",
       img: capitalIcon,
-      desc: "También contamos con un punto de retiro en Capital, en 'Aquellare', a 3 cuadras de la Facultad de Medicina."
+      desc: "También contamos con un punto de retiro en Capital, en 'Aquelare showroom', a 3 cuadras de la Facultad de Medicina."
     }
   ];
 
