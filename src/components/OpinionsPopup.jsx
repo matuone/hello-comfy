@@ -48,7 +48,7 @@ export default function OpinionsPopup(props) {
   return (
     <div className="opinions-overlay" onClick={props.onClose}>
       <div className="opinions-popup" onClick={function (e) { e.stopPropagation(); }}>
-        <h2 className="opinions-title">Opiniones de la gente 🐻</h2>
+        <h2 className="opinions-title">Reviews ⭐⭐⭐⭐⭐ </h2>
 
         <div className="opinions-carousel">
           <button className="opinions-arrow left" onClick={prev}>
