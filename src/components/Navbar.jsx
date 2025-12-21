@@ -1,9 +1,9 @@
 // src/components/Navbar.jsx
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useShop } from "../context/ShopContext";
-import CategoriesMenu from "./CategoriesMenu";
-import AccountPopup from "./AccountPopup"; // 👈 importamos el popup
+import CategoriesMenu from "./CategoriesMenu"; // 👈 menú de Productos
+import AccountPopup from "./AccountPopup";
 import "../styles/navbar.css";
 
 export default function Navbar() {
@@ -13,7 +13,10 @@ export default function Navbar() {
   const { pathname } = useLocation();
 
   const [scrolled, setScrolled] = useState(false);
-  const [showPopup, setShowPopup] = useState(false); // 👈 estado para el popup
+  const [showPopup, setShowPopup] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // estado para Productos
+
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -24,9 +27,20 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleSearchSubmit = (e) => {
+  // Cerrar menú al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function handleSearchSubmit(e) {
     e.preventDefault();
-  };
+  }
 
   return (
     <>
@@ -53,23 +67,24 @@ export default function Navbar() {
             </div>
 
             {/* CENTRO — menú */}
-            <div className="navbar__center">
+            <div className="navbar__center" ref={menuRef}>
               <ul className="navlist">
-                {/* Botón Categorías */}
-                <li className="nav-item nav-item--categories">
+                {/* Botón Productos */}
+                <li className="nav-item nav-item--products">
                   <button
                     type="button"
                     className="nav-link nav-link--btn"
                     aria-haspopup="true"
-                    aria-expanded="false"
+                    aria-expanded={menuOpen}
+                    onClick={() => setMenuOpen(!menuOpen)}
                   >
-                    Categorías
+                    Productos
                   </button>
                 </li>
 
-                {/* Mega menú */}
+                {/* Mega menú de Productos */}
                 <li className="mega-wrap">
-                  <CategoriesMenu />
+                  <CategoriesMenu className={menuOpen ? "visible" : ""} />
                 </li>
 
                 {/* Otros enlaces */}
@@ -114,7 +129,6 @@ export default function Navbar() {
 
             {/* DERECHA — Mi cuenta + Carrito */}
             <div className="navbar__right">
-              {/* Botón Mi cuenta que abre el popup */}
               <button
                 type="button"
                 className="nav-action"
@@ -157,7 +171,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Renderizamos el popup si showPopup es true */}
       {showPopup && <AccountPopup onClose={() => setShowPopup(false)} />}
     </>
   );

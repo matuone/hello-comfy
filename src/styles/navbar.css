@@ -132,7 +132,6 @@
   display: flex;
   justify-content: center;
   position: relative;
-  /* necesario para posicionar el mega menú */
 }
 
 .navlist {
@@ -148,7 +147,7 @@
   position: relative;
 }
 
-/* Enlace y botón con la misma tipografía/estilo */
+/* Enlace y botón */
 .nav-link {
   display: inline-flex;
   align-items: center;
@@ -161,7 +160,6 @@
   color: #111;
   font-weight: 800;
   font-family: inherit;
-  /* asegura Poppins */
   text-decoration: none;
   font-size: 18px;
 }
@@ -173,7 +171,6 @@
   border: 0;
   color: inherit;
   font: inherit;
-  font-family: inherit;
   font-size: 18px;
   font-weight: 800;
   padding: 6px 10px;
@@ -270,7 +267,8 @@ a.nav-link.active {
   top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  width: 1000px;
+  width: 800px;
+  /* más compacto para 3 columnas */
   max-width: 90vw;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -286,9 +284,9 @@ a.nav-link.active {
   z-index: 60;
 }
 
-/* Mostrar el mega menú al hover/focus del botón Categorías */
-.nav-item--categories:hover~.mega-wrap .mega,
-.nav-item--categories:focus-within~.mega-wrap .mega,
+/* Mostrar el mega menú al hover/focus del botón Productos */
+.nav-item--products:hover~.mega-wrap .mega,
+.nav-item--products:focus-within~.mega-wrap .mega,
 .mega-wrap:hover .mega {
   opacity: 1;
   visibility: visible;
@@ -328,11 +326,12 @@ a.nav-link.active {
   text-underline-offset: 3px;
   padding: 0;
   white-space: normal;
-  /* 👈 evita que se corte raro en columnas */
+  /* evita cortes raros en columnas */
 }
 
 /* Variante cuando el título es también un enlace */
 .mega__title.mega__link {
   padding: 0;
   border-radius: 0;
+  background: transparent;
 }
