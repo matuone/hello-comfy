@@ -5,78 +5,89 @@ import banner2 from "../assets/banner2.png";
 import banner3 from "../assets/banner3.png";
 import "../styles/promobanner.css";
 
-export default function PromoBanner({
-  height = "clamp(520px, 72vw, 880px)",
-  autoplay = true,
-  interval = 5000,
-  fullBleed = true,
-  radius = 12,
-  objectPositions = ["center 35%", "center top", "center 35%"],
-}) {
-  const IMGS = useMemo(() => [banner1, banner2, banner3], []);
+export default function PromoBanner(props) {
+  const IMGS = useMemo(function () {
+    return [banner1, banner2, banner3];
+  }, []);
+
   const [i, setI] = useState(0);
   const timerRef = useRef(null);
   const hideTimerRef = useRef(null);
 
-  // Estado para mostrar / ocultar dots (como Apple TV)
   const [showDots, setShowDots] = useState(true);
 
-  const next = () => setI((p) => (p + 1) % IMGS.length);
-  const prev = () => setI((p) => (p - 1 + IMGS.length) % IMGS.length);
+  function next() {
+    setI(function (p) {
+      return (p + 1) % IMGS.length;
+    });
+  }
+
+  function prev() {
+    setI(function (p) {
+      return (p - 1 + IMGS.length) % IMGS.length;
+    });
+  }
 
   /* ------------------- AUTOPLAY ------------------- */
-  useEffect(() => {
-    if (!autoplay) return;
+  useEffect(function () {
+    if (!props.autoplay) return;
 
-    const start = () => {
+    function start() {
       clearInterval(timerRef.current);
-      timerRef.current = setInterval(next, interval);
-    };
+      timerRef.current = setInterval(next, props.interval || 5000);
+    }
 
     start();
 
-    const onVis = () =>
-      document.hidden ? clearInterval(timerRef.current) : start();
+    function onVis() {
+      if (document.hidden) {
+        clearInterval(timerRef.current);
+      } else {
+        start();
+      }
+    }
 
     document.addEventListener("visibilitychange", onVis);
 
-    return () => {
+    return function cleanup() {
       clearInterval(timerRef.current);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [autoplay, interval]);
+  }, [props.autoplay, props.interval]);
 
   /* ------------------- TECLAS ← → ------------------- */
-  useEffect(() => {
-    const onKey = (e) => {
+  useEffect(function () {
+    function onKey(e) {
       if (e.key === "ArrowLeft") prev();
       if (e.key === "ArrowRight") next();
-    };
+    }
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return function cleanup() {
+      window.removeEventListener("keydown", onKey);
+    };
   }, []);
 
   /* ------------------- PRELOAD SIGUIENTES SLIDES ------------------- */
-  useEffect(() => {
+  useEffect(function () {
     new Image().src = IMGS[(i + 1) % IMGS.length];
     new Image().src = IMGS[(i - 1 + IMGS.length) % IMGS.length];
   }, [i, IMGS]);
 
-  /* ------------------- MOSTRAR/OCULTAR DOTS (Apple TV) ------------------- */
-  const handleUserActivity = () => {
+  /* ------------------- MOSTRAR/OCULTAR DOTS ------------------- */
+  function handleUserActivity() {
     setShowDots(true);
     clearTimeout(hideTimerRef.current);
 
-    hideTimerRef.current = setTimeout(() => {
+    hideTimerRef.current = setTimeout(function () {
       setShowDots(false);
-    }, 1500); // 1.5s sin actividad → se ocultan
-  };
+    }, 1500);
+  }
 
-  useEffect(() => {
+  useEffect(function () {
     window.addEventListener("mousemove", handleUserActivity);
     window.addEventListener("touchstart", handleUserActivity);
 
-    return () => {
+    return function cleanup() {
       window.removeEventListener("mousemove", handleUserActivity);
       window.removeEventListener("touchstart", handleUserActivity);
     };
@@ -86,13 +97,14 @@ export default function PromoBanner({
     <section
       aria-roledescription="carousel"
       aria-label="Promos Hello-Comfy"
-      className={`promoBanner ${fullBleed ? "fullBleed" : ""}`}
-      style={{ height, borderRadius: fullBleed ? 0 : radius }}
+      className={`promoBanner ${props.fullBleed ? "fullBleed" : ""}`}
     >
       {/* Slides */}
-      {IMGS.map((src, idx) => {
+      {IMGS.map(function (src, idx) {
         const active = idx === i;
-        const objPos = objectPositions[idx] ?? "center";
+        const objPos = props.objectPositions
+          ? props.objectPositions[idx]
+          : "center";
 
         return (
           <img
@@ -111,16 +123,20 @@ export default function PromoBanner({
         );
       })}
 
-      {/* DOTS ESTILO APPLE TV */}
+      {/* DOTS */}
       <div className={`promoBanner__dots ${showDots ? "visible" : ""}`}>
-        {IMGS.map((_, idx) => (
-          <button
-            key={idx}
-            className={`promoBanner__dot ${i === idx ? "active" : ""}`}
-            onClick={() => setI(idx)}
-            aria-label={`Ir al slide ${idx + 1}`}
-          />
-        ))}
+        {IMGS.map(function (_, idx) {
+          return (
+            <button
+              key={idx}
+              className={`promoBanner__dot ${i === idx ? "active" : ""}`}
+              onClick={function () {
+                setI(idx);
+              }}
+              aria-label={`Ir al slide ${idx + 1}`}
+            />
+          );
+        })}
       </div>
 
       {/* A11Y */}
@@ -130,3 +146,11 @@ export default function PromoBanner({
     </section>
   );
 }
+
+PromoBanner.defaultProps = {
+  autoplay: true,
+  interval: 5000,
+  fullBleed: true,
+  radius: 12,
+  objectPositions: ["center 35%", "center top", "center 35%"],
+};
