@@ -1,6 +1,12 @@
 // src/views/PaymentMethods.jsx
 import "../styles/paymentmethods.css";
+
+// 👇 Importamos todos los logos desde src/assets/payments
 import mpLogo from "../assets/payments/mp.png";
+import dniLogo from "../assets/payments/cuentadni.png";
+import gocuotasLogo from "../assets/payments/gocuotas.png";
+import transferenciaLogo from "../assets/payments/transferencia.png";
+import modoLogo from "../assets/payments/modo.png";
 
 export default function PaymentMethods() {
   const methods = [
@@ -11,22 +17,22 @@ export default function PaymentMethods() {
     },
     {
       name: "Cuenta DNI",
-      img: "/assets/payments/cuentadni.png",
+      img: dniLogo,
       desc: "Aprovechá beneficios exclusivos pagando con Cuenta DNI."
     },
     {
       name: "GoCuotas",
-      img: "/assets/payments/gocuotas.png",
+      img: gocuotasLogo,
       desc: "Financiá tus compras en cuotas sin tarjeta."
     },
     {
       name: "Transferencias Bancarias",
-      img: "/assets/payments/transferencia.png",
+      img: transferenciaLogo,
       desc: "Realizá transferencias desde tu banco de manera directa."
     },
     {
       name: "Modo",
-      img: "/assets/payments/modo.png",
+      img: modoLogo,
       desc: "Pagá con MODO desde tu app bancaria."
     }
   ];
@@ -41,7 +47,14 @@ export default function PaymentMethods() {
       <div className="paymentmethods__grid">
         {methods.map((m) => (
           <div key={m.name} className="paymentmethods__card">
-            <img src={m.img} alt={m.name} className="paymentmethods__img" />
+            <div className="paymentmethods__imgbox">
+              <img
+                src={m.img}
+                alt={m.name}
+                className={`paymentmethods__img ${m.name === "Mercado Pago" ? "paymentmethods__img--mp" : ""
+                  } ${m.name === "Transferencias Bancarias" ? "paymentmethods__img--transfer" : ""}`}
+              />
+            </div>
             <h2 className="paymentmethods__title">{m.name}</h2>
             <p className="paymentmethods__desc">{m.desc}</p>
           </div>

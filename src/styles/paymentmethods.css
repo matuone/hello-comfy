@@ -1,9 +1,12 @@
+/* src/styles/paymentmethods.css */
+
 .paymentmethods {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 40px auto;
   padding: 20px;
   text-align: center;
   color: var(--hc-text);
+  box-sizing: border-box;
 }
 
 .paymentmethods h1 {
@@ -19,18 +22,26 @@
 }
 
 .paymentmethods__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  /* separación clara entre tarjetas */
+  flex-wrap: nowrap;
+  /* mantiene todo en una fila */
 }
 
 .paymentmethods__card {
   background: var(--hc-bg);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   box-shadow: var(--hc-shadow);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  width: 200px;
+  /* proporción equilibrada */
+  text-align: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .paymentmethods__card:hover {
@@ -38,15 +49,30 @@
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
-.paymentmethods__img {
-  width: 80px;
-  height: auto;
+/* 👇 Contenedor para igualar altura de logos */
+.paymentmethods__imgbox {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 12px;
 }
 
-/* 👇 Logo de Mercado Pago más grande */
+.paymentmethods__img {
+  max-height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Mercado Pago más ancho */
 .paymentmethods__img--mp {
   width: 120px;
+}
+
+/* Transferencias Bancarias más grande */
+.paymentmethods__img--transfer {
+  max-height: 100px;
+  /* 👈 más alto que el resto */
 }
 
 .paymentmethods__title {
