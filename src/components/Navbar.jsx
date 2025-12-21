@@ -2,7 +2,7 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useShop } from "../context/ShopContext";
-import CategoriesMenu from "./CategoriesMenu"; // 👈 menú de Productos
+import CategoriesMenu from "./CategoriesMenu";
 import AccountPopup from "./AccountPopup";
 import "../styles/navbar.css";
 
@@ -14,7 +14,7 @@ export default function Navbar() {
 
   const [scrolled, setScrolled] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false); // estado para Productos
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -27,7 +27,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Cerrar menú al hacer click fuera
   useEffect(() => {
     function handleClickOutside(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -51,7 +50,7 @@ export default function Navbar() {
       >
         <div className="navbar__container">
           <div className="navbar__inner">
-            {/* IZQUIERDA — osito + buscador */}
+            {/* IZQUIERDA */}
             <div className="navbar__left">
               <Link to="/" className="navbar__bear" aria-label="Inicio">
                 🐻
@@ -66,10 +65,9 @@ export default function Navbar() {
               </form>
             </div>
 
-            {/* CENTRO — menú */}
+            {/* CENTRO */}
             <div className="navbar__center" ref={menuRef}>
               <ul className="navlist">
-                {/* Botón Productos */}
                 <li className="nav-item nav-item--products">
                   <button
                     type="button"
@@ -82,12 +80,10 @@ export default function Navbar() {
                   </button>
                 </li>
 
-                {/* Mega menú de Productos */}
                 <li className="mega-wrap">
                   <CategoriesMenu className={menuOpen ? "visible" : ""} />
                 </li>
 
-                {/* Otros enlaces */}
                 <li className="nav-item">
                   <NavLink
                     to="/talles"
@@ -117,17 +113,17 @@ export default function Navbar() {
                 </li>
                 <li className="nav-item">
                   <NavLink
-                    to="/cuenta-dni"
+                    to="/medios-de-pago"
                     className="nav-link"
-                    aria-current={pathname === "/cuenta-dni" ? "page" : undefined}
+                    aria-current={pathname === "/medios-de-pago" ? "page" : undefined}
                   >
-                    CUENTA DNI
+                    Medios de pago
                   </NavLink>
                 </li>
               </ul>
             </div>
 
-            {/* DERECHA — Mi cuenta + Carrito */}
+            {/* DERECHA */}
             <div className="navbar__right">
               <button
                 type="button"

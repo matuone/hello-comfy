@@ -11,7 +11,7 @@ import Categories from "../views/Categories";
 import SizeGuide from "../views/SizeGuide";
 import CottonCare from "../views/CottonCare";
 import FAQ from "../views/FAQ";
-import DniAccount from "../views/DniAccount";
+import PaymentMethods from "../views/PaymentMethods"; // 👈 nuevo nombre
 import MyAccount from "../views/MyAccount";
 
 export default function AppRouter() {
@@ -25,7 +25,7 @@ export default function AppRouter() {
         <Route path="/talles" element={<SizeGuide />} />
         <Route path="/algodon" element={<CottonCare />} />
         <Route path="/faq" element={<FAQ />} />
-        <Route path="/cuenta-dni" element={<DniAccount />} />
+        <Route path="/medios-de-pago" element={<PaymentMethods />} /> {/* 👈 actualizado */}
         <Route path="/mi-cuenta" element={<MyAccount />} />
 
         {/* Otros */}

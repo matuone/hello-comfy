@@ -1,0 +1,61 @@
+.paymentmethods {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+  color: var(--hc-text);
+}
+
+.paymentmethods h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.paymentmethods__intro {
+  font-size: 1rem;
+  margin-bottom: 32px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.paymentmethods__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+}
+
+.paymentmethods__card {
+  background: var(--hc-bg);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--hc-shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.paymentmethods__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.paymentmethods__img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 12px;
+}
+
+/* 👇 Logo de Mercado Pago más grande */
+.paymentmethods__img--mp {
+  width: 120px;
+}
+
+.paymentmethods__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.paymentmethods__desc {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.65);
+}

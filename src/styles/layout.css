@@ -1,0 +1,40 @@
+:root {
+  /* Ajustá según la altura real de tu navbar */
+  --navbar-height: 64px;
+}
+
+/* Contenedor general del layout */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--hc-bg);
+  color: var(--hc-text);
+}
+
+/* Contenido principal debajo del navbar */
+.layout__content {
+  flex: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--navbar-height) 16px 0 16px;
+  /* 👈 compensación para el navbar fijo */
+  box-sizing: border-box;
+}
+
+/* Footer siempre al final */
+.layout footer {
+  margin-top: auto;
+}
+
+/* Responsive ajustes */
+@media (max-width: 899px) {
+  :root {
+    --navbar-height: 56px;
+    /* navbar más compacto en mobile */
+  }
+
+  .layout__content {
+    padding: var(--navbar-height) 12px 0 12px;
+  }
+}
