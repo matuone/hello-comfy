@@ -142,3 +142,21 @@
 .popup__link:hover {
   text-decoration: underline;
 }
+
+/* Botón cerrar (X) */
+.popup__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.popup__close:hover {
+  color: #000;
+}

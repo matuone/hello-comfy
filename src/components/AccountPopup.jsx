@@ -3,16 +3,33 @@ import "../styles/accountpopup.css";
 import { useState } from "react";
 import avatar from "../assets/avatar/avatar.png";
 
-export default function AccountPopup({ onClose }) {
+export default function AccountPopup(props) {
   const [showPassword, setShowPassword] = useState(false);
 
   function togglePassword() {
     setShowPassword(!showPassword);
   }
 
+  function handleOverlayClick() {
+    props.onClose();
+  }
+
+  function handlePopupClick(e) {
+    e.stopPropagation();
+  }
+
+  function handleCloseClick() {
+    props.onClose();
+  }
+
   return (
-    <div className="popup-overlay" onClick={onClose}>
-      <div className="popup" onClick={(e) => e.stopPropagation()}>
+    <div className="popup-overlay" onClick={handleOverlayClick}>
+      <div className="popup" onClick={handlePopupClick}>
+        {/* Botón cerrar (X) */}
+        <button className="popup__close" onClick={handleCloseClick} aria-label="Cerrar popup">
+          &times;
+        </button>
+
         {/* Foto de perfil */}
         <img src={avatar} alt="Foto de perfil" className="popup__avatar" />
 
@@ -56,7 +73,7 @@ export default function AccountPopup({ onClose }) {
         {/* Botones */}
         <div className="popup__buttons">
           <button className="popup__btn login">Iniciar sesión</button>
-          <button className="popup__btn logout" onClick={onClose}>
+          <button className="popup__btn logout" onClick={handleCloseClick}>
             Cerrar sesión
           </button>
         </div>
