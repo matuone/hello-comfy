@@ -19,21 +19,14 @@ export default function CategoriesMenu({ className = "" }) {
       {/* Cute Items */}
       <div className="mega__col">
         <span className="mega__title">Cute Items</span>
-        <Link to="/cute-items/totebags" className="mega__link">Totebags</Link>
-        <Link to="/cute-items/medias" className="mega__link">Medias</Link>
-        <Link to="/cute-items/accesorios" className="mega__link">Accesorios</Link>
-        <Link to="/cute-items/personalizado" className="mega__link">Personalizado</Link>
+        <Link to="/cute-items/vasos" className="mega__link">Vasos</Link>
       </div>
 
       {/* Merch */}
       <div className="mega__col">
         <span className="mega__title">Merch</span>
-        <Link to="/merch/harry-styles" className="mega__link">Harry Styles</Link>
-        <Link to="/merch/taylor-swift" className="mega__link">Taylor Swift</Link>
-        <Link to="/merch/arctic-monkeys" className="mega__link">Arctic Monkeys</Link>
-        <Link to="/merch/lana-del-rey" className="mega__link">Lana del Rey</Link>
-        <Link to="/merch/oasis" className="mega__link">Oasis</Link>
-        <Link to="/merch/personalizado" className="mega__link">Personalizado</Link>
+        <Link to="/merch/artistas-nacionales" className="mega__link">Artistas Nacionales</Link>
+        <Link to="/merch/artistas-internacionales" className="mega__link">Artistas Internacionales</Link>
       </div>
     </div>
   );
