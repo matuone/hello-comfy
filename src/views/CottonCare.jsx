@@ -6,7 +6,7 @@ export default function CottonCare() {
   return (
     <section className="cotton-care">
       <div className="cotton-care-wrap">
-        {/* Texto centrado respecto al viewport/nav */}
+        {/* Texto perfectamente centrado */}
         <div className="cotton-care-text">
           <h2>Algodón y sus cuidados 🫧</h2>
           <h3>AHORA SÍ, BIENVENIDX AL HELLO COMFY! TEAM</h3>
@@ -24,12 +24,12 @@ export default function CottonCare() {
             <li>Lavar a mano o en lavarropas con agua fría únicamente, para evitar que la prenda se achique.</li>
             <li>Secar al aire libre, evitando el uso de secadoras.</li>
             <li>No planchar sobre la estampa.</li>
-            <li>Evitar usar lavandina o blanqueadores, ya que estos productos percuden a las fibras.</li>
+            <li>Evitar usar lavandina o blanqueadores, ya que estos productos perjudican a las fibras.</li>
             <li>Disfrutar mucho de tu prenda :)</li>
           </ul>
         </div>
 
-        {/* Oso independiente, no participa del flujo del texto */}
+        {/* Oso posicionado a la izquierda del texto */}
         <aside className="cotton-care-bear">
           <img src={bearLaundry} alt="Osito lavando ropa con burbujas" />
         </aside>

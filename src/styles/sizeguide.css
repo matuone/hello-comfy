@@ -1,74 +1,28 @@
-/* Contenedor general */
+/* Contenedor principal */
 .size-guide {
-  position: relative;
   min-height: 100vh;
-  /* ocupa toda la altura de la pantalla */
+  padding: 140px 20px 60px 20px;
+  /* aire superior para navbar */
   display: flex;
   justify-content: center;
-  /* centra las tablas horizontalmente */
-  align-items: center;
-  /* centra las tablas verticalmente */
-  padding: 60px 20px;
+  /* centra el wrap en la página */
 }
 
-/* Oso grande a la izquierda, centrado vertical */
-.bear-side {
-  position: absolute;
-  left: -80px;
-  /* 👈 más alejado del borde izquierdo */
-  top: 50%;
-  transform: translateY(-50%);
-  text-align: center;
+/* Wrap centrado y relativo: el oso se posiciona independiente */
+.size-guide-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  /* controla el ancho del bloque de tablas */
+  margin: 0 auto;
+  /* bloque centrado respecto al viewport */
 }
 
-.bear-side img {
-  width: 300px;
-  height: auto;
-  animation: gentleFloat 6s ease-in-out infinite;
-  display: block;
-}
-
-/* Burbuja arriba del oso */
-.bear-comment {
-  position: absolute;
-  bottom: 100%;
-  /* arriba del oso */
-  left: 50%;
-  transform: translate(-50%, -12px);
-  background: #f8b6c9;
-  /* 👈 rosa pastel */
-  color: #fff;
-  /* 👈 letras en blanco */
-  padding: 10px 16px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.3;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  max-width: 240px;
-  /* ancho máximo */
-  min-width: 180px;
-  /* ancho mínimo */
-  text-align: center;
-  white-space: normal;
-}
-
-.bear-comment::after {
-  content: "";
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 8px solid #f8b6c9;
-  /* 👈 mismo rosa pastel */
-}
-
-/* Bloque de tablas centrado */
+/* Bloque de tablas perfectamente centrado */
 .tables-side {
   max-width: 800px;
   margin: 0 auto;
+  /* centra el contenido */
   text-align: center;
 }
 
@@ -119,6 +73,58 @@
   text-align: center;
 }
 
+/* Oso independiente a la izquierda del bloque de tablas */
+.bear-side {
+  position: absolute;
+  left: -280px;
+  /* distancia desde el borde del bloque centrado */
+  top: 50%;
+  transform: translateY(-50%);
+  /* alinea verticalmente con el centro del bloque */
+  text-align: center;
+  width: 300px;
+  pointer-events: none;
+  /* evita interferir con interacción del texto */
+}
+
+.bear-side img {
+  width: 100%;
+  height: auto;
+  animation: gentleFloat 6s ease-in-out infinite;
+  display: block;
+}
+
+/* Burbuja arriba del oso */
+.bear-comment {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -12px);
+  background: #f8b6c9;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  max-width: 240px;
+  min-width: 180px;
+  text-align: center;
+  white-space: normal;
+}
+
+.bear-comment::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #f8b6c9;
+}
+
 /* Animación suave del oso */
 @keyframes gentleFloat {
 
@@ -133,23 +139,39 @@
 }
 
 /* Responsivo */
+@media (max-width: 1100px) {
+
+  /* si el viewport es más angosto, acercamos el oso */
+  .bear-side {
+    left: -240px;
+    width: 280px;
+  }
+}
+
+@media (max-width: 980px) {
+  .bear-side {
+    left: -200px;
+    width: 250px;
+  }
+}
+
 @media (max-width: 900px) {
   .size-guide {
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 40px 16px;
+    padding: 100px 16px 40px 16px;
+    /* aire superior en mobile */
   }
 
+  .size-guide-wrap {
+    max-width: 100%;
+  }
+
+  /* En mobile apilamos: el oso va arriba y dentro del flujo */
   .bear-side {
     position: static;
     transform: none;
-    margin-bottom: 20px;
-    left: auto;
-  }
-
-  .bear-side img {
     width: 220px;
+    margin: 0 auto 20px;
+    pointer-events: auto;
   }
 
   .bear-comment {
@@ -157,10 +179,6 @@
     transform: none;
     margin-top: 10px;
     max-width: 220px;
-    background: #f8b6c9;
-    /* mantiene rosa pastel */
-    color: #fff;
-    /* mantiene letras blancas */
   }
 
   .bear-comment::after {

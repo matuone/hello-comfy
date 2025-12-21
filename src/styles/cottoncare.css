@@ -1,4 +1,4 @@
-/* 🔧 Reset local para CottonCare */
+/* 🔧 Reset local */
 .cotton-care,
 .cotton-care * {
   margin: 0;
@@ -9,29 +9,46 @@
 /* 🧼 Sección principal */
 .cotton-care {
   min-height: 100vh;
-  padding: 120px 20px 60px;
-  /* separación desde el navbar */
+  padding: 140px 20px 60px;
   display: flex;
   justify-content: center;
 }
 
-/* 🧸 Contenedor relativo */
+/* Contenedor relativo para posicionar el oso */
 .cotton-care-wrap {
   position: relative;
-  max-width: 1100px;
   width: 100%;
+  max-width: 800px;
+  /* 👈 ancho centrado */
   margin: 0 auto;
 }
 
 /* 📄 Texto centrado */
 .cotton-care-text {
-  max-width: 700px;
-  margin: 0 auto;
   text-align: center;
-  padding-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-width: 700px;
+  margin: 0 auto;
+  /* 👈 centrado absoluto */
+}
+
+/* 🐻 Oso posicionado a la izquierda del texto */
+.cotton-care-bear {
+  position: absolute;
+  left: -280px;
+  /* 👈 distancia desde el texto */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 260px;
+}
+
+.cotton-care-bear img {
+  width: 100%;
+  height: auto;
+  display: block;
+  animation: cottonFloat 6s ease-in-out infinite;
 }
 
 /* 🎯 Tipografía */
@@ -57,11 +74,11 @@
   margin-top: 8px;
 }
 
-/* 📋 Lista de cuidados */
+/* 📋 Lista */
 .cotton-care-text ul {
   list-style: none;
-  padding-left: 0;
   margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -78,30 +95,7 @@
   max-width: 600px;
   width: 100%;
   text-align: center;
-  /* 👈 centra el texto dentro del recuadro */
   line-height: 1.6;
-}
-
-
-/* 🐻 Oso independiente */
-.cotton-care-bear {
-  position: absolute;
-  left: -130px;
-  /* lo coloca a la izquierda del contenedor */
-  top: auto;
-  /* elimina la posición fija arriba */
-  bottom: 250px;
-  /* lo baja hacia la altura de la lista */
-  width: 300px;
-
-}
-
-
-.cotton-care-bear img {
-  width: 100%;
-  height: auto;
-  display: block;
-  animation: cottonFloat 6s ease-in-out infinite;
 }
 
 /* 🫧 Animación */
@@ -120,28 +114,22 @@
 /* 📱 Mobile */
 @media (max-width: 900px) {
   .cotton-care {
-    padding: 80px 16px 40px;
+    padding: 100px 16px 40px;
   }
 
   .cotton-care-wrap {
-    padding-top: 0;
+    max-width: 100%;
   }
 
   .cotton-care-bear {
     position: static;
     transform: none;
-    width: 220px;
-    margin: 0 auto 16px;
-    pointer-events: auto;
+    width: 200px;
+    margin: 0 auto 20px;
   }
 
   .cotton-care-text {
     max-width: 100%;
-    padding-top: 0;
-  }
-
-  .cotton-care-text ul {
-    text-align: left;
   }
 
   .cotton-care-text li {
