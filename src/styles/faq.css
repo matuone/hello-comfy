@@ -14,14 +14,13 @@
   margin-bottom: 32px;
 }
 
-/* 👇 Cambiamos grid por flexbox */
+/* Burbuja cards en fila (como Medios de pago) */
 .faq__grid {
   display: flex;
   justify-content: center;
   gap: 48px;
-  /* separación clara entre burbujas */
   flex-wrap: nowrap;
-  /* mantiene todo en una sola fila */
+  /* mantiene todo en una fila */
 }
 
 .faq__card {
@@ -33,9 +32,7 @@
   text-align: center;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   width: 200px;
-  /* proporción equilibrada */
   flex-shrink: 0;
-  /* evita que se achiquen demasiado */
 }
 
 .faq__card:hover {
@@ -43,7 +40,7 @@
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* 👇 Burbuja circular */
+/* Burbuja circular */
 .faq__iconbubble {
   width: 100px;
   height: 100px;
@@ -55,6 +52,7 @@
   margin: 0 auto 16px auto;
 }
 
+/* Imágenes dentro de burbuja */
 .faq__img {
   max-height: 60px;
   width: auto;
@@ -62,7 +60,7 @@
   background: transparent;
 }
 
-/* Ajustes específicos */
+/* Ajustes específicos de logos */
 .faq__img--correo {
   max-height: 40px;
 }
@@ -71,6 +69,7 @@
   max-height: 70px;
 }
 
+/* Títulos y descripciones de cards */
 .faq__title {
   font-size: 1.2rem;
   font-weight: 700;
@@ -83,10 +82,129 @@
   line-height: 1.4;
 }
 
-/* 👇 Subtítulo debajo de las burbujas */
+/* Subtítulos generales debajo de burbujas */
 .faq__subtitle {
   font-size: 1.4rem;
   font-weight: 700;
   margin-top: 48px;
   margin-bottom: 16px;
+}
+
+/* Bloque de Cambios */
+.faq__changes {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 48px;
+  box-shadow: var(--hc-shadow);
+  text-align: left;
+}
+
+.faq__changes .faq__subtitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #d94f7a;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.faq__changes-text {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.8);
+  line-height: 1.6;
+  white-space: pre-line;
+  /* respeta saltos <br /> del JSX */
+}
+
+.faq__changes-text strong {
+  color: #d94f7a;
+  font-weight: 700;
+}
+
+/* Bloque de Devoluciones */
+.faq__returns {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 28px;
+  /* más cerca de Cambios para coherencia */
+  box-shadow: var(--hc-shadow);
+  text-align: left;
+}
+
+.faq__returns .faq__subtitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #d94f7a;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.faq__returns-text {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.85);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.faq__returns-text strong {
+  color: #d94f7a;
+  font-weight: 700;
+}
+
+/* Tip de flecha (⇢) dentro de Devoluciones */
+.faq__returns-text::selection,
+.faq__changes-text::selection {
+  background: #f8b6c9;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .faq__grid {
+    flex-wrap: wrap;
+    /* permite salto a nueva fila si falta espacio */
+    gap: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .faq {
+    padding: 16px;
+  }
+
+  .faq__card {
+    width: 170px;
+    padding: 20px;
+  }
+
+  .faq__subtitle {
+    margin-top: 40px;
+  }
+
+  .faq__changes,
+  .faq__returns {
+    padding: 24px;
+  }
+
+  .faq__changes .faq__subtitle,
+  .faq__returns .faq__subtitle {
+    font-size: 1.4rem;
+  }
+
+  .faq__changes-text,
+  .faq__returns-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 480px) {
+  .faq__card {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
 }
