@@ -6,6 +6,7 @@
   --hc-white: #fff;
   --hc-shadow: 0 8px 32px rgba(0, 0, 0, .12);
   --hc-ring: rgba(0, 0, 0, .06);
+  --ab-height: 0px;
 }
 
 /* Ocultar navbar de escritorio en mobile */
@@ -81,7 +82,8 @@
   order: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
+  /* más espacio entre logo y buscador */
   flex-shrink: 0;
 }
 
@@ -90,17 +92,32 @@
   align-items: center;
   justify-content: center;
   width: 32px;
+  /* contenedor clickable del logo */
   height: 32px;
   border-radius: 999px;
   text-decoration: none;
-  font-size: 20px;
   background: transparent;
+}
+
+.navbar__bear:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--hc-ring);
+  border-radius: 999px;
+}
+
+/* Logo imagen */
+.navbar__logo {
+  height: 32px;
+  width: auto;
+  display: block;
 }
 
 /* Search */
 .navbar__search {
   display: flex;
   align-items: center;
+  margin-left: 4px;
+  /* separa del osito */
 }
 
 .navbar__search-input {
@@ -182,8 +199,11 @@
   background: rgba(0, 0, 0, 0.06);
 }
 
+/* Activo: sin subrayado, mismo estilo que los demás */
 a.nav-link.active {
-  text-decoration: underline;
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.06);
+  /* opcional para indicar estado activo */
 }
 
 /* ====== RIGHT ====== */

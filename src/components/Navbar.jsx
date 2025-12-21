@@ -5,6 +5,7 @@ import { useShop } from "../context/ShopContext";
 import CategoriesMenu from "./CategoriesMenu";
 import AccountPopup from "./AccountPopup";
 import "../styles/navbar.css";
+import logoBear from "../assets/logo.png"; // 👈 importamos tu osito
 
 export default function Navbar() {
   const { cart } =
@@ -53,7 +54,7 @@ export default function Navbar() {
             {/* IZQUIERDA */}
             <div className="navbar__left">
               <Link to="/" className="navbar__bear" aria-label="Inicio">
-                🐻
+                <img src={logoBear} alt="Logo osito" className="navbar__logo" />
               </Link>
               <form className="navbar__search" onSubmit={handleSearchSubmit}>
                 <input
@@ -68,6 +69,17 @@ export default function Navbar() {
             {/* CENTRO */}
             <div className="navbar__center" ref={menuRef}>
               <ul className="navlist">
+                {/* Nueva opción Home antes de Productos */}
+                <li className="nav-item">
+                  <NavLink
+                    to="/"
+                    className="nav-link"
+                    aria-current={pathname === "/" ? "page" : undefined}
+                  >
+                    Home
+                  </NavLink>
+                </li>
+
                 <li className="nav-item nav-item--products">
                   <button
                     type="button"
