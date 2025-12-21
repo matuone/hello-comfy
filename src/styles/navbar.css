@@ -168,8 +168,13 @@
 .nav-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  /* centra el texto */
   gap: 0.45rem;
-  padding: 6px 10px;
+  padding: 6px 16px;
+  /* más aire lateral */
+  min-width: 100px;
+  /* ancho mínimo uniforme */
   border-radius: 10px;
   background: transparent;
   border: 0;
@@ -184,13 +189,18 @@
 .nav-link--btn {
   appearance: none;
   -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  /* igual que nav-link */
+  min-width: 100px;
   background: transparent;
   border: 0;
   color: inherit;
   font: inherit;
   font-size: 18px;
   font-weight: 800;
-  padding: 6px 10px;
   cursor: pointer;
 }
 
