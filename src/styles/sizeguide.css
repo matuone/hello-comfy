@@ -2,27 +2,22 @@
 .size-guide {
   min-height: 100vh;
   padding: 140px 20px 60px 20px;
-  /* aire superior para navbar */
   display: flex;
   justify-content: center;
-  /* centra el wrap en la página */
 }
 
-/* Wrap centrado y relativo: el oso se posiciona independiente */
+/* Wrap centrado */
 .size-guide-wrap {
   position: relative;
   width: 100%;
   max-width: 900px;
-  /* controla el ancho del bloque de tablas */
   margin: 0 auto;
-  /* bloque centrado respecto al viewport */
 }
 
-/* Bloque de tablas perfectamente centrado */
+/* Tablas centradas */
 .tables-side {
   max-width: 800px;
   margin: 0 auto;
-  /* centra el contenido */
   text-align: center;
 }
 
@@ -43,7 +38,6 @@
   text-align: center;
 }
 
-/* Tablas */
 .size-table table {
   width: 100%;
   border-collapse: collapse;
@@ -65,7 +59,6 @@
   color: #333;
 }
 
-/* Nota al pie */
 .note {
   font-size: 13px;
   color: #666;
@@ -73,33 +66,37 @@
   text-align: center;
 }
 
-/* Oso independiente a la izquierda del bloque de tablas */
+/* Oso y burbuja */
 .bear-side {
   position: absolute;
   left: -280px;
-  /* distancia desde el borde del bloque centrado */
   top: 50%;
   transform: translateY(-50%);
-  /* alinea verticalmente con el centro del bloque */
-  text-align: center;
   width: 300px;
   pointer-events: none;
-  /* evita interferir con interacción del texto */
+  text-align: center;
 }
 
-.bear-side img {
+.bear-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.bear-wrapper img {
   width: 100%;
   height: auto;
   animation: gentleFloat 6s ease-in-out infinite;
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
-/* Burbuja arriba del oso */
 .bear-comment {
   position: absolute;
   bottom: 100%;
   left: 50%;
-  transform: translate(-50%, -12px);
+  transform: translateX(-50%) translateY(-12px);
   background: #f8b6c9;
   color: #fff;
   padding: 10px 16px;
@@ -112,6 +109,7 @@
   min-width: 180px;
   text-align: center;
   white-space: normal;
+  z-index: 2;
 }
 
 .bear-comment::after {
@@ -125,7 +123,7 @@
   border-top: 8px solid #f8b6c9;
 }
 
-/* Animación suave del oso */
+/* Animación suave */
 @keyframes gentleFloat {
 
   0%,
@@ -140,8 +138,6 @@
 
 /* Responsivo */
 @media (max-width: 1100px) {
-
-  /* si el viewport es más angosto, acercamos el oso */
   .bear-side {
     left: -240px;
     width: 280px;
@@ -158,20 +154,23 @@
 @media (max-width: 900px) {
   .size-guide {
     padding: 100px 16px 40px 16px;
-    /* aire superior en mobile */
   }
 
   .size-guide-wrap {
     max-width: 100%;
   }
 
-  /* En mobile apilamos: el oso va arriba y dentro del flujo */
   .bear-side {
     position: static;
     transform: none;
     width: 220px;
     margin: 0 auto 20px;
     pointer-events: auto;
+  }
+
+  .bear-wrapper {
+    position: relative;
+    width: 100%;
   }
 
   .bear-comment {

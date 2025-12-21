@@ -70,9 +70,11 @@ export default function SizeGuide() {
 
         {/* Oso independiente a la izquierda del bloque centrado */}
         <aside className="bear-side">
-          <img src={bearPointer} alt="Osito señalando talles" />
-          <div className="bear-comment">
-            Recordá que las medidas pueden variar +/- 1 a 2cm
+          <div className="bear-wrapper">
+            <div className="bear-comment">
+              Recordá que las medidas pueden variar +/- 1 a 2cm
+            </div>
+            <img src={bearPointer} alt="Osito señalando talles" />
           </div>
         </aside>
       </div>
