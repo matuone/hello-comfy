@@ -40,6 +40,17 @@ export default function CreateAccount() {
 
             {/* FILA 3 */}
             <div className="create-account__field">
+              <label>Dirección</label>
+              <input placeholder="Calle y número" />
+            </div>
+
+            <div className="create-account__field">
+              <label>Teléfono</label>
+              <input placeholder="Ej: 11 2345 6789" />
+            </div>
+
+            {/* FILA 4 */}
+            <div className="create-account__field">
               <label>Contraseña</label>
               <div className="create-account__password">
                 <input
@@ -57,7 +68,6 @@ export default function CreateAccount() {
                   }
                 >
                   {showPassword ? (
-                    /* Ojo tachado */
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
@@ -74,7 +84,6 @@ export default function CreateAccount() {
                       <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-5.12" />
                     </svg>
                   ) : (
-                    /* Ojo abierto */
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
@@ -114,7 +123,6 @@ export default function CreateAccount() {
                   }
                 >
                   {showConfirmPassword ? (
-                    /* Ojo tachado */
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
@@ -131,7 +139,6 @@ export default function CreateAccount() {
                       <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-5.12" />
                     </svg>
                   ) : (
-                    /* Ojo abierto */
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
