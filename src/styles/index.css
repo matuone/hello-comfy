@@ -18,7 +18,7 @@ section {
 
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: scroll;
   background: #fff;
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: #111;
