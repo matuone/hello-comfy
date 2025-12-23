@@ -1,9 +1,8 @@
-:root {
-  /* Ajustá según la altura real de tu navbar */
-  --navbar-height: 64px;
-}
+/* src/styles/layout.css */
 
-/* Contenedor general del layout */
+/* ================================
+   CONTENEDOR GENERAL
+================================ */
 .layout {
   display: flex;
   flex-direction: column;
@@ -12,29 +11,38 @@
   color: var(--hc-text);
 }
 
-/* Contenido principal debajo del navbar */
+/*
+  Offset REAL del header fijo:
+  - --ab-height: barra superior (si existe)
+  - --navbar-height: navbar principal (fixed)
+*/
 .layout__content {
   flex: 1;
   max-width: 1100px;
   margin: 0 auto;
-  padding: var(--navbar-height) 16px 0 16px;
-  /* 👈 compensación para el navbar fijo */
+
+  /* 🔒 COMPENSACIÓN ÚNICA DEL NAVBAR */
+  padding-top: calc(var(--ab-height) + var(--navbar-height));
+
+  padding-left: 16px;
+  padding-right: 16px;
   box-sizing: border-box;
 }
 
-/* Footer siempre al final */
-.layout footer {
-  margin-top: auto;
+/* ================================
+   FULL WIDTH (CreateAccount)
+================================ */
+.layout__content--full {
+  max-width: none;
+  width: 100%;
+  /* 🔥 ESTA LÍNEA ES LA CLAVE */
+  padding-left: 0;
+  padding-right: 0;
 }
 
-/* Responsive ajustes */
-@media (max-width: 899px) {
-  :root {
-    --navbar-height: 56px;
-    /* navbar más compacto en mobile */
-  }
-
-  .layout__content {
-    padding: var(--navbar-height) 12px 0 12px;
-  }
+/* ================================
+   FOOTER
+================================ */
+.layout footer {
+  margin-top: auto;
 }

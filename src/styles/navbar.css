@@ -4,9 +4,14 @@
   --hc-text: #111;
   --hc-bg: #fff;
   --hc-white: #fff;
-  --hc-shadow: 0 8px 32px rgba(0, 0, 0, .12);
-  --hc-ring: rgba(0, 0, 0, .06);
+  --hc-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --hc-ring: rgba(0, 0, 0, 0.06);
+
+  /* Altura de barra superior (si existe) */
   --ab-height: 0px;
+
+  /* Altura REAL del navbar fijo */
+  --navbar-height: 64px;
 }
 
 /* Ocultar navbar de escritorio en mobile */
@@ -83,7 +88,6 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  /* más espacio entre logo y buscador */
   flex-shrink: 0;
 }
 
@@ -92,7 +96,6 @@
   align-items: center;
   justify-content: center;
   width: 32px;
-  /* contenedor clickable del logo */
   height: 32px;
   border-radius: 999px;
   text-decoration: none;
@@ -105,7 +108,6 @@
   border-radius: 999px;
 }
 
-/* Logo imagen */
 .navbar__logo {
   height: 32px;
   width: auto;
@@ -117,7 +119,6 @@
   display: flex;
   align-items: center;
   margin-left: 4px;
-  /* separa del osito */
 }
 
 .navbar__search-input {
@@ -164,17 +165,14 @@
   position: relative;
 }
 
-/* Enlace y botón */
-.nav-link {
+.nav-link,
+.nav-link--btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* centra el texto */
   gap: 0.45rem;
   padding: 6px 16px;
-  /* más aire lateral */
   min-width: 100px;
-  /* ancho mínimo uniforme */
   border-radius: 10px;
   background: transparent;
   border: 0;
@@ -186,34 +184,13 @@
   font-size: 18px;
 }
 
-.nav-link--btn {
-  appearance: none;
-  -webkit-appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 16px;
-  /* igual que nav-link */
-  min-width: 100px;
-  background: transparent;
-  border: 0;
-  color: inherit;
-  font: inherit;
-  font-size: 18px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
 .nav-link:hover,
 .nav-link:focus {
   background: rgba(0, 0, 0, 0.06);
 }
 
-/* Activo: sin subrayado, mismo estilo que los demás */
 a.nav-link.active {
-  text-decoration: none;
   background: rgba(0, 0, 0, 0.06);
-  /* opcional para indicar estado activo */
 }
 
 /* ====== RIGHT ====== */
@@ -298,7 +275,6 @@ a.nav-link.active {
   left: 50%;
   transform: translateX(-50%);
   width: 800px;
-  /* más compacto para 3 columnas */
   max-width: 90vw;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -314,7 +290,6 @@ a.nav-link.active {
   z-index: 60;
 }
 
-/* Mostrar el mega menú al hover/focus del botón Productos */
 .nav-item--products:hover~.mega-wrap .mega,
 .nav-item--products:focus-within~.mega-wrap .mega,
 .mega-wrap:hover .mega {
@@ -354,12 +329,9 @@ a.nav-link.active {
   text-decoration: underline;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
-  padding: 0;
   white-space: normal;
-  /* evita cortes raros en columnas */
 }
 
-/* Variante cuando el título es también un enlace */
 .mega__title.mega__link {
   padding: 0;
   border-radius: 0;

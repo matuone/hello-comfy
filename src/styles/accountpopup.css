@@ -1,3 +1,4 @@
+/* Fondo oscuro del popup */
 .popup-overlay {
   position: fixed;
   inset: 0;
@@ -8,6 +9,7 @@
   z-index: 999;
 }
 
+/* Caja del popup */
 .popup {
   background: #fff;
   border-radius: 16px;
@@ -19,6 +21,7 @@
   position: relative;
 }
 
+/* Animación suave */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -31,6 +34,7 @@
   }
 }
 
+/* Avatar */
 .popup__avatar {
   width: 100px;
   height: 100px;
@@ -40,6 +44,7 @@
   border: 3px solid #f5a623;
 }
 
+/* Inputs */
 .popup__input {
   width: 100%;
   padding: 10px;
@@ -50,7 +55,7 @@
   box-sizing: border-box;
 }
 
-/* Contenedor de contraseña con botón ojo */
+/* Contenedor de contraseña */
 .popup__password {
   position: relative;
   width: 100%;
@@ -61,6 +66,7 @@
   padding-right: 48px;
 }
 
+/* Botón ojo */
 .popup__eye {
   position: absolute;
   right: 12px;
@@ -87,6 +93,7 @@
   height: 20px;
 }
 
+/* Botones principales */
 .popup__buttons {
   display: flex;
   justify-content: space-between;
@@ -104,17 +111,19 @@
   transition: background 0.2s ease;
 }
 
+/* Botón iniciar sesión */
 .popup__btn.login {
-  background: #000000;
+  background: #000;
   color: #fff;
 }
 
+/* Botón cerrar sesión */
 .popup__btn.logout {
   background: #fe8d85;
   color: #fff;
 }
 
-/* Nuevo bloque registro */
+/* Crear cuenta */
 .popup__register {
   margin-top: 20px;
   font-size: 14px;
@@ -131,6 +140,7 @@
   text-decoration: underline;
 }
 
+/* Recuperar contraseña */
 .popup__link {
   display: block;
   margin-top: 12px;

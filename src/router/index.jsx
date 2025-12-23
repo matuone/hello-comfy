@@ -6,13 +6,14 @@ import Home from "../views/Home";
 import Cart from "../views/Cart";
 import NotFound from "../views/NotFound";
 
-// Vistas con nombres en inglés (slugs en español para la navbar)
 import Categories from "../views/Categories";
 import SizeGuide from "../views/SizeGuide";
 import CottonCare from "../views/CottonCare";
 import FAQ from "../views/FAQ";
-import PaymentMethods from "../views/PaymentMethods"; // 👈 nuevo nombre
+import PaymentMethods from "../views/PaymentMethods";
 import MyAccount from "../views/MyAccount";
+
+import CreateAccount from "../views/CreateAccount";
 
 export default function AppRouter() {
   return (
@@ -20,15 +21,15 @@ export default function AppRouter() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
 
-        {/* Enlaces de la navbar */}
         <Route path="/categorias" element={<Categories />} />
         <Route path="/talles" element={<SizeGuide />} />
         <Route path="/algodon" element={<CottonCare />} />
         <Route path="/faq" element={<FAQ />} />
-        <Route path="/medios-de-pago" element={<PaymentMethods />} /> {/* 👈 actualizado */}
+        <Route path="/medios-de-pago" element={<PaymentMethods />} />
         <Route path="/mi-cuenta" element={<MyAccount />} />
 
-        {/* Otros */}
+        <Route path="/create-account" element={<CreateAccount />} />
+
         <Route path="/cart" element={<Cart />} />
         <Route path="*" element={<NotFound />} />
       </Route>

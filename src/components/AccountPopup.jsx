@@ -25,8 +25,13 @@ export default function AccountPopup(props) {
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
       <div className="popup" onClick={handlePopupClick}>
+
         {/* Botón cerrar (X) */}
-        <button className="popup__close" onClick={handleCloseClick} aria-label="Cerrar popup">
+        <button
+          className="popup__close"
+          onClick={handleCloseClick}
+          aria-label="Cerrar popup"
+        >
           &times;
         </button>
 
@@ -36,13 +41,14 @@ export default function AccountPopup(props) {
         {/* Campo email */}
         <input type="email" placeholder="Email" className="popup__input" />
 
-        {/* Campo contraseña con botón ojo minimalista */}
+        {/* Campo contraseña con botón ojo */}
         <div className="popup__password">
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Contraseña"
             className="popup__input"
           />
+
           <button
             type="button"
             className="popup__eye"
@@ -73,17 +79,21 @@ export default function AccountPopup(props) {
         {/* Botones */}
         <div className="popup__buttons">
           <button className="popup__btn login">Iniciar sesión</button>
+
           <button className="popup__btn logout" onClick={handleCloseClick}>
             Cerrar sesión
           </button>
         </div>
 
-        {/* Nuevo bloque crear cuenta */}
+        {/* Crear cuenta */}
         <p className="popup__register">
-          ¿No tenés cuenta? <a href="#" className="popup__register-link">Créala</a>
+          ¿No tenés cuenta?{" "}
+          <a href="/create-account" className="popup__register-link">
+            Créala
+          </a>
         </p>
 
-        {/* Link recuperar contraseña */}
+        {/* Recuperar contraseña */}
         <a href="#" className="popup__link">
           ¿Olvidaste tu contraseña?
         </a>

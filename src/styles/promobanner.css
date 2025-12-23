@@ -1,11 +1,4 @@
-:root {
-  --navbar-height: 64px;
-  /* mismo valor que en layout.css */
-}
-
-/* =============================
-   Promo Banner base
-   ============================= */
+/* src/styles/promobanner.css */
 
 .promoBanner {
   position: relative;
@@ -14,17 +7,14 @@
   overflow: hidden;
   background: #f3f3f3;
   line-height: 0;
-  margin-top: 0;
-  /* 👈 sin espacio extra */
+  margin: 0;
+  /* importante: no empuja ni compensa nada */
 }
 
 .promoBanner.fullBleed {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  margin-top: 0;
-  /* 👈 sin espacio extra */
-  height: clamp(450px, 70vw, 800px);
 }
 
 .promoBanner__slide {
@@ -39,10 +29,7 @@
   display: block;
 }
 
-/* =============================
-   DOTS ESTILO APPLE TV
-   ============================= */
-
+/* DOTS */
 .promoBanner__dots {
   position: absolute;
   bottom: 22px;

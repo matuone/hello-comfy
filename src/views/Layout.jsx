@@ -1,23 +1,44 @@
-// src/layout/Layout.jsx
-import { Outlet } from "react-router-dom";
+// src/views/Layout.jsx
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import MobileHeader from "../components/MobileHeader";
-import NewsletterModal from "../components/NewsletterModal";
-import FloatingBear from "../components/FloatingBear"; // 👈 nuevo osito
+import PromoBanner from "../components/PromoBanner";
 import "../styles/layout.css";
 
 export default function Layout() {
+  const location = useLocation();
+
+  // Mostrar banner solo en Home
+  const showPromoBanner = location.pathname === "/";
+
+  // 🔥 FIX REAL: detección robusta de rutas full-width
+  const isFullWidth = location.pathname.startsWith("/create-account");
+
   return (
     <div className="layout">
-      <MobileHeader />
       <Navbar />
-      <main className="layout__content">
+
+      <main
+        className={
+          isFullWidth
+            ? "layout__content layout__content--full"
+            : "layout__content"
+        }
+      >
+        {showPromoBanner && (
+          <PromoBanner
+            fullBleed
+            height="clamp(520px, 72vw, 880px)"
+            objectPositions={["center 35%", "center top", "center 35%"]}
+            autoplay
+            interval={5000}
+          />
+        )}
+
         <Outlet />
       </main>
+
       <Footer />
-      <NewsletterModal />
-      <FloatingBear /> {/* 👈 aparece en todas las páginas */}
     </div>
   );
 }
