@@ -32,7 +32,7 @@ export default function PaymentMethods() {
       name: "Transferencias Bancarias",
       img: transferenciaLogo,
       desc: "Realizá transferencias desde tu banco de manera directa.",
-      details: "Podés transferir el monto de tu compra directamente desde tu cuenta bancaria a la nuestra."
+      details: "Podés transferir el monto de tu compra directamente desde tu cuenta bancaria a la nuestra. Enviar comprobante por email, si las ordenes no son abonadas dentro de las 48hs se cancelan automaticamente"
     },
     {
       name: "Modo",

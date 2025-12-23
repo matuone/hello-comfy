@@ -35,7 +35,7 @@ export default function FAQ() {
     {
       title: "📍 Pickup Point en CABA",
       img: capitalIcon,
-      desc: "También contamos con un punto de retiro en Capital, en 'Aquelare showroom', a 3 cuadras de la Facultad de Medicina."
+      desc: "También contamos con un punto de retiro en Capital, en Aquelarre showroom, a 3 cuadras de la Facultad de Medicina."
     }
   ];
 
