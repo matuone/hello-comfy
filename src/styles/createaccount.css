@@ -2,11 +2,21 @@
    CONTENEDOR GENERAL
 ================================ */
 .create-account {
-  min-height: 100vh;
-  padding: 40px 0;
+  min-height: calc(100vh - var(--navbar-height));
   width: 100%;
   background: #f9f9f9;
+
+  display: flex;
+  justify-content: center;
+  /* centra horizontal */
+  align-items: flex-start;
+  /* 🔥 sube la tarjeta */
+
+  padding-top: 80px;
+  /* 🔥 separación del navbar */
+  padding-bottom: 40px;
 }
+
 
 /* ================================
    TARJETA
@@ -94,16 +104,30 @@
   position: relative;
 }
 
+/* 🔥 OJO CORREGIDO (SVG) */
 .create-account__eye {
   position: absolute;
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
+
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+
+  padding: 0;
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   color: #555;
+}
+
+.create-account__eye svg {
+  display: block;
 }
 
 .create-account__eye:hover {
@@ -117,9 +141,8 @@
   grid-column: 1 / -1;
   height: 46px;
   width: 260px;
-  /* 🔥 ancho controlado */
   margin: 20px auto 0;
-  /* 🔥 centrado */
+
   background: #d94f7a;
   color: #fff;
   border: none;
@@ -132,7 +155,6 @@
 .create-account__btn:hover {
   background: #c23f6a;
 }
-
 
 /* ================================
    LOGIN LINK
