@@ -1,17 +1,18 @@
 /* ============================
-   GRID — 6 columnas centradas
+   GRID — tarjetas centradas siempre
 ============================ */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 40px;
 
+  /* Tarjetas flexibles y centradas */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  justify-content: center;
+  justify-items: center;
+
+  gap: 40px;
   max-width: 1400px;
   margin: 40px auto 0 auto;
   padding: 0 20px;
-
-  justify-content: center;
-  justify-items: center;
 }
 
 /* ✨ Fade-in suave */
@@ -28,7 +29,7 @@
 }
 
 /* ============================
-   CARD — estilo igual a products.css
+   CARD — estilo comfy
 ============================ */
 .product-card {
   background: #fff;
@@ -51,7 +52,7 @@
 }
 
 /* ============================
-   IMAGEN — igual a products.css
+   IMAGEN — comfy zoom
 ============================ */
 .product-card img {
   max-height: 180px;
@@ -115,7 +116,7 @@
 }
 
 /* ============================
-   TEXTOS — igual a products.css
+   TEXTOS
 ============================ */
 .product-card h3 {
   font-size: 1.15rem;
@@ -132,7 +133,7 @@
 }
 
 /* ============================
-   BOTÓN — igual a products.css
+   BOTÓN
 ============================ */
 .product-card button {
   background: #d94f7a;
@@ -154,13 +155,14 @@
 ============================ */
 @media (max-width: 1024px) {
   .product-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 32px;
   }
 }
 
