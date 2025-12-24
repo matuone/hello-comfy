@@ -6,6 +6,7 @@ import AppRouter from "./router";
 import { ShopProvider } from "./context/ShopContext";
 import "./styles/index.css";
 import AnnouncementBar from "./components/AnnouncementBar";
+import FloatingBear from "./components/FloatingBear"; // 👈 IMPORTANTE
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -20,7 +21,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           ]}
           interval={3500}
         />
+
         <AppRouter />
+
+        <FloatingBear /> {/* 👈 AHORA SÍ SE VE */}
       </BrowserRouter>
     </ShopProvider>
   </React.StrictMode>

@@ -1,20 +1,23 @@
 .floating-bear {
   position: fixed;
-  bottom: 100px;
-  /* altura desde abajo */
+  bottom: 40px;
+  /* más abajo para que no quede fuera de pantalla */
   right: 40px;
-  /* 👈 esquina inferior derecha */
-  width: 180px;
-  z-index: 9999;
+  width: 160px;
+  /* un poco más chico para evitar solapamientos */
+  z-index: 99999;
+  /* por encima de TODO */
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .floating-bear img {
   width: 100%;
-  max-width: 180px;
+  max-width: 160px;
   height: auto;
   animation: gentleFloat 6s ease-in-out infinite;
-  /* 👈 flotación suave */
 }
 
 /* Flotación vertical */
@@ -41,21 +44,22 @@
 /* Burbuja del código */
 .discount-bubble {
   position: absolute;
-  top: -70px;
+  top: -55px;
+  /* antes -70px → ahora siempre visible */
   left: 50%;
   transform: translateX(-50%);
-  background: #c48e8e;
-  /* fondo negro */
+  background: #d94f7a;
+  /* color comfy */
   color: #fff;
-  /* texto blanco */
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-weight: bold;
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   animation: fadeInOut 7s ease-in-out;
-  /* 👈 dura 7 segundos */
   white-space: nowrap;
+  pointer-events: auto;
+  /* permite copiar el código */
 }
 
 /* Animación de aparición/desaparición */
@@ -89,8 +93,8 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  background: #ceaaaa;
-  /* puntitos negros */
+  background: #f3b3c7;
+  /* rosa suave */
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   animation: bubbleDots 7s ease-in-out;
@@ -100,21 +104,21 @@
 .discount-bubble::before {
   width: 12px;
   height: 12px;
-  bottom: -25px;
+  bottom: -22px;
 }
 
 /* Segundo puntito */
 .discount-bubble::after {
   width: 8px;
   height: 8px;
-  bottom: -40px;
+  bottom: -36px;
 }
 
 /* Tercer puntito */
 .discount-bubble span.dot {
   width: 6px;
   height: 6px;
-  bottom: -55px;
+  bottom: -48px;
 }
 
 /* Animación de los puntitos */
