@@ -1,4 +1,5 @@
 .products {
+  width: 100%;
   max-width: 1400px;
   margin: 40px auto;
   padding: 20px;
@@ -21,19 +22,17 @@
 }
 
 /* ============================
-   GRID — 6 columnas fluidas y centradas
+   GRID — 6 columnas centradas
 ============================ */
 .products__grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  /* columnas flexibles */
-  gap: 32px;
-  justify-items: center;
-  /* centra cada tarjeta */
-  max-width: 1240px;
-  /* 6 × 180 + 5 × 32 = 1240px */
+  gap: 40px;
+  /* 🔥 más separación entre tarjetas */
+  max-width: 1400px;
+  /* más ancho disponible */
   margin: 0 auto;
-  /* centra el grid como bloque */
+  justify-content: center;
 }
 
 /* ============================
@@ -42,15 +41,15 @@
 .products__card {
   background: #fff;
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
+  /* 🔥 un poco más de aire */
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: var(--hc-shadow);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
-  width: 180px;
-  /* ancho fijo */
+  width: 200px;
+  /* 🔥 tarjetas más grandes */
   text-align: center;
-  /* centra contenido interno */
 }
 
 .products__card:hover {
@@ -62,15 +61,16 @@
    IMAGEN
 ============================ */
 .products__imgbox {
-  height: 180px;
+  height: 200px;
+  /* 🔥 más alto para imagen más grande */
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .products__img {
-  max-height: 160px;
+  max-height: 180px;
   width: auto;
   object-fit: contain;
 }
@@ -79,15 +79,16 @@
    TEXTOS
 ============================ */
 .products__name {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  /* un poquito más grande */
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .products__price {
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #333;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 /* ============================
@@ -97,7 +98,8 @@
   background: #d94f7a;
   color: #fff;
   border: none;
-  padding: 10px 18px;
+  padding: 12px 20px;
+  /* botón más grande */
   border-radius: 10px;
   font-weight: 700;
   cursor: pointer;

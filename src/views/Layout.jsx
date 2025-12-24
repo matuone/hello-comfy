@@ -11,8 +11,10 @@ export default function Layout() {
   // Mostrar banner solo en Home
   const showPromoBanner = location.pathname === "/";
 
-  // 🔥 FIX REAL: detección robusta de rutas full-width
-  const isFullWidth = location.pathname.startsWith("/create-account");
+  // 🔥 FIX: rutas que necesitan ancho completo
+  const isFullWidth =
+    location.pathname.startsWith("/create-account") ||
+    location.pathname.startsWith("/products");
 
   return (
     <div className="layout">
