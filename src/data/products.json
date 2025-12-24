@@ -94,5 +94,53 @@
     "image": "buzo-outlet.png",
     "section": "indumentaria",
     "subcategory": "outlet"
+  },
+  {
+    "id": "v001",
+    "name": "Vaso Osito Rosa",
+    "price": 3200,
+    "image": "vaso-osito-rosa.png",
+    "section": "cute-items",
+    "subcategory": "vasos"
+  },
+  {
+    "id": "v002",
+    "name": "Vaso Comfy Celeste",
+    "price": 3400,
+    "image": "vaso-comfy-celeste.png",
+    "section": "cute-items",
+    "subcategory": "vasos"
+  },
+  {
+    "id": "mn001",
+    "name": "Remera Artista Nacional A",
+    "price": 5200,
+    "image": "merch-nacional-a.png",
+    "section": "merch",
+    "subcategory": "artistas-nacionales"
+  },
+  {
+    "id": "mn002",
+    "name": "Gorra Artista Nacional B",
+    "price": 4500,
+    "image": "merch-nacional-b.png",
+    "section": "merch",
+    "subcategory": "artistas-nacionales"
+  },
+  {
+    "id": "mi001",
+    "name": "Remera Artista Internacional X",
+    "price": 6200,
+    "image": "merch-internacional-x.png",
+    "section": "merch",
+    "subcategory": "artistas-internacionales"
+  },
+  {
+    "id": "mi002",
+    "name": "Gorra Artista Internacional Y",
+    "price": 5800,
+    "image": "merch-internacional-y.png",
+    "section": "merch",
+    "subcategory": "artistas-internacionales"
   }
 ]
