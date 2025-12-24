@@ -1,7 +1,7 @@
 export const adminUsers = [
   {
-    email: "admin1@hellocomfy.com",
-    password: "admin123"
+    email: "mati123@admin.com",
+    password: "123"
   },
   {
     email: "admin2@hellocomfy.com",

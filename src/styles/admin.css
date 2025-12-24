@@ -1,5 +1,5 @@
 /* ============================
-   CONTENEDOR GENERAL
+   CONTENEDOR GENERAL LOGIN
 ============================ */
 .admin-login {
   max-width: 420px;
@@ -26,7 +26,7 @@
 }
 
 /* ============================
-   FORMULARIO
+   FORMULARIO LOGIN
 ============================ */
 .admin-login__form {
   display: flex;
@@ -48,7 +48,7 @@
 }
 
 /* ============================
-   BOTÓN
+   BOTÓN LOGIN
 ============================ */
 .admin-login__button {
   padding: 12px 20px;
@@ -67,7 +67,7 @@
 }
 
 /* ============================
-   ERROR
+   ERROR LOGIN
 ============================ */
 .admin-login__error {
   margin-top: 8px;
@@ -76,7 +76,7 @@
 }
 
 /* ============================
-   ANIMACIÓN
+   ANIMACIÓN GENERAL
 ============================ */
 @keyframes fadeIn {
   from {
@@ -88,4 +88,115 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ============================================================
+   SECCIONES INTERNAS DEL PANEL ADMIN
+============================================================ */
+.admin-section {
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.admin-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #d94f7a;
+  margin-bottom: 8px;
+}
+
+.admin-subtitle {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* ============================
+   VISTA PREVIA DEL BANNER
+============================ */
+.admin-preview {
+  margin-top: 20px;
+  margin-bottom: 30px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================
+   TEXTAREA Y LABEL
+============================ */
+.admin-label {
+  font-weight: 600;
+  color: #d94f7a;
+}
+
+.admin-textarea {
+  width: 100%;
+  height: 120px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-top: 10px;
+  resize: none;
+}
+
+/* ============================
+   ERRORES
+============================ */
+.admin-error {
+  color: red;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+/* ============================
+   BOTONES DE ACCIÓN
+============================ */
+.admin-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.admin-btn {
+  padding: 12px 20px;
+  background: #d94f7a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.admin-btn:hover {
+  background: #c23f6a;
+}
+
+.admin-btn.secondary {
+  background: #aaa;
+}
+
+.admin-btn.secondary:hover {
+  background: #888;
+}
+
+/* ============================
+   PRODUCTOS (placeholder)
+============================ */
+.admin-products-table {
+  margin-top: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.admin-empty {
+  color: #777;
+  font-size: 1rem;
+  padding: 20px 0;
 }

@@ -16,21 +16,27 @@ import CreateAccount from "../views/CreateAccount";
 import Products from "../views/Products";
 import Category from "../views/Category";
 
-// Admin (pantalla de login y panel)
+// Admin
 import AdminLogin from "../views/AdminLogin";
 import AdminPanel from "../views/AdminPanel";
+import AdminBanners from "../views/AdminBanners";
+import AdminProducts from "../views/AdminProducts";
+import AdminCategories from "../views/AdminCategories";
+import AdminOrders from "../views/AdminOrders";
+import AdminCustomers from "../views/AdminCustomers"; // 👈 NUEVO
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route element={<Layout />}>
+
         {/* HOME */}
         <Route path="/" element={<Home />} />
 
         {/* TODOS LOS PRODUCTOS */}
         <Route path="/products" element={<Products />} />
 
-        {/* CATEGORÍAS (con section pasado como prop) */}
+        {/* CATEGORÍAS */}
         <Route
           path="/indumentaria/:subcategory"
           element={<Category section="indumentaria" />}
@@ -57,11 +63,19 @@ export default function AppRouter() {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminPanel />} />
 
+        {/* SECCIONES DEL PANEL ADMIN */}
+        <Route path="/admin/banners" element={<AdminBanners />} />
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/categories" element={<AdminCategories />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/admin/customers" element={<AdminCustomers />} /> {/* 👈 NUEVO */}
+
         {/* CARRITO */}
         <Route path="/cart" element={<Cart />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
+
       </Route>
     </Routes>
   );

@@ -1,6 +1,7 @@
 // src/views/AdminPanel.jsx
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "../styles/adminpanel.css";
 
 export default function AdminPanel() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -9,16 +10,57 @@ export default function AdminPanel() {
     return <Navigate to="/admin-login" replace />;
   }
 
+  function handleLogout() {
+    logout();
+  }
+
   return (
-    <div className="admin-panel">
-      <h1>Panel de Control</h1>
-      <p>Bienvenido, {user.email}</p>
+    <div className="admin-dashboard">
 
-      <button onClick={logout} className="admin-panel__logout">
-        Cerrar sesión
-      </button>
+      {/* HEADER */}
+      <header className="admin-header">
+        <h1 className="admin-title">Panel de Control</h1>
+        <p className="admin-welcome">Bienvenido, {user.email}</p>
 
-      {/* Más adelante acá van: gestión de productos, banners, etc. */}
+        <button className="admin-logout" onClick={handleLogout}>
+          Cerrar sesión
+        </button>
+      </header>
+
+      {/* GRID DE TARJETAS */}
+      <div className="admin-grid">
+
+        <Link to="/admin/products" className="admin-card">
+          <div className="admin-card-icon">📦</div>
+          <h2 className="admin-card-title">Productos</h2>
+          <p className="admin-card-text">Crear, editar y eliminar productos</p>
+        </Link>
+
+        <Link to="/admin/categories" className="admin-card">
+          <div className="admin-card-icon">🏷️</div>
+          <h2 className="admin-card-title">Categorías</h2>
+          <p className="admin-card-text">Gestionar categorías del catálogo</p>
+        </Link>
+
+        <Link to="/admin/banners" className="admin-card">
+          <div className="admin-card-icon">🖼️</div>
+          <h2 className="admin-card-title">Banners</h2>
+          <p className="admin-card-text">Editar banners y promociones</p>
+        </Link>
+
+        <Link to="/admin/orders" className="admin-card">
+          <div className="admin-card-icon">🧾</div>
+          <h2 className="admin-card-title">Pedidos</h2>
+          <p className="admin-card-text">Ver y gestionar pedidos</p>
+        </Link>
+
+        <Link to="/admin/customers" className="admin-card">
+          <div className="admin-card-icon">👤</div>
+          <h2 className="admin-card-title">Clientes</h2>
+          <p className="admin-card-text">Ver información y compras de clientes</p>
+        </Link>
+
+      </div>
     </div>
   );
 }
