@@ -1,3 +1,6 @@
+/* ============================
+   CONTENEDOR GENERAL
+============================ */
 .products {
   width: 100%;
   max-width: 1400px;
@@ -22,15 +25,171 @@
 }
 
 /* ============================
+   FILTROS HORIZONTALES (sticky)
+============================ */
+.products__filters-horizontal {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 12px 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+/* Cada dropdown */
+.products__dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* ============================
+   BOTÓN PRINCIPAL — Pastel Comfy
+============================ */
+.products__dropdown-toggle {
+  padding: 10px 18px;
+  background: #ffe8f0;
+  border: 1px solid #f7c9d8;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #d94f7a;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Flechita */
+.products__dropdown-toggle::after {
+  content: "▼";
+  font-size: 0.75rem;
+  transition: transform 0.25s ease;
+}
+
+/* Flecha rotada cuando está abierto */
+.products__dropdown.open .products__dropdown-toggle::after {
+  transform: rotate(180deg);
+}
+
+.products__dropdown-toggle:hover {
+  background: #ffd9e7;
+  border-color: #f3b3c7;
+}
+
+/* ============================
+   MENÚ DESPLEGABLE
+============================ */
+.products__dropdown-menu {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+
+  animation: dropdownFadeIn 0.25s ease forwards;
+  transform-origin: top center;
+}
+
+/* Estado de cierre */
+.products__dropdown-menu.closing {
+  animation: dropdownFadeOut 0.2s ease forwards;
+}
+
+/* ============================
+   ANIMACIONES
+============================ */
+@keyframes dropdownFadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+    filter: blur(3px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes dropdownFadeOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+    filter: blur(3px);
+  }
+}
+
+/* ============================
+   ITEMS DEL MENÚ — underline slide
+============================ */
+.products__dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #444;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+/* Línea animada */
+.products__dropdown-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+  width: 0%;
+  height: 2px;
+  background: #d94f7a;
+  transition: width 0.25s ease;
+  border-radius: 2px;
+}
+
+.products__dropdown-item:hover {
+  color: #d94f7a;
+}
+
+.products__dropdown-item:hover::after {
+  width: 100%;
+}
+
+.products__dropdown-item.active {
+  background: #d94f7a;
+  color: #fff;
+}
+
+/* ============================
    GRID — 6 columnas centradas
 ============================ */
 .products__grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 40px;
-  /* 🔥 más separación entre tarjetas */
   max-width: 1400px;
-  /* más ancho disponible */
   margin: 0 auto;
   justify-content: center;
 }
@@ -42,14 +201,21 @@
   background: #fff;
   border-radius: 16px;
   padding: 24px;
-  /* 🔥 un poco más de aire */
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: var(--hc-shadow);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   width: 200px;
-  /* 🔥 tarjetas más grandes */
   text-align: center;
+}
+
+/* Hover con zoom suave */
+.products__imgbox img {
+  transition: transform 0.25s ease;
+}
+
+.products__imgbox:hover img {
+  transform: scale(1.08);
 }
 
 .products__card:hover {
@@ -62,7 +228,6 @@
 ============================ */
 .products__imgbox {
   height: 200px;
-  /* 🔥 más alto para imagen más grande */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,7 +245,6 @@
 ============================ */
 .products__name {
   font-size: 1.15rem;
-  /* un poquito más grande */
   font-weight: 700;
   margin-bottom: 8px;
 }
@@ -99,7 +263,6 @@
   color: #fff;
   border: none;
   padding: 12px 20px;
-  /* botón más grande */
   border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
