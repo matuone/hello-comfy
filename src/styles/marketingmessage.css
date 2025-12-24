@@ -1,0 +1,9 @@
+/* src/styles/marketingmessage.css */
+.marketing-message {
+  font-weight: 600;
+  font-size: 1rem;
+  color: white;
+  margin-left: 12px;
+  /* lo pega al borde izquierdo */
+  display: inline-block;
+}

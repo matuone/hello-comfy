@@ -8,7 +8,6 @@
   background: #f3f3f3;
   line-height: 0;
   margin: 0;
-  /* importante: no empuja ni compensa nada */
 }
 
 .promoBanner.fullBleed {
@@ -27,6 +26,46 @@
   transition: opacity 400ms ease, transform 400ms ease;
   will-change: opacity, transform;
   display: block;
+}
+
+/* ===========================================
+   TEXTO SUPERPUESTO (IZQUIERDA, MUY GRANDE)
+=========================================== */
+.promoBanner__message {
+  position: absolute;
+  top: 140px;
+  left: 60px;
+  z-index: 5;
+
+  font-size: clamp(4rem, 8vw, 7rem);
+  font-weight: 900;
+
+  color: white;
+  text-shadow: 0 5px 20px rgba(0, 0, 0, 0.55);
+
+  text-align: left;
+  max-width: 700px;
+  line-height: 1.05;
+
+  pointer-events: none;
+
+  /* ANIMACIÓN DE ENTRADA */
+  animation: promoTextEnter 0.8s ease-out both;
+}
+
+/* ===========================
+   ANIMACIÓN TEXTO
+=========================== */
+@keyframes promoTextEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* DOTS */

@@ -1,35 +1,27 @@
-// src/components/PromoBanner.jsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import banner1 from "../assets/banner.png";
 import banner2 from "../assets/banner2.png";
 import banner3 from "../assets/banner3.png";
 import "../styles/promobanner.css";
+import MarketingMessage from "./MarketingMessage";
 
 export default function PromoBanner(props) {
-  const IMGS = useMemo(function () {
-    return [banner1, banner2, banner3];
-  }, []);
-
+  const IMGS = useMemo(() => [banner1, banner2, banner3], []);
   const [i, setI] = useState(0);
   const timerRef = useRef(null);
   const hideTimerRef = useRef(null);
-
   const [showDots, setShowDots] = useState(true);
 
   function next() {
-    setI(function (p) {
-      return (p + 1) % IMGS.length;
-    });
+    setI((p) => (p + 1) % IMGS.length);
   }
 
   function prev() {
-    setI(function (p) {
-      return (p - 1 + IMGS.length) % IMGS.length;
-    });
+    setI((p) => (p - 1 + IMGS.length) % IMGS.length);
   }
 
-  /* ------------------- AUTOPLAY ------------------- */
-  useEffect(function () {
+  // AUTOPLAY
+  useEffect(() => {
     if (!props.autoplay) return;
 
     function start() {
@@ -40,54 +32,43 @@ export default function PromoBanner(props) {
     start();
 
     function onVis() {
-      if (document.hidden) {
-        clearInterval(timerRef.current);
-      } else {
-        start();
-      }
+      document.hidden ? clearInterval(timerRef.current) : start();
     }
 
     document.addEventListener("visibilitychange", onVis);
-
-    return function cleanup() {
+    return () => {
       clearInterval(timerRef.current);
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [props.autoplay, props.interval]);
 
-  /* ------------------- TECLAS ← → ------------------- */
-  useEffect(function () {
+  // TECLAS ← →
+  useEffect(() => {
     function onKey(e) {
       if (e.key === "ArrowLeft") prev();
       if (e.key === "ArrowRight") next();
     }
     window.addEventListener("keydown", onKey);
-    return function cleanup() {
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  /* ------------------- PRELOAD SIGUIENTES SLIDES ------------------- */
-  useEffect(function () {
+  // PRELOAD SIGUIENTES SLIDES
+  useEffect(() => {
     new Image().src = IMGS[(i + 1) % IMGS.length];
     new Image().src = IMGS[(i - 1 + IMGS.length) % IMGS.length];
   }, [i, IMGS]);
 
-  /* ------------------- MOSTRAR/OCULTAR DOTS ------------------- */
+  // MOSTRAR/OCULTAR DOTS
   function handleUserActivity() {
     setShowDots(true);
     clearTimeout(hideTimerRef.current);
-
-    hideTimerRef.current = setTimeout(function () {
-      setShowDots(false);
-    }, 1500);
+    hideTimerRef.current = setTimeout(() => setShowDots(false), 1500);
   }
 
-  useEffect(function () {
+  useEffect(() => {
     window.addEventListener("mousemove", handleUserActivity);
     window.addEventListener("touchstart", handleUserActivity);
-
-    return function cleanup() {
+    return () => {
       window.removeEventListener("mousemove", handleUserActivity);
       window.removeEventListener("touchstart", handleUserActivity);
     };
@@ -99,12 +80,15 @@ export default function PromoBanner(props) {
       aria-label="Promos Hello-Comfy"
       className={`promoBanner ${props.fullBleed ? "fullBleed" : ""}`}
     >
+      {/* ✅ TEXTO SUPERPUESTO A LA IZQUIERDA */}
+      <div className="promoBanner__message">
+        <MarketingMessage message="Aprovechá hoy 3x2 en remeras 🧸✨" />
+      </div>
+
       {/* Slides */}
-      {IMGS.map(function (src, idx) {
+      {IMGS.map((src, idx) => {
         const active = idx === i;
-        const objPos = props.objectPositions
-          ? props.objectPositions[idx]
-          : "center";
+        const objPos = props.objectPositions?.[idx] || "center";
 
         return (
           <img
@@ -125,18 +109,14 @@ export default function PromoBanner(props) {
 
       {/* DOTS */}
       <div className={`promoBanner__dots ${showDots ? "visible" : ""}`}>
-        {IMGS.map(function (_, idx) {
-          return (
-            <button
-              key={idx}
-              className={`promoBanner__dot ${i === idx ? "active" : ""}`}
-              onClick={function () {
-                setI(idx);
-              }}
-              aria-label={`Ir al slide ${idx + 1}`}
-            />
-          );
-        })}
+        {IMGS.map((_, idx) => (
+          <button
+            key={idx}
+            className={`promoBanner__dot ${i === idx ? "active" : ""}`}
+            onClick={() => setI(idx)}
+            aria-label={`Ir al slide ${idx + 1}`}
+          />
+        ))}
       </div>
 
       {/* A11Y */}
