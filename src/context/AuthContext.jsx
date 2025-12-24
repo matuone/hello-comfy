@@ -1,4 +1,5 @@
-import { createContext, useState, useContext } from "react";
+// src/context/AuthContext.jsx
+import { createContext, useContext, useState } from "react";
 import { adminUsers } from "../data/adminUsers";
 
 const AuthContext = createContext();
@@ -12,22 +13,25 @@ export function AuthProvider({ children }) {
     );
 
     if (found) {
-      setUser({ email });
-      return true;
+      setUser({ email: found.email });
+      return true; // login OK
     }
 
-    return false;
+    return false; // login fallido
   }
 
   function logout() {
     setUser(null);
   }
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    login,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

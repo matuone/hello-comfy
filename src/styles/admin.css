@@ -1,0 +1,91 @@
+/* ============================
+   CONTENEDOR GENERAL
+============================ */
+.admin-login {
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.admin-login h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #d94f7a;
+  margin-bottom: 8px;
+}
+
+.admin-login p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+/* ============================
+   FORMULARIO
+============================ */
+.admin-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-login__input {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.admin-login__input:focus {
+  border-color: #d94f7a;
+  outline: none;
+}
+
+/* ============================
+   BOTÓN
+============================ */
+.admin-login__button {
+  padding: 12px 20px;
+  background: #d94f7a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.admin-login__button:hover {
+  background: #c23f6a;
+}
+
+/* ============================
+   ERROR
+============================ */
+.admin-login__error {
+  margin-top: 8px;
+  color: #d94f7a;
+  font-weight: 600;
+}
+
+/* ============================
+   ANIMACIÓN
+============================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

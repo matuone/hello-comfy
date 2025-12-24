@@ -16,6 +16,10 @@ import CreateAccount from "../views/CreateAccount";
 import Products from "../views/Products";
 import Category from "../views/Category";
 
+// Admin (pantalla de login y panel)
+import AdminLogin from "../views/AdminLogin";
+import AdminPanel from "../views/AdminPanel";
+
 export default function AppRouter() {
   return (
     <Routes>
@@ -48,6 +52,10 @@ export default function AppRouter() {
         <Route path="/medios-de-pago" element={<PaymentMethods />} />
         <Route path="/mi-cuenta" element={<MyAccount />} />
         <Route path="/create-account" element={<CreateAccount />} />
+
+        {/* ADMIN */}
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminPanel />} />
 
         {/* CARRITO */}
         <Route path="/cart" element={<Cart />} />

@@ -2,16 +2,19 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useShop } from "../context/ShopContext";
+import { useAuth } from "../context/AuthContext"; // 👈 IMPORTANTE
 import CategoriesMenu from "./CategoriesMenu";
 import AccountPopup from "./AccountPopup";
 import "../styles/navbar.css";
-import logoBear from "../assets/logo.png"; // 👈 importamos tu osito
+import logoBear from "../assets/logo.png";
 
 export default function Navbar() {
   const { cart } =
     (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
   const { pathname } = useLocation();
+
+  const { isAuthenticated } = useAuth(); // 👈 SABER SI EL ADMIN ESTÁ LOGUEADO
 
   const [scrolled, setScrolled] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -56,6 +59,7 @@ export default function Navbar() {
               <Link to="/" className="navbar__bear" aria-label="Inicio">
                 <img src={logoBear} alt="Logo osito" className="navbar__logo" />
               </Link>
+
               <form className="navbar__search" onSubmit={handleSearchSubmit}>
                 <input
                   type="text"
@@ -69,7 +73,6 @@ export default function Navbar() {
             {/* CENTRO */}
             <div className="navbar__center" ref={menuRef}>
               <ul className="navlist">
-                {/* Home */}
                 <li className="nav-item">
                   <NavLink
                     to="/"
@@ -80,7 +83,6 @@ export default function Navbar() {
                   </NavLink>
                 </li>
 
-                {/* Productos → ahora va a /products */}
                 <li className="nav-item nav-item--products">
                   <NavLink
                     to="/products"
@@ -91,7 +93,6 @@ export default function Navbar() {
                   </NavLink>
                 </li>
 
-                {/* Categorías (se mantiene pero ya no depende del botón Productos) */}
                 <li className="mega-wrap">
                   <CategoriesMenu className={menuOpen ? "visible" : ""} />
                 </li>
@@ -105,6 +106,7 @@ export default function Navbar() {
                     Talles
                   </NavLink>
                 </li>
+
                 <li className="nav-item">
                   <NavLink
                     to="/algodon"
@@ -114,6 +116,7 @@ export default function Navbar() {
                     Algodón y sus cuidados
                   </NavLink>
                 </li>
+
                 <li className="nav-item">
                   <NavLink
                     to="/faq"
@@ -123,6 +126,7 @@ export default function Navbar() {
                     FAQ
                   </NavLink>
                 </li>
+
                 <li className="nav-item">
                   <NavLink
                     to="/medios-de-pago"
@@ -134,6 +138,30 @@ export default function Navbar() {
                     Medios de pago
                   </NavLink>
                 </li>
+
+                {/* 👇 BOTÓN PANEL DE CONTROL (solo admins logueados) */}
+                {isAuthenticated && (
+                  <li className="nav-item">
+                    <NavLink
+                      to="/admin"
+                      className="nav-link nav-link--admin"
+                    >
+                      Panel de control
+                    </NavLink>
+                  </li>
+                )}
+
+                {/* 👇 BOTÓN LOGIN ADMIN (solo si NO está logueado) */}
+                {!isAuthenticated && (
+                  <li className="nav-item">
+                    <NavLink
+                      to="/admin-login"
+                      className="nav-link nav-link--admin-login"
+                    >
+                      Admin
+                    </NavLink>
+                  </li>
+                )}
               </ul>
             </div>
 
