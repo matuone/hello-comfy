@@ -2,7 +2,7 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useShop } from "../context/ShopContext";
-import { useAuth } from "../context/AuthContext"; // 👈 IMPORTANTE
+import { useAuth } from "../context/AuthContext";
 import CategoriesMenu from "./CategoriesMenu";
 import AccountPopup from "./AccountPopup";
 import "../styles/navbar.css";
@@ -14,7 +14,7 @@ export default function Navbar() {
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
   const { pathname } = useLocation();
 
-  const { isAuthenticated } = useAuth(); // 👈 SABER SI EL ADMIN ESTÁ LOGUEADO
+  const { isAuthenticated } = useAuth();
 
   const [scrolled, setScrolled] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -138,35 +138,35 @@ export default function Navbar() {
                     Medios de pago
                   </NavLink>
                 </li>
-
-                {/* 👇 BOTÓN PANEL DE CONTROL (solo admins logueados) */}
-                {isAuthenticated && (
-                  <li className="nav-item">
-                    <NavLink
-                      to="/admin"
-                      className="nav-link nav-link--admin"
-                    >
-                      Panel de control
-                    </NavLink>
-                  </li>
-                )}
-
-                {/* 👇 BOTÓN LOGIN ADMIN (solo si NO está logueado) */}
-                {!isAuthenticated && (
-                  <li className="nav-item">
-                    <NavLink
-                      to="/admin-login"
-                      className="nav-link nav-link--admin-login"
-                    >
-                      Admin
-                    </NavLink>
-                  </li>
-                )}
               </ul>
             </div>
 
             {/* DERECHA */}
             <div className="navbar__right">
+
+              {/* BOTÓN ADMIN — SOLO SI ESTÁ LOGUEADO */}
+              {isAuthenticated && (
+                <Link
+                  to="/admin"
+                  className="nav-action"
+                  aria-label="Panel de control"
+                >
+                  <span className="nav-glyph" aria-hidden="true">
+                    <svg
+                      className="nav-icon__svg"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                      <path d="M2 17l10 5 10-5" />
+                      <path d="M2 12l10 5 10-5" />
+                    </svg>
+                  </span>
+                  <span className="nav-label">Admin</span>
+                </Link>
+              )}
+
+              {/* MI CUENTA */}
               <button
                 type="button"
                 className="nav-action"
@@ -186,6 +186,7 @@ export default function Navbar() {
                 <span className="nav-label">Mi cuenta</span>
               </button>
 
+              {/* CARRITO */}
               <Link
                 to="/cart"
                 className="nav-action nav-action--last"
