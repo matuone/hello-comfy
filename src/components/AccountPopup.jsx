@@ -22,6 +22,14 @@ export default function AccountPopup(props) {
     props.onClose();
   }
 
+  function handleLoginClick() {
+    // Cierra el popup
+    props.onClose();
+
+    // Redirige a /mi-cuenta
+    window.location.href = "/mi-cuenta";
+  }
+
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
       <div className="popup" onClick={handlePopupClick}>
@@ -78,9 +86,17 @@ export default function AccountPopup(props) {
 
         {/* Botones */}
         <div className="popup__buttons">
-          <button className="popup__btn login">Iniciar sesión</button>
+          <button
+            className="popup__btn login"
+            onClick={handleLoginClick}
+          >
+            Iniciar sesión
+          </button>
 
-          <button className="popup__btn logout" onClick={handleCloseClick}>
+          <button
+            className="popup__btn logout"
+            onClick={handleCloseClick}
+          >
             Cerrar sesión
           </button>
         </div>
