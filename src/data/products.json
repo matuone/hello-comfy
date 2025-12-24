@@ -1,0 +1,98 @@
+[
+  {
+    "id": "r001",
+    "name": "Remera Osito",
+    "price": 4500,
+    "image": "remera-osito.png",
+    "section": "indumentaria",
+    "subcategory": "remeras"
+  },
+  {
+    "id": "r002",
+    "name": "Remera Comfy Rosa",
+    "price": 4800,
+    "image": "remera-comfy-rosa.png",
+    "section": "indumentaria",
+    "subcategory": "remeras"
+  },
+  {
+    "id": "b001",
+    "name": "Buzo Osito",
+    "price": 8500,
+    "image": "buzo-osito.png",
+    "section": "indumentaria",
+    "subcategory": "buzos"
+  },
+  {
+    "id": "b002",
+    "name": "Buzo Comfy Celeste",
+    "price": 8900,
+    "image": "buzo-comfy-celeste.png",
+    "section": "indumentaria",
+    "subcategory": "buzos"
+  },
+  {
+    "id": "p001",
+    "name": "Pijama Osito",
+    "price": 6500,
+    "image": "pijama-osito.png",
+    "section": "indumentaria",
+    "subcategory": "pijamas"
+  },
+  {
+    "id": "p002",
+    "name": "Pijama Comfy Estrellas",
+    "price": 6800,
+    "image": "pijama-estrellas.png",
+    "section": "indumentaria",
+    "subcategory": "pijamas"
+  },
+  {
+    "id": "s001",
+    "name": "Short Comfy",
+    "price": 4200,
+    "image": "short-comfy.png",
+    "section": "indumentaria",
+    "subcategory": "shorts"
+  },
+  {
+    "id": "s002",
+    "name": "Short Osito Beige",
+    "price": 4400,
+    "image": "short-osito-beige.png",
+    "section": "indumentaria",
+    "subcategory": "shorts"
+  },
+  {
+    "id": "t001",
+    "name": "Tote Bag Osito",
+    "price": 3000,
+    "image": "tote-osito.png",
+    "section": "indumentaria",
+    "subcategory": "totes"
+  },
+  {
+    "id": "t002",
+    "name": "Tote Bag Comfy",
+    "price": 3200,
+    "image": "tote-comfy.png",
+    "section": "indumentaria",
+    "subcategory": "totes"
+  },
+  {
+    "id": "o001",
+    "name": "Remera Outlet",
+    "price": 2500,
+    "image": "remera-outlet.png",
+    "section": "indumentaria",
+    "subcategory": "outlet"
+  },
+  {
+    "id": "o002",
+    "name": "Buzo Outlet",
+    "price": 5000,
+    "image": "buzo-outlet.png",
+    "section": "indumentaria",
+    "subcategory": "outlet"
+  }
+]
