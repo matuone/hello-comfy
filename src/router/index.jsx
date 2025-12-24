@@ -5,7 +5,6 @@ import Layout from "../views/Layout";
 import Home from "../views/Home";
 import Cart from "../views/Cart";
 import NotFound from "../views/NotFound";
-
 import Categories from "../views/Categories";
 import SizeGuide from "../views/SizeGuide";
 import CottonCare from "../views/CottonCare";
@@ -14,12 +13,16 @@ import PaymentMethods from "../views/PaymentMethods";
 import MyAccount from "../views/MyAccount";
 
 import CreateAccount from "../views/CreateAccount";
+import Products from "../views/Products"; // 👈 NUEVA IMPORTACIÓN
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
+
+        {/* NUEVA RUTA */}
+        <Route path="/products" element={<Products />} />
 
         <Route path="/categorias" element={<Categories />} />
         <Route path="/talles" element={<SizeGuide />} />

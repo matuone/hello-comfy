@@ -69,7 +69,7 @@ export default function Navbar() {
             {/* CENTRO */}
             <div className="navbar__center" ref={menuRef}>
               <ul className="navlist">
-                {/* Nueva opción Home antes de Productos */}
+                {/* Home */}
                 <li className="nav-item">
                   <NavLink
                     to="/"
@@ -80,18 +80,18 @@ export default function Navbar() {
                   </NavLink>
                 </li>
 
+                {/* Productos → ahora va a /products */}
                 <li className="nav-item nav-item--products">
-                  <button
-                    type="button"
-                    className="nav-link nav-link--btn"
-                    aria-haspopup="true"
-                    aria-expanded={menuOpen}
-                    onClick={() => setMenuOpen(!menuOpen)}
+                  <NavLink
+                    to="/products"
+                    className="nav-link"
+                    aria-current={pathname === "/products" ? "page" : undefined}
                   >
                     Productos
-                  </button>
+                  </NavLink>
                 </li>
 
+                {/* Categorías (se mantiene pero ya no depende del botón Productos) */}
                 <li className="mega-wrap">
                   <CategoriesMenu className={menuOpen ? "visible" : ""} />
                 </li>
@@ -127,7 +127,9 @@ export default function Navbar() {
                   <NavLink
                     to="/medios-de-pago"
                     className="nav-link"
-                    aria-current={pathname === "/medios-de-pago" ? "page" : undefined}
+                    aria-current={
+                      pathname === "/medios-de-pago" ? "page" : undefined
+                    }
                   >
                     Medios de pago
                   </NavLink>
