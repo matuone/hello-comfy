@@ -10,6 +10,7 @@ export default function AdminSidebar() {
     { path: "/admin/products", label: "Productos" },
     { path: "/admin/stock", label: "Stock" },
     { path: "/admin/banners", label: "Mensaje del Banner" },
+    { path: "/admin/customers", label: "Clientes" }, // 👈 AGREGADO
   ];
 
   return (
@@ -23,7 +24,9 @@ export default function AdminSidebar() {
             className={`sidebar-item ${pathname === item.path ? "active" : ""
               }`}
           >
-            <Link to={item.path}>{item.label}</Link>
+            <Link className="sidebar-link" to={item.path}>
+              {item.label}
+            </Link>
           </li>
         ))}
       </ul>

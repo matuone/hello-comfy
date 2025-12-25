@@ -1,93 +1,88 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "./AdminLayout";
 import "../styles/adminpanel.css";
 
 export default function AdminCustomers() {
-  // ============================
-  // CLIENTES DE EJEMPLO
-  // ============================
-  const [clientes, setClientes] = useState([
+  const navigate = useNavigate();
+
+  const [clientes] = useState([
     {
       id: "U001",
       nombre: "María López",
       email: "maria@gmail.com",
+      telefono: "11-2345-6789",
+      direccion: "Av. Siempre Viva 123",
       fecha: "2024-11-12",
-      pedidos: 5,
+      pedidos: [
+        { id: "A001", total: 12500, fecha: "2025-01-24" },
+        { id: "A003", total: 15200, fecha: "2025-01-23" }
+      ]
     },
     {
       id: "U002",
       nombre: "Juan Pérez",
       email: "juanperez@gmail.com",
+      telefono: "11-9876-5432",
+      direccion: "Calle Falsa 456",
       fecha: "2024-12-01",
-      pedidos: 2,
-    },
-    {
-      id: "U003",
-      nombre: "Lucía Fernández",
-      email: "luciaf@gmail.com",
-      fecha: "2025-01-05",
-      pedidos: 3,
-    },
+      pedidos: [
+        { id: "A002", total: 8900, fecha: "2025-01-24" }
+      ]
+    }
   ]);
 
-  // ============================
-  // BORRAR CLIENTE
-  // ============================
-  function borrarCliente(id) {
-    if (confirm("¿Seguro que querés borrar este cliente?")) {
-      setClientes(prev => prev.filter(c => c.id !== id));
-    }
-  }
-
-  // ============================
-  // VER HISTORIAL (placeholder)
-  // ============================
   function verHistorial(cliente) {
-    alert(`Acá se mostraría el historial de compras de ${cliente.nombre}`);
-    // Más adelante podemos crear AdminCustomerDetail.jsx
+    navigate(`/admin/customers/${cliente.id}`, { state: cliente });
   }
 
   return (
     <AdminLayout>
-      {/* HEADER */}
       <div className="admin-header">
         <h1 className="admin-title">Clientes</h1>
         <p className="admin-welcome">Listado de clientes registrados</p>
       </div>
 
-      {/* ============================
-          LISTA DE CLIENTES
-      ============================ */}
       <section className="admin-section">
         <h2 className="section-title">Clientes registrados</h2>
 
-        <div className="clientes-grid">
-          {clientes.map(cliente => (
-            <div key={cliente.id} className="cliente-card">
-              <h3 className="cliente-nombre">{cliente.nombre}</h3>
-              <p className="cliente-email">{cliente.email}</p>
-              <p className="cliente-fecha">
-                Registrado el: <strong>{cliente.fecha}</strong>
-              </p>
-              <p className="cliente-pedidos">
-                Pedidos realizados: <strong>{cliente.pedidos}</strong>
-              </p>
+        <div className="tabla-clientes-container">
+          <table className="tabla-clientes">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Registrado</th>
+                <th>Pedidos</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
 
-              <button
-                className="btn-editar"
-                onClick={() => verHistorial(cliente)}
-              >
-                Ver historial
-              </button>
-
-              <button
-                className="btn-borrar"
-                onClick={() => borrarCliente(cliente.id)}
-              >
-                Borrar cliente
-              </button>
-            </div>
-          ))}
+            <tbody>
+              {clientes.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.id}</td>
+                  <td>{c.nombre}</td>
+                  <td>{c.email}</td>
+                  <td>{c.telefono}</td>
+                  <td>{c.direccion}</td>
+                  <td>{c.fecha}</td>
+                  <td>{c.pedidos.length}</td>
+                  <td>
+                    <button
+                      className="btn-tabla"
+                      onClick={() => verHistorial(c)}
+                    >
+                      Ver historial
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </AdminLayout>

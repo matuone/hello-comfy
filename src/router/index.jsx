@@ -18,26 +18,25 @@ import Category from "../views/Category";
 
 // Admin
 import AdminLogin from "../views/AdminLogin";
-import AdminPanel from "../views/AdminPanel";          // General
-import AdminOrders from "../views/AdminOrders";        // Ventas
-import AdminProducts from "../views/AdminProducts";    // Productos
-import AdminBanners from "../views/AdminBanners";      // Mensaje del banner
+import AdminPanel from "../views/AdminPanel";
+import AdminOrders from "../views/AdminOrders";
+import AdminProducts from "../views/AdminProducts";
+import AdminBanners from "../views/AdminBanners";
 import AdminCategories from "../views/AdminCategories";
 import AdminCustomers from "../views/AdminCustomers";
-import AdminStock from "../views/AdminStock";          // NUEVO
+import AdminCustomerDetail from "../views/AdminCustomerDetail"; // 👈 IMPORTANTE
+import AdminStock from "../views/AdminStock";
 
 export default function AppRouter() {
   return (
     <Routes>
+
+      {/* RUTAS PÚBLICAS */}
       <Route element={<Layout />}>
 
-        {/* HOME */}
         <Route path="/" element={<Home />} />
-
-        {/* TODOS LOS PRODUCTOS */}
         <Route path="/products" element={<Products />} />
 
-        {/* CATEGORÍAS */}
         <Route
           path="/indumentaria/:subcategory"
           element={<Category section="indumentaria" />}
@@ -51,7 +50,6 @@ export default function AppRouter() {
           element={<Category section="merch" />}
         />
 
-        {/* OTRAS SECCIONES */}
         <Route path="/categorias" element={<Categories />} />
         <Route path="/talles" element={<SizeGuide />} />
         <Route path="/algodon" element={<CottonCare />} />
@@ -60,27 +58,28 @@ export default function AppRouter() {
         <Route path="/mi-cuenta" element={<MyAccount />} />
         <Route path="/create-account" element={<CreateAccount />} />
 
-        {/* ADMIN LOGIN */}
-        <Route path="/admin-login" element={<AdminLogin />} />
-
-        {/* PANEL ADMIN */}
-        <Route path="/admin" element={<AdminPanel />} />            {/* General */}
-        <Route path="/admin/orders" element={<AdminOrders />} />    {/* Ventas */}
-        <Route path="/admin/products" element={<AdminProducts />} />{/* Productos */}
-        <Route path="/admin/stock" element={<AdminStock />} />      {/* Stock */}
-        <Route path="/admin/banners" element={<AdminBanners />} />  {/* Mensaje del banner */}
-
-        {/* OTRAS SECCIONES ADMIN (opcionales) */}
-        <Route path="/admin/categories" element={<AdminCategories />} />
-        <Route path="/admin/customers" element={<AdminCustomers />} />
-
-        {/* CARRITO */}
         <Route path="/cart" element={<Cart />} />
 
-        {/* 404 */}
+        {/* 404 PÚBLICO */}
         <Route path="*" element={<NotFound />} />
 
       </Route>
+
+      {/* LOGIN ADMIN (fuera del layout público) */}
+      <Route path="/admin-login" element={<AdminLogin />} />
+
+      {/* PANEL ADMIN (fuera del layout público) */}
+      <Route path="/admin" element={<AdminPanel />} />
+      <Route path="/admin/orders" element={<AdminOrders />} />
+      <Route path="/admin/products" element={<AdminProducts />} />
+      <Route path="/admin/stock" element={<AdminStock />} />
+      <Route path="/admin/banners" element={<AdminBanners />} />
+      <Route path="/admin/categories" element={<AdminCategories />} />
+      <Route path="/admin/customers" element={<AdminCustomers />} />
+
+      {/* DETALLE DE CLIENTE (NUEVO) */}
+      <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
+
     </Routes>
   );
 }
