@@ -1,15 +1,33 @@
-// src/views/AdminSales.jsx
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/adminsales.css";
 
 export default function AdminSales() {
   const [busqueda, setBusqueda] = useState("");
 
-  // Selección de ventas
+  // Selección
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+
+  // Dropdown acciones
   const [accionesAbiertas, setAccionesAbiertas] = useState(false);
+  const accionesRef = useRef(null);
+
+  // Popup seguimiento
+  const [popupAbierto, setPopupAbierto] = useState(false);
+  const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
+  const [codigoSeguimiento, setCodigoSeguimiento] = useState("");
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (accionesRef.current && !accionesRef.current.contains(e.target)) {
+        setAccionesAbiertas(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const [ventasData, setVentasData] = useState([
     {
@@ -21,7 +39,8 @@ export default function AdminSales() {
       total: "$60.361,74",
       productos: "1 unid.",
       pagoEstado: "recibido",
-      envio: "Enviada (Andreani Estándar)",
+      envioEstado: "enviado",
+      seguimiento: "360002840905880",
     },
     {
       id: "8255",
@@ -32,7 +51,8 @@ export default function AdminSales() {
       total: "$35.550,00",
       productos: "1 unid.",
       pagoEstado: "pendiente",
-      envio: "Por empaquetar (Andreani Online - Showroom)",
+      envioEstado: "pendiente",
+      seguimiento: "",
     },
     {
       id: "8254",
@@ -43,7 +63,8 @@ export default function AdminSales() {
       total: "$35.550,00",
       productos: "1 unid.",
       pagoEstado: "pendiente",
-      envio: "Por empaquetar (PICK UP POINT - Temperley)",
+      envioEstado: "pendiente",
+      seguimiento: "",
     },
   ]);
 
@@ -54,9 +75,7 @@ export default function AdminSales() {
       .includes(busqueda.toLowerCase())
   );
 
-  // ============================
   // Selección individual
-  // ============================
   function toggleSeleccion(id) {
     setSeleccionadas((prev) =>
       prev.includes(id)
@@ -65,9 +84,7 @@ export default function AdminSales() {
     );
   }
 
-  // ============================
   // Seleccionar todas
-  // ============================
   function toggleSeleccionarTodas() {
     if (selectAll) {
       setSeleccionadas([]);
@@ -79,23 +96,38 @@ export default function AdminSales() {
     }
   }
 
-  // ============================
   // Acciones masivas
-  // ============================
   function ejecutarAccion(nombre) {
     alert(`Acción ejecutada: ${nombre} para ${seleccionadas.length} ventas`);
     setAccionesAbiertas(false);
   }
 
-  // ============================
-  // Marcar pago recibido (individual)
-  // ============================
+  // Marcar pago recibido
   function marcarPagoRecibido(id) {
     setVentasData((prev) =>
       prev.map((v) =>
         v.id === id ? { ...v, pagoEstado: "recibido" } : v
       )
     );
+  }
+
+  // Abrir popup seguimiento
+  function abrirPopup(id) {
+    setVentaSeleccionada(id);
+    setCodigoSeguimiento("");
+    setPopupAbierto(true);
+  }
+
+  // Guardar seguimiento
+  function guardarSeguimiento() {
+    setVentasData((prev) =>
+      prev.map((v) =>
+        v.id === ventaSeleccionada
+          ? { ...v, envioEstado: "enviado", seguimiento: codigoSeguimiento }
+          : v
+      )
+    );
+    setPopupAbierto(false);
   }
 
   return (
@@ -108,9 +140,7 @@ export default function AdminSales() {
         Gestión diaria de pedidos, pagos y envíos.
       </p>
 
-      {/* ============================
-          BUSCADOR
-      ============================ */}
+      {/* Buscador */}
       <input
         type="text"
         placeholder="Buscar por cliente, email, teléfono o número..."
@@ -119,9 +149,7 @@ export default function AdminSales() {
         onChange={(e) => setBusqueda(e.target.value)}
       />
 
-      {/* ============================
-          TOOLBAR DE ACCIONES MASIVAS
-      ============================ */}
+      {/* Toolbar */}
       <div className="sales-toolbar">
 
         <div className="sales-toolbar-left">
@@ -140,7 +168,7 @@ export default function AdminSales() {
           </span>
         </div>
 
-        <div className="sales-toolbar-right">
+        <div className="sales-toolbar-right" ref={accionesRef}>
           <div className="dropdown">
             <button
               className="dropdown-btn"
@@ -165,9 +193,7 @@ export default function AdminSales() {
 
       </div>
 
-      {/* ============================
-          TABLA
-      ============================ */}
+      {/* Tabla */}
       <div className="admin-table-container">
         <table className="admin-table">
           <thead>
@@ -211,6 +237,7 @@ export default function AdminSales() {
                 <td>{venta.total}</td>
                 <td>{venta.productos}</td>
 
+                {/* Pago */}
                 <td>
                   {venta.pagoEstado === "recibido" ? (
                     <span className="payment-status paid">Recibido</span>
@@ -227,12 +254,60 @@ export default function AdminSales() {
                   )}
                 </td>
 
-                <td>{venta.envio}</td>
+                {/* Envío */}
+                <td>
+                  {venta.envioEstado === "enviado" ? (
+                    <span className="envio-status enviado">
+                      ✈️ Enviado
+                    </span>
+                  ) : (
+                    <button
+                      className="envio-pendiente-btn"
+                      onClick={() => abrirPopup(venta.id)}
+                    >
+                      Agregar seguimiento
+                    </button>
+                  )}
+                </td>
+
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* ============================
+          POPUP SEGUIMIENTO
+      ============================ */}
+      {popupAbierto && (
+        <div className="popup-overlay">
+          <div className="popup">
+            <h3>Agregar número de seguimiento</h3>
+
+            <p className="popup-venta-info">
+              Venta: <strong>#{ventaSeleccionada}</strong>
+            </p>
+
+            <input
+              type="text"
+              placeholder="Ingresá el código..."
+              value={codigoSeguimiento}
+              onChange={(e) => setCodigoSeguimiento(e.target.value)}
+              className="popup-input"
+            />
+
+            <div className="popup-buttons">
+              <button className="popup-cancel" onClick={() => setPopupAbierto(false)}>
+                Cancelar
+              </button>
+              <button className="popup-send" onClick={guardarSeguimiento}>
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
