@@ -2,12 +2,12 @@
 
 /* ======================================
    TIPOGRAFÍA
-   ====================================== */
+====================================== */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap");
 
 /* ======================================
    RESET / BASE
-   ====================================== */
+====================================== */
 html,
 body,
 main,
@@ -25,77 +25,8 @@ body {
 }
 
 /* ======================================
-   ANNOUNCEMENT BAR (arriba del navbar)
-   ====================================== */
-.announcement-bar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  margin: 0;
-
-  /* ALTURA CLARA Y CONSISTENTE */
-  height: 32px;
-  padding: 0 12px;
-  box-sizing: border-box;
-
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  justify-content: flex-start;
-  background: #111;
-  color: #fff;
-  font-size: 14px;
-  letter-spacing: .2px;
-  z-index: 9999;
-}
-
-
-.ab-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  white-space: nowrap;
-  text-decoration: none;
-  color: inherit;
-}
-
-.ab-brand:hover {
-  opacity: .9;
-}
-
-.ab-ticker {
-  flex: 1;
-  overflow: hidden;
-  height: 22px;
-}
-
-.ab-track {
-  display: inline-flex;
-  white-space: nowrap;
-  animation: scrollLoop 35s linear infinite;
-}
-
-.ab-seq {
-  padding-left: 16px;
-  margin-right: 80px;
-}
-
-@keyframes scrollLoop {
-  0% {
-    transform: translateX(0)
-  }
-
-  100% {
-    transform: translateX(-1000px)
-  }
-}
-
-/* ======================================
    BANNER FULL-BLEED
-   ====================================== */
+====================================== */
 .full-banner {
   position: relative;
   width: 100vw;
@@ -111,7 +42,6 @@ body {
   margin-top: 0;
 }
 
-
 .full-banner img {
   display: block;
   width: 100%;
@@ -122,12 +52,7 @@ body {
 
 /* ======================================
    ADYACENCIAS / ESPACIADOS
-   ====================================== */
-.announcement-bar+.navbar {
-  border-top: 0;
-  margin-top: 0;
-}
-
+====================================== */
 .full-banner+* {
   margin-top: 0;
 }
@@ -139,14 +64,16 @@ body {
 
 /* ======================================
    RESPONSIVE
-   ====================================== */
+====================================== */
 @media (max-width: 720px) {
   .home-copy {
     padding: 32px 14px;
   }
 }
 
-/* ===== Footer ===== */
+/* ======================================
+   FOOTER
+====================================== */
 .site-footer {
   border-top: 1px solid #eee;
   margin-top: 48px;

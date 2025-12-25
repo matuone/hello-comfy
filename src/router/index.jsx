@@ -66,7 +66,7 @@ export default function AppRouter() {
       <Route element={<AdminLayout />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/sales" element={<AdminSales />} />
-        <Route path="/admin/sales/:id" element={<AdminSaleDetail />} /> {/* 👈 MOVIDA AQUÍ */}
+        <Route path="/admin/sales/:id" element={<AdminSaleDetail />} />
       </Route>
 
     </Routes>

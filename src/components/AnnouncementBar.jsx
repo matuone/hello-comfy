@@ -1,4 +1,3 @@
-// src/components/AnnouncementBar.jsx
 import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/announcementbar.css";
@@ -29,6 +28,7 @@ export default function AnnouncementBar({
   const buildSafeSequence = (base, rotations) => {
     let out = [];
     let last = null;
+
     for (let r = 0; r < rotations; r++) {
       const rot = rotate(base, r % base.length);
       for (const msg of rot) {
@@ -38,11 +38,14 @@ export default function AnnouncementBar({
       }
       out.push("__GAP__");
     }
+
     const firstReal = out.find((x) => x !== "__GAP__");
     const lastReal = [...out].reverse().find((x) => x !== "__GAP__");
+
     if (firstReal && lastReal && firstReal === lastReal) {
       out.unshift("__GAP__");
     }
+
     const parts = [];
     for (const token of out) {
       if (token === "__GAP__") {
@@ -54,22 +57,31 @@ export default function AnnouncementBar({
         parts.push(token);
       }
     }
+
     return parts.join("");
   };
 
+  // ============================
+  // FIT TICKER WIDTH
+  // ============================
   useLayoutEffect(() => {
     const fit = () => {
       const base = messages.filter(Boolean);
       if (base.length === 0) return;
+
       const tickerW = tickerRef.current?.offsetWidth ?? 0;
       const target = tickerW + 120;
+
       let r = 2;
       let width = 0;
+
       const measure = () => {
         const text = buildSafeSequence(base, r);
         if (seqRef.current) seqRef.current.textContent = text;
+
         requestAnimationFrame(() => {
           width = seqRef.current?.offsetWidth ?? 0;
+
           if (width < target && r < 30) {
             r += 1;
             measure();
@@ -79,23 +91,39 @@ export default function AnnouncementBar({
           }
         });
       };
+
       measure();
     };
+
     fit();
     const onResize = () => fit();
+
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [JSON.stringify(messages)]);
 
+  // ============================
+  // FIX DEFINITIVO: actualizar --ab-height SIEMPRE
+  // ============================
   useLayoutEffect(() => {
     const updateHeight = () => {
       if (!rootRef.current) return;
-      const h = rootRef.current.offsetHeight || 0;
+      const h = rootRef.current.getBoundingClientRect().height;
       document.documentElement.style.setProperty("--ab-height", `${h}px`);
     };
+
     updateHeight();
+
+    // Observa cambios en tamaño real del AnnouncementBar
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(rootRef.current);
+
     window.addEventListener("resize", updateHeight);
-    return () => window.removeEventListener("resize", updateHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateHeight);
+    };
   }, []);
 
   const safeBlock = buildSafeSequence(messages, repeat);

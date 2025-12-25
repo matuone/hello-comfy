@@ -7,7 +7,7 @@
   --hc-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   --hc-ring: rgba(0, 0, 0, 0.06);
 
-  /* Altura de barra superior (si existe) */
+  /* Altura de barra superior (AnnouncementBar) */
   --ab-height: 0px;
 
   /* Altura REAL del navbar fijo */
@@ -26,12 +26,17 @@
   position: fixed;
   left: 0;
   right: 0;
+
+  /* Se coloca DEBAJO del AnnouncementBar */
   top: var(--ab-height);
+
   z-index: 999;
+  /* AnnouncementBar está en 9999 */
   line-height: 1;
   margin: 0;
   padding: 0;
   border: none;
+
   transition:
     background 0.2s ease,
     box-shadow 0.2s ease,

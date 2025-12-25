@@ -1,18 +1,28 @@
+/* ============================
+   ANNOUNCEMENT BAR (FIJO ARRIBA)
+============================ */
 .announcement-bar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+
   background-color: #222;
   color: #fff;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: 0.4rem 1rem;
-  z-index: 1000;
-  /* encima del navbar */
+
+  z-index: 9999;
+  /* por encima del navbar */
 }
 
+/* ============================
+   MARCA / LOGO
+============================ */
 .ab-brand {
   font-weight: bold;
   text-decoration: none;
@@ -25,6 +35,9 @@
   margin-right: 0.3rem;
 }
 
+/* ============================
+   TICKER
+============================ */
 .ab-ticker {
   overflow: hidden;
   flex: 1;
@@ -42,6 +55,9 @@
   padding-right: 2rem;
 }
 
+/* ============================
+   ANIMACIÓN
+============================ */
 @keyframes ticker {
   from {
     transform: translateX(0);

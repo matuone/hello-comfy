@@ -18,10 +18,20 @@ export default function Layout() {
 
   return (
     <div className="layout">
-      {/* SOLO EN PÚBLICO */}
-      {!esAdmin && <AnnouncementBar />}
-      {!esAdmin && <Navbar />}
 
+      {/* ============================
+          HEADER STICKY (solo público)
+      ============================ */}
+      {!esAdmin && (
+        <div className="header-sticky">
+          <AnnouncementBar />
+          <Navbar />
+        </div>
+      )}
+
+      {/* ============================
+          CONTENIDO PRINCIPAL
+      ============================ */}
       <main
         className={
           esAdmin
@@ -40,9 +50,13 @@ export default function Layout() {
             interval={5000}
           />
         )}
+
         <Outlet />
       </main>
 
+      {/* ============================
+          FOOTER (solo público)
+      ============================ */}
       {!esAdmin && <Footer />}
     </div>
   );
