@@ -156,3 +156,124 @@
   color: #222;
   margin: 0;
 }
+
+/* ============================
+   CONTADOR DE VENTAS
+============================ */
+.sales-count {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #888;
+  margin-left: 8px;
+}
+
+/* ============================
+   BOTONES DE FILTRO
+============================ */
+.sales-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sales-filter-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.15s ease;
+}
+
+.sales-filter-btn:hover {
+  background: #fce4ec;
+}
+
+.sales-filter-btn.active {
+  background: #d94f7a;
+  color: white;
+  border-color: #d94f7a;
+}
+
+/* ============================
+   TABLA ESTILO EXCEL
+============================ */
+.admin-table-container {
+  overflow-x: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+}
+
+.admin-table th {
+  background: #fce4ec;
+  color: #d94f7a;
+  padding: 12px;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 2px solid #d94f7a33;
+  font-size: 0.95rem;
+}
+
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.admin-table tr:hover {
+  background: #fff7fa;
+}
+
+/* ============================
+   ESTADOS DE PAGO
+============================ */
+.payment-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.payment-status.paid {
+  background: #d4f8d4;
+  color: #2e7d32;
+  border: 1px solid #81c784;
+}
+
+.payment-status.pending {
+  background: #ffe7c2;
+  color: #e65100;
+  border: 1px solid #ffb74d;
+}
+
+/* ============================
+   BOTÓN DE ACCIÓN EN TABLA
+============================ */
+.table-btn {
+  background: #64b5f6;
+  color: #0d47a1;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.15s ease;
+}
+
+.table-btn:hover {
+  background: #42a5f5;
+}

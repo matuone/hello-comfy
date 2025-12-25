@@ -21,7 +21,23 @@ export default function AdminSidebar() {
             General
           </NavLink>
         </li>
-        {/* después agregamos Ventas, Productos, etc. */}
+
+        <li>
+          <NavLink
+            to="/admin/sales"
+            className={({ isActive }) =>
+              "admin-sidebar-link" + (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Ventas
+          </NavLink>
+        </li>
+
+        {/* Cuando quieras agregamos más secciones:
+        <li><NavLink to="/admin/products">Productos</NavLink></li>
+        <li><NavLink to="/admin/customers">Clientes</NavLink></li>
+        etc.
+        */}
       </ul>
     </nav>
   );

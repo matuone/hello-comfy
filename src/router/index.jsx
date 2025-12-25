@@ -1,7 +1,10 @@
 // src/router/index.jsx
 import { Routes, Route } from "react-router-dom";
+
+// Layout público
 import Layout from "../views/Layout";
 
+// Vistas públicas
 import Home from "../views/Home";
 import Cart from "../views/Cart";
 import NotFound from "../views/NotFound";
@@ -18,12 +21,15 @@ import Category from "../views/Category";
 // Admin
 import AdminLayout from "../views/AdminLayout";
 import AdminDashboard from "../views/AdminDashboard";
+import AdminSales from "../views/AdminSales"; // 👈 NUEVA VISTA
 
 export default function AppRouter() {
   return (
     <Routes>
 
-      {/* RUTAS PÚBLICAS */}
+      {/* ============================
+          RUTAS PÚBLICAS
+      ============================ */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
@@ -49,12 +55,16 @@ export default function AppRouter() {
         <Route path="/mi-cuenta" element={<MyAccount />} />
         <Route path="/create-account" element={<CreateAccount />} />
         <Route path="/cart" element={<Cart />} />
+
         <Route path="*" element={<NotFound />} />
       </Route>
 
-      {/* PANEL ADMIN – 100% AISLADO DEL LAYOUT PÚBLICO */}
+      {/* ============================
+          PANEL ADMIN (AISLADO)
+      ============================ */}
       <Route element={<AdminLayout />}>
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/sales" element={<AdminSales />} /> {/* 👈 NUEVA RUTA */}
       </Route>
 
     </Routes>
