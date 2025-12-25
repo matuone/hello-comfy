@@ -1,6 +1,6 @@
 // src/views/AdminSaleDetail.jsx
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "../styles/adminsaledetail.css";
 
 export default function AdminSaleDetail() {
@@ -8,6 +8,28 @@ export default function AdminSaleDetail() {
 
   const [isAppsOpen, setIsAppsOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+
+  // Referencias a los dropdowns
+  const appsRef = useRef(null);
+  const moreRef = useRef(null);
+
+  // Cerrar dropdowns al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        appsRef.current &&
+        !appsRef.current.contains(e.target) &&
+        moreRef.current &&
+        !moreRef.current.contains(e.target)
+      ) {
+        setIsAppsOpen(false);
+        setIsMoreOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const venta = {
     id,
@@ -72,46 +94,30 @@ export default function AdminSaleDetail() {
           BOTONES DE ACCIÓN
       ============================ */}
       <div className="detalle-actions">
+
         {/* Aplicaciones */}
-        <div className="dropdown">
+        <div className="dropdown" ref={appsRef}>
           <button className="dropdown-btn" onClick={toggleApps}>
             Aplicaciones ▾
           </button>
           <div className={`dropdown-menu ${isAppsOpen ? "open" : ""}`}>
-            <button
-              onClick={() =>
-                alert("Registrar orden en Correo Argentino (futuro: llamada a API)")
-              }
-            >
-              Registrar orden en Correo Argentino
-            </button>
-            <button
-              onClick={() =>
-                alert("Registrar orden en Andreani (futuro: llamada a API)")
-              }
-            >
-              Registrar orden en Andreani
-            </button>
+            <button>Registrar orden en Correo Argentino</button>
+            <button>Registrar orden en Andreani</button>
           </div>
         </div>
 
         {/* Más opciones */}
-        <div className="dropdown">
+        <div className="dropdown" ref={moreRef}>
           <button className="dropdown-btn" onClick={toggleMore}>
             Más opciones ▾
           </button>
           <div className={`dropdown-menu ${isMoreOpen ? "open" : ""}`}>
-            <button onClick={() => alert("Cancelar venta (futuro: cambio de estado en BD)")}>
-              Cancelar venta
-            </button>
-            <button onClick={() => alert("Devolver dinero (futuro: acción en pasarela)")}>
-              Devolver dinero
-            </button>
-            <button onClick={() => alert("Venta archivada (futuro: marcar en BD)")}>
-              Archivar venta
-            </button>
+            <button>Cancelar venta</button>
+            <button>Devolver dinero</button>
+            <button>Archivar venta</button>
           </div>
         </div>
+
       </div>
 
       {/* ============================
@@ -120,70 +126,37 @@ export default function AdminSaleDetail() {
       <div className="detalle-grid">
         <div className="detalle-box">
           <h3 className="detalle-title">Producto</h3>
-          <p className="detalle-info-line">
-            <strong>Nombre:</strong> {venta.producto.nombre}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Talle:</strong> {venta.producto.talle}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Precio:</strong> {venta.producto.precio}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Descuento:</strong> {venta.producto.descuento}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Envío:</strong> {venta.producto.envio}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Total pagado:</strong> {venta.producto.total}
-          </p>
+          <p className="detalle-info-line"><strong>Nombre:</strong> {venta.producto.nombre}</p>
+          <p className="detalle-info-line"><strong>Talle:</strong> {venta.producto.talle}</p>
+          <p className="detalle-info-line"><strong>Precio:</strong> {venta.producto.precio}</p>
+          <p className="detalle-info-line"><strong>Descuento:</strong> {venta.producto.descuento}</p>
+          <p className="detalle-info-line"><strong>Envío:</strong> {venta.producto.envio}</p>
+          <p className="detalle-info-line"><strong>Total pagado:</strong> {venta.producto.total}</p>
         </div>
 
         <div className="detalle-box">
           <h3 className="detalle-title">Cliente</h3>
-          <p className="detalle-info-line">
-            <strong>Nombre:</strong> {venta.cliente}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Email:</strong> {venta.email}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Teléfono:</strong> {venta.telefono}
-          </p>
-          <p className="detalle-info-line">
-            <strong>DNI/CUIT:</strong> {venta.dni}
-          </p>
+          <p className="detalle-info-line"><strong>Nombre:</strong> {venta.cliente}</p>
+          <p className="detalle-info-line"><strong>Email:</strong> {venta.email}</p>
+          <p className="detalle-info-line"><strong>Teléfono:</strong> {venta.telefono}</p>
+          <p className="detalle-info-line"><strong>DNI/CUIT:</strong> {venta.dni}</p>
         </div>
 
         <div className="detalle-box">
           <h3 className="detalle-title">Dirección</h3>
-          <p className="detalle-info-line">
-            {venta.direccion.calle} {venta.direccion.numero}, Piso{" "}
-            {venta.direccion.piso}
-          </p>
+          <p className="detalle-info-line">{venta.direccion.calle} {venta.direccion.numero}, Piso {venta.direccion.piso}</p>
           <p className="detalle-info-line">{venta.direccion.barrio}</p>
           <p className="detalle-info-line">CP {venta.direccion.cp}</p>
-          <p className="detalle-info-line">
-            {venta.direccion.ciudad}, {venta.direccion.provincia}
-          </p>
+          <p className="detalle-info-line">{venta.direccion.ciudad}, {venta.direccion.provincia}</p>
           <p className="detalle-info-line">{venta.direccion.pais}</p>
         </div>
 
         <div className="detalle-box">
           <h3 className="detalle-title">Envío</h3>
-          <p className="detalle-info-line">
-            <strong>Método:</strong> {venta.envio.metodo}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Demora estimada:</strong> {venta.envio.demora}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Peso:</strong> {venta.envio.peso}
-          </p>
-          <p className="detalle-info-line">
-            <strong>Código de seguimiento:</strong> {venta.envio.seguimiento}
-          </p>
+          <p className="detalle-info-line"><strong>Método:</strong> {venta.envio.metodo}</p>
+          <p className="detalle-info-line"><strong>Demora estimada:</strong> {venta.envio.demora}</p>
+          <p className="detalle-info-line"><strong>Peso:</strong> {venta.envio.peso}</p>
+          <p className="detalle-info-line"><strong>Código de seguimiento:</strong> {venta.envio.seguimiento}</p>
           <button className="detalle-copy-btn" onClick={copiarSeguimiento}>
             Copiar código
           </button>
