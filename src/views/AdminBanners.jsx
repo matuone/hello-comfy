@@ -1,82 +1,59 @@
-// src/views/AdminBanners.jsx
 import { useState } from "react";
-import "../styles/admin.css"; // 👈 usamos tu admin.css
-import PromoBanner from "../components/PromoBanner";
+import AdminLayout from "./AdminLayout";
+import "../styles/adminpanel.css";
 
 export default function AdminBanners() {
-  var saved = localStorage.getItem("promoMessage");
+  // ============================
+  // MENSAJE DEL BANNER
+  // ============================
+  const [message, setMessage] = useState(
+    localStorage.getItem("promoMessage") || ""
+  );
 
-  var defaultMessage = "Aprovechá hoy 3x2 en remeras 🧸✨";
-
-  var initial = saved ? saved : defaultMessage;
-
-  const [message, setMessage] = useState(initial);
-  const [error, setError] = useState("");
-
-  function handleChange(e) {
-    var value = e.target.value;
-
-    if (value.length > 120) {
-      setError("El mensaje no puede superar los 120 caracteres");
-    } else {
-      setError("");
-    }
-
-    setMessage(value);
-  }
-
-  function handleSave() {
-    if (message.trim() === "") {
-      setError("El mensaje no puede estar vacío");
-      return;
-    }
-
-    if (message.length > 120) {
-      setError("El mensaje supera el límite permitido");
-      return;
-    }
-
+  function saveMessage() {
     localStorage.setItem("promoMessage", message);
-    alert("Mensaje actualizado correctamente");
-  }
-
-  function handleReset() {
-    setMessage(defaultMessage);
-    localStorage.setItem("promoMessage", defaultMessage);
-    alert("Mensaje restablecido al valor original");
+    alert("Mensaje del banner actualizado");
   }
 
   return (
-    <div className="admin-section">
-      <h1 className="admin-title">Gestión de Banner</h1>
-      <p className="admin-subtitle">
-        Editá el texto que aparece sobre el banner principal.
-      </p>
-
-      {/* Vista previa */}
-      <div className="admin-preview">
-        <PromoBanner autoplay={false} fullBleed={false} />
+    <AdminLayout>
+      {/* HEADER */}
+      <div className="admin-header">
+        <h1 className="admin-title">Mensaje del Banner</h1>
+        <p className="admin-welcome">
+          Editá el mensaje que aparece en el slider principal
+        </p>
       </div>
 
-      <label className="admin-label">Texto del banner:</label>
+      {/* ============================
+          EDITOR DEL MENSAJE
+      ============================ */}
+      <section className="admin-section">
+        <h2 className="section-title">Editar mensaje</h2>
 
-      <textarea
-        value={message}
-        onChange={handleChange}
-        className="admin-textarea"
-      />
+        <input
+          type="text"
+          className="tracking-input"
+          placeholder="Nuevo mensaje del banner"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
 
-      {error && <p className="admin-error">{error}</p>}
-
-      <div className="admin-buttons">
-        <button className="admin-btn" onClick={handleSave}>
+        <button className="btn-guardar" onClick={saveMessage}>
           Guardar mensaje
         </button>
+      </section>
 
-        <button className="admin-btn secondary" onClick={handleReset}>
-          Restablecer
-        </button>
-      </div>
-    </div>
+      {/* ============================
+          PREVIEW EN VIVO
+      ============================ */}
+      <section className="admin-section">
+        <h2 className="section-title">Preview</h2>
+
+        <div className="banner-preview">
+          {message || "Escribí un mensaje para ver la vista previa"}
+        </div>
+      </section>
+    </AdminLayout>
   );
 }

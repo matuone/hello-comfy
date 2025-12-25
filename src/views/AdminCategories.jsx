@@ -1,36 +1,116 @@
-// src/views/AdminCategories.jsx
 import { useState } from "react";
-import "../styles/admin.css";
+import AdminLayout from "./AdminLayout";
+import "../styles/adminpanel.css";
 
 export default function AdminCategories() {
-  const [categories] = useState([]); // placeholder hasta backend
+  // ============================
+  // CATEGORÍAS DE EJEMPLO
+  // ============================
+  const [categorias, setCategorias] = useState([
+    { id: "C001", nombre: "Indumentaria", slug: "indumentaria" },
+    { id: "C002", nombre: "Cute Items", slug: "cute-items" },
+    { id: "C003", nombre: "Merch", slug: "merch" },
+  ]);
 
-  function handleAddCategory() {
-    alert("Función para agregar categoría (se activará en Fase 2)");
+  // ============================
+  // EDITAR CATEGORÍA
+  // ============================
+  const [editando, setEditando] = useState(null);
+
+  function guardarCategoria() {
+    setCategorias(prev =>
+      prev.map(c => (c.id === editando.id ? editando : c))
+    );
+    setEditando(null);
+  }
+
+  function borrarCategoria(id) {
+    if (confirm("¿Seguro que querés borrar esta categoría?")) {
+      setCategorias(prev => prev.filter(c => c.id !== id));
+    }
+  }
+
+  // ============================
+  // AGREGAR CATEGORÍA NUEVA
+  // ============================
+  function agregarCategoria() {
+    const nueva = {
+      id: "C" + Math.floor(Math.random() * 9999),
+      nombre: "Nueva categoría",
+      slug: "nueva-categoria",
+    };
+
+    setCategorias(prev => [...prev, nueva]);
+    setEditando(nueva);
   }
 
   return (
-    <div className="admin-section">
-      <h1 className="admin-title">Gestión de Categorías</h1>
-      <p className="admin-subtitle">
-        Aquí podrás crear, editar y eliminar categorías del catálogo.
-      </p>
+    <AdminLayout>
+      {/* HEADER */}
+      <div className="admin-header">
+        <h1 className="admin-title">Categorías</h1>
+        <p className="admin-welcome">Gestioná las categorías de productos</p>
+      </div>
 
-      {/* Botón agregar */}
-      <div className="admin-buttons">
-        <button className="admin-btn" onClick={handleAddCategory}>
+      {/* ============================
+          LISTA DE CATEGORÍAS
+      ============================ */}
+      <section className="admin-section">
+        <h2 className="section-title">Listado de categorías</h2>
+
+        <button className="btn-agregar" onClick={agregarCategoria}>
           + Agregar categoría
         </button>
-      </div>
 
-      {/* Placeholder */}
-      <div className="admin-products-table">
-        {categories.length === 0 ? (
-          <p className="admin-empty">Todavía no hay categorías cargadas.</p>
-        ) : (
-          <p>Acá irá la tabla real de categorías</p>
-        )}
-      </div>
-    </div>
+        <div className="categorias-grid">
+          {categorias.map(cat => (
+            <div key={cat.id} className="categoria-card">
+              {editando?.id === cat.id ? (
+                <>
+                  <input
+                    className="producto-input"
+                    value={editando.nombre}
+                    onChange={e =>
+                      setEditando({ ...editando, nombre: e.target.value })
+                    }
+                  />
+
+                  <input
+                    className="producto-input"
+                    value={editando.slug}
+                    onChange={e =>
+                      setEditando({ ...editando, slug: e.target.value })
+                    }
+                  />
+
+                  <button className="btn-guardar" onClick={guardarCategoria}>
+                    Guardar
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="categoria-nombre">{cat.nombre}</h3>
+                  <p className="categoria-slug">/{cat.slug}</p>
+
+                  <button
+                    className="btn-editar"
+                    onClick={() => setEditando(cat)}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    className="btn-borrar"
+                    onClick={() => borrarCategoria(cat.id)}
+                  >
+                    Borrar
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    </AdminLayout>
   );
 }

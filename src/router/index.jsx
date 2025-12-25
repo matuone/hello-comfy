@@ -18,12 +18,13 @@ import Category from "../views/Category";
 
 // Admin
 import AdminLogin from "../views/AdminLogin";
-import AdminPanel from "../views/AdminPanel";
-import AdminBanners from "../views/AdminBanners";
-import AdminProducts from "../views/AdminProducts";
+import AdminPanel from "../views/AdminPanel";          // General
+import AdminOrders from "../views/AdminOrders";        // Ventas
+import AdminProducts from "../views/AdminProducts";    // Productos
+import AdminBanners from "../views/AdminBanners";      // Mensaje del banner
 import AdminCategories from "../views/AdminCategories";
-import AdminOrders from "../views/AdminOrders";
-import AdminCustomers from "../views/AdminCustomers"; // 👈 NUEVO
+import AdminCustomers from "../views/AdminCustomers";
+import AdminStock from "../views/AdminStock";          // NUEVO
 
 export default function AppRouter() {
   return (
@@ -59,16 +60,19 @@ export default function AppRouter() {
         <Route path="/mi-cuenta" element={<MyAccount />} />
         <Route path="/create-account" element={<CreateAccount />} />
 
-        {/* ADMIN */}
+        {/* ADMIN LOGIN */}
         <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminPanel />} />
 
-        {/* SECCIONES DEL PANEL ADMIN */}
-        <Route path="/admin/banners" element={<AdminBanners />} />
-        <Route path="/admin/products" element={<AdminProducts />} />
+        {/* PANEL ADMIN */}
+        <Route path="/admin" element={<AdminPanel />} />            {/* General */}
+        <Route path="/admin/orders" element={<AdminOrders />} />    {/* Ventas */}
+        <Route path="/admin/products" element={<AdminProducts />} />{/* Productos */}
+        <Route path="/admin/stock" element={<AdminStock />} />      {/* Stock */}
+        <Route path="/admin/banners" element={<AdminBanners />} />  {/* Mensaje del banner */}
+
+        {/* OTRAS SECCIONES ADMIN (opcionales) */}
         <Route path="/admin/categories" element={<AdminCategories />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
-        <Route path="/admin/customers" element={<AdminCustomers />} /> {/* 👈 NUEVO */}
+        <Route path="/admin/customers" element={<AdminCustomers />} />
 
         {/* CARRITO */}
         <Route path="/cart" element={<Cart />} />
