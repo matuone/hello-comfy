@@ -1,5 +1,6 @@
 // src/views/Layout.jsx
 import { Outlet, useLocation } from "react-router-dom";
+import AnnouncementBar from "../components/AnnouncementBar";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PromoBanner from "../components/PromoBanner";
@@ -8,23 +9,26 @@ import "../styles/layout.css";
 export default function Layout() {
   const location = useLocation();
 
-  // Mostrar banner solo en Home
-  const showPromoBanner = location.pathname === "/";
-
-  // 🔥 FIX: rutas que necesitan ancho completo
+  const esAdmin = location.pathname.startsWith("/admin");
+  const showPromoBanner = !esAdmin && location.pathname === "/";
   const isFullWidth =
-    location.pathname.startsWith("/create-account") ||
-    location.pathname.startsWith("/products");
+    !esAdmin &&
+    (location.pathname.startsWith("/create-account") ||
+      location.pathname.startsWith("/products"));
 
   return (
     <div className="layout">
-      <Navbar />
+      {/* SOLO EN PÚBLICO */}
+      {!esAdmin && <AnnouncementBar />}
+      {!esAdmin && <Navbar />}
 
       <main
         className={
-          isFullWidth
-            ? "layout__content layout__content--full"
-            : "layout__content"
+          esAdmin
+            ? "layout__content--admin"
+            : isFullWidth
+              ? "layout__content layout__content--full"
+              : "layout__content"
         }
       >
         {showPromoBanner && (
@@ -36,11 +40,10 @@ export default function Layout() {
             interval={5000}
           />
         )}
-
         <Outlet />
       </main>
 
-      <Footer />
+      {!esAdmin && <Footer />}
     </div>
   );
 }

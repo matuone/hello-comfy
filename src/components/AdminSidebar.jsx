@@ -1,35 +1,28 @@
-import { Link, useLocation } from "react-router-dom";
-import "../styles/adminpanel.css";
+// src/components/AdminSidebar.jsx
+import { NavLink } from "react-router-dom";
 
 export default function AdminSidebar() {
-  const { pathname } = useLocation();
-
-  const items = [
-    { path: "/admin", label: "General" },
-    { path: "/admin/orders", label: "Ventas" },
-    { path: "/admin/products", label: "Productos" },
-    { path: "/admin/stock", label: "Stock" },
-    { path: "/admin/banners", label: "Mensaje del Banner" },
-    { path: "/admin/customers", label: "Clientes" }, // 👈 AGREGADO
-  ];
-
   return (
-    <aside className="admin-categories-sidebar">
-      <h3 className="sidebar-title">Panel</h3>
+    <nav className="admin-sidebar-nav">
+      <div className="admin-sidebar-header">
+        <span className="admin-sidebar-logo">Hello Comfy</span>
+        <span className="admin-sidebar-tag">Admin</span>
+      </div>
 
-      <ul className="sidebar-list">
-        {items.map((item) => (
-          <li
-            key={item.path}
-            className={`sidebar-item ${pathname === item.path ? "active" : ""
-              }`}
+      <ul className="admin-sidebar-list">
+        <li>
+          <NavLink
+            to="/admin"
+            end
+            className={({ isActive }) =>
+              "admin-sidebar-link" + (isActive ? " admin-sidebar-link--active" : "")
+            }
           >
-            <Link className="sidebar-link" to={item.path}>
-              {item.label}
-            </Link>
-          </li>
-        ))}
+            General
+          </NavLink>
+        </li>
+        {/* después agregamos Ventas, Productos, etc. */}
       </ul>
-    </aside>
+    </nav>
   );
 }

@@ -1,7 +1,7 @@
 /* src/styles/layout.css */
 
 /* ================================
-   CONTENEDOR GENERAL
+   CONTENEDOR GENERAL DEL SITIO
 ================================ */
 .layout {
   display: flex;
@@ -16,12 +16,16 @@
   - --ab-height: barra superior (si existe)
   - --navbar-height: navbar principal (fixed)
 */
+
+/* ================================
+   CONTENIDO PÚBLICO (NO ADMIN)
+================================ */
 .layout__content {
   flex: 1;
   max-width: 1100px;
   margin: 0 auto;
 
-  /* 🔒 COMPENSACIÓN ÚNICA DEL NAVBAR */
+  /* Compensación del header fijo */
   padding-top: calc(var(--ab-height) + var(--navbar-height));
 
   padding-left: 16px;
@@ -30,14 +34,31 @@
 }
 
 /* ================================
-   FULL WIDTH (CreateAccount)
+   FULL WIDTH (CreateAccount, Products)
 ================================ */
 .layout__content--full {
   max-width: none;
   width: 100%;
-  /* 🔥 ESTA LÍNEA ES LA CLAVE */
   padding-left: 0;
   padding-right: 0;
+}
+
+/* ================================
+   ADMIN: SIN LÍMITES DE ANCHO
+   (usado solo cuando es ruta /admin)
+================================ */
+.layout__content--admin {
+  flex: 1;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+
+  /* Mantiene solo el offset vertical del navbar/announcement */
+  padding-top: calc(var(--ab-height) + var(--navbar-height));
+
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* ================================

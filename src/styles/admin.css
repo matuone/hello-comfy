@@ -1,202 +1,158 @@
 /* ============================
-   CONTENEDOR GENERAL LOGIN
+   SHELL GENERAL DEL ADMIN
 ============================ */
-.admin-login {
-  max-width: 420px;
-  margin: 80px auto;
-  padding: 32px;
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
-  text-align: center;
-  animation: fadeIn 0.4s ease forwards;
-}
-
-.admin-login h1 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #d94f7a;
-  margin-bottom: 8px;
-}
-
-.admin-login p {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 24px;
+.admin-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100vh;
+  width: 100%;
+  background: #f5f5f7;
+  color: #222;
+  overflow: hidden;
 }
 
 /* ============================
-   FORMULARIO LOGIN
+   SIDEBAR
 ============================ */
-.admin-login__form {
+.admin-sidebar {
+  background: #ffffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 20px 18px;
+  box-sizing: border-box;
+}
+
+.admin-sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-.admin-login__input {
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
+.admin-sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.admin-login__input:focus {
-  border-color: #d94f7a;
-  outline: none;
+.admin-sidebar-logo {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #d94f7a;
 }
 
-/* ============================
-   BOTÓN LOGIN
-============================ */
-.admin-login__button {
-  padding: 12px 20px;
+.admin-sidebar-tag {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+}
+
+.admin-sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-sidebar-link {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #444;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-sidebar-link:hover {
+  background: #fce4ec;
+}
+
+.admin-sidebar-link--active {
   background: #d94f7a;
   color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.admin-login__button:hover {
-  background: #c23f6a;
 }
 
 /* ============================
-   ERROR LOGIN
+   MAIN DEL ADMIN
 ============================ */
-.admin-login__error {
-  margin-top: 8px;
-  color: #d94f7a;
-  font-weight: 600;
+.admin-main {
+  padding: 24px 28px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* ============================
-   ANIMACIÓN GENERAL
-============================ */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ============================================================
-   SECCIONES INTERNAS DEL PANEL ADMIN
-============================================================ */
-.admin-section {
-  padding: 40px 20px;
-  max-width: 900px;
-  margin: 0 auto;
-  animation: fadeIn 0.4s ease forwards;
-}
-
-.admin-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #d94f7a;
-  margin-bottom: 8px;
-}
-
-.admin-subtitle {
-  color: #666;
+.admin-main-header {
   margin-bottom: 20px;
 }
 
-/* ============================
-   VISTA PREVIA DEL BANNER
-============================ */
-.admin-preview {
-  margin-top: 20px;
-  margin-bottom: 30px;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
-}
-
-/* ============================
-   TEXTAREA Y LABEL
-============================ */
-.admin-label {
-  font-weight: 600;
+.admin-main-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 4px;
   color: #d94f7a;
 }
 
-.admin-textarea {
-  width: 100%;
-  height: 120px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+.admin-main-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.admin-main-content {
   margin-top: 10px;
-  resize: none;
 }
 
 /* ============================
-   ERRORES
+   SECCIONES
 ============================ */
-.admin-error {
-  color: red;
-  margin-top: 10px;
-  font-weight: 600;
-}
-
-/* ============================
-   BOTONES DE ACCIÓN
-============================ */
-.admin-buttons {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-}
-
-.admin-btn {
-  padding: 12px 20px;
-  background: #d94f7a;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.admin-btn:hover {
-  background: #c23f6a;
-}
-
-.admin-btn.secondary {
-  background: #aaa;
-}
-
-.admin-btn.secondary:hover {
-  background: #888;
-}
-
-/* ============================
-   PRODUCTOS (placeholder)
-============================ */
-.admin-products-table {
-  margin-top: 30px;
-  padding: 20px;
-  background: #fff;
+.admin-section {
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
-  text-align: center;
+  padding: 20px 22px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  box-sizing: border-box;
 }
 
-.admin-empty {
-  color: #777;
-  font-size: 1rem;
-  padding: 20px 0;
+.admin-section-title {
+  margin: 0 0 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.admin-section-text {
+  margin: 0 0 18px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* ============================
+   CARDS RESUMEN
+============================ */
+.admin-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-card {
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.admin-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.admin-card-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #222;
+  margin: 0;
 }
