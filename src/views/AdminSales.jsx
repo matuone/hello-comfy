@@ -18,6 +18,9 @@ export default function AdminSales() {
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
   const [codigoSeguimiento, setCodigoSeguimiento] = useState("");
 
+  // Filas expandidas (acordeón)
+  const [expandedRows, setExpandedRows] = useState([]);
+
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
     function handleClickOutside(e) {
@@ -29,6 +32,9 @@ export default function AdminSales() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ============================
+  // DATOS DE VENTAS
+  // ============================
   const [ventasData, setVentasData] = useState([
     {
       id: "8256",
@@ -37,10 +43,21 @@ export default function AdminSales() {
       email: "cabreracamila@gmail.com",
       telefono: "+54 9 11 6937 0079",
       total: "$60.361,74",
-      productos: "1 unid.",
       pagoEstado: "recibido",
       envioEstado: "enviado",
       seguimiento: "360002840905880",
+      comentarios: "",
+      esRegalo: false,
+      items: [
+        {
+          nombre: "Remera THE FATE OF OPHELIA",
+          color: "Beige",
+          talle: "L",
+          cantidad: 1,
+          precio: 35550,
+          imagen: "https://via.placeholder.com/80"
+        }
+      ]
     },
     {
       id: "8255",
@@ -49,10 +66,21 @@ export default function AdminSales() {
       email: "raggetti.carolina@gmail.com",
       telefono: "+54 9 11 5555 1234",
       total: "$35.550,00",
-      productos: "1 unid.",
       pagoEstado: "pendiente",
       envioEstado: "pendiente",
       seguimiento: "",
+      comentarios: "Por favor entregar después de las 18hs",
+      esRegalo: false,
+      items: [
+        {
+          nombre: "Remera DON'T KILL MY VIBE",
+          color: "Marrón oscuro",
+          talle: "L",
+          cantidad: 1,
+          precio: 35550,
+          imagen: "https://via.placeholder.com/80"
+        }
+      ]
     },
     {
       id: "8254",
@@ -61,11 +89,22 @@ export default function AdminSales() {
       email: "sabrina.antonucci@gmail.com",
       telefono: "+54 9 11 4444 5678",
       total: "$35.550,00",
-      productos: "1 unid.",
       pagoEstado: "pendiente",
       envioEstado: "pendiente",
       seguimiento: "",
-    },
+      comentarios: "La remera de Snoopy es para regalo",
+      esRegalo: true,
+      items: [
+        {
+          nombre: "Remera CÔTE D'AZUR X SNOOPY",
+          color: "Natural",
+          talle: "M",
+          cantidad: 1,
+          precio: 35550,
+          imagen: "https://via.placeholder.com/80"
+        }
+      ]
+    }
   ]);
 
   const ventasFiltradas = ventasData.filter((venta) =>
@@ -128,6 +167,15 @@ export default function AdminSales() {
       )
     );
     setPopupAbierto(false);
+  }
+
+  // Expandir/colapsar fila
+  function toggleExpand(id) {
+    setExpandedRows((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id]
+    );
   }
 
   return (
@@ -198,13 +246,7 @@ export default function AdminSales() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={toggleSeleccionarTodas}
-                />
-              </th>
+              <th></th>
               <th>Venta</th>
               <th>Fecha</th>
               <th>Cliente</th>
@@ -217,60 +259,120 @@ export default function AdminSales() {
 
           <tbody>
             {ventasFiltradas.map((venta) => (
-              <tr key={venta.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={seleccionadas.includes(venta.id)}
-                    onChange={() => toggleSeleccion(venta.id)}
-                  />
-                </td>
+              <>
+                <tr key={venta.id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={seleccionadas.includes(venta.id)}
+                      onChange={() => toggleSeleccion(venta.id)}
+                    />
+                  </td>
 
-                <td>
-                  <Link to={`/admin/sales/${venta.id}`} className="venta-link">
-                    #{venta.id}
-                  </Link>
-                </td>
+                  <td>
+                    <Link to={`/admin/sales/${venta.id}`} className="venta-link">
+                      #{venta.id}
+                    </Link>
+                  </td>
 
-                <td>{venta.fecha}</td>
-                <td>{venta.cliente}</td>
-                <td>{venta.total}</td>
-                <td>{venta.productos}</td>
+                  <td>{venta.fecha}</td>
 
-                {/* Pago */}
-                <td>
-                  {venta.pagoEstado === "recibido" ? (
-                    <span className="payment-status paid">Recibido</span>
-                  ) : (
-                    <div className="payment-pending-wrapper">
-                      <span className="payment-status pending">No recibido</span>
-                      <button
-                        className="mark-paid-btn"
-                        onClick={() => marcarPagoRecibido(venta.id)}
-                      >
-                        Marcar como recibido
-                      </button>
-                    </div>
-                  )}
-                </td>
+                  {/* CLIENTE + ICONOS */}
+                  <td className="cliente-cell">
+                    {venta.cliente}
 
-                {/* Envío */}
-                <td>
-                  {venta.envioEstado === "enviado" ? (
-                    <span className="envio-status enviado">
-                      ✈️ Enviado
-                    </span>
-                  ) : (
+                    {venta.comentarios && (
+                      <span className="icono-comentario">
+                        💬
+                        <span className="tooltip-comentario">
+                          {venta.comentarios}
+                        </span>
+                      </span>
+                    )}
+
+                    {venta.esRegalo && (
+                      <span className="icono-regalo">
+                        🎁
+                      </span>
+                    )}
+                  </td>
+
+
+                  <td>{venta.total}</td>
+
+                  {/* Productos (solo número + flecha) */}
+                  <td>
                     <button
-                      className="envio-pendiente-btn"
-                      onClick={() => abrirPopup(venta.id)}
+                      className="productos-toggle"
+                      onClick={() => toggleExpand(venta.id)}
                     >
-                      Agregar seguimiento
+                      {venta.items.length} producto
+                      {venta.items.length !== 1 ? "s" : ""}{" "}
+                      <span className={expandedRows.includes(venta.id) ? "flecha up" : "flecha"}>
+                        ▾
+                      </span>
                     </button>
-                  )}
-                </td>
+                  </td>
 
-              </tr>
+                  {/* Pago */}
+                  <td>
+                    {venta.pagoEstado === "recibido" ? (
+                      <span className="payment-status paid">Recibido</span>
+                    ) : (
+                      <div className="payment-pending-wrapper">
+                        <span className="payment-status pending">No recibido</span>
+                        <button
+                          className="mark-paid-btn"
+                          onClick={() => marcarPagoRecibido(venta.id)}
+                        >
+                          Marcar como recibido
+                        </button>
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Envío */}
+                  <td>
+                    {venta.envioEstado === "enviado" ? (
+                      <span className="envio-status enviado">
+                        ✈️ Enviado
+                      </span>
+                    ) : (
+                      <button
+                        className="envio-pendiente-btn"
+                        onClick={() => abrirPopup(venta.id)}
+                      >
+                        Agregar seguimiento
+                      </button>
+                    )}
+                  </td>
+                </tr>
+
+                {/* Fila expandida */}
+                {expandedRows.includes(venta.id) && (
+                  <tr className="fila-expandida">
+                    <td colSpan="8">
+                      <div className="productos-grid">
+                        {venta.items.map((item, index) => (
+                          <div key={index} className="producto-card">
+                            <img src={item.imagen} alt={item.nombre} className="producto-img" />
+                            <div className="producto-info">
+                              <div className="producto-nombre">{item.nombre}</div>
+                              <div className="producto-detalle">
+                                {item.color}, {item.talle} — {item.cantidad} unid.
+                              </div>
+                              <div className="producto-precio">
+                                ${item.precio.toLocaleString()} c/u — Total: $
+                                {(item.precio * item.cantidad).toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>
