@@ -1,0 +1,152 @@
+/* ============================
+   DETALLE DE VENTA – CONTENEDOR
+============================ */
+.detalle-box {
+  background: #fafafa;
+  padding: 18px 20px;
+  border-radius: 14px;
+  margin-bottom: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+/* ============================
+   TÍTULOS DE SECCIÓN
+============================ */
+.detalle-title {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+/* ============================
+   LISTA DE HISTORIAL
+============================ */
+.detalle-historial {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detalle-historial li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.detalle-historial li:last-child {
+  border-bottom: none;
+}
+
+/* ============================
+   GRID PARA ORGANIZAR SECCIONES
+============================ */
+.detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .detalle-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================
+   BOTÓN DE COPIAR CÓDIGO
+============================ */
+.detalle-copy-btn {
+  background: #d94f7a;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.15s ease;
+}
+
+.detalle-copy-btn:hover {
+  background: #c63f6a;
+}
+
+/* ============================
+   BLOQUES DE INFORMACIÓN
+============================ */
+.detalle-info-line {
+  margin: 6px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.detalle-info-line strong {
+  color: #000;
+}
+
+/* ============================
+   BOTONES DESPLEGABLES
+============================ */
+.detalle-actions {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-btn {
+  background: #d94f7a;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.15s ease;
+}
+
+.dropdown-btn:hover {
+  background: #c63f6a;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 8px 0;
+  display: none;
+  min-width: 240px;
+  z-index: 10;
+}
+
+.dropdown-menu.open {
+  display: block;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.dropdown-menu button:hover {
+  background: #fce4ec;
+}
