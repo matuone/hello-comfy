@@ -1,4 +1,3 @@
-// src/views/AdminSaleDetail.jsx
 import { useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import "../styles/adminsaledetail.css";
@@ -9,11 +8,9 @@ export default function AdminSaleDetail() {
   const [isAppsOpen, setIsAppsOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
-  // Referencias a los dropdowns
   const appsRef = useRef(null);
   const moreRef = useRef(null);
 
-  // Cerrar dropdowns al hacer click fuera
   useEffect(() => {
     function handleClickOutside(e) {
       if (
@@ -38,6 +35,9 @@ export default function AdminSaleDetail() {
     email: "cabreracamila@gmail.com",
     telefono: "+54 9 11 6937 0079",
     dni: "41.558.809",
+
+    comentarios: "La remera de Snoopy es para regalo",
+
     producto: {
       nombre: "Buzo oversize beige THE PERFECT FRIEND X SNOOPY",
       talle: "XL",
@@ -46,6 +46,7 @@ export default function AdminSaleDetail() {
       envio: "$6.496,74",
       total: "$60.361,74",
     },
+
     direccion: {
       calle: "Chacabuco",
       numero: "915",
@@ -56,12 +57,14 @@ export default function AdminSaleDetail() {
       provincia: "Capital Federal",
       pais: "Argentina",
     },
+
     envio: {
       metodo: "Andreani Estándar",
       demora: "4 a 5 días hábiles",
       peso: "0.1 kg",
       seguimiento: "360002840905880",
     },
+
     historial: [
       { fecha: "24/12 10:55", evento: "Código de seguimiento agregado" },
       { fecha: "24/12 10:55", evento: "Paquete enviado" },
@@ -95,7 +98,6 @@ export default function AdminSaleDetail() {
       ============================ */}
       <div className="detalle-actions">
 
-        {/* Aplicaciones */}
         <div className="dropdown" ref={appsRef}>
           <button className="dropdown-btn" onClick={toggleApps}>
             Aplicaciones ▾
@@ -106,7 +108,6 @@ export default function AdminSaleDetail() {
           </div>
         </div>
 
-        {/* Más opciones */}
         <div className="dropdown" ref={moreRef}>
           <button className="dropdown-btn" onClick={toggleMore}>
             Más opciones ▾
@@ -124,6 +125,7 @@ export default function AdminSaleDetail() {
           GRID PRINCIPAL
       ============================ */}
       <div className="detalle-grid">
+
         <div className="detalle-box">
           <h3 className="detalle-title">Producto</h3>
           <p className="detalle-info-line"><strong>Nombre:</strong> {venta.producto.nombre}</p>
@@ -161,8 +163,12 @@ export default function AdminSaleDetail() {
             Copiar código
           </button>
         </div>
+
       </div>
 
+      {/* ============================
+          HISTORIAL
+      ============================ */}
       <div className="detalle-box">
         <h3 className="detalle-title">Historial</h3>
         <ul className="detalle-historial">
@@ -173,6 +179,22 @@ export default function AdminSaleDetail() {
           ))}
         </ul>
       </div>
+
+      {/* ============================
+          COMENTARIOS DEL CLIENTE
+      ============================ */}
+      <div className="detalle-box">
+        <h3 className="detalle-title">Comentarios del cliente</h3>
+
+        {venta.comentarios && venta.comentarios.trim() !== "" ? (
+          <p className="detalle-comentarios">{venta.comentarios}</p>
+        ) : (
+          <p className="detalle-comentarios detalle-comentarios-vacio">
+            Sin comentarios
+          </p>
+        )}
+      </div>
+
     </div>
   );
 }

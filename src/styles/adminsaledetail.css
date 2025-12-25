@@ -150,3 +150,22 @@
 .dropdown-menu button:hover {
   background: #fce4ec;
 }
+
+/* ============================
+   COMENTARIOS DEL CLIENTE
+============================ */
+.detalle-comentarios {
+  font-size: 0.9rem;
+  color: #444;
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.detalle-comentarios-vacio {
+  color: #999;
+  font-style: italic;
+}
