@@ -6,15 +6,16 @@ export default function AdminProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // ============================
-  // MOCK DE PRODUCTO
-  // ============================
+  const ORDEN_TALLES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+
   const [producto, setProducto] = useState({
     id,
     nombre: "Remera THE FATE OF OPHELIA",
     categoria: "Indumentaria",
     subcategoria: "Remeras",
     precio: 35550,
+    color: "Beige",
+    colorHex: "#d8c7a1",
     talles: {
       XS: 5,
       S: 8,
@@ -30,9 +31,18 @@ export default function AdminProductDetail() {
     ],
   });
 
-  // ============================
-  // HANDLERS
-  // ============================
+  const [tallesActivos, setTallesActivos] = useState(
+    ORDEN_TALLES.filter((t) => producto.talles[t] !== undefined)
+  );
+
+  function toggleTalleActivo(talle) {
+    setTallesActivos((prev) =>
+      prev.includes(talle)
+        ? prev.filter((t) => t !== talle)
+        : [...prev, talle]
+    );
+  }
+
   function actualizarCampo(campo, valor) {
     setProducto((prev) => ({ ...prev, [campo]: valor }));
   }
@@ -83,18 +93,19 @@ export default function AdminProductDetail() {
       <h2 className="admin-section-title">Producto {producto.id}</h2>
       <p className="admin-section-text">Editar información del producto.</p>
 
-      {/* ============================
-          BOTONES SUPERIORES
-      ============================ */}
       <div className="product-actions">
-        <button className="btn-duplicar" onClick={duplicarProducto}>Duplicar</button>
-        <button className="btn-eliminar" onClick={eliminarProducto}>Eliminar</button>
+        <button className="btn-duplicar" onClick={duplicarProducto}>
+          Duplicar
+        </button>
+        <button className="btn-eliminar" onClick={eliminarProducto}>
+          Eliminar
+        </button>
       </div>
 
       {/* ============================
-          GRID PRINCIPAL
+          COLUMNAS ALINEADAS
       ============================ */}
-      <div className="product-grid">
+      <div className="product-column">
 
         {/* DATOS GENERALES */}
         <div className="detalle-box">
@@ -125,7 +136,6 @@ export default function AdminProductDetail() {
             value={producto.subcategoria}
             onChange={(e) => actualizarCampo("subcategoria", e.target.value)}
           >
-            {/* Indumentaria */}
             {producto.categoria === "Indumentaria" && (
               <>
                 <option>Remeras</option>
@@ -136,13 +146,7 @@ export default function AdminProductDetail() {
                 <option>Outlet</option>
               </>
             )}
-
-            {/* Cute Items */}
-            {producto.categoria === "Cute Items" && (
-              <option>Vasos</option>
-            )}
-
-            {/* Merch */}
+            {producto.categoria === "Cute Items" && <option>Vasos</option>}
             {producto.categoria === "Merch" && (
               <>
                 <option>Artistas nacionales</option>
@@ -150,6 +154,28 @@ export default function AdminProductDetail() {
               </>
             )}
           </select>
+
+          <label className="input-label">Color (nombre)</label>
+          <input
+            type="text"
+            className="input-field"
+            value={producto.color}
+            onChange={(e) => actualizarCampo("color", e.target.value)}
+          />
+
+          <label className="input-label">Color (visual)</label>
+          <div className="color-row">
+            <input
+              type="color"
+              className="color-picker"
+              value={producto.colorHex}
+              onChange={(e) => actualizarCampo("colorHex", e.target.value)}
+            />
+            <div
+              className="color-preview"
+              style={{ backgroundColor: producto.colorHex }}
+            ></div>
+          </div>
 
           <label className="input-label">Precio</label>
           <input
@@ -164,14 +190,30 @@ export default function AdminProductDetail() {
         <div className="detalle-box">
           <h3 className="detalle-title">Talles y stock</h3>
 
+          <div className="talles-selector">
+            {ORDEN_TALLES.map((t) => (
+              <button
+                key={t}
+                className={
+                  tallesActivos.includes(t)
+                    ? "talle-chip talle-chip--active"
+                    : "talle-chip"
+                }
+                onClick={() => toggleTalleActivo(t)}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
           <div className="talles-grid">
-            {Object.entries(producto.talles).map(([talle, stock]) => (
+            {tallesActivos.map((talle) => (
               <div key={talle} className="talle-item">
                 <label>{talle}</label>
                 <input
                   type="number"
-                  value={stock}
                   className="input-field"
+                  value={producto.talles[talle] ?? 0}
                   onChange={(e) => actualizarTalle(talle, e.target.value)}
                 />
               </div>
@@ -203,14 +245,10 @@ export default function AdminProductDetail() {
           </div>
         </div>
 
+        <button className="btn-guardar" onClick={guardarProducto}>
+          Guardar cambios
+        </button>
       </div>
-
-      {/* ============================
-          BOTÓN GUARDAR
-      ============================ */}
-      <button className="btn-guardar" onClick={guardarProducto}>
-        Guardar cambios
-      </button>
     </div>
   );
 }
