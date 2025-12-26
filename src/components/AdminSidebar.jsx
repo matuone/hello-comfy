@@ -11,6 +11,9 @@ export default function AdminSidebar() {
 
       <ul className="admin-sidebar-list">
 
+        {/* ============================
+            GENERAL
+        ============================ */}
         <li>
           <NavLink
             to="/admin"
@@ -24,6 +27,9 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* ============================
+            VENTAS
+        ============================ */}
         <li>
           <NavLink
             to="/admin/sales"
@@ -36,6 +42,9 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* ============================
+            PRODUCTOS
+        ============================ */}
         <li>
           <NavLink
             to="/admin/products"
@@ -48,6 +57,9 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* ============================
+            STOCK
+        ============================ */}
         <li>
           <NavLink
             to="/admin/stock"
@@ -60,6 +72,9 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* ============================
+            CLIENTES
+        ============================ */}
         <li>
           <NavLink
             to="/admin/customers"
@@ -73,7 +88,7 @@ export default function AdminSidebar() {
         </li>
 
         {/* ============================
-            NUEVA SECCIÓN: ESTADÍSTICAS
+            ESTADÍSTICAS
         ============================ */}
         <li>
           <NavLink
@@ -84,6 +99,21 @@ export default function AdminSidebar() {
             }
           >
             Estadísticas
+          </NavLink>
+        </li>
+
+        {/* ============================
+            NUEVA SECCIÓN: MARKETING
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/marketing"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Marketing
           </NavLink>
         </li>
 

@@ -34,8 +34,11 @@ import AdminCustomers from "../views/AdminCustomers";
 import AdminCustomerDetail from "../views/AdminCustomerDetail";
 import AdminCustomerEdit from "../views/AdminCustomerEdit";
 
-// 📊 ESTADÍSTICAS (NUEVA SECCIÓN)
+// 📊 ESTADÍSTICAS
 import AdminStats from "../views/AdminStats";
+
+// 🛍️ MARKETING (NUEVA SECCIÓN)
+import AdminMarketing from "../views/AdminMarketing";
 
 export default function AppRouter() {
   return (
@@ -98,6 +101,9 @@ export default function AppRouter() {
 
         {/* 📊 Estadísticas */}
         <Route path="/admin/stats" element={<AdminStats />} />
+
+        {/* 🛍️ Marketing */}
+        <Route path="/admin/marketing" element={<AdminMarketing />} />
       </Route>
 
     </Routes>
