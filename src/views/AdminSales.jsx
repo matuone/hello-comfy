@@ -34,12 +34,18 @@ export default function AdminSales() {
   }, []);
 
   // ============================
-  // DATOS DE VENTAS (desde salesData)
+  // DATOS DE VENTAS
   // ============================
   const [ventasData, setVentasData] = useState(salesData);
 
   const ventasFiltradas = ventasData.filter((venta) =>
-    [venta.id, venta.cliente, venta.email, venta.telefono]
+    [
+      venta.id,
+      venta.cliente,
+      venta.email,
+      venta.telefono,
+      venta.total
+    ]
       .join(" ")
       .toLowerCase()
       .includes(busqueda.toLowerCase())
@@ -108,7 +114,7 @@ export default function AdminSales() {
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">
-        Ventas <span className="sales-count">(5880 abiertas)</span>
+        Ventas <span className="sales-count">({ventasData.length} abiertas)</span>
       </h2>
 
       <p className="admin-section-text">
@@ -152,33 +158,15 @@ export default function AdminSales() {
             </button>
 
             <div className={`dropdown-menu ${accionesAbiertas ? "open" : ""}`}>
-              <button onClick={() => ejecutarAccion("Cancelar ventas")}>
-                Cancelar ventas
-              </button>
-              <button onClick={() => ejecutarAccion("Archivar ventas")}>
-                Archivar ventas
-              </button>
-              <button onClick={() => ejecutarAccion("Marcar pagos como recibidos")}>
-                Marcar pagos como recibidos
-              </button>
-              <button onClick={() => ejecutarAccion("Marcar como empaquetadas")}>
-                Marcar como empaquetadas
-              </button>
-              <button onClick={() => ejecutarAccion("Marcar y notificar como enviadas")}>
-                Marcar y notificar como enviadas
-              </button>
-              <button onClick={() => ejecutarAccion("Imprimir resumen del pedido")}>
-                Imprimir resumen del pedido
-              </button>
-              <button onClick={() => ejecutarAccion("Facturación Masiva")}>
-                Facturación Masiva
-              </button>
-              <button onClick={() => ejecutarAccion("Registrar órdenes en Correo Argentino")}>
-                Registrar órdenes en Correo Argentino
-              </button>
-              <button onClick={() => ejecutarAccion("Andreani - Descargar Etiquetas")}>
-                Andreani - Descargar Etiquetas
-              </button>
+              <button onClick={() => ejecutarAccion("Cancelar ventas")}>Cancelar ventas</button>
+              <button onClick={() => ejecutarAccion("Archivar ventas")}>Archivar ventas</button>
+              <button onClick={() => ejecutarAccion("Marcar pagos como recibidos")}>Marcar pagos como recibidos</button>
+              <button onClick={() => ejecutarAccion("Marcar como empaquetadas")}>Marcar como empaquetadas</button>
+              <button onClick={() => ejecutarAccion("Marcar y notificar como enviadas")}>Marcar y notificar como enviadas</button>
+              <button onClick={() => ejecutarAccion("Imprimir resumen del pedido")}>Imprimir resumen del pedido</button>
+              <button onClick={() => ejecutarAccion("Facturación Masiva")}>Facturación Masiva</button>
+              <button onClick={() => ejecutarAccion("Registrar órdenes en Correo Argentino")}>Registrar órdenes en Correo Argentino</button>
+              <button onClick={() => ejecutarAccion("Andreani - Descargar Etiquetas")}>Andreani - Descargar Etiquetas</button>
             </div>
           </div>
         </div>
@@ -214,19 +202,18 @@ export default function AdminSales() {
                   </td>
 
                   <td>
-                    <Link
-                      to={`/admin/sales/${venta.id}`}
-                      className="venta-link"
-                    >
+                    <Link to={`/admin/sales/${venta.id}`} className="venta-link">
                       #{venta.id}
                     </Link>
                   </td>
 
                   <td>{venta.fecha}</td>
 
-                  {/* CLIENTE + ICONOS */}
+                  {/* Cliente con link al detalle */}
                   <td className="cliente-cell">
-                    {venta.cliente}
+                    <Link to={`/admin/customers/${venta.email}`} className="venta-link">
+                      {venta.cliente}
+                    </Link>
 
                     {venta.comentarios && (
                       <span className="icono-comentario">
@@ -251,14 +238,8 @@ export default function AdminSales() {
                       onClick={() => toggleExpand(venta.id)}
                     >
                       {Array.isArray(venta.items) ? venta.items.length : 0} producto
-                      {Array.isArray(venta.items) && venta.items.length !== 1
-                        ? "s"
-                        : ""}{" "}
-                      <span
-                        className={
-                          expandedRows.includes(venta.id) ? "flecha up" : "flecha"
-                        }
-                      >
+                      {Array.isArray(venta.items) && venta.items.length !== 1 ? "s" : ""}{" "}
+                      <span className={expandedRows.includes(venta.id) ? "flecha up" : "flecha"}>
                         ▾
                       </span>
                     </button>
@@ -270,9 +251,7 @@ export default function AdminSales() {
                       <span className="payment-status paid">Recibido</span>
                     ) : (
                       <div className="payment-pending-wrapper">
-                        <span className="payment-status pending">
-                          No recibido
-                        </span>
+                        <span className="payment-status pending">No recibido</span>
                         <button
                           className="mark-paid-btn"
                           onClick={() => marcarPagoRecibido(venta.id)}
@@ -291,7 +270,6 @@ export default function AdminSales() {
                     {venta.shippingMethod === "retiro_aquelarre" && "🏬 Retiro Aquelarre"}
                     {venta.shippingMethod === "nextday_moto" && "🏍️ Envío Next Day 24 hs (Moto CABA y GBA Sur)"}
                   </td>
-
 
                   {/* Envío */}
                   <td>
@@ -322,12 +300,9 @@ export default function AdminSales() {
                                 className="producto-img"
                               />
                               <div className="producto-info">
-                                <div className="producto-nombre">
-                                  {item.nombre}
-                                </div>
+                                <div className="producto-nombre">{item.nombre}</div>
                                 <div className="producto-detalle">
-                                  {item.color}, {item.talle} — {item.cantidad}{" "}
-                                  unid.
+                                  {item.color}, {item.talle} — {item.cantidad} unid.
                                 </div>
                                 <div className="producto-precio">
                                   ${item.precio.toLocaleString()} c/u — Total: $
@@ -365,16 +340,10 @@ export default function AdminSales() {
             />
 
             <div className="popup-buttons">
-              <button
-                className="popup-cancel"
-                onClick={() => setPopupAbierto(false)}
-              >
+              <button className="popup-cancel" onClick={() => setPopupAbierto(false)}>
                 Cancelar
               </button>
-              <button
-                className="popup-send"
-                onClick={guardarSeguimiento}
-              >
+              <button className="popup-send" onClick={guardarSeguimiento}>
                 Enviar
               </button>
             </div>

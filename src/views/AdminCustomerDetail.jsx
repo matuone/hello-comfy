@@ -1,33 +1,40 @@
 import { useParams, Link } from "react-router-dom";
 import "../styles/admincustomerdetail.css";
-import { salesData } from "../data/salesData"; // 👈 IMPORTANTE
+import { salesData } from "../data/salesData";
 
 export default function AdminCustomerDetail() {
-  const { id } = useParams();
+  const { id } = useParams(); // id = email del cliente
 
   // ============================
-  // MOCK BASE DEL CLIENTE
+  // OBTENER CLIENTE DESDE VENTAS
   // ============================
-  const clienteBase = {
-    id,
-    nombre: "María Laura Ambroggio",
-    email: "mlaura@example.com",
-    whatsapp: "+5491123456791",
-    dni: "38.112.445",
-    notas: "Cliente frecuente. Prefiere contacto por WhatsApp.",
-  };
+  const compras = salesData.filter(v => v.email === id);
 
-  // ============================
-  // DATOS REALES DESDE VENTAS
-  // ============================
-  const compras = salesData.filter(v => v.clienteEmail === clienteBase.email);
+  const clienteBase = compras.length
+    ? {
+      nombre: compras[0].cliente,
+      email: compras[0].email,
+      whatsapp: compras[0].telefono || "",
+      dni: "",
+      notas: "",
+    }
+    : {
+      nombre: "Cliente desconocido",
+      email: id,
+      whatsapp: "",
+      dni: "",
+      notas: "",
+    };
 
-  const total = compras.reduce((acc, v) => acc + v.total, 0);
+  const total = compras.reduce((acc, v) => {
+    const num = Number(String(v.total).replace(/[^0-9.-]+/g, ""));
+    return acc + num;
+  }, 0);
 
   const ultimaCompra = compras.length
     ? compras.reduce((a, b) => {
-      const fechaA = new Date(a.fecha.split("/").reverse().join("-"));
-      const fechaB = new Date(b.fecha.split("/").reverse().join("-"));
+      const fechaA = new Date(a.fecha);
+      const fechaB = new Date(b.fecha);
       return fechaA > fechaB ? a : b;
     })
     : null;
@@ -40,9 +47,7 @@ export default function AdminCustomerDetail() {
   };
 
   const ticketPromedio =
-    cliente.compras.length > 0
-      ? cliente.total / cliente.compras.length
-      : 0;
+    cliente.compras.length > 0 ? cliente.total / cliente.compras.length : 0;
 
   return (
     <div className="admin-section">
@@ -51,25 +56,18 @@ export default function AdminCustomerDetail() {
         Información personal, historial de compras y contacto.
       </p>
 
-      {/* ============================
-          ACCIONES SUPERIORES
-      ============================ */}
+      {/* ACCIONES */}
       <div className="cliente-actions">
         <Link to="/admin/customers" className="btn-volver">
           ← Volver
         </Link>
 
-        <Link
-          to={`/admin/customers/${id}/edit`}
-          className="btn-editar"
-        >
+        <Link to={`/admin/customers/${id}/edit`} className="btn-editar">
           Editar cliente
         </Link>
       </div>
 
-      {/* ============================
-          DATOS PERSONALES
-      ============================ */}
+      {/* DATOS PERSONALES */}
       <div className="detalle-box">
         <h3 className="detalle-title">Datos personales</h3>
 
@@ -91,14 +89,12 @@ export default function AdminCustomerDetail() {
 
           <div>
             <label>DNI</label>
-            <p>{cliente.dni}</p>
+            <p>{cliente.dni || "—"}</p>
           </div>
         </div>
       </div>
 
-      {/* ============================
-          ESTADÍSTICAS
-      ============================ */}
+      {/* ESTADÍSTICAS */}
       <div className="detalle-box">
         <h3 className="detalle-title">Estadísticas</h3>
 
@@ -135,9 +131,7 @@ export default function AdminCustomerDetail() {
         </div>
       </div>
 
-      {/* ============================
-          HISTORIAL DE COMPRAS
-      ============================ */}
+      {/* HISTORIAL DE COMPRAS */}
       <div className="detalle-box">
         <h3 className="detalle-title">Historial de compras</h3>
 
@@ -158,12 +152,9 @@ export default function AdminCustomerDetail() {
                 <tr key={c.id}>
                   <td>#{c.id}</td>
                   <td>{c.fecha}</td>
-                  <td>${c.total.toLocaleString("es-AR")}</td>
+                  <td>{c.total}</td>
                   <td>
-                    <Link
-                      to={`/admin/sales/${c.id}`}
-                      className="btn-ver-venta"
-                    >
+                    <Link to={`/admin/sales/${c.id}`} className="btn-ver-venta">
                       Ver venta →
                     </Link>
                   </td>
@@ -174,9 +165,7 @@ export default function AdminCustomerDetail() {
         )}
       </div>
 
-      {/* ============================
-          CONTACTAR
-      ============================ */}
+      {/* CONTACTAR */}
       <div className="detalle-box">
         <h3 className="detalle-title">Contactar</h3>
 
