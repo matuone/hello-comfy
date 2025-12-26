@@ -29,6 +29,11 @@ import AdminProducts from "../views/AdminProducts";
 import AdminProductDetail from "../views/AdminProductDetail";
 import AdminStock from "../views/AdminStock";
 
+// CLIENTES
+import AdminCustomers from "../views/AdminCustomers";
+import AdminCustomerDetail from "../views/AdminCustomerDetail";
+import AdminCustomerEdit from "../views/AdminCustomerEdit";
+
 export default function AppRouter() {
   return (
     <Routes>
@@ -81,7 +86,12 @@ export default function AppRouter() {
         <Route path="/admin/products/:id" element={<AdminProductDetail />} />
 
         {/* Stock general */}
-        <Route path="/admin/stock" element={<AdminStock />} /> {/* 👈 NUEVA RUTA */}
+        <Route path="/admin/stock" element={<AdminStock />} />
+
+        {/* Clientes */}
+        <Route path="/admin/customers" element={<AdminCustomers />} />
+        <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
+        <Route path="/admin/customers/:id/edit" element={<AdminCustomerEdit />} />
       </Route>
 
     </Routes>

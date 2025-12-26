@@ -10,12 +10,14 @@ export default function AdminSidebar() {
       </div>
 
       <ul className="admin-sidebar-list">
+
         <li>
           <NavLink
             to="/admin"
             end
             className={({ isActive }) =>
-              "admin-sidebar-link" + (isActive ? " admin-sidebar-link--active" : "")
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
             }
           >
             General
@@ -26,7 +28,8 @@ export default function AdminSidebar() {
           <NavLink
             to="/admin/sales"
             className={({ isActive }) =>
-              "admin-sidebar-link" + (isActive ? " admin-sidebar-link--active" : "")
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
             }
           >
             Ventas
@@ -37,31 +40,41 @@ export default function AdminSidebar() {
           <NavLink
             to="/admin/products"
             className={({ isActive }) =>
-              "admin-sidebar-link" + (isActive ? " admin-sidebar-link--active" : "")
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
             }
           >
             Productos
           </NavLink>
         </li>
 
-        {/* ============================
-            NUEVA SECCIÓN: STOCK
-        ============================ */}
         <li>
           <NavLink
             to="/admin/stock"
             className={({ isActive }) =>
-              "admin-sidebar-link" + (isActive ? " admin-sidebar-link--active" : "")
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
             }
           >
             Stock
           </NavLink>
         </li>
 
-        {/* Futuras secciones:
-        <li><NavLink to="/admin/customers">Clientes</NavLink></li>
-        <li><NavLink to="/admin/settings">Configuración</NavLink></li>
-        */}
+        {/* ============================
+            NUEVA SECCIÓN: CLIENTES
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/customers"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Clientes
+          </NavLink>
+        </li>
+
       </ul>
     </nav>
   );
