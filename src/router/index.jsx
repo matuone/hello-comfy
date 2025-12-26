@@ -24,6 +24,10 @@ import AdminDashboard from "../views/AdminDashboard";
 import AdminSales from "../views/AdminSales";
 import AdminSaleDetail from "../views/AdminSaleDetail";
 
+// NUEVAS VISTAS ADMIN
+import AdminProducts from "../views/AdminProducts";
+import AdminProductDetail from "../views/AdminProductDetail";
+
 export default function AppRouter() {
   return (
     <Routes>
@@ -65,8 +69,15 @@ export default function AppRouter() {
       ============================ */}
       <Route element={<AdminLayout />}>
         <Route path="/admin" element={<AdminDashboard />} />
+
+        {/* Ventas */}
         <Route path="/admin/sales" element={<AdminSales />} />
         <Route path="/admin/sales/:id" element={<AdminSaleDetail />} />
+
+        {/* Productos */}
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/products/new" element={<AdminProductDetail />} />
+        <Route path="/admin/products/:id" element={<AdminProductDetail />} />
       </Route>
 
     </Routes>

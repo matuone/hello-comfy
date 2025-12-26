@@ -1,0 +1,210 @@
+/* ============================
+   CONTENEDOR PRINCIPAL
+============================ */
+.detalle-box {
+  background: #fafafa;
+  padding: 18px 20px;
+  border-radius: 14px;
+  margin-bottom: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+/* ============================
+   TÍTULOS
+============================ */
+.detalle-title {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+/* ============================
+   GRID PRINCIPAL
+============================ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================
+   LABELS + INPUTS
+============================ */
+.input-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #444;
+  margin-top: 10px;
+  display: block;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  background: white;
+  transition: 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #d94f7a;
+  box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.2);
+}
+
+/* ============================
+   TALLES
+============================ */
+.talles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.talle-item label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.talle-item input {
+  margin-top: 4px;
+}
+
+/* ============================
+   FOTOS
+============================ */
+.fotos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.foto-item {
+  position: relative;
+  width: 110px;
+  height: 110px;
+}
+
+.foto-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.foto-delete-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.foto-delete-btn:hover {
+  background: #b71c1c;
+}
+
+/* Botón para subir foto */
+.foto-upload {
+  width: 110px;
+  height: 110px;
+  border: 2px dashed #d94f7a;
+  border-radius: 12px;
+  color: #d94f7a;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-align: center;
+}
+
+.foto-upload input {
+  display: none;
+}
+
+.foto-upload:hover {
+  background: #fde4ec;
+}
+
+/* ============================
+   BOTONES SUPERIORES
+============================ */
+.product-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.btn-duplicar,
+.btn-eliminar {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.btn-duplicar {
+  background: #6a1b9a;
+  color: white;
+}
+
+.btn-duplicar:hover {
+  background: #4a0f6d;
+}
+
+.btn-eliminar {
+  background: #d32f2f;
+  color: white;
+}
+
+.btn-eliminar:hover {
+  background: #b71c1c;
+}
+
+/* ============================
+   BOTÓN GUARDAR
+============================ */
+.btn-guardar {
+  background: #d94f7a;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 20px;
+  transition: 0.2s ease;
+}
+
+.btn-guardar:hover {
+  background: #c63f6a;
+}
