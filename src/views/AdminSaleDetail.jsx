@@ -28,6 +28,9 @@ export default function AdminSaleDetail() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ============================================
+  // DATOS DE EJEMPLO (sin backend)
+  // ============================================
   const venta = {
     id,
     fecha: "23/12/2025 15:10",
@@ -59,7 +62,7 @@ export default function AdminSaleDetail() {
     },
 
     envio: {
-      metodo: "Andreani Estándar",
+      metodo: "andreani", // 👈 AHORA USAMOS LOS NUEVOS VALORES
       demora: "4 a 5 días hábiles",
       peso: "0.1 kg",
       seguimiento: "360002840905880",
@@ -72,6 +75,24 @@ export default function AdminSaleDetail() {
       { fecha: "23/12 15:14", evento: "Pago marcado como recibido" },
     ],
   };
+
+  // ============================================
+  // RENDER DEL MÉTODO DE ENVÍO
+  // ============================================
+  function renderMetodo(m) {
+    switch (m) {
+      case "andreani":
+        return "📦 Andreani";
+      case "correo":
+        return "✉️ Correo Argentino";
+      case "retiro_temperley":
+        return "🏬 Retiro en Temperley";
+      case "retiro_aquelarre":
+        return "🏬 Retiro en Aquelarre";
+      default:
+        return m;
+    }
+  }
 
   function copiarSeguimiento() {
     navigator.clipboard.writeText(venta.envio.seguimiento);
@@ -155,10 +176,16 @@ export default function AdminSaleDetail() {
 
         <div className="detalle-box">
           <h3 className="detalle-title">Envío</h3>
-          <p className="detalle-info-line"><strong>Método:</strong> {venta.envio.metodo}</p>
+
+          {/* 👇 ACÁ SE USA EL NUEVO RENDER */}
+          <p className="detalle-info-line">
+            <strong>Método:</strong> {renderMetodo(venta.envio.metodo)}
+          </p>
+
           <p className="detalle-info-line"><strong>Demora estimada:</strong> {venta.envio.demora}</p>
           <p className="detalle-info-line"><strong>Peso:</strong> {venta.envio.peso}</p>
           <p className="detalle-info-line"><strong>Código de seguimiento:</strong> {venta.envio.seguimiento}</p>
+
           <button className="detalle-copy-btn" onClick={copiarSeguimiento}>
             Copiar código
           </button>

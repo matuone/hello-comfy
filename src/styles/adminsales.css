@@ -276,7 +276,6 @@
    ICONOS EN CELDA CLIENTE (MINIMALISTAS)
 ============================ */
 .cliente-cell {
-  /* dejamos que se comporte como una celda normal */
   white-space: nowrap;
 }
 
@@ -418,7 +417,7 @@
 }
 
 /* ============================
-   TOOLTIP COMENTARIO (GRANDE + FLECHITA)
+   TOOLTIP COMENTARIO
 ============================ */
 .icono-comentario {
   position: relative;
@@ -428,7 +427,6 @@
 .tooltip-comentario {
   position: absolute;
   top: -45px;
-  /* distancia hacia arriba */
   left: 50%;
   transform: translateX(-50%);
   background: #333;
@@ -443,7 +441,6 @@
   z-index: 20;
 }
 
-/* Flechita */
 .tooltip-comentario::after {
   content: "";
   position: absolute;
@@ -457,4 +454,13 @@
 
 .icono-comentario:hover .tooltip-comentario {
   opacity: 1;
+}
+
+/* ============================
+   MÉTODO DE ENVÍO (NUEVA COLUMNA)
+============================ */
+.shipping-method-cell {
+  white-space: nowrap;
+  font-size: 0.85rem;
+  opacity: 0.85;
 }

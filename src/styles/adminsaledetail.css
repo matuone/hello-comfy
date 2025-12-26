@@ -169,3 +169,16 @@
   color: #999;
   font-style: italic;
 }
+
+/* ============================
+   MÉTODO DE ENVÍO (ICONO + TEXTO)
+============================ */
+.detalle-envio-metodo {
+  font-size: 0.95rem;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  opacity: 0.9;
+}

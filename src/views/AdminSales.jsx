@@ -48,6 +48,7 @@ export default function AdminSales() {
       seguimiento: "360002840905880",
       comentarios: "",
       esRegalo: false,
+      shippingMethod: "andreani",
       items: [
         {
           nombre: "Remera THE FATE OF OPHELIA",
@@ -71,6 +72,7 @@ export default function AdminSales() {
       seguimiento: "",
       comentarios: "Por favor entregar después de las 18hs",
       esRegalo: false,
+      shippingMethod: "correo",
       items: [
         {
           nombre: "Remera DON'T KILL MY VIBE",
@@ -94,6 +96,7 @@ export default function AdminSales() {
       seguimiento: "",
       comentarios: "La remera de Snoopy es para regalo",
       esRegalo: true,
+      shippingMethod: "retiro_temperley",
       items: [
         {
           nombre: "Remera CÔTE D'AZUR X SNOOPY",
@@ -253,6 +256,7 @@ export default function AdminSales() {
               <th>Total</th>
               <th>Productos</th>
               <th>Pago</th>
+              <th>Método</th>
               <th>Envío</th>
             </tr>
           </thead>
@@ -297,10 +301,9 @@ export default function AdminSales() {
                     )}
                   </td>
 
-
                   <td>{venta.total}</td>
 
-                  {/* Productos (solo número + flecha) */}
+                  {/* Productos */}
                   <td>
                     <button
                       className="productos-toggle"
@@ -331,6 +334,14 @@ export default function AdminSales() {
                     )}
                   </td>
 
+                  {/* Método de envío */}
+                  <td className="shipping-method-cell">
+                    {venta.shippingMethod === "andreani" && "📦 Andreani"}
+                    {venta.shippingMethod === "correo" && "✉️ Correo Argentino"}
+                    {venta.shippingMethod === "retiro_temperley" && "🏬 Retiro Temperley"}
+                    {venta.shippingMethod === "retiro_aquelarre" && "🏬 Retiro Aquelarre"}
+                  </td>
+
                   {/* Envío */}
                   <td>
                     {venta.envioEstado === "enviado" ? (
@@ -351,7 +362,7 @@ export default function AdminSales() {
                 {/* Fila expandida */}
                 {expandedRows.includes(venta.id) && (
                   <tr className="fila-expandida">
-                    <td colSpan="8">
+                    <td colSpan="9">
                       <div className="productos-grid">
                         {venta.items.map((item, index) => (
                           <div key={index} className="producto-card">
