@@ -1,24 +1,42 @@
 import { useParams, Link } from "react-router-dom";
 import "../styles/admincustomerdetail.css";
+import { salesData } from "../data/salesData"; // 👈 IMPORTANTE
 
 export default function AdminCustomerDetail() {
   const { id } = useParams();
 
   // ============================
-  // MOCK DE CLIENTE
+  // MOCK BASE DEL CLIENTE
   // ============================
-  const cliente = {
+  const clienteBase = {
     id,
     nombre: "María Laura Ambroggio",
     email: "mlaura@example.com",
     whatsapp: "+5491123456791",
     dni: "38.112.445",
-    ultimaCompra: { nro: 7552, fecha: "06/06/2025" },
-    total: 35318.74,
-    compras: [
-      { nro: 7552, fecha: "06/06/2025", total: 18900 },
-      { nro: 7440, fecha: "04/05/2025", total: 16418.74 },
-    ],
+    notas: "Cliente frecuente. Prefiere contacto por WhatsApp.",
+  };
+
+  // ============================
+  // DATOS REALES DESDE VENTAS
+  // ============================
+  const compras = salesData.filter(v => v.clienteEmail === clienteBase.email);
+
+  const total = compras.reduce((acc, v) => acc + v.total, 0);
+
+  const ultimaCompra = compras.length
+    ? compras.reduce((a, b) => {
+      const fechaA = new Date(a.fecha.split("/").reverse().join("-"));
+      const fechaB = new Date(b.fecha.split("/").reverse().join("-"));
+      return fechaA > fechaB ? a : b;
+    })
+    : null;
+
+  const cliente = {
+    ...clienteBase,
+    compras,
+    total,
+    ultimaCompra,
   };
 
   const ticketPromedio =
@@ -41,7 +59,12 @@ export default function AdminCustomerDetail() {
           ← Volver
         </Link>
 
-        <button className="btn-editar">Editar cliente</button>
+        <Link
+          to={`/admin/customers/${id}/edit`}
+          className="btn-editar"
+        >
+          Editar cliente
+        </Link>
       </div>
 
       {/* ============================
@@ -105,7 +128,7 @@ export default function AdminCustomerDetail() {
             <span className="stat-label">Última compra</span>
             <span className="stat-value">
               {cliente.ultimaCompra
-                ? `#${cliente.ultimaCompra.nro} ${cliente.ultimaCompra.fecha}`
+                ? `#${cliente.ultimaCompra.id} ${cliente.ultimaCompra.fecha}`
                 : "—"}
             </span>
           </div>
@@ -132,13 +155,13 @@ export default function AdminCustomerDetail() {
             </thead>
             <tbody>
               {cliente.compras.map((c) => (
-                <tr key={c.nro}>
-                  <td>#{c.nro}</td>
+                <tr key={c.id}>
+                  <td>#{c.id}</td>
                   <td>{c.fecha}</td>
                   <td>${c.total.toLocaleString("es-AR")}</td>
                   <td>
                     <Link
-                      to={`/admin/sales/${c.nro}`}
+                      to={`/admin/sales/${c.id}`}
                       className="btn-ver-venta"
                     >
                       Ver venta →

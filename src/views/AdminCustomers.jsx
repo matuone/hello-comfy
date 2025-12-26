@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../styles/admincustomers.css";
+import { salesData } from "../data/salesData"; // 👈 IMPORTANTE
 
 function parseFechaDDMMYYYY(str) {
   if (!str) return null;
@@ -42,7 +43,7 @@ export default function AdminCustomers() {
       c.nombre,
       c.email,
       c.whatsapp,
-      c.ultimaCompra ? `#${c.ultimaCompra.nro} ${c.ultimaCompra.fecha}` : "—",
+      c.ultimaCompra ? `#${c.ultimaCompra.id} ${c.ultimaCompra.fecha}` : "—",
       c.total
     ]);
 
@@ -63,45 +64,37 @@ export default function AdminCustomers() {
   }
 
   // ============================
-  // MOCK DE CLIENTES
+  // CLIENTES BASE (sin cálculos)
   // ============================
-  const clientes = [
-    {
-      nombre: "Cristian Weiss",
-      ultimaCompra: null,
-      total: 0,
-      email: "cristian@example.com",
-      whatsapp: "+5491123456789",
-    },
-    {
-      nombre: "Lara Ailen Iris Mateo",
-      ultimaCompra: { nro: 4033, fecha: "16/11/2023" },
-      total: 49000,
-      email: "lara@example.com",
-      whatsapp: "+5491123456790",
-    },
-    {
-      nombre: "María Laura Ambroggio",
-      ultimaCompra: { nro: 7552, fecha: "06/06/2025" },
-      total: 35318.74,
-      email: "mlaura@example.com",
-      whatsapp: "+5491123456791",
-    },
-    {
-      nombre: "Camila Oshiro",
-      ultimaCompra: { nro: 2144, fecha: "26/04/2023" },
-      total: 5313.04,
-      email: "camila@example.com",
-      whatsapp: "+5491123456792",
-    },
-    {
-      nombre: "guadalupe dominguez",
-      ultimaCompra: null,
-      total: 0,
-      email: "guada@example.com",
-      whatsapp: "+5491123456793",
-    },
+  const clientesBase = [
+    { nombre: "Cristian Weiss", email: "cristian@example.com", whatsapp: "+5491123456789" },
+    { nombre: "Lara Ailen Iris Mateo", email: "lara@example.com", whatsapp: "+5491123456790" },
+    { nombre: "María Laura Ambroggio", email: "mlaura@example.com", whatsapp: "+5491123456791" },
+    { nombre: "Camila Oshiro", email: "camila@example.com", whatsapp: "+5491123456792" },
+    { nombre: "guadalupe dominguez", email: "guada@example.com", whatsapp: "+5491123456793" },
   ];
+
+  // ============================
+  // CALCULAR DATOS REALES DESDE VENTAS
+  // ============================
+  const clientes = clientesBase.map(c => {
+    const compras = salesData.filter(v => v.clienteEmail === c.email);
+
+    const total = compras.reduce((acc, v) => acc + v.total, 0);
+
+    const ultimaCompra = compras.length
+      ? compras.reduce((a, b) =>
+        parseFechaDDMMYYYY(a.fecha) > parseFechaDDMMYYYY(b.fecha) ? a : b
+      )
+      : null;
+
+    return {
+      ...c,
+      compras,
+      total,
+      ultimaCompra,
+    };
+  });
 
   // ============================
   // APLICAR FILTROS
@@ -110,12 +103,12 @@ export default function AdminCustomers() {
     const texto = busqueda.toLowerCase();
     const coincideBusqueda =
       c.nombre.toLowerCase().includes(texto) ||
-      (c.email && c.email.toLowerCase().includes(texto));
+      c.email.toLowerCase().includes(texto);
 
     if (!coincideBusqueda) return false;
 
     // Filtro: solo sin compras
-    if (soloSinCompras && c.ultimaCompra !== null) return false;
+    if (soloSinCompras && c.compras.length > 0) return false;
 
     // Filtro por total consumido
     const min = totalMin !== "" ? Number(totalMin) : null;
@@ -289,7 +282,7 @@ export default function AdminCustomers() {
                 <td>{c.nombre}</td>
                 <td>
                   {c.ultimaCompra
-                    ? `#${c.ultimaCompra.nro} ${c.ultimaCompra.fecha}`
+                    ? `#${c.ultimaCompra.id} ${c.ultimaCompra.fecha}`
                     : "—"}
                 </td>
                 <td>
