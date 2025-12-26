@@ -43,6 +43,38 @@ export default function AdminStats() {
   const ventasPendientes = totalVentas - ventasEnviadas;
 
   // ============================
+  // CLIENTE TOP DEL MES
+  // ============================
+  const hoy = new Date();
+  const mesActual = hoy.getMonth();
+  const añoActual = hoy.getFullYear();
+
+  const ventasMesActual = salesData.filter(v => {
+    const fecha = new Date(v.fecha);
+    return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
+  });
+
+  const consumoPorCliente = {};
+
+  ventasMesActual.forEach(v => {
+    const email = v.email;
+    const monto = Number(String(v.total).replace(/[^0-9.-]+/g, ""));
+
+    if (!consumoPorCliente[email]) {
+      consumoPorCliente[email] = {
+        nombre: v.cliente,
+        email: v.email,
+        total: 0,
+      };
+    }
+
+    consumoPorCliente[email].total += monto;
+  });
+
+  const topClienteMes =
+    Object.values(consumoPorCliente).sort((a, b) => b.total - a.total)[0] || null;
+
+  // ============================
   // VENTAS POR MES (GRÁFICO LÍNEA)
   // ============================
   const meses = [
@@ -172,6 +204,19 @@ export default function AdminStats() {
         <div className="kpi-box">
           <span className="kpi-label">Pendientes de envío</span>
           <span className="kpi-value">{ventasPendientes}</span>
+        </div>
+
+        {/* NUEVO KPI: CLIENTE DEL MES */}
+        <div className="kpi-box">
+          <span className="kpi-label">Cliente del mes</span>
+          <span className="kpi-value">
+            {topClienteMes ? topClienteMes.nombre : "—"}
+          </span>
+          {topClienteMes && (
+            <span className="kpi-sub">
+              ${topClienteMes.total.toLocaleString("es-AR")}
+            </span>
+          )}
         </div>
       </div>
 

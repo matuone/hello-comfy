@@ -30,6 +30,14 @@
   display: block;
 }
 
+/* Subtexto para KPIs (ej: Cliente del mes) */
+.kpi-sub {
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: 4px;
+  display: block;
+}
+
 /* ============================
    GRÁFICOS EN GRID
 ============================ */
