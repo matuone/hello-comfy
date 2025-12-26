@@ -60,9 +60,6 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
-        {/* ============================
-            NUEVA SECCIÓN: CLIENTES
-        ============================ */}
         <li>
           <NavLink
             to="/admin/customers"
@@ -72,6 +69,21 @@ export default function AdminSidebar() {
             }
           >
             Clientes
+          </NavLink>
+        </li>
+
+        {/* ============================
+            NUEVA SECCIÓN: ESTADÍSTICAS
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/stats"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Estadísticas
           </NavLink>
         </li>
 
