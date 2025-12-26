@@ -1,10 +1,38 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { stockGeneral } from "../data/stockData";
 import "../styles/adminproducts.css";
 
 export default function AdminProducts() {
   const [busqueda, setBusqueda] = useState("");
   const [expandedRows, setExpandedRows] = useState([]);
+
+  // ============================
+  // MODIFICACIÓN MASIVA DE PRECIOS
+  // ============================
+  const [mostrarPanelPrecios, setMostrarPanelPrecios] = useState(false);
+  const [porcentaje, setPorcentaje] = useState("");
+
+  function aplicarAumento() {
+    const p = Number(porcentaje);
+
+    if (isNaN(p) || p === 0) {
+      alert("Ingresá un porcentaje válido.");
+      return;
+    }
+
+    setProductos(prev =>
+      prev.map(prod => ({
+        ...prod,
+        precio: Math.round(prod.precio * (1 + p / 100))
+      }))
+    );
+
+    setMostrarPanelPrecios(false);
+    setPorcentaje("");
+
+    alert(`Precios actualizados con un aumento del ${p}%`);
+  }
 
   // ============================
   // MOCK DE PRODUCTOS
@@ -18,15 +46,6 @@ export default function AdminProducts() {
       color: "Beige",
       colorHex: "#d8c7a1",
       precio: 35550,
-      talles: {
-        XS: 5,
-        S: 8,
-        M: 12,
-        L: 4,
-        XL: 0,
-        XXL: 2,
-        XXXL: 1,
-      },
       imagenes: [
         "https://via.placeholder.com/80",
         "https://via.placeholder.com/80",
@@ -40,15 +59,6 @@ export default function AdminProducts() {
       color: "Beige",
       colorHex: "#e4d3b5",
       precio: 59850,
-      talles: {
-        XS: 0,
-        S: 3,
-        M: 6,
-        L: 10,
-        XL: 4,
-        XXL: 1,
-        XXXL: 0,
-      },
       imagenes: ["https://via.placeholder.com/80"],
     },
     {
@@ -59,7 +69,6 @@ export default function AdminProducts() {
       color: "Rosa pastel",
       colorHex: "#f7c6d0",
       precio: 18900,
-      talles: {},
       imagenes: ["https://via.placeholder.com/80"],
     },
   ]);
@@ -119,13 +128,53 @@ export default function AdminProducts() {
       />
 
       {/* ============================
-          BOTÓN AGREGAR
+          TOOLBAR
       ============================ */}
       <div className="products-toolbar">
+
+        {/* BOTÓN MODIFICAR PRECIOS */}
+        <button
+          className="mass-price-btn"
+          onClick={() => setMostrarPanelPrecios(true)}
+        >
+          Modificar precios
+        </button>
+
         <Link to="/admin/products/new" className="add-product-btn">
           + Agregar producto
         </Link>
       </div>
+
+      {/* ============================
+          PANEL DE MODIFICACIÓN MASIVA
+      ============================ */}
+      {mostrarPanelPrecios && (
+        <div className="mass-price-panel">
+          <h4>Modificar precios masivamente</h4>
+
+          <label className="mass-price-label">Aumento (%)</label>
+          <input
+            type="number"
+            className="mass-price-input"
+            value={porcentaje}
+            onChange={(e) => setPorcentaje(e.target.value)}
+            placeholder="Ej: 15"
+          />
+
+          <div className="mass-price-actions">
+            <button className="mass-price-apply" onClick={aplicarAumento}>
+              Aplicar aumento
+            </button>
+
+            <button
+              className="mass-price-cancel"
+              onClick={() => setMostrarPanelPrecios(false)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ============================
           TABLA
@@ -145,19 +194,23 @@ export default function AdminProducts() {
 
           <tbody>
             {productosFiltrados.map((prod) => {
-              const stockTotal = Object.values(prod.talles).reduce(
-                (acc, n) => acc + n,
-                0
+              // ============================
+              // STOCK REAL SEGÚN COLOR
+              // ============================
+              const stockColor = stockGeneral.find(
+                (s) => s.color === prod.color
               );
+
+              const stockTotal = stockColor
+                ? Object.values(stockColor.talles).reduce((a, b) => a + b, 0)
+                : 0;
 
               return (
                 <>
                   <tr key={prod.id}>
                     <td className="prod-name-cell">
 
-                      {/* ============================
-                          MINIATURA + INFO
-                      ============================ */}
+                      {/* MINIATURA + INFO */}
                       <div className="prod-name-wrapper">
                         <img
                           src={prod.imagenes[0]}
@@ -254,18 +307,23 @@ export default function AdminProducts() {
                             </div>
                           </div>
 
-                          {/* TALLES */}
+                          {/* TALLES (STOCK REAL) */}
                           <div>
                             <h4 className="detalle-subtitle">Talles</h4>
-                            <ul className="detalle-talles">
-                              {Object.entries(prod.talles).map(
-                                ([talle, stock]) => (
-                                  <li key={talle}>
-                                    <strong>{talle}:</strong> {stock} unid.
-                                  </li>
-                                )
-                              )}
-                            </ul>
+
+                            {stockColor ? (
+                              <ul className="detalle-talles">
+                                {Object.entries(stockColor.talles).map(
+                                  ([talle, stock]) => (
+                                    <li key={talle}>
+                                      <strong>{talle}:</strong> {stock} unid.
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            ) : (
+                              <p>No hay stock para este color.</p>
+                            )}
                           </div>
 
                         </div>

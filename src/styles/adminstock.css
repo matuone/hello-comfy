@@ -1,0 +1,95 @@
+/* ============================
+   CONTENEDOR PRINCIPAL
+============================ */
+.stock-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 700px;
+}
+
+/* ============================
+   BOTÓN AGREGAR COLOR
+============================ */
+.btn-agregar-color {
+  background: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.btn-agregar-color:hover {
+  background: #4a0f6d;
+}
+
+/* ============================
+   HEADER DE CADA COLOR
+============================ */
+.stock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ============================
+   BOTÓN ELIMINAR COLOR
+============================ */
+.btn-eliminar-color {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-eliminar-color:hover {
+  background: #b71c1c;
+}
+
+/* ============================
+   INPUT DE TALLES
+============================ */
+.input-field-talle {
+  width: 100%;
+  max-width: 90px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 0.85rem;
+}
+
+/* ============================
+   SUBTÍTULOS
+============================ */
+.detalle-subtitle {
+  margin-top: 10px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #444;
+}
+
+/* ============================
+   HIGHLIGHT AL AGREGAR COLOR
+============================ */
+.color-added {
+  animation: highlightFade 1.5s ease-out;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: #fff4d6;
+    box-shadow: 0 0 0 2px #ffdd9c;
+  }
+
+  100% {
+    background-color: #fafafa;
+    box-shadow: none;
+  }
+}

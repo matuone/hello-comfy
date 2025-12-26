@@ -1,13 +1,15 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { stockGeneral } from "../data/stockData"; // 👈 STOCK REAL
 import "../styles/adminproductdetail.css";
 
 export default function AdminProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const ORDEN_TALLES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
-
+  // ============================
+  // MOCK DE PRODUCTO
+  // ============================
   const [producto, setProducto] = useState({
     id,
     nombre: "Remera THE FATE OF OPHELIA",
@@ -16,42 +18,17 @@ export default function AdminProductDetail() {
     precio: 35550,
     color: "Beige",
     colorHex: "#d8c7a1",
-    talles: {
-      XS: 5,
-      S: 8,
-      M: 12,
-      L: 4,
-      XL: 0,
-      XXL: 2,
-      "3XL": 1,
-    },
     imagenes: [
       "https://via.placeholder.com/120",
       "https://via.placeholder.com/120",
     ],
   });
 
-  const [tallesActivos, setTallesActivos] = useState(
-    ORDEN_TALLES.filter((t) => producto.talles[t] !== undefined)
-  );
-
-  function toggleTalleActivo(talle) {
-    setTallesActivos((prev) =>
-      prev.includes(talle)
-        ? prev.filter((t) => t !== talle)
-        : [...prev, talle]
-    );
-  }
-
+  // ============================
+  // HANDLERS
+  // ============================
   function actualizarCampo(campo, valor) {
     setProducto((prev) => ({ ...prev, [campo]: valor }));
-  }
-
-  function actualizarTalle(talle, valor) {
-    setProducto((prev) => ({
-      ...prev,
-      talles: { ...prev.talles, [talle]: Number(valor) },
-    }));
   }
 
   function agregarImagen(e) {
@@ -88,11 +65,21 @@ export default function AdminProductDetail() {
     alert("Producto duplicado (cuando haya backend se creará una copia)");
   }
 
+  // ============================
+  // STOCK REAL SEGÚN COLOR
+  // ============================
+  const stockColor = stockGeneral.find(
+    (s) => s.color === producto.color
+  );
+
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">Producto {producto.id}</h2>
       <p className="admin-section-text">Editar información del producto.</p>
 
+      {/* ============================
+          BOTONES SUPERIORES
+      ============================ */}
       <div className="product-actions">
         <button className="btn-duplicar" onClick={duplicarProducto}>
           Duplicar
@@ -103,7 +90,7 @@ export default function AdminProductDetail() {
       </div>
 
       {/* ============================
-          COLUMNAS ALINEADAS
+          CONTENEDOR EN COLUMNA
       ============================ */}
       <div className="product-column">
 
@@ -146,7 +133,9 @@ export default function AdminProductDetail() {
                 <option>Outlet</option>
               </>
             )}
+
             {producto.categoria === "Cute Items" && <option>Vasos</option>}
+
             {producto.categoria === "Merch" && (
               <>
                 <option>Artistas nacionales</option>
@@ -171,6 +160,7 @@ export default function AdminProductDetail() {
               value={producto.colorHex}
               onChange={(e) => actualizarCampo("colorHex", e.target.value)}
             />
+
             <div
               className="color-preview"
               style={{ backgroundColor: producto.colorHex }}
@@ -186,42 +176,28 @@ export default function AdminProductDetail() {
           />
         </div>
 
-        {/* TALLES */}
+        {/* ============================
+            STOCK REAL
+        ============================ */}
         <div className="detalle-box">
-          <h3 className="detalle-title">Talles y stock</h3>
+          <h3 className="detalle-title">Stock real</h3>
 
-          <div className="talles-selector">
-            {ORDEN_TALLES.map((t) => (
-              <button
-                key={t}
-                className={
-                  tallesActivos.includes(t)
-                    ? "talle-chip talle-chip--active"
-                    : "talle-chip"
-                }
-                onClick={() => toggleTalleActivo(t)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          <div className="talles-grid">
-            {tallesActivos.map((talle) => (
-              <div key={talle} className="talle-item">
-                <label>{talle}</label>
-                <input
-                  type="number"
-                  className="input-field"
-                  value={producto.talles[talle] ?? 0}
-                  onChange={(e) => actualizarTalle(talle, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
+          {stockColor ? (
+            <ul className="detalle-talles">
+              {Object.entries(stockColor.talles).map(([talle, cant]) => (
+                <li key={talle}>
+                  <strong>{talle}:</strong> {cant} unidades
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay stock para este color.</p>
+          )}
         </div>
 
-        {/* FOTOS */}
+        {/* ============================
+            FOTOS
+        ============================ */}
         <div className="detalle-box">
           <h3 className="detalle-title">Fotos</h3>
 
@@ -245,6 +221,7 @@ export default function AdminProductDetail() {
           </div>
         </div>
 
+        {/* BOTÓN GUARDAR */}
         <button className="btn-guardar" onClick={guardarProducto}>
           Guardar cambios
         </button>

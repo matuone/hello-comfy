@@ -44,6 +44,20 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* ============================
+            NUEVA SECCIÓN: STOCK
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/stock"
+            className={({ isActive }) =>
+              "admin-sidebar-link" + (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Stock
+          </NavLink>
+        </li>
+
         {/* Futuras secciones:
         <li><NavLink to="/admin/customers">Clientes</NavLink></li>
         <li><NavLink to="/admin/settings">Configuración</NavLink></li>

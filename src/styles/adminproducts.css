@@ -25,6 +25,7 @@
 .products-toolbar {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
   margin-bottom: 16px;
 }
 
@@ -41,6 +42,95 @@
 
 .add-product-btn:hover {
   background: #c63f6a;
+}
+
+/* ============================
+   BOTÓN MODIFICAR PRECIOS
+============================ */
+.mass-price-btn {
+  background: #6a1b9a;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.mass-price-btn:hover {
+  background: #4a0f6d;
+}
+
+/* ============================
+   PANEL DE MODIFICACIÓN MASIVA
+============================ */
+.mass-price-panel {
+  background: #fff7fb;
+  border: 1px solid #f3c3d8;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.mass-price-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.mass-price-input {
+  width: 120px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+
+.mass-price-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.mass-price-apply {
+  background: #d94f7a;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.mass-price-apply:hover {
+  background: #c63f6a;
+}
+
+.mass-price-cancel {
+  background: #ddd;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.mass-price-cancel:hover {
+  background: #ccc;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ============================
