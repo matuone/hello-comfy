@@ -287,11 +287,11 @@ export default function AdminSales() {
                   <td className="shipping-method-cell">
                     {venta.shippingMethod === "andreani" && "📦 Andreani"}
                     {venta.shippingMethod === "correo" && "✉️ Correo Argentino"}
-                    {venta.shippingMethod === "retiro_temperley" &&
-                      "🏬 Retiro Temperley"}
-                    {venta.shippingMethod === "retiro_aquelarre" &&
-                      "🏬 Retiro Aquelarre"}
+                    {venta.shippingMethod === "retiro_temperley" && "🏬 Retiro Temperley"}
+                    {venta.shippingMethod === "retiro_aquelarre" && "🏬 Retiro Aquelarre"}
+                    {venta.shippingMethod === "nextday_moto" && "🏍️ Envío Next Day 24 hs (Moto CABA y GBA Sur)"}
                   </td>
+
 
                   {/* Envío */}
                   <td>

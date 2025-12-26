@@ -214,5 +214,31 @@ export const salesData = [
         imagen: "https://via.placeholder.com/80"
       }
     ]
+  },
+
+  // 🆕 NUEVA VENTA CON MÉTODO NEXT DAY MOTO
+  {
+    id: 9010,
+    fecha: "10/01/2025 09:30",
+    cliente: "Julieta Torres",
+    email: "julieta@example.com",
+    telefono: "+54 9 11 2222 1111",
+    total: "$22.000,00",
+    pagoEstado: "pendiente",
+    envioEstado: "pendiente",
+    seguimiento: "",
+    comentarios: "",
+    esRegalo: false,
+    shippingMethod: "nextday_moto",
+    items: [
+      {
+        nombre: "Remera FAST DELIVERY",
+        color: "Negro",
+        talle: "M",
+        cantidad: 1,
+        precio: 22000,
+        imagen: "https://via.placeholder.com/80"
+      }
+    ]
   }
 ];
