@@ -1,11 +1,17 @@
-// src/context/AuthContext.jsx
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { adminUsers } from "../data/adminUsers";
 
-const AuthContext = createContext();
+export const AuthContext = createContext(); // ← export nombrado
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("authUser");
+    if (saved) {
+      setUser(JSON.parse(saved));
+    }
+  }, []);
 
   function login(email, password) {
     const found = adminUsers.find(
@@ -13,25 +19,25 @@ export function AuthProvider({ children }) {
     );
 
     if (found) {
-      setUser({ email: found.email });
-      return true; // login OK
+      const loggedUser = { email: found.email };
+      setUser(loggedUser);
+      localStorage.setItem("authUser", JSON.stringify(loggedUser));
+      return true;
     }
 
-    return false; // login fallido
+    return false;
   }
 
   function logout() {
     setUser(null);
+    localStorage.removeItem("authUser");
   }
 
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    login,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

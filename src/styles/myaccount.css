@@ -85,3 +85,29 @@
     transform: translateY(0);
   }
 }
+
+.account-password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.account-eye {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #999;
+}
+
+.account-eye:hover {
+  color: #d94f7a;
+}
+
+.account-input-wrapper {
+  position: relative;
+  width: 100%;
+}

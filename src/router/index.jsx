@@ -37,8 +37,11 @@ import AdminCustomerEdit from "../views/AdminCustomerEdit";
 // 📊 ESTADÍSTICAS
 import AdminStats from "../views/AdminStats";
 
-// 🛍️ MARKETING (NUEVA SECCIÓN)
+// 🛍️ MARKETING
 import AdminMarketing from "../views/AdminMarketing";
+
+// 🔐 PROTECCIÓN DE RUTAS ADMIN
+import AdminRoute from "./AdminRoute";
 
 export default function AppRouter() {
   return (
@@ -77,9 +80,15 @@ export default function AppRouter() {
       </Route>
 
       {/* ============================
-          PANEL ADMIN (AISLADO)
+          PANEL ADMIN (PROTEGIDO)
       ============================ */}
-      <Route element={<AdminLayout />}>
+      <Route
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
         <Route path="/admin" element={<AdminDashboard />} />
 
         {/* Ventas */}
@@ -99,10 +108,10 @@ export default function AppRouter() {
         <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
         <Route path="/admin/customers/:id/edit" element={<AdminCustomerEdit />} />
 
-        {/* 📊 Estadísticas */}
+        {/* Estadísticas */}
         <Route path="/admin/stats" element={<AdminStats />} />
 
-        {/* 🛍️ Marketing */}
+        {/* Marketing */}
         <Route path="/admin/marketing" element={<AdminMarketing />} />
       </Route>
 

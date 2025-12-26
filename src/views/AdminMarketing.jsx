@@ -20,14 +20,22 @@ export default function AdminMarketing() {
   function guardar() {
     localStorage.setItem("promoMessage", message);
     localStorage.setItem("bearMessage", bearMessage);
+
+    // 🔥 Notificar al osito que el mensaje cambió
+    window.dispatchEvent(new Event("bearMessageUpdated"));
+
     alert("Mensajes actualizados correctamente.");
   }
 
   function resetear() {
     setMessage(defaultMessage);
     setBearMessage(defaultBearMessage);
+
     localStorage.setItem("promoMessage", defaultMessage);
     localStorage.setItem("bearMessage", defaultBearMessage);
+
+    // 🔥 Notificar al osito
+    window.dispatchEvent(new Event("bearMessageUpdated"));
   }
 
   return (

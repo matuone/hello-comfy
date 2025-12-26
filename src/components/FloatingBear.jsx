@@ -6,10 +6,21 @@ export default function FloatingBear() {
   const [showCode, setShowCode] = useState(false);
   const [bearMessage, setBearMessage] = useState("HELLOCOMFY10");
 
-  // Cargar mensaje del osito
+  // Cargar mensaje inicial del osito
   useEffect(() => {
     const saved = localStorage.getItem("bearMessage");
     if (saved) setBearMessage(saved);
+  }, []);
+
+  // 🔥 Escuchar cambios en vivo desde el admin
+  useEffect(() => {
+    function updateMessage() {
+      const saved = localStorage.getItem("bearMessage");
+      if (saved) setBearMessage(saved);
+    }
+
+    window.addEventListener("bearMessageUpdated", updateMessage);
+    return () => window.removeEventListener("bearMessageUpdated", updateMessage);
   }, []);
 
   // Mostrar burbuja cada 10s durante 7s
