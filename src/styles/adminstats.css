@@ -1,5 +1,6 @@
-/* src/styles/adminstats.css */
-
+/* ============================
+   KPIs
+============================ */
 .stats-kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -29,10 +30,14 @@
   display: block;
 }
 
-.stats-graphs {
+/* ============================
+   GRÁFICOS EN GRID
+============================ */
+.stats-graphs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: 20px;
+  margin-top: 20px;
 }
 
 .graph-box {
@@ -41,4 +46,20 @@
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  height: 360px;
+  /* controla el tamaño vertical */
+  display: flex;
+  flex-direction: column;
+}
+
+.graph-box h3 {
+  margin-bottom: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #444;
+}
+
+/* Para que Chart.js no se expanda infinito */
+.graph-box canvas {
+  max-height: 260px !important;
 }
