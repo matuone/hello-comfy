@@ -23,8 +23,8 @@ app.get("/", (req, res) => {
   res.send("API HelloComfy funcionando");
 });
 
-// Rutas reales
-app.use("/api/Products", productRoutes);
+// Rutas reales (CORREGIDO: todo en minúsculas)
+app.use("/api/products", productRoutes);
 
 // Inicio del servidor
 app.listen(5000, () => {

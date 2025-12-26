@@ -1,28 +1,60 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { stockGeneral } from "../data/stockData"; // 👈 STOCK REAL
+import { useState, useEffect } from "react";
 import "../styles/adminproductdetail.css";
 
 export default function AdminProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const esEdicion = Boolean(id);
+
   // ============================
-  // MOCK DE PRODUCTO
+  // ESTADO INICIAL (CREACIÓN)
   // ============================
   const [producto, setProducto] = useState({
-    id,
-    nombre: "Remera THE FATE OF OPHELIA",
+    nombre: "",
     categoria: "Indumentaria",
-    subcategoria: "Remeras",
-    precio: 35550,
-    color: "Beige",
-    colorHex: "#d8c7a1",
-    imagenes: [
-      "https://via.placeholder.com/120",
-      "https://via.placeholder.com/120",
-    ],
+    subcategoria: "",
+    precio: "",
+    color: "",
+    colorHex: "#cccccc",
+    imagenes: [],
+    description: "",
   });
+
+  // ============================
+  // CARGAR PRODUCTO (SOLO EDICIÓN)
+  // ============================
+  useEffect(() => {
+    if (!esEdicion) return;
+
+    fetch(`http://localhost:5000/api/products/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const categoriasValidas = ["Indumentaria", "Cute Items", "Merch"];
+        let categoriaNormalizada = (data.category || "").trim();
+
+        if (!categoriasValidas.includes(categoriaNormalizada)) {
+          const lower = categoriaNormalizada.toLowerCase();
+          if (lower === "indumentaria") categoriaNormalizada = "Indumentaria";
+          else if (lower === "cute items") categoriaNormalizada = "Cute Items";
+          else if (lower === "merch") categoriaNormalizada = "Merch";
+          else categoriaNormalizada = "Indumentaria";
+        }
+
+        setProducto({
+          nombre: data.name,
+          categoria: categoriaNormalizada,
+          subcategoria: data.subcategory || "",
+          precio: data.price,
+          color: data.colors?.[0] || "",
+          colorHex: "#cccccc",
+          imagenes: data.images || [],
+          description: data.description || "",
+        });
+      })
+      .catch((err) => console.error("Error cargando producto:", err));
+  }, [esEdicion, id]);
 
   // ============================
   // HANDLERS
@@ -50,50 +82,141 @@ export default function AdminProductDetail() {
     }));
   }
 
-  function guardarProducto() {
-    alert("Producto guardado (cuando haya backend se enviará)");
-  }
+  // ============================
+  // GUARDAR (POST o PUT)
+  // ============================
+  async function guardarProducto() {
+    // VALIDACIÓN PREVIA MEJORADA
+    if (
+      !producto.nombre.trim() ||
+      !producto.categoria.trim() ||
+      !producto.subcategoria.trim() ||
+      !producto.color.trim() ||
+      !producto.precio.toString().trim() ||
+      Number(producto.precio) <= 0
+    ) {
+      alert("Completá todos los campos obligatorios antes de guardar.");
+      return;
+    }
 
-  function eliminarProducto() {
-    if (confirm("¿Seguro que querés eliminar este producto?")) {
-      alert("Producto eliminado");
+    const payload = {
+      name: producto.nombre.trim(),
+      category: producto.categoria.trim(),
+      subcategory: producto.subcategoria.trim(),
+      price: Number(producto.precio),
+      colors: [producto.color.trim()],
+      images: producto.imagenes || [],
+      description: producto.description || "",
+    };
+
+    console.log("Payload enviado:", payload);
+
+    try {
+      const url = esEdicion
+        ? `http://localhost:5000/api/products/${id}`
+        : `http://localhost:5000/api/products`;
+
+      const method = esEdicion ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Error al guardar");
+
+      alert(esEdicion ? "Producto actualizado" : "Producto creado");
       navigate("/admin/products");
+    } catch (err) {
+      console.error(err);
+      alert("Hubo un error al guardar el producto");
     }
   }
 
-  function duplicarProducto() {
-    alert("Producto duplicado (cuando haya backend se creará una copia)");
+  // ============================
+  // ELIMINAR (SOLO EDICIÓN)
+  // ============================
+  async function eliminarProducto() {
+    if (!esEdicion) return;
+
+    if (!confirm("¿Seguro que querés eliminar este producto?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Error al eliminar");
+
+      alert("Producto eliminado");
+      navigate("/admin/products");
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo eliminar el producto");
+    }
   }
 
   // ============================
-  // STOCK REAL SEGÚN COLOR
+  // DUPLICAR (SOLO EDICIÓN)
   // ============================
-  const stockColor = stockGeneral.find(
-    (s) => s.color === producto.color
-  );
+  async function duplicarProducto() {
+    if (!esEdicion) return;
 
+    const payload = {
+      name: producto.nombre + " (copia)",
+      category: producto.categoria,
+      subcategory: producto.subcategoria || "",
+      price: Number(producto.precio) || 0,
+      colors: producto.color ? [producto.color.trim()] : [],
+      images: producto.imagenes,
+      description: producto.description,
+    };
+
+    try {
+      const res = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Error al duplicar");
+
+      alert("Producto duplicado");
+      navigate("/admin/products");
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo duplicar el producto");
+    }
+  }
+
+  // ============================
+  // RENDER
+  // ============================
   return (
     <div className="admin-section">
-      <h2 className="admin-section-title">Producto {producto.id}</h2>
-      <p className="admin-section-text">Editar información del producto.</p>
+      <h2 className="admin-section-title">
+        {esEdicion ? `Producto ${id}` : "Nuevo producto"}
+      </h2>
+      <p className="admin-section-text">
+        {esEdicion ? "Editar información del producto." : "Crear un nuevo producto."}
+      </p>
 
-      {/* ============================
-          BOTONES SUPERIORES
-      ============================ */}
+      {/* BOTONES SUPERIORES */}
       <div className="product-actions">
-        <button className="btn-duplicar" onClick={duplicarProducto}>
-          Duplicar
-        </button>
-        <button className="btn-eliminar" onClick={eliminarProducto}>
-          Eliminar
-        </button>
+        {esEdicion && (
+          <>
+            <button className="btn-duplicar" onClick={duplicarProducto}>
+              Duplicar
+            </button>
+            <button className="btn-eliminar" onClick={eliminarProducto}>
+              Eliminar
+            </button>
+          </>
+        )}
       </div>
 
-      {/* ============================
-          CONTENEDOR EN COLUMNA
-      ============================ */}
       <div className="product-column">
-
         {/* DATOS GENERALES */}
         <div className="detalle-box">
           <h3 className="detalle-title">Datos generales</h3>
@@ -160,7 +283,6 @@ export default function AdminProductDetail() {
               value={producto.colorHex}
               onChange={(e) => actualizarCampo("colorHex", e.target.value)}
             />
-
             <div
               className="color-preview"
               style={{ backgroundColor: producto.colorHex }}
@@ -172,32 +294,12 @@ export default function AdminProductDetail() {
             type="number"
             className="input-field"
             value={producto.precio}
-            onChange={(e) => actualizarCampo("precio", Number(e.target.value))}
+            onChange={(e) => actualizarCampo("precio", e.target.value)}
+            placeholder="Ingresar precio"
           />
         </div>
 
-        {/* ============================
-            STOCK REAL
-        ============================ */}
-        <div className="detalle-box">
-          <h3 className="detalle-title">Stock real</h3>
-
-          {stockColor ? (
-            <ul className="detalle-talles">
-              {Object.entries(stockColor.talles).map(([talle, cant]) => (
-                <li key={talle}>
-                  <strong>{talle}:</strong> {cant} unidades
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No hay stock para este color.</p>
-          )}
-        </div>
-
-        {/* ============================
-            FOTOS
-        ============================ */}
+        {/* FOTOS */}
         <div className="detalle-box">
           <h3 className="detalle-title">Fotos</h3>
 
@@ -223,7 +325,7 @@ export default function AdminProductDetail() {
 
         {/* BOTÓN GUARDAR */}
         <button className="btn-guardar" onClick={guardarProducto}>
-          Guardar cambios
+          {esEdicion ? "Guardar cambios" : "Crear producto"}
         </button>
       </div>
     </div>

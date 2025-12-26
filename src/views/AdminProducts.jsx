@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { stockGeneral } from "../data/stockData";
 import "../styles/adminproducts.css";
@@ -6,6 +6,34 @@ import "../styles/adminproducts.css";
 export default function AdminProducts() {
   const [busqueda, setBusqueda] = useState("");
   const [expandedRows, setExpandedRows] = useState([]);
+
+  // ============================
+  // PRODUCTOS REALES DESDE BACKEND
+  // ============================
+  const [productos, setProductos] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        const adaptados = data.map((p) => ({
+          id: p._id || p.id || "", // ← FIX IMPORTANTE
+          nombre: p.name,
+          categoria: p.category,
+          subcategoria: p.subcategory,
+          precio: p.price,
+          imagenes: p.images,
+          color: p.colors?.[0] || "Sin color",
+          colorHex: "#ccc",
+        }));
+
+        // Eliminamos productos corruptos sin ID
+        const limpios = adaptados.filter((p) => p.id);
+
+        setProductos(limpios);
+      })
+      .catch((err) => console.error("Error al cargar productos:", err));
+  }, []);
 
   // ============================
   // MODIFICACIÓN MASIVA DE PRECIOS
@@ -21,10 +49,10 @@ export default function AdminProducts() {
       return;
     }
 
-    setProductos(prev =>
-      prev.map(prod => ({
+    setProductos((prev) =>
+      prev.map((prod) => ({
         ...prod,
-        precio: Math.round(prod.precio * (1 + p / 100))
+        precio: Math.round(prod.precio * (1 + p / 100)),
       }))
     );
 
@@ -33,45 +61,6 @@ export default function AdminProducts() {
 
     alert(`Precios actualizados con un aumento del ${p}%`);
   }
-
-  // ============================
-  // MOCK DE PRODUCTOS
-  // ============================
-  const [productos, setProductos] = useState([
-    {
-      id: "P001",
-      nombre: "Remera THE FATE OF OPHELIA",
-      categoria: "Indumentaria",
-      subcategoria: "Remeras",
-      color: "Beige",
-      colorHex: "#d8c7a1",
-      precio: 35550,
-      imagenes: [
-        "https://via.placeholder.com/80",
-        "https://via.placeholder.com/80",
-      ],
-    },
-    {
-      id: "P002",
-      nombre: "Buzo oversize beige SNOOPY",
-      categoria: "Indumentaria",
-      subcategoria: "Buzos",
-      color: "Beige",
-      colorHex: "#e4d3b5",
-      precio: 59850,
-      imagenes: ["https://via.placeholder.com/80"],
-    },
-    {
-      id: "P003",
-      nombre: "Vaso térmico CUTE BEAR",
-      categoria: "Cute Items",
-      subcategoria: "Vasos",
-      color: "Rosa pastel",
-      colorHex: "#f7c6d0",
-      precio: 18900,
-      imagenes: ["https://via.placeholder.com/80"],
-    },
-  ]);
 
   // ============================
   // FILTRADO
@@ -103,9 +92,7 @@ export default function AdminProducts() {
 
   function toggleExpand(id) {
     setExpandedRows((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   }
 
@@ -131,8 +118,6 @@ export default function AdminProducts() {
           TOOLBAR
       ============================ */}
       <div className="products-toolbar">
-
-        {/* BOTÓN MODIFICAR PRECIOS */}
         <button
           className="mass-price-btn"
           onClick={() => setMostrarPanelPrecios(true)}
@@ -194,9 +179,6 @@ export default function AdminProducts() {
 
           <tbody>
             {productosFiltrados.map((prod) => {
-              // ============================
-              // STOCK REAL SEGÚN COLOR
-              // ============================
               const stockColor = stockGeneral.find(
                 (s) => s.color === prod.color
               );
@@ -206,14 +188,12 @@ export default function AdminProducts() {
                 : 0;
 
               return (
-                <>
-                  <tr key={prod.id}>
+                <Fragment key={prod.id}>
+                  <tr>
                     <td className="prod-name-cell">
-
-                      {/* MINIATURA + INFO */}
                       <div className="prod-name-wrapper">
                         <img
-                          src={prod.imagenes[0]}
+                          src={prod.imagenes?.[0] || "https://via.placeholder.com/80"}
                           alt={prod.nombre}
                           className="prod-thumb"
                         />
@@ -225,7 +205,6 @@ export default function AdminProducts() {
                             {prod.categoria} / {prod.subcategoria}
                           </span>
 
-                          {/* COLOR */}
                           <div className="prod-color-row">
                             <span className="prod-color-label">Color:</span>
                             <span
@@ -257,7 +236,7 @@ export default function AdminProducts() {
 
                     <td>{prod.categoria}</td>
                     <td>{prod.subcategoria}</td>
-                    <td>${prod.precio.toLocaleString()}</td>
+                    <td>${prod.precio?.toLocaleString()}</td>
                     <td>{stockTotal}</td>
 
                     <td className="acciones-cell">
@@ -291,12 +270,10 @@ export default function AdminProducts() {
                     <tr className="fila-expandida">
                       <td colSpan="6">
                         <div className="producto-detalle-grid">
-
-                          {/* FOTOS */}
                           <div>
                             <h4 className="detalle-subtitle">Fotos</h4>
                             <div className="detalle-fotos">
-                              {prod.imagenes.map((img, i) => (
+                              {prod.imagenes?.map((img, i) => (
                                 <img
                                   key={i}
                                   src={img}
@@ -307,7 +284,6 @@ export default function AdminProducts() {
                             </div>
                           </div>
 
-                          {/* TALLES (STOCK REAL) */}
                           <div>
                             <h4 className="detalle-subtitle">Talles</h4>
 
@@ -325,12 +301,11 @@ export default function AdminProducts() {
                               <p>No hay stock para este color.</p>
                             )}
                           </div>
-
                         </div>
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               );
             })}
           </tbody>
