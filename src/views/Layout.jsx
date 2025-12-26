@@ -4,6 +4,7 @@ import AnnouncementBar from "../components/AnnouncementBar";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PromoBanner from "../components/PromoBanner";
+import FloatingBear from "../components/FloatingBear"; // ← AGREGADO
 import "../styles/layout.css";
 
 export default function Layout() {
@@ -50,6 +51,9 @@ export default function Layout() {
             interval={5000}
           />
         )}
+
+        {/* ← EL OSITO VA ACÁ */}
+        {!esAdmin && <FloatingBear />}
 
         <Outlet />
       </main>
