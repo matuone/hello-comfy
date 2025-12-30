@@ -20,6 +20,7 @@ export default function AdminProductDetail() {
     color: "",
     imagenes: [],
     description: "",
+    sizeGuide: "remeras", // 👈 guía de talles por defecto
   });
 
   const [colores, setColores] = useState([]);
@@ -78,6 +79,7 @@ export default function AdminProductDetail() {
           color: data.colors?.[0] || "",
           imagenes: data.images || [],
           description: data.description || "",
+          sizeGuide: data.sizeGuide || "remeras", // 👈 carga lo que venga o default
         });
       })
       .catch((err) => console.error("Error cargando producto:", err));
@@ -274,6 +276,7 @@ export default function AdminProductDetail() {
       colors: [producto.color.trim()],
       images: producto.imagenes || [],
       description: producto.description || "",
+      sizeGuide: producto.sizeGuide, // 👈 se guarda en backend
     };
 
     try {
@@ -299,9 +302,6 @@ export default function AdminProductDetail() {
           },
         },
       });
-
-
-      navigate("/admin/products");
     } catch (err) {
       console.error(err);
       setNoti({
@@ -355,6 +355,7 @@ export default function AdminProductDetail() {
       colors: producto.color ? [producto.color.trim()] : [],
       images: producto.imagenes,
       description: producto.description,
+      sizeGuide: producto.sizeGuide, // 👈 también se copia
     };
 
     try {
@@ -501,6 +502,27 @@ export default function AdminProductDetail() {
           {errores.precio && (
             <p className="input-error-text">{errores.precio}</p>
           )}
+
+          {/* DESCRIPCIÓN */}
+          <label className="input-label">Descripción</label>
+          <textarea
+            className="input-field textarea-field"
+            value={producto.description}
+            onChange={(e) => actualizarCampo("description", e.target.value)}
+            placeholder="Descripción detallada del producto..."
+          />
+
+          {/* GUIA DE TALLES */}
+          <label className="input-label">Guía de talles</label>
+          <select
+            className="input-field"
+            value={producto.sizeGuide}
+            onChange={(e) => actualizarCampo("sizeGuide", e.target.value)}
+          >
+            <option value="babytees">Baby Tees</option>
+            <option value="croptops">Crop Tops</option>
+            <option value="remeras">Remeras</option>
+          </select>
         </div>
 
         {/* FOTOS */}
@@ -558,11 +580,16 @@ export default function AdminProductDetail() {
 
         {/* BOTÓN GUARDAR */}
         <button
-          className={`btn-guardar ${loadingGlobal ? "btn-guardar-disabled" : ""}`}
+          className={`btn-guardar ${loadingGlobal ? "btn-guardar-disabled" : ""
+            }`}
           onClick={guardarProducto}
           disabled={loadingGlobal}
         >
-          {loadingGlobal ? "Esperando imágenes..." : esEdicion ? "Guardar cambios" : "Crear producto"}
+          {loadingGlobal
+            ? "Esperando imágenes..."
+            : esEdicion
+              ? "Guardar cambios"
+              : "Crear producto"}
         </button>
       </div>
 

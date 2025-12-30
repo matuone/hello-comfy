@@ -41,6 +41,13 @@ const productSchema = new mongoose.Schema(
       default: ""
     },
 
+    // ⭐ NUEVO: GUÍA DE TALLES
+    sizeGuide: {
+      type: String,
+      enum: ["babytees", "croptops", "remeras"],
+      default: "remeras"
+    },
+
     // ⭐ NECESARIO PARA BEST SELLERS
     sold: { type: Number, default: 0 }
   },

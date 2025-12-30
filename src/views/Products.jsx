@@ -1,39 +1,38 @@
 import "../styles/products.css";
 import { useState, useRef, useEffect } from "react";
-import testImage from "../assets/productos/imagen-test.png";
-
-// 🔥 Categorías reales según tu imagen
-const CATEGORIES = {
-  Indumentaria: ["Remeras", "Buzos", "Pijamas", "Shorts", "Totes", "Outlet"],
-  "Cute Items": ["Vasos"],
-  Merch: ["Artistas Nacionales", "Artistas Internacionales"],
-};
-
-// 🔧 Productos simulados con categoría
-const products = Array.from({ length: 18 }, (_, i) => ({
-  id: i + 1,
-  name: `Producto ${i + 1}`,
-  price: `$${(8000 + i * 500).toLocaleString("es-AR")}`,
-  img: testImage,
-  category:
-    i < 6
-      ? "Remeras"
-      : i < 9
-        ? "Buzos"
-        : i < 12
-          ? "Vasos"
-          : i < 15
-            ? "Artistas Nacionales"
-            : "Outlet",
-}));
+import { useNavigate } from "react-router-dom";
 
 export default function Products() {
+  const navigate = useNavigate();
+
+  const [productos, setProductos] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const filtersRef = useRef(null);
 
-  // Cerrar dropdown al hacer click fuera
+  // ============================
+  // CARGAR PRODUCTOS REALES
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => setProductos(data))
+      .catch((err) => console.error("Error cargando productos:", err));
+  }, []);
+
+  // ============================
+  // CATEGORÍAS DINÁMICAS
+  // ============================
+  const CATEGORIES = {
+    Indumentaria: ["Remeras", "Buzos", "Pijamas", "Shorts", "Totes", "Outlet"],
+    "Cute Items": ["Vasos"],
+    Merch: ["Artistas nacionales", "Artistas internacionales"],
+  };
+
+  // ============================
+  // CERRAR DROPDOWN AL HACER CLICK FUERA
+  // ============================
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (filtersRef.current && !filtersRef.current.contains(e.target)) {
@@ -49,15 +48,20 @@ export default function Products() {
     setOpenDropdown(openDropdown === group ? null : group);
   };
 
+  // ============================
+  // FILTRADO REAL
+  // ============================
   const filteredProducts =
     selectedCategory === "Todos"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
+      ? productos
+      : productos.filter((p) => p.subcategory === selectedCategory);
 
-  // Contador por categoría
+  // ============================
+  // CONTADOR POR CATEGORÍA
+  // ============================
   const countByCategory = {};
-  products.forEach((p) => {
-    countByCategory[p.category] = (countByCategory[p.category] || 0) + 1;
+  productos.forEach((p) => {
+    countByCategory[p.subcategory] = (countByCategory[p.subcategory] || 0) + 1;
   });
 
   return (
@@ -72,7 +76,10 @@ export default function Products() {
       ============================ */}
       <div ref={filtersRef} className="products__filters-horizontal sticky">
         {/* Botón "Todos" */}
-        <div className={`products__dropdown ${openDropdown === "Todos" ? "open" : ""}`}>
+        <div
+          className={`products__dropdown ${openDropdown === "Todos" ? "open" : ""
+            }`}
+        >
           <button
             className="products__dropdown-toggle"
             onClick={() => {
@@ -80,7 +87,7 @@ export default function Products() {
               setOpenDropdown(null);
             }}
           >
-            Todos ({products.length})
+            Todos ({productos.length})
           </button>
         </div>
 
@@ -88,7 +95,8 @@ export default function Products() {
         {Object.entries(CATEGORIES).map(([group, cats]) => (
           <div
             key={group}
-            className={`products__dropdown ${openDropdown === group ? "open" : ""}`}
+            className={`products__dropdown ${openDropdown === group ? "open" : ""
+              }`}
           >
             <button
               className="products__dropdown-toggle"
@@ -99,7 +107,6 @@ export default function Products() {
 
             {openDropdown === group && (
               <>
-                {/* Fondo blur pastel */}
                 <div className="products__backdrop" />
 
                 <div className="products__dropdown-menu">
@@ -128,15 +135,30 @@ export default function Products() {
       ============================ */}
       <div className="products__grid">
         {filteredProducts.map((p) => (
-          <div key={p.id} className="products__card">
-            <div className="products__imgbox">
-              <img src={p.img} alt={p.name} className="products__img" />
+          <div key={p._id} className="products__card">
+            <div
+              className="products__imgbox"
+              onClick={() => navigate(`/products/${p._id}`)}
+              style={{ cursor: "pointer" }}
+            >
+              <img
+                src={p.images?.[0] || "https://via.placeholder.com/300"}
+                alt={p.name}
+                className="products__img"
+              />
             </div>
 
             <h3 className="products__name">{p.name}</h3>
-            <p className="products__price">{p.price}</p>
+            <p className="products__price">
+              ${p.price?.toLocaleString("es-AR")}
+            </p>
 
-            <button className="products__btn">Ver más</button>
+            <button
+              className="products__btn"
+              onClick={() => navigate(`/products/${p._id}`)}
+            >
+              Ver más
+            </button>
           </div>
         ))}
       </div>

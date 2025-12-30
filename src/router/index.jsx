@@ -17,30 +17,23 @@ import MyAccount from "../views/MyAccount";
 import CreateAccount from "../views/CreateAccount";
 import Products from "../views/Products";
 import Category from "../views/Category";
+import ProductDetail from "../views/ProductDetail"; // ✅ Import correcto
 
 // Admin
 import AdminLayout from "../views/AdminLayout";
 import AdminDashboard from "../views/AdminDashboard";
 import AdminSales from "../views/AdminSales";
 import AdminSaleDetail from "../views/AdminSaleDetail";
-
-// NUEVAS VISTAS ADMIN
 import AdminProducts from "../views/AdminProducts";
 import AdminProductDetail from "../views/AdminProductDetail";
 import AdminStock from "../views/AdminStock";
-
-// CLIENTES
 import AdminCustomers from "../views/AdminCustomers";
 import AdminCustomerDetail from "../views/AdminCustomerDetail";
 import AdminCustomerEdit from "../views/AdminCustomerEdit";
-
-// 📊 ESTADÍSTICAS
 import AdminStats from "../views/AdminStats";
-
-// 🛍️ MARKETING
 import AdminMarketing from "../views/AdminMarketing";
 
-// 🔐 PROTECCIÓN DE RUTAS ADMIN
+// Protección de rutas admin
 import AdminRoute from "./AdminRoute";
 
 export default function AppRouter() {
@@ -53,6 +46,9 @@ export default function AppRouter() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
+
+        {/* ✅ Ruta del detalle del producto */}
+        <Route path="/products/:id" element={<ProductDetail />} />
 
         <Route
           path="/indumentaria/:subcategory"
@@ -90,28 +86,16 @@ export default function AppRouter() {
         }
       >
         <Route path="/admin" element={<AdminDashboard />} />
-
-        {/* Ventas */}
         <Route path="/admin/sales" element={<AdminSales />} />
         <Route path="/admin/sales/:id" element={<AdminSaleDetail />} />
-
-        {/* Productos */}
         <Route path="/admin/products" element={<AdminProducts />} />
         <Route path="/admin/products/new" element={<AdminProductDetail />} />
         <Route path="/admin/products/:id" element={<AdminProductDetail />} />
-
-        {/* Stock general */}
         <Route path="/admin/stock" element={<AdminStock />} />
-
-        {/* Clientes */}
         <Route path="/admin/customers" element={<AdminCustomers />} />
         <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
         <Route path="/admin/customers/:id/edit" element={<AdminCustomerEdit />} />
-
-        {/* Estadísticas */}
         <Route path="/admin/stats" element={<AdminStats />} />
-
-        {/* Marketing */}
         <Route path="/admin/marketing" element={<AdminMarketing />} />
       </Route>
 
