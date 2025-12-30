@@ -13,12 +13,13 @@ export default function AdminProductDetail() {
   const [producto, setProducto] = useState({
     nombre: "",
     categoria: "Indumentaria",
-    subcategoria: "",
+    subcategoria: "Remeras",   // 👈 antes estaba ""
     precio: "",
     color: "",
     imagenes: [],
     description: "",
   });
+
 
   const [colores, setColores] = useState([]);
 
@@ -72,8 +73,24 @@ export default function AdminProductDetail() {
   // HANDLERS
   // ============================
   function actualizarCampo(campo, valor) {
-    setProducto((prev) => ({ ...prev, [campo]: valor }));
+    if (campo === "categoria") {
+      let sub = "";
+      if (valor === "Indumentaria") sub = "Remeras";
+      else if (valor === "Cute Items") sub = "Vasos";
+      else if (valor === "Merch") sub = "Artistas nacionales";
+
+      setProducto((prev) => ({
+        ...prev,
+        categoria: valor,
+        subcategoria: sub,
+      }));
+    } else {
+      setProducto((prev) => ({ ...prev, [campo]: valor }));
+    }
   }
+
+
+
 
   function agregarImagen(e) {
     const file = e.target.files[0];
@@ -97,16 +114,41 @@ export default function AdminProductDetail() {
   // GUARDAR (POST o PUT)
   // ============================
   async function guardarProducto() {
-    const camposObligatorios = [
-      producto.nombre,
-      producto.categoria,
-      producto.subcategoria,
-      producto.color,
-      producto.precio,
-    ];
+    const camposObligatorios = {
+      nombre: producto.nombre,
+      categoria: producto.categoria,
+      subcategoria: producto.subcategoria,
+      color: producto.color,
+      precio: producto.precio,
+    };
 
-    const faltanCampos = camposObligatorios.some(
-      (c) => !c || c.toString().trim() === ""
+
+    console.log("DEBUG camposObligatorios:", camposObligatorios);
+
+    const faltanCampos = Object.entries(camposObligatorios).some(
+      ([key, valor]) => {
+        const vacio = !valor || valor.toString().trim() === "";
+        if (vacio) {
+          console.log(`DEBUG campo vacío -> ${key}:`, valor);
+        }
+        return vacio;
+      }
+    );
+
+    const precioValido =
+      !isNaN(parseInt(producto.precio, 10)) &&
+      parseInt(producto.precio, 10) > 0;
+
+    if (faltanCampos || !precioValido) {
+      alert("Completá todos los campos obligatorios antes de guardar.");
+      return;
+    }
+
+
+    console.log("DEBUG faltanCampos:", faltanCampos);
+    console.log(
+      "DEBUG precio Number(producto.precio):",
+      Number(producto.precio)
     );
 
     if (faltanCampos || Number(producto.precio) <= 0) {
@@ -123,6 +165,8 @@ export default function AdminProductDetail() {
       images: producto.imagenes || [],
       description: producto.description || "",
     };
+
+    console.log("DEBUG payload a enviar:", payload);
 
     try {
       const url = esEdicion
@@ -146,6 +190,7 @@ export default function AdminProductDetail() {
       alert("Hubo un error al guardar el producto");
     }
   }
+
 
   // ============================
   // ELIMINAR
