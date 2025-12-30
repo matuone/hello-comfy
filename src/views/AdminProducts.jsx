@@ -1,6 +1,7 @@
 import { useState, useEffect, Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Notification from "../components/Notification";
+import ConfirmModal from "../components/ConfirmModal";
 import "../styles/adminproducts.css";
 
 const ORDEN_TALLES = ["S", "M", "L", "XL", "XXL", "3XL"];
@@ -19,6 +20,11 @@ export default function AdminProducts() {
   const location = useLocation();
   const notiInicial = location.state?.noti || null;
   const [noti, setNoti] = useState(notiInicial);
+
+  // ============================
+  // MODAL ELIMINAR
+  // ============================
+  const [modalEliminar, setModalEliminar] = useState(null);
 
   // ============================
   // CARGAR PRODUCTOS
@@ -93,10 +99,33 @@ export default function AdminProducts() {
   // ACCIONES
   // ============================
   function eliminarProducto(id) {
-    setNoti({
-      mensaje: "Función de eliminar pendiente de backend",
-      tipo: "error",
-    });
+    setModalEliminar(id);
+  }
+
+  async function confirmarEliminacion() {
+    const id = modalEliminar;
+    setModalEliminar(null);
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Error al eliminar");
+
+      setProductos((prev) => prev.filter((p) => p.id !== id));
+
+      setNoti({
+        mensaje: "Producto eliminado",
+        tipo: "exito",
+      });
+    } catch (err) {
+      console.error("Error al eliminar producto:", err);
+      setNoti({
+        mensaje: "No se pudo eliminar el producto",
+        tipo: "error",
+      });
+    }
   }
 
   function duplicarProducto(prod) {
@@ -361,6 +390,16 @@ export default function AdminProducts() {
           mensaje={noti.mensaje}
           tipo={noti.tipo}
           onClose={() => setNoti(null)}
+        />
+      )}
+
+      {/* MODAL ELIMINAR */}
+      {modalEliminar && (
+        <ConfirmModal
+          titulo="Eliminar producto"
+          mensaje="¿Seguro que querés eliminar este producto? Esta acción no se puede deshacer."
+          onConfirm={confirmarEliminacion}
+          onCancel={() => setModalEliminar(null)}
         />
       )}
     </div>
