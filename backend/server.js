@@ -3,8 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import productRoutes from "./routes/products.js";
-import stockRoutes from "./routes/stock.js";   // <-- FALTABA ESTO
-
+import stockRoutes from "./routes/stock.js";
 dotenv.config();
 
 const app = express();

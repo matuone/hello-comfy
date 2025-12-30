@@ -16,7 +16,6 @@ export default function AdminProductDetail() {
     subcategoria: "",
     precio: "",
     color: "",
-    colorHex: "#cccccc",
     imagenes: [],
     description: "",
   });
@@ -62,7 +61,6 @@ export default function AdminProductDetail() {
           subcategoria: data.subcategory || "",
           precio: data.price,
           color: data.colors?.[0] || "",
-          colorHex: "#cccccc",
           imagenes: data.images || [],
           description: data.description || "",
         });
@@ -82,7 +80,6 @@ export default function AdminProductDetail() {
     if (!file) return;
 
     const url = URL.createObjectURL(file);
-
     setProducto((prev) => ({
       ...prev,
       imagenes: [...prev.imagenes, url],
@@ -100,14 +97,19 @@ export default function AdminProductDetail() {
   // GUARDAR (POST o PUT)
   // ============================
   async function guardarProducto() {
-    if (
-      !producto.nombre.trim() ||
-      !producto.categoria.trim() ||
-      !producto.subcategoria.trim() ||
-      !producto.color.trim() ||
-      !producto.precio.toString().trim() ||
-      Number(producto.precio) <= 0
-    ) {
+    const camposObligatorios = [
+      producto.nombre,
+      producto.categoria,
+      producto.subcategoria,
+      producto.color,
+      producto.precio,
+    ];
+
+    const faltanCampos = camposObligatorios.some(
+      (c) => !c || c.toString().trim() === ""
+    );
+
+    if (faltanCampos || Number(producto.precio) <= 0) {
       alert("Completá todos los campos obligatorios antes de guardar.");
       return;
     }
@@ -209,7 +211,9 @@ export default function AdminProductDetail() {
         {esEdicion ? `Producto ${id}` : "Nuevo producto"}
       </h2>
       <p className="admin-section-text">
-        {esEdicion ? "Editar información del producto." : "Crear un nuevo producto."}
+        {esEdicion
+          ? "Editar información del producto."
+          : "Crear un nuevo producto."}
       </p>
 
       {/* BOTONES SUPERIORES */}
@@ -266,9 +270,7 @@ export default function AdminProductDetail() {
                 <option>Outlet</option>
               </>
             )}
-
             {producto.categoria === "Cute Items" && <option>Vasos</option>}
-
             {producto.categoria === "Merch" && (
               <>
                 <option>Artistas nacionales</option>
@@ -277,7 +279,6 @@ export default function AdminProductDetail() {
             )}
           </select>
 
-          {/* SELECTOR DE COLOR DESDE BACKEND */}
           <label className="input-label">Color</label>
           <select
             className="input-field"
@@ -291,20 +292,6 @@ export default function AdminProductDetail() {
               </option>
             ))}
           </select>
-
-          <label className="input-label">Color (visual)</label>
-          <div className="color-row">
-            <input
-              type="color"
-              className="color-picker"
-              value={producto.colorHex}
-              onChange={(e) => actualizarCampo("colorHex", e.target.value)}
-            />
-            <div
-              className="color-preview"
-              style={{ backgroundColor: producto.colorHex }}
-            ></div>
-          </div>
 
           <label className="input-label">Precio</label>
           <input
