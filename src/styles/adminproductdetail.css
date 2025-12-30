@@ -293,3 +293,33 @@
   font-size: 0.85rem;
   margin-bottom: 8px;
 }
+
+/* ============================
+   IMAGEN PRINCIPAL (⭐)
+============================ */
+.foto-star-btn {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background: #ffd54f;
+  color: #5a4300;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.foto-star-btn:hover {
+  background: #ffca28;
+}
+
+.foto-principal {
+  outline: 3px solid #ffd54f;
+  border-radius: 12px;
+}

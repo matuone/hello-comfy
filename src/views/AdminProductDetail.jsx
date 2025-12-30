@@ -159,6 +159,20 @@ export default function AdminProductDetail() {
   }
 
   // ============================
+  // ⭐ MARCAR COMO PRINCIPAL
+  // ============================
+  function marcarComoPrincipal(index) {
+    const nuevas = [...producto.imagenes];
+    const [img] = nuevas.splice(index, 1);
+    nuevas.unshift(img);
+
+    setProducto((prev) => ({
+      ...prev,
+      imagenes: nuevas,
+    }));
+  }
+
+  // ============================
   // DRAG & DROP
   // ============================
   function onDragStart(e, index) {
@@ -411,13 +425,23 @@ export default function AdminProductDetail() {
             {producto.imagenes.map((img, i) => (
               <div
                 key={i}
-                className="foto-item"
+                className={`foto-item ${i === 0 ? "foto-principal" : ""}`}
                 draggable
                 onDragStart={(e) => onDragStart(e, i)}
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, i)}
               >
+                {/* ⭐ BOTÓN PRINCIPAL */}
+                <button
+                  className="foto-star-btn"
+                  onClick={() => marcarComoPrincipal(i)}
+                  title="Marcar como principal"
+                >
+                  {i === 0 ? "⭐" : "☆"}
+                </button>
+
                 <img src={img} alt="foto" className="foto-preview" />
+
                 <button
                   className="foto-delete-btn"
                   onClick={() => eliminarImagen(i)}
