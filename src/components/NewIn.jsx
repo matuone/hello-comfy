@@ -1,117 +1,75 @@
 import "../styles/newin.css";
 import { useState, useEffect } from "react";
 
-import remera1 from "../assets/productos/remera1.png";
-import remera2 from "../assets/productos/remera2.png";
-import remera3 from "../assets/productos/remera3.png";
-import remera4 from "../assets/productos/remera4.png";
-
-const NEW_PRODUCTS = [
-  {
-    id: "new-1",
-    img: remera1,
-    name: "Remera Oversize",
-    desc: "Nueva colección con estilo urbano y cómodo.",
-    rating: 5.0,
-  },
-  {
-    id: "new-2",
-    img: remera2,
-    name: "Remera Minimal",
-    desc: "Diseño limpio y moderno para cualquier ocasión.",
-    rating: 4.3,
-  },
-  {
-    id: "new-3",
-    img: remera3,
-    name: "Remera Vintage",
-    desc: "Inspirada en los clásicos, con un toque retro.",
-    rating: 4.7,
-  },
-  {
-    id: "new-4",
-    img: remera4,
-    name: "Remera Edición Limitada",
-    desc: "Exclusiva y única, disponible por tiempo limitado.",
-    rating: 4.9,
-  },
-];
-
 export default function NewIn() {
-  const [startIndex, setStartIndex] = useState(0);
-  const visibleCount = 4;
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  function prev() {
-    if (startIndex === 0) {
-      setStartIndex(NEW_PRODUCTS.length - visibleCount);
-    } else {
-      setStartIndex(startIndex - 1);
-    }
-  }
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products/new")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProductos(data);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
-  function next() {
-    if (startIndex + visibleCount >= NEW_PRODUCTS.length) {
-      setStartIndex(0);
-    } else {
-      setStartIndex(startIndex + 1);
-    }
-  }
-
-  // Autoplay cada 4 segundos
-  useEffect(function () {
-    const interval = setInterval(function () {
-      next();
-    }, 4000);
-    return function () {
-      clearInterval(interval);
-    };
-  }, [startIndex]);
-
-  const visibleProducts = NEW_PRODUCTS.slice(
-    startIndex,
-    startIndex + visibleCount
-  );
-
-  function renderStars(rating) {
-    var fullStars = Math.floor(rating);
-    var halfStar = rating % 1 >= 0.5;
-    var emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
+  if (loading) {
     return (
-      <div className="stars">
-        {"★".repeat(fullStars)}
-        {halfStar ? "½" : ""}
-        {"☆".repeat(emptyStars)}
-      </div>
+      <section className="newin">
+        <h2 className="newin__title">Nuevos ingresos:</h2>
+        <div className="loader"></div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="newin">
+        <h2 className="newin__title">Nuevos ingresos:</h2>
+        <p style={{ textAlign: "center", color: "red" }}>
+          No se pudieron cargar los productos.
+        </p>
+      </section>
     );
   }
 
   return (
-    <section className="newin">
+    <section className="newin fade-in">
       <div className="newin__container">
-        <h2 className="newin__title">New In ✨</h2>
+        <h2 className="newin__title">Nuevos ingresos:</h2>
 
-        <div className="newin__carousel">
-          <button className="carousel__arrow left" onClick={prev}>
-            ‹
-          </button>
+        <div className="newin__grid">
+          {productos.map((p) => (
+            <div key={p._id} className="newin__item fade-in">
+              <img
+                src={p.images?.[0] || "https://via.placeholder.com/200"}
+                alt={p.name}
+                className="newin__image"
+              />
 
-          <div className="newin__grid">
-            {visibleProducts.map(function (p) {
-              return (
-                <div key={p.id} className="newin__item">
-                  <img src={p.img} alt={p.name} className="newin__image" />
-                  <h3 className="newin__name">{p.name}</h3>
-                  <p className="newin__desc">{p.desc}</p>
-                  {renderStars(p.rating)}
-                </div>
-              );
-            })}
-          </div>
+              <h3 className="newin__name">{p.name}</h3>
 
-          <button className="carousel__arrow right" onClick={next}>
-            ›
-          </button>
+              <p className="newin__price">
+                ${p.price?.toLocaleString("es-AR")}
+              </p>
+
+              <p className="newin__desc">
+                {p.description?.slice(0, 60) || "Nuevo producto disponible"}
+              </p>
+
+              <div className="newin__buttons">
+                <button className="btn-buy">Comprar</button>
+                <button className="btn-cart">Agregar al carrito</button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

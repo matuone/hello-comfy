@@ -2,89 +2,134 @@ import "../styles/bestsellers.css";
 import { useState, useEffect } from "react";
 import OpinionsPopup from "./OpinionsPopup";
 
-import remera1 from "../assets/productos/remera1.png";
-import remera2 from "../assets/productos/remera2.png";
-import remera3 from "../assets/productos/remera3.png";
-import remera4 from "../assets/productos/remera4.png";
-
-const PRODUCTS = [
-  { id: "rem-1", img: remera1, name: "Remera Estampada", desc: "Lorem ipsum...", rating: 4.5 },
-  { id: "rem-2", img: remera2, name: "Remera Bordada", desc: "Lorem ipsum...", rating: 4.0 },
-  { id: "rem-3", img: remera3, name: "Crop Top", desc: "Lorem ipsum...", rating: 5.0 },
-  { id: "rem-4", img: remera4, name: "Remera Personalizada", desc: "Lorem ipsum...", rating: 4.2 },
-];
-
 export default function BestSellers() {
+  const [productos, setProductos] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [showOpinions, setShowOpinions] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  function prev() {
-    if (startIndex === 0) {
-      setStartIndex(PRODUCTS.length - 4);
-    } else {
-      setStartIndex(startIndex - 1);
-    }
-  }
+  // ============================
+  // CARGAR BEST SELLERS DESDE BACKEND
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products/bestsellers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProductos(data);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
-  function next() {
-    if (startIndex + 4 >= PRODUCTS.length) {
-      setStartIndex(0);
-    } else {
-      setStartIndex(startIndex + 1);
-    }
-  }
+  // ============================
+  // CARRUSEL AUTOMÁTICO (CORREGIDO)
+  // ============================
+  useEffect(() => {
+    if (productos.length === 0) return;
 
-  useEffect(function () {
-    const interval = setInterval(function () {
-      next();
+    const interval = setInterval(() => {
+      setStartIndex((prev) =>
+        prev + 4 >= productos.length ? 0 : prev + 1
+      );
     }, 4000);
-    return function () {
-      clearInterval(interval);
-    };
-  }, [startIndex]);
 
-  function renderStars(rating) {
-    var fullStars = Math.floor(rating);
-    var halfStar = rating % 1 >= 0.5;
-    var emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    return () => clearInterval(interval);
+  }, [productos.length]);
 
+  // ============================
+  // ESTADOS
+  // ============================
+  if (loading) {
     return (
-      <div className="stars" onClick={function () { setShowOpinions(true); }}>
-        {"★".repeat(fullStars)}
-        {halfStar ? "½" : ""}
-        {"☆".repeat(emptyStars)}
-      </div>
+      <section className="bestsellers">
+        <h2 className="bestsellers__title">Los más vendidos:</h2>
+        <div className="loader"></div>
+      </section>
     );
   }
 
-  var visibleProducts = PRODUCTS.slice(startIndex, startIndex + 4);
+  if (error) {
+    return (
+      <section className="bestsellers">
+        <h2 className="bestsellers__title">Los más vendidos:</h2>
+        <p style={{ textAlign: "center", color: "red" }}>
+          No se pudieron cargar los productos.
+        </p>
+      </section>
+    );
+  }
+
+  // ============================
+  // PRODUCTOS VISIBLES
+  // ============================
+  const visibleProducts = productos.slice(startIndex, startIndex + 4);
 
   return (
-    <section className="bestsellers">
+    <section className="bestsellers fade-in">
       <div className="bestsellers__container">
         <h2 className="bestsellers__title">Los más vendidos:</h2>
 
         <div className="bestsellers__carousel">
-          <button className="carousel__arrow left" onClick={prev}>‹</button>
+          <button className="carousel__arrow left" onClick={() =>
+            setStartIndex((prev) =>
+              prev === 0 ? Math.max(productos.length - 4, 0) : prev - 1
+            )
+          }>
+            ‹
+          </button>
 
           <div className="bestsellers__grid">
-            {visibleProducts.map(function (p) {
-              return (
-                <div key={p.id} className="bestsellers__item">
-                  <img src={p.img} alt={p.name} className="bestsellers__image" />
-                  <h3 className="bestsellers__name">{p.name}</h3>
-                  <p className="bestsellers__desc">{p.desc}</p>
-                  {renderStars(p.rating)}
+            {visibleProducts.map((p) => (
+              <div key={p._id} className="bestsellers__item fade-in">
+                <img
+                  src={p.images?.[0] || "https://via.placeholder.com/200"}
+                  alt={p.name}
+                  className="bestsellers__image"
+                />
+
+                <h3 className="bestsellers__name">{p.name}</h3>
+
+                <p className="bestsellers__price">
+                  ${p.price?.toLocaleString("es-AR")}
+                </p>
+
+                <p className="bestsellers__desc">
+                  {p.description?.slice(0, 60) || "Producto destacado"}
+                </p>
+
+                <div
+                  className="stars"
+                  onClick={() => setShowOpinions(true)}
+                >
+                  {"★".repeat(4)}☆
                 </div>
-              );
-            })}
+
+                <div className="bestsellers__buttons">
+                  <button className="btn-buy">Comprar</button>
+                  <button className="btn-cart">Agregar al carrito</button>
+                </div>
+              </div>
+            ))}
           </div>
 
-          <button className="carousel__arrow right" onClick={next}>›</button>
+          <button className="carousel__arrow right" onClick={() =>
+            setStartIndex((prev) =>
+              prev + 4 >= productos.length ? 0 : prev + 1
+            )
+          }>
+            ›
+          </button>
         </div>
       </div>
 
-      {showOpinions && <OpinionsPopup onClose={function () { setShowOpinions(false); }} />}
+      {showOpinions && (
+        <OpinionsPopup onClose={() => setShowOpinions(false)} />
+      )}
     </section>
   );
 }

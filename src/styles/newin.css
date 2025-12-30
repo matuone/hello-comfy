@@ -1,6 +1,6 @@
 .newin {
   padding: 48px 16px;
-  background: #fff;
+  background: none;
 }
 
 .newin__container {
@@ -16,28 +16,23 @@
   color: var(--hc-text);
 }
 
-.newin__carousel {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .newin__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   width: 100%;
-  max-width: 1200px;
 }
 
 .newin__item {
-  background: #fafafa;
+  background: #fff;
   border-radius: 12px;
   box-shadow: var(--hc-shadow);
   padding: 16px;
   text-align: center;
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .newin__item:hover {
@@ -56,54 +51,93 @@
 .newin__name {
   font-size: 18px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: var(--hc-text);
+}
+
+.newin__price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #d94f7a;
+  margin-bottom: 10px;
 }
 
 .newin__desc {
   font-size: 14px;
   color: #555;
   line-height: 1.5;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-/* Estrellas con efecto hover */
-.stars {
-  font-size: 18px;
-  color: #f5a623;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
+/* BOTONES */
+.newin__buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  width: 100%;
+  justify-content: center;
 }
 
-.stars:hover {
-  transform: scale(1.2);
-  color: #ffcc00;
-}
-
-/* Flechas grandes */
-.carousel__arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 48px;
-  font-weight: bold;
-  background: transparent;
+.btn-buy {
+  background: #d94f7a;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
   border: none;
-  color: #333;
   cursor: pointer;
-  padding: 0 16px;
-  z-index: 10;
+  font-weight: 700;
+  transition: 0.2s ease;
 }
 
-.carousel__arrow.left {
-  left: -48px;
+.btn-buy:hover {
+  background: #c63f6a;
 }
 
-.carousel__arrow.right {
-  right: -48px;
+.btn-cart {
+  background: #eee;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
 }
 
-.carousel__arrow:hover {
-  color: #000;
+.btn-cart:hover {
+  background: #ddd;
+}
+
+/* Fade-in suave */
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loader premium */
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top-color: #333;
+  border-radius: 50%;
+  margin: 20px auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

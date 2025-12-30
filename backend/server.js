@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config(); // ✅ Cargar variables ANTES de todo
+dotenv.config();
 
 import express from "express";
 import mongoose from "mongoose";
@@ -14,8 +14,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rutas nuevas
+// Rutas
 app.use("/api/stock", stockRoutes);
+app.use("/api/products", productRoutes);
 
 // Conexión a MongoDB
 mongoose
@@ -27,9 +28,6 @@ mongoose
 app.get("/", (req, res) => {
   res.send("API HelloComfy funcionando");
 });
-
-// Rutas reales
-app.use("/api/products", productRoutes);
 
 // Inicio del servidor
 app.listen(5000, () => {
