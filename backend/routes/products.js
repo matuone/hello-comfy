@@ -1,6 +1,9 @@
 import express from "express";
 import Product from "../models/Product.js";
 
+// 👇 Importamos el upload y la función que sube a Cloudinary
+import upload, { uploadToCloudinary } from "../middleware/upload.js";
+
 const router = express.Router();
 
 // ============================
@@ -71,6 +74,19 @@ router.delete("/:id", async (req, res) => {
   } catch (err) {
     console.error("Error al eliminar producto:", err);
     res.status(500).json({ error: "Error al eliminar producto" });
+  }
+});
+
+// ============================
+// POST /api/products/upload → subir imagen a Cloudinary
+// ============================
+router.post("/upload", upload.single("image"), async (req, res) => {
+  try {
+    const url = await uploadToCloudinary(req.file);
+    res.json({ url });
+  } catch (err) {
+    console.error("Error al subir imagen:", err);
+    res.status(500).json({ error: "Error al subir imagen" });
   }
 });
 

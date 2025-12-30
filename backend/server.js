@@ -1,10 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config(); // ✅ Cargar variables ANTES de todo
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
+
 import productRoutes from "./routes/products.js";
 import stockRoutes from "./routes/stock.js";
-dotenv.config();
 
 const app = express();
 

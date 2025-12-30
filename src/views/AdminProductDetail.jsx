@@ -92,16 +92,23 @@ export default function AdminProductDetail() {
 
 
 
-  function agregarImagen(e) {
+  async function agregarImagen(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const url = URL.createObjectURL(file);
-    setProducto((prev) => ({
-      ...prev,
-      imagenes: [...prev.imagenes, url],
-    }));
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch("http://localhost:5000/api/products/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    actualizarCampo("imagenes", [...producto.imagenes, data.url]);
   }
+
 
   function eliminarImagen(index) {
     setProducto((prev) => ({
