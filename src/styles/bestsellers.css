@@ -16,9 +16,6 @@
   color: var(--hc-text);
 }
 
-/* ============================
-   CARRUSEL
-============================ */
 .bestsellers__carousel {
   display: flex;
   align-items: center;
@@ -41,9 +38,6 @@
   background: #ffd9e7;
 }
 
-/* ============================
-   TRACK — UNA SOLA FILA
-============================ */
 .bestsellers__track {
   display: flex;
   flex-wrap: nowrap;
@@ -52,9 +46,6 @@
   padding: 10px 0;
 }
 
-/* ============================
-   CARD — IGUAL A NEW IN
-============================ */
 .bestsellers__item {
   background: #fff;
   border-radius: 12px;
@@ -64,15 +55,15 @@
   transition: transform 0.2s ease;
   width: 240px;
   flex: 0 0 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .bestsellers__item:hover {
   transform: translateY(-4px);
 }
 
-/* ============================
-   IMAGEN — IGUAL A NEW IN
-============================ */
 .bestsellers__image {
   width: 100%;
   aspect-ratio: 4 / 5;
@@ -83,9 +74,6 @@
   cursor: pointer;
 }
 
-/* ============================
-   TEXTOS
-============================ */
 .bestsellers__name {
   font-size: 18px;
   font-weight: 700;
@@ -108,9 +96,6 @@
   margin-bottom: 12px;
 }
 
-/* ============================
-   ESTRELLAS
-============================ */
 .stars {
   font-size: 1.2rem;
   color: #ffb400;
@@ -121,15 +106,11 @@
   border: none;
 }
 
-/* ============================
-   BOTONES
-============================ */
 .bestsellers__buttons {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
   margin-top: auto;
-  width: 100%;
-  justify-content: center;
 }
 
 .btn-buy {

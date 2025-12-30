@@ -7,7 +7,6 @@ const ITEMS_PER_PAGE = 5;
 
 export default function BestSellers() {
   const navigate = useNavigate();
-
   const [productos, setProductos] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [showOpinions, setShowOpinions] = useState(false);
@@ -36,26 +35,6 @@ export default function BestSellers() {
 
     return () => clearInterval(interval);
   }, [productos.length]);
-
-  if (loading) {
-    return (
-      <section className="bestsellers">
-        <h2 className="bestsellers__title">Los más vendidos:</h2>
-        <div className="loader"></div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section className="bestsellers">
-        <h2 className="bestsellers__title">Los más vendidos:</h2>
-        <p style={{ textAlign: "center", color: "red" }}>
-          No se pudieron cargar los productos.
-        </p>
-      </section>
-    );
-  }
 
   const visibleProducts = productos.slice(
     startIndex,
@@ -116,15 +95,13 @@ export default function BestSellers() {
                 <div className="bestsellers__buttons">
                   <button className="btn-buy">Comprar</button>
                   <button className="btn-cart">Agregar al carrito</button>
+                  <button
+                    className="btn-buy"
+                    onClick={() => navigate(`/products/${p._id}`)}
+                  >
+                    Ver más
+                  </button>
                 </div>
-
-                <button
-                  className="btn-buy"
-                  style={{ marginTop: "10px" }}
-                  onClick={() => navigate(`/products/${p._id}`)}
-                >
-                  Ver más
-                </button>
               </div>
             ))}
           </div>
