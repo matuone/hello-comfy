@@ -1,6 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
 import { Link } from "react-router-dom";
-import { stockGeneral } from "../data/stockData";
 import "../styles/adminproducts.css";
 
 export default function AdminProducts() {
@@ -17,22 +16,31 @@ export default function AdminProducts() {
       .then((res) => res.json())
       .then((data) => {
         const adaptados = data.map((p) => ({
-          id: p._id || p.id || "", // ← FIX IMPORTANTE
+          id: p._id || p.id || "",
           nombre: p.name,
           categoria: p.category,
           subcategoria: p.subcategory,
           precio: p.price,
           imagenes: p.images,
           color: p.colors?.[0] || "Sin color",
-          colorHex: "#ccc",
         }));
 
-        // Eliminamos productos corruptos sin ID
         const limpios = adaptados.filter((p) => p.id);
-
         setProductos(limpios);
       })
       .catch((err) => console.error("Error al cargar productos:", err));
+  }, []);
+
+  // ============================
+  // STOCK REAL DESDE BACKEND
+  // ============================
+  const [stockColores, setStockColores] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/stock")
+      .then((res) => res.json())
+      .then((data) => setStockColores(data))
+      .catch((err) => console.error("Error cargando stock:", err));
   }, []);
 
   // ============================
@@ -58,7 +66,6 @@ export default function AdminProducts() {
 
     setMostrarPanelPrecios(false);
     setPorcentaje("");
-
     alert(`Precios actualizados con un aumento del ${p}%`);
   }
 
@@ -103,9 +110,7 @@ export default function AdminProducts() {
         Gestión de catálogo, precios, talles y fotos.
       </p>
 
-      {/* ============================
-          BUSCADOR
-      ============================ */}
+      {/* BUSCADOR */}
       <input
         type="text"
         placeholder="Buscar por nombre o categoría..."
@@ -114,9 +119,7 @@ export default function AdminProducts() {
         onChange={(e) => setBusqueda(e.target.value)}
       />
 
-      {/* ============================
-          TOOLBAR
-      ============================ */}
+      {/* TOOLBAR */}
       <div className="products-toolbar">
         <button
           className="mass-price-btn"
@@ -130,9 +133,7 @@ export default function AdminProducts() {
         </Link>
       </div>
 
-      {/* ============================
-          PANEL DE MODIFICACIÓN MASIVA
-      ============================ */}
+      {/* PANEL DE MODIFICACIÓN MASIVA */}
       {mostrarPanelPrecios && (
         <div className="mass-price-panel">
           <h4>Modificar precios masivamente</h4>
@@ -161,9 +162,7 @@ export default function AdminProducts() {
         </div>
       )}
 
-      {/* ============================
-          TABLA
-      ============================ */}
+      {/* TABLA */}
       <div className="admin-table-container">
         <table className="admin-table">
           <thead>
@@ -179,9 +178,12 @@ export default function AdminProducts() {
 
           <tbody>
             {productosFiltrados.map((prod) => {
-              const stockColor = stockGeneral.find(
+              // Buscar color real en stock
+              const stockColor = stockColores.find(
                 (s) => s.color === prod.color
               );
+
+              const colorHex = stockColor?.colorHex || "#ccc";
 
               const stockTotal = stockColor
                 ? Object.values(stockColor.talles).reduce((a, b) => a + b, 0)
@@ -209,7 +211,7 @@ export default function AdminProducts() {
                             <span className="prod-color-label">Color:</span>
                             <span
                               className="prod-color-box"
-                              style={{ backgroundColor: prod.colorHex }}
+                              style={{ backgroundColor: colorHex }}
                             ></span>
                             <span className="prod-color-name">{prod.color}</span>
                           </div>
@@ -263,9 +265,7 @@ export default function AdminProducts() {
                     </td>
                   </tr>
 
-                  {/* ============================
-                      FILA EXPANDIDA
-                  ============================ */}
+                  {/* FILA EXPANDIDA */}
                   {expandedRows.includes(prod.id) && (
                     <tr className="fila-expandida">
                       <td colSpan="6">
