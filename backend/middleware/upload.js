@@ -1,26 +1,21 @@
 import multer from "multer";
-import cloudinary from "../config/cloudinary.js"; // 👈 este ya tiene las claves
-import { Readable } from "stream";
+import cloudinary from "../config/cloudinary.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-export const uploadToCloudinary = (file) => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: "hellocomfy",
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result.secure_url);
-      }
-    );
+export const uploadToCloudinary = async (file) => {
+  try {
+    const base64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
 
-    const stream = new Readable();
-    stream.push(file.buffer);
-    stream.push(null);
-    stream.pipe(uploadStream);
-  });
+    const result = await cloudinary.uploader.upload(base64, {
+      folder: "hellocomfy",
+    });
+
+    return result.secure_url;
+  } catch (error) {
+    console.error("Error al subir imagen:", error);
+    throw error;
+  }
 };
 
 export default upload;
