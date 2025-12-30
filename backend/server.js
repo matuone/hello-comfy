@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import productRoutes from "./routes/products.js";
+import stockRoutes from "./routes/stock.js";   // <-- FALTABA ESTO
 
 dotenv.config();
 
@@ -11,6 +12,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Rutas nuevas
+app.use("/api/stock", stockRoutes);
 
 // Conexión a MongoDB
 mongoose
@@ -23,7 +27,7 @@ app.get("/", (req, res) => {
   res.send("API HelloComfy funcionando");
 });
 
-// Rutas reales (CORREGIDO: todo en minúsculas)
+// Rutas reales
 app.use("/api/products", productRoutes);
 
 // Inicio del servidor

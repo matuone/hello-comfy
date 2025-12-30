@@ -1,52 +1,93 @@
-import { useState } from "react";
-import { stockGeneral as initialStock } from "../data/stockData";
+import { useState, useEffect } from "react";
 import "../styles/adminstock.css";
 
 export default function AdminStock() {
-  const ORDEN_TALLES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+  const ORDEN_TALLES = ["S", "M", "L", "XL", "XXL", "3XL"];
 
-  const [stock, setStock] = useState(initialStock);
+  const [stock, setStock] = useState([]);
   const [highlightIndex, setHighlightIndex] = useState(null);
 
-  function actualizarTalle(indexColor, talle, valor) {
-    setStock(prev => {
-      const copia = [...prev];
-      copia[indexColor].talles[talle] = Number(valor);
-      return copia;
+  // ============================
+  // CARGAR STOCK DESDE BACKEND
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/stock")
+      .then((res) => res.json())
+      .then((data) => setStock(data))
+      .catch((err) => console.error("Error cargando stock:", err));
+  }, []);
+
+  // ============================
+  // ACTUALIZAR TALLE
+  // ============================
+  async function actualizarTalle(indexColor, talle, valor) {
+    const copia = [...stock];
+    copia[indexColor].talles[talle] = Number(valor);
+    setStock(copia);
+
+    await fetch(`http://localhost:5000/api/stock/${copia[indexColor]._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(copia[indexColor]),
     });
   }
 
-  function actualizarColor(indexColor, campo, valor) {
-    setStock(prev => {
-      const copia = [...prev];
-      copia[indexColor][campo] = valor;
-      return copia;
+  // ============================
+  // ACTUALIZAR COLOR O HEX
+  // ============================
+  async function actualizarColor(indexColor, campo, valor) {
+    const copia = [...stock];
+    copia[indexColor][campo] = valor;
+    setStock(copia);
+
+    await fetch(`http://localhost:5000/api/stock/${copia[indexColor]._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(copia[indexColor]),
     });
   }
 
-  function agregarColor() {
+  // ============================
+  // AGREGAR COLOR NUEVO
+  // ============================
+  async function agregarColor() {
     const nuevo = {
       color: "Nuevo color",
       colorHex: "#cccccc",
-      talles: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XXL: 0, "3XL": 0 }
+      talles: { S: 0, M: 0, L: 0, XL: 0, XXL: 0, "3XL": 0 },
     };
 
-    // Insertar primero
-    setStock(prev => [nuevo, ...prev]);
+    const res = await fetch("http://localhost:5000/api/stock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevo),
+    });
 
-    // Activar highlight en el primer elemento
+    const creado = await res.json();
+
+    setStock((prev) => [creado, ...prev]);
     setHighlightIndex(0);
-
-    // Quitar highlight después de 1.5s
     setTimeout(() => setHighlightIndex(null), 1500);
   }
 
-  function eliminarColor(index) {
-    if (confirm("¿Eliminar este color del stock general?")) {
-      setStock(prev => prev.filter((_, i) => i !== index));
-    }
+  // ============================
+  // ELIMINAR COLOR
+  // ============================
+  async function eliminarColor(index) {
+    if (!confirm("¿Eliminar este color del stock general?")) return;
+
+    const id = stock[index]._id;
+
+    await fetch(`http://localhost:5000/api/stock/${id}`, {
+      method: "DELETE",
+    });
+
+    setStock((prev) => prev.filter((_, i) => i !== index));
   }
 
+  // ============================
+  // RENDER
+  // ============================
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">Stock general</h2>
@@ -61,10 +102,9 @@ export default function AdminStock() {
       <div className="stock-column">
         {stock.map((item, index) => (
           <div
-            key={index}
+            key={item._id}
             className={
-              "detalle-box" +
-              (highlightIndex === index ? " color-added" : "")
+              "detalle-box" + (highlightIndex === index ? " color-added" : "")
             }
           >
             <div className="stock-header">
@@ -83,7 +123,9 @@ export default function AdminStock() {
               type="text"
               className="input-field"
               value={item.color}
-              onChange={e => actualizarColor(index, "color", e.target.value)}
+              onChange={(e) =>
+                actualizarColor(index, "color", e.target.value)
+              }
             />
 
             <label className="input-label">Color visual</label>
@@ -92,7 +134,9 @@ export default function AdminStock() {
                 type="color"
                 className="color-picker"
                 value={item.colorHex}
-                onChange={e => actualizarColor(index, "colorHex", e.target.value)}
+                onChange={(e) =>
+                  actualizarColor(index, "colorHex", e.target.value)
+                }
               />
               <div
                 className="color-preview"
@@ -103,14 +147,14 @@ export default function AdminStock() {
             <h4 className="detalle-subtitle">Talles</h4>
 
             <div className="talles-grid">
-              {ORDEN_TALLES.map(talle => (
+              {ORDEN_TALLES.map((talle) => (
                 <div key={talle} className="talle-item">
                   <label>{talle}</label>
                   <input
                     type="number"
                     className="input-field-talle"
                     value={item.talles[talle]}
-                    onChange={e =>
+                    onChange={(e) =>
                       actualizarTalle(index, talle, e.target.value)
                     }
                   />

@@ -5,11 +5,10 @@ import "../styles/adminproductdetail.css";
 export default function AdminProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const esEdicion = Boolean(id);
 
   // ============================
-  // ESTADO INICIAL (CREACIÓN)
+  // ESTADO INICIAL
   // ============================
   const [producto, setProducto] = useState({
     nombre: "",
@@ -21,6 +20,21 @@ export default function AdminProductDetail() {
     imagenes: [],
     description: "",
   });
+
+  const [colores, setColores] = useState([]);
+
+  // ============================
+  // CARGAR COLORES DESDE BACKEND
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/stock")
+      .then((res) => res.json())
+      .then((data) => {
+        const lista = data.map((c) => c.color);
+        setColores(lista);
+      })
+      .catch((err) => console.error("Error cargando colores:", err));
+  }, []);
 
   // ============================
   // CARGAR PRODUCTO (SOLO EDICIÓN)
@@ -86,7 +100,6 @@ export default function AdminProductDetail() {
   // GUARDAR (POST o PUT)
   // ============================
   async function guardarProducto() {
-    // VALIDACIÓN PREVIA MEJORADA
     if (
       !producto.nombre.trim() ||
       !producto.categoria.trim() ||
@@ -108,8 +121,6 @@ export default function AdminProductDetail() {
       images: producto.imagenes || [],
       description: producto.description || "",
     };
-
-    console.log("Payload enviado:", payload);
 
     try {
       const url = esEdicion
@@ -135,11 +146,10 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // ELIMINAR (SOLO EDICIÓN)
+  // ELIMINAR
   // ============================
   async function eliminarProducto() {
     if (!esEdicion) return;
-
     if (!confirm("¿Seguro que querés eliminar este producto?")) return;
 
     try {
@@ -158,7 +168,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // DUPLICAR (SOLO EDICIÓN)
+  // DUPLICAR
   // ============================
   async function duplicarProducto() {
     if (!esEdicion) return;
@@ -267,13 +277,20 @@ export default function AdminProductDetail() {
             )}
           </select>
 
-          <label className="input-label">Color (nombre)</label>
-          <input
-            type="text"
+          {/* SELECTOR DE COLOR DESDE BACKEND */}
+          <label className="input-label">Color</label>
+          <select
             className="input-field"
             value={producto.color}
             onChange={(e) => actualizarCampo("color", e.target.value)}
-          />
+          >
+            <option value="">Seleccionar color</option>
+            {colores.map((color, i) => (
+              <option key={i} value={color}>
+                {color}
+              </option>
+            ))}
+          </select>
 
           <label className="input-label">Color (visual)</label>
           <div className="color-row">
