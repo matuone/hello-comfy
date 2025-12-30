@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import imageCompression from "browser-image-compression";
+import Notification from "../components/Notification";
 import "../styles/adminproductdetail.css";
 
 export default function AdminProductDetail() {
@@ -28,7 +29,12 @@ export default function AdminProductDetail() {
   const [errorImagen, setErrorImagen] = useState("");
   const [dragIndex, setDragIndex] = useState(null);
 
-  // Loading global (PASO 5)
+  // Validaciones
+  const [errores, setErrores] = useState({});
+
+  // Notification
+  const [noti, setNoti] = useState(null);
+
   const loadingGlobal = subiendoImagen;
 
   // ============================
@@ -78,9 +84,41 @@ export default function AdminProductDetail() {
   }, [esEdicion, id]);
 
   // ============================
+  // VALIDACIÓN
+  // ============================
+  function validarProducto() {
+    const nuevosErrores = {};
+
+    if (!producto.nombre.trim() || producto.nombre.trim().length < 3) {
+      nuevosErrores.nombre = "El nombre debe tener al menos 3 caracteres.";
+    }
+
+    if (!producto.categoria) {
+      nuevosErrores.categoria = "Seleccioná una categoría.";
+    }
+
+    if (!producto.subcategoria) {
+      nuevosErrores.subcategoria = "Seleccioná una subcategoría.";
+    }
+
+    if (!producto.color) {
+      nuevosErrores.color = "Seleccioná un color.";
+    }
+
+    if (!producto.precio || Number(producto.precio) <= 0) {
+      nuevosErrores.precio = "Ingresá un precio válido.";
+    }
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  }
+
+  // ============================
   // HANDLERS
   // ============================
   function actualizarCampo(campo, valor) {
+    setErrores((prev) => ({ ...prev, [campo]: "" }));
+
     if (campo === "categoria") {
       let sub = "";
       if (valor === "Indumentaria") sub = "Remeras";
@@ -116,7 +154,6 @@ export default function AdminProductDetail() {
     setSubiendoImagen(true);
 
     try {
-      // COMPRESIÓN
       const opciones = {
         maxSizeMB: 0.4,
         maxWidthOrHeight: 1400,
@@ -137,7 +174,6 @@ export default function AdminProductDetail() {
 
       const data = await res.json();
 
-      // Reemplazar preview por URL real
       setProducto((prev) => {
         const sinPreview = prev.imagenes.filter((img) => img !== previewLocal);
         return {
@@ -149,7 +185,6 @@ export default function AdminProductDetail() {
       console.error("Error al subir imagen:", err);
       setErrorImagen("No se pudo subir la imagen. Probá de nuevo.");
 
-      // Sacar preview si falló
       setProducto((prev) => ({
         ...prev,
         imagenes: prev.imagenes.filter((img) => img !== previewLocal),
@@ -186,7 +221,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // DRAG & DROP (con animación suave)
+  // DRAG & DROP
   // ============================
   function onDragStart(e, index) {
     setDragIndex(index);
@@ -222,30 +257,14 @@ export default function AdminProductDetail() {
   // ============================
   async function guardarProducto() {
     if (loadingGlobal) {
-      alert("Esperá a que terminen de subir las imágenes.");
+      setNoti({
+        mensaje: "Esperá a que terminen de subir las imágenes.",
+        tipo: "error",
+      });
       return;
     }
 
-    const camposObligatorios = {
-      nombre: producto.nombre,
-      categoria: producto.categoria,
-      subcategoria: producto.subcategoria,
-      color: producto.color,
-      precio: producto.precio,
-    };
-
-    const faltanCampos = Object.entries(camposObligatorios).some(
-      ([_, valor]) => !valor || valor.toString().trim() === ""
-    );
-
-    const precioValido =
-      !isNaN(parseInt(producto.precio, 10)) &&
-      parseInt(producto.precio, 10) > 0;
-
-    if (faltanCampos || !precioValido) {
-      alert("Completá todos los campos obligatorios antes de guardar.");
-      return;
-    }
+    if (!validarProducto()) return;
 
     const payload = {
       name: producto.nombre.trim(),
@@ -272,11 +291,23 @@ export default function AdminProductDetail() {
 
       if (!res.ok) throw new Error("Error al guardar");
 
-      alert(esEdicion ? "Producto actualizado" : "Producto creado");
+      navigate("/admin/products", {
+        state: {
+          noti: {
+            mensaje: esEdicion ? "Producto actualizado" : "Producto creado",
+            tipo: "exito",
+          },
+        },
+      });
+
+
       navigate("/admin/products");
     } catch (err) {
       console.error(err);
-      alert("Hubo un error al guardar el producto");
+      setNoti({
+        mensaje: "Hubo un error al guardar el producto",
+        tipo: "error",
+      });
     }
   }
 
@@ -285,6 +316,7 @@ export default function AdminProductDetail() {
   // ============================
   async function eliminarProducto() {
     if (!esEdicion) return;
+
     if (!confirm("¿Seguro que querés eliminar este producto?")) return;
 
     try {
@@ -294,11 +326,18 @@ export default function AdminProductDetail() {
 
       if (!res.ok) throw new Error("Error al eliminar");
 
-      alert("Producto eliminado");
+      setNoti({
+        mensaje: "Producto eliminado",
+        tipo: "exito",
+      });
+
       navigate("/admin/products");
     } catch (err) {
       console.error(err);
-      alert("No se pudo eliminar el producto");
+      setNoti({
+        mensaje: "No se pudo eliminar el producto",
+        tipo: "error",
+      });
     }
   }
 
@@ -327,11 +366,18 @@ export default function AdminProductDetail() {
 
       if (!res.ok) throw new Error("Error al duplicar");
 
-      alert("Producto duplicado");
+      setNoti({
+        mensaje: "Producto duplicado",
+        tipo: "exito",
+      });
+
       navigate("/admin/products");
     } catch (err) {
       console.error(err);
-      alert("No se pudo duplicar el producto");
+      setNoti({
+        mensaje: "No se pudo duplicar el producto",
+        tipo: "error",
+      });
     }
   }
 
@@ -368,17 +414,22 @@ export default function AdminProductDetail() {
         <div className="detalle-box">
           <h3 className="detalle-title">Datos generales</h3>
 
+          {/* NOMBRE */}
           <label className="input-label">Nombre</label>
           <input
             type="text"
-            className="input-field"
+            className={`input-field ${errores.nombre ? "input-error" : ""}`}
             value={producto.nombre}
             onChange={(e) => actualizarCampo("nombre", e.target.value)}
           />
+          {errores.nombre && (
+            <p className="input-error-text">{errores.nombre}</p>
+          )}
 
+          {/* CATEGORÍA */}
           <label className="input-label">Categoría</label>
           <select
-            className="input-field"
+            className={`input-field ${errores.categoria ? "input-error" : ""}`}
             value={producto.categoria}
             onChange={(e) => actualizarCampo("categoria", e.target.value)}
           >
@@ -386,10 +437,15 @@ export default function AdminProductDetail() {
             <option>Cute Items</option>
             <option>Merch</option>
           </select>
+          {errores.categoria && (
+            <p className="input-error-text">{errores.categoria}</p>
+          )}
 
+          {/* SUBCATEGORÍA */}
           <label className="input-label">Subcategoría</label>
           <select
-            className="input-field"
+            className={`input-field ${errores.subcategoria ? "input-error" : ""
+              }`}
             value={producto.subcategoria}
             onChange={(e) => actualizarCampo("subcategoria", e.target.value)}
           >
@@ -411,10 +467,14 @@ export default function AdminProductDetail() {
               </>
             )}
           </select>
+          {errores.subcategoria && (
+            <p className="input-error-text">{errores.subcategoria}</p>
+          )}
 
+          {/* COLOR */}
           <label className="input-label">Color</label>
           <select
-            className="input-field"
+            className={`input-field ${errores.color ? "input-error" : ""}`}
             value={producto.color}
             onChange={(e) => actualizarCampo("color", e.target.value)}
           >
@@ -425,15 +485,22 @@ export default function AdminProductDetail() {
               </option>
             ))}
           </select>
+          {errores.color && (
+            <p className="input-error-text">{errores.color}</p>
+          )}
 
+          {/* PRECIO */}
           <label className="input-label">Precio</label>
           <input
             type="number"
-            className="input-field"
+            className={`input-field ${errores.precio ? "input-error" : ""}`}
             value={producto.precio}
             onChange={(e) => actualizarCampo("precio", e.target.value)}
             placeholder="Ingresar precio"
           />
+          {errores.precio && (
+            <p className="input-error-text">{errores.precio}</p>
+          )}
         </div>
 
         {/* FOTOS */}
@@ -498,6 +565,15 @@ export default function AdminProductDetail() {
           {loadingGlobal ? "Esperando imágenes..." : esEdicion ? "Guardar cambios" : "Crear producto"}
         </button>
       </div>
+
+      {/* NOTIFICACIÓN */}
+      {noti && (
+        <Notification
+          mensaje={noti.mensaje}
+          tipo={noti.tipo}
+          onClose={() => setNoti(null)}
+        />
+      )}
     </div>
   );
 }

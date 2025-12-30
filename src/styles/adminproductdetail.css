@@ -60,6 +60,12 @@
   box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.2);
 }
 
+/* Estado de error en input */
+.input-error {
+  border-color: #e57373 !important;
+  background: #ffecec;
+}
+
 /* ============================
    COLOR
 ============================ */
@@ -316,7 +322,7 @@
   background: #c63f6a;
 }
 
-/* Estado deshabilitado (PASO 5) */
+/* Estado deshabilitado (esperando imágenes) */
 .btn-guardar-disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -328,5 +334,20 @@
 .input-error-text {
   color: #e57373;
   font-size: 0.85rem;
-  margin-bottom: 8px;
+  margin-top: -6px;
+  margin-bottom: 10px;
+  animation: inputErrorFadeIn 0.2s ease;
+}
+
+/* Animación suave para mensajes de error */
+@keyframes inputErrorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

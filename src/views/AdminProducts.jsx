@@ -1,5 +1,6 @@
 import { useState, useEffect, Fragment } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import Notification from "../components/Notification";
 import "../styles/adminproducts.css";
 
 const ORDEN_TALLES = ["S", "M", "L", "XL", "XXL", "3XL"];
@@ -11,6 +12,13 @@ export default function AdminProducts() {
   const [stockColores, setStockColores] = useState([]);
   const [mostrarPanelPrecios, setMostrarPanelPrecios] = useState(false);
   const [porcentaje, setPorcentaje] = useState("");
+
+  // ============================
+  // NOTIFICACIÓN (Opción A)
+  // ============================
+  const location = useLocation();
+  const notiInicial = location.state?.noti || null;
+  const [noti, setNoti] = useState(notiInicial);
 
   // ============================
   // CARGAR PRODUCTOS
@@ -51,7 +59,7 @@ export default function AdminProducts() {
   function aplicarAumento() {
     const p = Number(porcentaje);
     if (isNaN(p) || p === 0) {
-      alert("Ingresá un porcentaje válido.");
+      setNoti({ mensaje: "Ingresá un porcentaje válido.", tipo: "error" });
       return;
     }
 
@@ -64,7 +72,11 @@ export default function AdminProducts() {
 
     setMostrarPanelPrecios(false);
     setPorcentaje("");
-    alert(`Precios actualizados con un aumento del ${p}%`);
+
+    setNoti({
+      mensaje: `Precios actualizados con un aumento del ${p}%`,
+      tipo: "exito",
+    });
   }
 
   // ============================
@@ -81,9 +93,10 @@ export default function AdminProducts() {
   // ACCIONES
   // ============================
   function eliminarProducto(id) {
-    if (confirm("¿Seguro que querés eliminar este producto?")) {
-      setProductos((prev) => prev.filter((p) => p.id !== id));
-    }
+    setNoti({
+      mensaje: "Función de eliminar pendiente de backend",
+      tipo: "error",
+    });
   }
 
   function duplicarProducto(prod) {
@@ -92,7 +105,13 @@ export default function AdminProducts() {
       id: "P" + Math.floor(Math.random() * 9000 + 1000),
       nombre: prod.nombre + " (copia)",
     };
+
     setProductos((prev) => [...prev, copia]);
+
+    setNoti({
+      mensaje: "Producto duplicado",
+      tipo: "exito",
+    });
   }
 
   function toggleExpand(id) {
@@ -335,6 +354,15 @@ export default function AdminProducts() {
           </tbody>
         </table>
       </div>
+
+      {/* NOTIFICACIÓN */}
+      {noti && (
+        <Notification
+          mensaje={noti.mensaje}
+          tipo={noti.tipo}
+          onClose={() => setNoti(null)}
+        />
+      )}
     </div>
   );
 }

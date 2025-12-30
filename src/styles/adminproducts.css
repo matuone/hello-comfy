@@ -191,6 +191,7 @@
   gap: 4px;
   padding: 4px 6px;
   border-radius: 6px;
+  width: fit-content;
 }
 
 .productos-toggle:hover {
