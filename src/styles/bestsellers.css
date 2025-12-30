@@ -1,11 +1,18 @@
+/* src/styles/bestsellers.css */
+
 .bestsellers {
   width: 100%;
-  padding: 48px 16px;
+  padding: 48px 0;
+  /* sin padding lateral acá */
 }
 
+/* Full-bleed para escapar del max-width:1100 del layout */
 .bestsellers__container {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .bestsellers__title {
@@ -16,14 +23,34 @@
   color: var(--hc-text);
 }
 
+/* Carrusel: flechas fuera del flujo para que no roben ancho */
 .bestsellers__carousel {
+  position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 12px;
+  align-items: center;
 }
 
+/* Viewport exacto: 5 cards + 4 gaps */
+.bestsellers__viewport {
+  width: 1296px;
+  /* 5*240 + 4*24 */
+  overflow: hidden;
+}
+
+/* Track */
+.bestsellers__track {
+  display: flex;
+  gap: 24px;
+}
+
+/* Flechas */
 .carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+
   background: #ffe8f0;
   border: 1px solid #f7c9d8;
   color: #d94f7a;
@@ -38,14 +65,15 @@
   background: #ffd9e7;
 }
 
-.bestsellers__track {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 24px;
-  overflow: hidden;
-  padding: 10px 0;
+.carousel__arrow.left {
+  left: -56px;
 }
 
+.carousel__arrow.right {
+  right: -56px;
+}
+
+/* Card */
 .bestsellers__item {
   background: #fff;
   border-radius: 12px;
@@ -106,6 +134,7 @@
   border: none;
 }
 
+/* Botonera */
 .bestsellers__buttons {
   display: flex;
   flex-direction: column;
@@ -141,4 +170,28 @@
 
 .btn-cart:hover {
   background: #ddd;
+}
+
+/* "Ver más" como link (sin fondo) */
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+
+  color: #d94f7a;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: #c63f6a;
+}
+
+.bestsellers__status {
+  text-align: center;
+  margin-top: 14px;
+  color: #666;
+  font-size: 14px;
 }

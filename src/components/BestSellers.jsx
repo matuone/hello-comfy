@@ -1,3 +1,4 @@
+// src/components/BestSellers.jsx
 import "../styles/bestsellers.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,33 +14,66 @@ export default function BestSellers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  useEffect(() => {
+  useEffect(function () {
     fetch("http://localhost:5000/api/products/bestsellers")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setProductos(data);
-        else setError(true);
+      .then(function (res) {
+        return res.json();
       })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+      .then(function (data) {
+        if (Array.isArray(data)) {
+          setProductos(data);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(function () {
+        setError(true);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
   }, []);
 
-  useEffect(() => {
-    if (productos.length <= ITEMS_PER_PAGE) return;
+  useEffect(
+    function () {
+      if (!productos || productos.length <= ITEMS_PER_PAGE) return;
 
-    const interval = setInterval(() => {
-      setStartIndex((prev) =>
-        prev + ITEMS_PER_PAGE >= productos.length ? 0 : prev + 1
-      );
-    }, 4000);
+      const interval = setInterval(function () {
+        setStartIndex(function (prev) {
+          return (prev + 1) % productos.length;
+        });
+      }, 4000);
 
-    return () => clearInterval(interval);
-  }, [productos.length]);
-
-  const visibleProducts = productos.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
+      return function () {
+        clearInterval(interval);
+      };
+    },
+    [productos.length]
   );
+
+  function goPrev() {
+    if (!productos || productos.length === 0) return;
+
+    setStartIndex(function (prev) {
+      const next = prev - 1;
+      return next < 0 ? productos.length - 1 : next;
+    });
+  }
+
+  function goNext() {
+    if (!productos || productos.length === 0) return;
+
+    setStartIndex(function (prev) {
+      return (prev + 1) % productos.length;
+    });
+  }
+
+  const visibleProducts = [];
+  if (productos && productos.length > 0) {
+    for (let i = 0; i < ITEMS_PER_PAGE; i++) {
+      visibleProducts.push(productos[(startIndex + i) % productos.length]);
+    }
+  }
 
   return (
     <section className="bestsellers">
@@ -49,78 +83,93 @@ export default function BestSellers() {
         <div className="bestsellers__carousel">
           <button
             className="carousel__arrow left"
-            onClick={() =>
-              setStartIndex((prev) =>
-                prev === 0
-                  ? Math.max(productos.length - ITEMS_PER_PAGE, 0)
-                  : prev - 1
-              )
-            }
+            onClick={goPrev}
+            aria-label="Anterior"
           >
             ‹
           </button>
 
-          <div className="bestsellers__track">
-            {visibleProducts.map((p) => (
-              <div key={p._id} className="bestsellers__item">
-                <img
-                  src={p.images?.[0] || "https://via.placeholder.com/300"}
-                  alt={p.name}
-                  className="bestsellers__image"
-                  onClick={() => navigate(`/products/${p._id}`)}
-                />
+          <div className="bestsellers__viewport">
+            <div className="bestsellers__track">
+              {visibleProducts.map(function (p) {
+                return (
+                  <div key={p._id} className="bestsellers__item">
+                    <img
+                      src={p.images?.[0] || "https://via.placeholder.com/300"}
+                      alt={p.name}
+                      className="bestsellers__image"
+                      onClick={function () {
+                        navigate(`/products/${p._id}`);
+                      }}
+                    />
 
-                <h3
-                  className="bestsellers__name"
-                  onClick={() => navigate(`/products/${p._id}`)}
-                >
-                  {p.name}
-                </h3>
+                    <h3
+                      className="bestsellers__name"
+                      onClick={function () {
+                        navigate(`/products/${p._id}`);
+                      }}
+                    >
+                      {p.name}
+                    </h3>
 
-                <p className="bestsellers__price">
-                  ${p.price?.toLocaleString("es-AR")}
-                </p>
+                    <p className="bestsellers__price">
+                      ${p.price?.toLocaleString("es-AR")}
+                    </p>
 
-                <p className="bestsellers__desc">
-                  {p.description?.slice(0, 80) || "Producto destacado"}
-                </p>
+                    <p className="bestsellers__desc">
+                      {p.description?.slice(0, 80) || "Producto destacado"}
+                    </p>
 
-                <div
-                  className="stars"
-                  onClick={() => setShowOpinions(true)}
-                >
-                  {"★".repeat(4)}☆
-                </div>
+                    <button
+                      type="button"
+                      className="stars"
+                      onClick={function () {
+                        setShowOpinions(true);
+                      }}
+                      aria-label="Ver opiniones"
+                    >
+                      ★★★★☆
+                    </button>
 
-                <div className="bestsellers__buttons">
-                  <button className="btn-buy">Comprar</button>
-                  <button className="btn-cart">Agregar al carrito</button>
-                  <button
-                    className="btn-buy"
-                    onClick={() => navigate(`/products/${p._id}`)}
-                  >
-                    Ver más
-                  </button>
-                </div>
-              </div>
-            ))}
+                    <div className="bestsellers__buttons">
+                      <button className="btn-buy">Comprar</button>
+                      <button className="btn-cart">Agregar al carrito</button>
+                      <button
+                        className="btn-link"
+                        onClick={function () {
+                          navigate(`/products/${p._id}`);
+                        }}
+                      >
+                        Ver más
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <button
             className="carousel__arrow right"
-            onClick={() =>
-              setStartIndex((prev) =>
-                prev + ITEMS_PER_PAGE >= productos.length ? 0 : prev + 1
-              )
-            }
+            onClick={goNext}
+            aria-label="Siguiente"
           >
             ›
           </button>
         </div>
+
+        {loading && <p className="bestsellers__status">Cargando...</p>}
+        {error && (
+          <p className="bestsellers__status">Error al cargar productos.</p>
+        )}
       </div>
 
       {showOpinions && (
-        <OpinionsPopup onClose={() => setShowOpinions(false)} />
+        <OpinionsPopup
+          onClose={function () {
+            setShowOpinions(false);
+          }}
+        />
       )}
     </section>
   );
