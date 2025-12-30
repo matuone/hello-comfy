@@ -151,12 +151,13 @@
   width: 110px;
   height: 110px;
   cursor: grab;
-  transition: transform 0.15s ease, border 0.15s ease;
+  transition: transform 0.2s ease, border 0.2s ease, opacity 0.2s ease;
 }
 
-.foto-item:active {
-  cursor: grabbing;
-  transform: scale(0.96);
+/* Animación suave al arrastrar */
+.foto-item.dragging {
+  opacity: 0.4;
+  transform: scale(0.9);
 }
 
 /* Cuando una imagen es target de drop */
@@ -229,6 +230,36 @@
 }
 
 /* ============================
+   IMAGEN PRINCIPAL (⭐)
+============================ */
+.foto-star-btn {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background: #ffd54f;
+  color: #5a4300;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.foto-star-btn:hover {
+  background: #ffca28;
+}
+
+.foto-principal {
+  outline: 3px solid #ffd54f;
+  border-radius: 12px;
+}
+
+/* ============================
    BOTONES SUPERIORES
 ============================ */
 .product-actions {
@@ -285,6 +316,12 @@
   background: #c63f6a;
 }
 
+/* Estado deshabilitado (PASO 5) */
+.btn-guardar-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ============================
    ERRORES
 ============================ */
@@ -292,34 +329,4 @@
   color: #e57373;
   font-size: 0.85rem;
   margin-bottom: 8px;
-}
-
-/* ============================
-   IMAGEN PRINCIPAL (⭐)
-============================ */
-.foto-star-btn {
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  background: #ffd54f;
-  color: #5a4300;
-  border: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.foto-star-btn:hover {
-  background: #ffca28;
-}
-
-.foto-principal {
-  outline: 3px solid #ffd54f;
-  border-radius: 12px;
 }

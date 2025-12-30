@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import imageCompression from "browser-image-compression";
 import "../styles/adminproductdetail.css";
 
 export default function AdminProductDetail() {
@@ -26,6 +27,9 @@ export default function AdminProductDetail() {
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [errorImagen, setErrorImagen] = useState("");
   const [dragIndex, setDragIndex] = useState(null);
+
+  // Loading global (PASO 5)
+  const loadingGlobal = subiendoImagen;
 
   // ============================
   // CARGAR COLORES
@@ -94,7 +98,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // SUBIR IMAGEN (MEJORADO)
+  // SUBIR IMAGEN (CON COMPRESIÓN)
   // ============================
   async function agregarImagen(e) {
     const file = e.target.files[0];
@@ -112,8 +116,17 @@ export default function AdminProductDetail() {
     setSubiendoImagen(true);
 
     try {
+      // COMPRESIÓN
+      const opciones = {
+        maxSizeMB: 0.4,
+        maxWidthOrHeight: 1400,
+        useWebWorker: true,
+      };
+
+      const archivoComprimido = await imageCompression(file, opciones);
+
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", archivoComprimido);
 
       const res = await fetch("http://localhost:5000/api/products/upload", {
         method: "POST",
@@ -173,10 +186,11 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // DRAG & DROP
+  // DRAG & DROP (con animación suave)
   // ============================
   function onDragStart(e, index) {
     setDragIndex(index);
+    e.currentTarget.classList.add("dragging");
   }
 
   function onDragOver(e) {
@@ -185,6 +199,10 @@ export default function AdminProductDetail() {
 
   function onDrop(e, index) {
     e.preventDefault();
+
+    const draggingEl = document.querySelector(".dragging");
+    if (draggingEl) draggingEl.classList.remove("dragging");
+
     if (dragIndex === null || dragIndex === index) return;
 
     const nuevas = [...producto.imagenes];
@@ -203,6 +221,11 @@ export default function AdminProductDetail() {
   // GUARDAR PRODUCTO
   // ============================
   async function guardarProducto() {
+    if (loadingGlobal) {
+      alert("Esperá a que terminen de subir las imágenes.");
+      return;
+    }
+
     const camposObligatorios = {
       nombre: producto.nombre,
       categoria: producto.categoria,
@@ -467,8 +490,12 @@ export default function AdminProductDetail() {
         </div>
 
         {/* BOTÓN GUARDAR */}
-        <button className="btn-guardar" onClick={guardarProducto}>
-          {esEdicion ? "Guardar cambios" : "Crear producto"}
+        <button
+          className={`btn-guardar ${loadingGlobal ? "btn-guardar-disabled" : ""}`}
+          onClick={guardarProducto}
+          disabled={loadingGlobal}
+        >
+          {loadingGlobal ? "Esperando imágenes..." : esEdicion ? "Guardar cambios" : "Crear producto"}
         </button>
       </div>
     </div>
