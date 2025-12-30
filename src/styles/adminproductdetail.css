@@ -262,3 +262,14 @@
 .btn-guardar:hover {
   background: #c63f6a;
 }
+
+.input-error-text {
+  color: #e57373;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.foto-upload-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

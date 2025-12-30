@@ -13,18 +13,21 @@ export default function AdminProductDetail() {
   const [producto, setProducto] = useState({
     nombre: "",
     categoria: "Indumentaria",
-    subcategoria: "Remeras",   // 👈 antes estaba ""
+    subcategoria: "Remeras",
     precio: "",
     color: "",
     imagenes: [],
     description: "",
   });
 
-
   const [colores, setColores] = useState([]);
 
+  // Estados nuevos
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
+  const [errorImagen, setErrorImagen] = useState("");
+
   // ============================
-  // CARGAR COLORES DESDE BACKEND
+  // CARGAR COLORES
   // ============================
   useEffect(() => {
     fetch("http://localhost:5000/api/stock")
@@ -37,7 +40,7 @@ export default function AdminProductDetail() {
   }, []);
 
   // ============================
-  // CARGAR PRODUCTO (SOLO EDICIÓN)
+  // CARGAR PRODUCTO (EDICIÓN)
   // ============================
   useEffect(() => {
     if (!esEdicion) return;
@@ -89,26 +92,60 @@ export default function AdminProductDetail() {
     }
   }
 
-
-
-
+  // ============================
+  // SUBIR IMAGEN (MEJORADO)
+  // ============================
   async function agregarImagen(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("image", file);
+    setErrorImagen("");
 
-    const res = await fetch("http://localhost:5000/api/products/upload", {
-      method: "POST",
-      body: formData,
-    });
+    // Preview instantáneo
+    const previewLocal = URL.createObjectURL(file);
+    setProducto((prev) => ({
+      ...prev,
+      imagenes: [...prev.imagenes, previewLocal],
+    }));
 
-    const data = await res.json();
+    setSubiendoImagen(true);
 
-    actualizarCampo("imagenes", [...producto.imagenes, data.url]);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch("http://localhost:5000/api/products/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Error al subir imagen");
+
+      const data = await res.json();
+
+      // Reemplazar preview por URL real
+      setProducto((prev) => {
+        const sinPreview = prev.imagenes.filter((img) => img !== previewLocal);
+        return {
+          ...prev,
+          imagenes: [...sinPreview, data.url],
+        };
+      });
+    } catch (err) {
+      console.error("Error al subir imagen:", err);
+      setErrorImagen("No se pudo subir la imagen. Probá de nuevo.");
+
+      // Sacar preview si falló
+      setProducto((prev) => ({
+        ...prev,
+        imagenes: prev.imagenes.filter((img) => img !== previewLocal),
+      }));
+    } finally {
+      setSubiendoImagen(false);
+    }
+
+    e.target.value = "";
   }
-
 
   function eliminarImagen(index) {
     setProducto((prev) => ({
@@ -118,7 +155,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // GUARDAR (POST o PUT)
+  // GUARDAR PRODUCTO
   // ============================
   async function guardarProducto() {
     const camposObligatorios = {
@@ -129,17 +166,8 @@ export default function AdminProductDetail() {
       precio: producto.precio,
     };
 
-
-    console.log("DEBUG camposObligatorios:", camposObligatorios);
-
     const faltanCampos = Object.entries(camposObligatorios).some(
-      ([key, valor]) => {
-        const vacio = !valor || valor.toString().trim() === "";
-        if (vacio) {
-          console.log(`DEBUG campo vacío -> ${key}:`, valor);
-        }
-        return vacio;
-      }
+      ([_, valor]) => !valor || valor.toString().trim() === ""
     );
 
     const precioValido =
@@ -147,18 +175,6 @@ export default function AdminProductDetail() {
       parseInt(producto.precio, 10) > 0;
 
     if (faltanCampos || !precioValido) {
-      alert("Completá todos los campos obligatorios antes de guardar.");
-      return;
-    }
-
-
-    console.log("DEBUG faltanCampos:", faltanCampos);
-    console.log(
-      "DEBUG precio Number(producto.precio):",
-      Number(producto.precio)
-    );
-
-    if (faltanCampos || Number(producto.precio) <= 0) {
       alert("Completá todos los campos obligatorios antes de guardar.");
       return;
     }
@@ -172,8 +188,6 @@ export default function AdminProductDetail() {
       images: producto.imagenes || [],
       description: producto.description || "",
     };
-
-    console.log("DEBUG payload a enviar:", payload);
 
     try {
       const url = esEdicion
@@ -197,7 +211,6 @@ export default function AdminProductDetail() {
       alert("Hubo un error al guardar el producto");
     }
   }
-
 
   // ============================
   // ELIMINAR
@@ -359,6 +372,10 @@ export default function AdminProductDetail() {
         <div className="detalle-box">
           <h3 className="detalle-title">Fotos</h3>
 
+          {errorImagen && (
+            <p className="input-error-text">{errorImagen}</p>
+          )}
+
           <div className="fotos-grid">
             {producto.imagenes.map((img, i) => (
               <div key={i} className="foto-item">
@@ -372,9 +389,17 @@ export default function AdminProductDetail() {
               </div>
             ))}
 
-            <label className="foto-upload">
-              + Agregar foto
-              <input type="file" accept="image/*" onChange={agregarImagen} />
+            <label
+              className={`foto-upload ${subiendoImagen ? "foto-upload-disabled" : ""
+                }`}
+            >
+              {subiendoImagen ? "Subiendo foto..." : "+ Agregar foto"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={agregarImagen}
+                disabled={subiendoImagen}
+              />
             </label>
           </div>
         </div>
