@@ -25,6 +25,7 @@ export default function AdminProductDetail() {
   // Estados nuevos
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [errorImagen, setErrorImagen] = useState("");
+  const [dragIndex, setDragIndex] = useState(null);
 
   // ============================
   // CARGAR COLORES
@@ -147,11 +148,41 @@ export default function AdminProductDetail() {
     e.target.value = "";
   }
 
+  // ============================
+  // ELIMINAR IMAGEN
+  // ============================
   function eliminarImagen(index) {
     setProducto((prev) => ({
       ...prev,
       imagenes: prev.imagenes.filter((_, i) => i !== index),
     }));
+  }
+
+  // ============================
+  // DRAG & DROP
+  // ============================
+  function onDragStart(e, index) {
+    setDragIndex(index);
+  }
+
+  function onDragOver(e) {
+    e.preventDefault();
+  }
+
+  function onDrop(e, index) {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+
+    const nuevas = [...producto.imagenes];
+    const [movida] = nuevas.splice(dragIndex, 1);
+    nuevas.splice(index, 0, movida);
+
+    setProducto((prev) => ({
+      ...prev,
+      imagenes: nuevas,
+    }));
+
+    setDragIndex(null);
   }
 
   // ============================
@@ -213,7 +244,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // ELIMINAR
+  // ELIMINAR PRODUCTO
   // ============================
   async function eliminarProducto() {
     if (!esEdicion) return;
@@ -235,7 +266,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // DUPLICAR
+  // DUPLICAR PRODUCTO
   // ============================
   async function duplicarProducto() {
     if (!esEdicion) return;
@@ -378,7 +409,14 @@ export default function AdminProductDetail() {
 
           <div className="fotos-grid">
             {producto.imagenes.map((img, i) => (
-              <div key={i} className="foto-item">
+              <div
+                key={i}
+                className="foto-item"
+                draggable
+                onDragStart={(e) => onDragStart(e, i)}
+                onDragOver={onDragOver}
+                onDrop={(e) => onDrop(e, i)}
+              >
                 <img src={img} alt="foto" className="foto-preview" />
                 <button
                   className="foto-delete-btn"
