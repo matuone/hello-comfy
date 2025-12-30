@@ -15,7 +15,7 @@ export default function AdminProducts() {
   const [porcentaje, setPorcentaje] = useState("");
 
   // ============================
-  // NOTIFICACIÓN (Opción A)
+  // NOTIFICACIÓN
   // ============================
   const location = useLocation();
   const notiInicial = location.state?.noti || null;
@@ -34,7 +34,7 @@ export default function AdminProducts() {
       .then((res) => res.json())
       .then((data) => {
         const adaptados = data.map((p) => ({
-          id: p._id || p.id || "",
+          id: p._id || "",
           nombre: p.name,
           categoria: p.category,
           subcategoria: p.subcategory,
@@ -96,7 +96,7 @@ export default function AdminProducts() {
   );
 
   // ============================
-  // ACCIONES
+  // ELIMINAR
   // ============================
   function eliminarProducto(id) {
     setModalEliminar(id);
@@ -128,21 +128,93 @@ export default function AdminProducts() {
     }
   }
 
-  function duplicarProducto(prod) {
-    const copia = {
-      ...prod,
-      id: "P" + Math.floor(Math.random() * 9000 + 1000),
-      nombre: prod.nombre + " (copia)",
-    };
+  // ============================
+  // DUPLICAR PRODUCTO + STOCK
+  // ============================
+  async function duplicarProducto(prod) {
+    try {
+      // 1) Buscar stock del producto original
+      const stockOriginal = stockColores.find(
+        (s) => s.color === prod.color
+      );
 
-    setProductos((prev) => [...prev, copia]);
+      // 2) Crear objeto para MongoDB
+      const nuevoProducto = {
+        name: prod.nombre + " (copia)",
+        category: prod.categoria,
+        subcategory: prod.subcategoria,
+        price: prod.precio,
+        images: prod.imagenes,
+        colors: [prod.color],
+      };
 
-    setNoti({
-      mensaje: "Producto duplicado",
-      tipo: "exito",
-    });
+      // 3) Guardar producto en MongoDB
+      const res = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevoProducto),
+      });
+
+      const saved = await res.json();
+
+      if (!res.ok) {
+        console.error("Error al duplicar:", saved);
+        setNoti({
+          mensaje: "No se pudo duplicar el producto",
+          tipo: "error",
+        });
+        return;
+      }
+
+      // 4) Adaptar al formato del admin
+      const adaptado = {
+        id: saved._id,
+        nombre: saved.name,
+        categoria: saved.category,
+        subcategoria: saved.subcategory,
+        precio: saved.price,
+        imagenes: saved.images,
+        color: saved.colors?.[0] || "Sin color",
+      };
+
+      // 5) Duplicar stock si existe
+      if (stockOriginal) {
+        const nuevoStock = {
+          productId: saved._id,
+          color: stockOriginal.color,
+          colorHex: stockOriginal.colorHex,
+          talles: { ...stockOriginal.talles },
+        };
+
+        await fetch("http://localhost:5000/api/stock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevoStock),
+        });
+
+        // Actualizar stock en estado
+        setStockColores((prev) => [...prev, nuevoStock]);
+      }
+
+      // 6) Agregar a la tabla
+      setProductos((prev) => [...prev, adaptado]);
+
+      setNoti({
+        mensaje: "Producto duplicado correctamente",
+        tipo: "exito",
+      });
+    } catch (err) {
+      console.error("Error duplicando producto:", err);
+      setNoti({
+        mensaje: "Error duplicando producto",
+        tipo: "error",
+      });
+    }
   }
 
+  // ============================
+  // EXPANDIR FILA
+  // ============================
   function toggleExpand(id) {
     setExpandedRows((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
