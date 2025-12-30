@@ -18,17 +18,30 @@ export default function AdminStock() {
   }, []);
 
   // ============================
-  // ACTUALIZAR TALLE
+  // ACTUALIZAR TALLE (FIX PERFECTO)
   // ============================
   async function actualizarTalle(indexColor, talle, valor) {
     const copia = [...stock];
-    copia[indexColor].talles[talle] = Number(valor);
+
+    // Permitir borrar → queda ""
+    copia[indexColor].talles[talle] =
+      valor === "" ? "" : Number(valor);
+
     setStock(copia);
+
+    // Convertir "" a 0 antes de enviar al backend
+    const payload = {
+      ...copia[indexColor],
+      talles: {
+        ...copia[indexColor].talles,
+        [talle]: valor === "" ? 0 : Number(valor),
+      },
+    };
 
     await fetch(`http://localhost:5000/api/stock/${copia[indexColor]._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(copia[indexColor]),
+      body: JSON.stringify(payload),
     });
   }
 
@@ -153,7 +166,9 @@ export default function AdminStock() {
                   <input
                     type="number"
                     className="input-field-talle"
-                    value={item.talles[talle]}
+                    value={
+                      item.talles[talle] === "" ? "" : item.talles[talle]
+                    }
                     onChange={(e) =>
                       actualizarTalle(index, talle, e.target.value)
                     }
