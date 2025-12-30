@@ -2,15 +2,19 @@ import { useState, useEffect, Fragment } from "react";
 import { Link } from "react-router-dom";
 import "../styles/adminproducts.css";
 
+const ORDEN_TALLES = ["S", "M", "L", "XL", "XXL", "3XL"];
+
 export default function AdminProducts() {
   const [busqueda, setBusqueda] = useState("");
   const [expandedRows, setExpandedRows] = useState([]);
-
-  // ============================
-  // PRODUCTOS REALES DESDE BACKEND
-  // ============================
   const [productos, setProductos] = useState([]);
+  const [stockColores, setStockColores] = useState([]);
+  const [mostrarPanelPrecios, setMostrarPanelPrecios] = useState(false);
+  const [porcentaje, setPorcentaje] = useState("");
 
+  // ============================
+  // CARGAR PRODUCTOS
+  // ============================
   useEffect(() => {
     fetch("http://localhost:5000/api/products")
       .then((res) => res.json())
@@ -32,10 +36,8 @@ export default function AdminProducts() {
   }, []);
 
   // ============================
-  // STOCK REAL DESDE BACKEND
+  // CARGAR STOCK
   // ============================
-  const [stockColores, setStockColores] = useState([]);
-
   useEffect(() => {
     fetch("http://localhost:5000/api/stock")
       .then((res) => res.json())
@@ -46,12 +48,8 @@ export default function AdminProducts() {
   // ============================
   // MODIFICACIÓN MASIVA DE PRECIOS
   // ============================
-  const [mostrarPanelPrecios, setMostrarPanelPrecios] = useState(false);
-  const [porcentaje, setPorcentaje] = useState("");
-
   function aplicarAumento() {
     const p = Number(porcentaje);
-
     if (isNaN(p) || p === 0) {
       alert("Ingresá un porcentaje válido.");
       return;
@@ -103,6 +101,9 @@ export default function AdminProducts() {
     );
   }
 
+  // ============================
+  // RENDER
+  // ============================
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">Productos</h2>
@@ -178,7 +179,6 @@ export default function AdminProducts() {
 
           <tbody>
             {productosFiltrados.map((prod) => {
-              // Buscar color real en stock
               const stockColor = stockColores.find(
                 (s) => s.color === prod.color
               );
@@ -195,7 +195,10 @@ export default function AdminProducts() {
                     <td className="prod-name-cell">
                       <div className="prod-name-wrapper">
                         <img
-                          src={prod.imagenes?.[0] || "https://via.placeholder.com/80"}
+                          src={
+                            prod.imagenes?.[0] ||
+                            "https://via.placeholder.com/80"
+                          }
                           alt={prod.nombre}
                           className="prod-thumb"
                         />
@@ -213,7 +216,9 @@ export default function AdminProducts() {
                               className="prod-color-box"
                               style={{ backgroundColor: colorHex }}
                             ></span>
-                            <span className="prod-color-name">{prod.color}</span>
+                            <span className="prod-color-name">
+                              {prod.color}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -239,7 +244,26 @@ export default function AdminProducts() {
                     <td>{prod.categoria}</td>
                     <td>{prod.subcategoria}</td>
                     <td>${prod.precio?.toLocaleString()}</td>
-                    <td>{stockTotal}</td>
+
+                    <td>
+                      {stockColor ? (
+                        <>
+                          {ORDEN_TALLES.map((talle) => (
+                            <span key={talle} style={{ marginRight: "6px" }}>
+                              {talle}: {stockColor.talles[talle]}
+                            </span>
+                          ))}
+                          <br />
+                          <strong>Total:</strong> {stockTotal}
+                        </>
+                      ) : (
+                        <>
+                          Sin stock
+                          <br />
+                          <strong>Total:</strong> 0
+                        </>
+                      )}
+                    </td>
 
                     <td className="acciones-cell">
                       <Link
