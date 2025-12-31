@@ -9,6 +9,7 @@
   margin: 0 auto;
   padding: 0 16px;
   box-sizing: border-box;
+  position: relative;
 }
 
 .bestsellers__title {
@@ -19,30 +20,13 @@
   text-align: center;
 }
 
-/* ============================
-   CARRUSEL
-============================ */
-.bestsellers__carousel {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-/* Viewport EXACTO para 5 tarjetas */
-.bestsellers__track-viewport {
-  width: 1400px;
-  /* 5 tarjetas (260) + 4 gaps (20) */
-  margin: 0 auto;
-  overflow: hidden;
-}
-
-/* Track */
-.bestsellers__track {
-  display: flex;
-  gap: 20px;
-  transition: transform 0.4s ease;
-  will-change: transform;
+/* HINT VISUAL */
+.carousel-hint {
+  text-align: right;
+  font-size: 14px;
+  color: #d94f7a;
+  margin-bottom: 8px;
+  opacity: 0.7;
 }
 
 /* ============================
@@ -58,7 +42,6 @@
   flex-direction: column;
 }
 
-/* Imagen */
 .bestsellers__image {
   width: 100%;
   aspect-ratio: 4 / 5.5;
@@ -69,7 +52,6 @@
   cursor: pointer;
 }
 
-/* Textos */
 .bestsellers__name {
   font-size: 18px;
   font-weight: 700;
@@ -105,7 +87,6 @@
   cursor: pointer;
 }
 
-/* Botones */
 .bestsellers__buttons {
   margin-top: auto;
   display: flex;
@@ -152,29 +133,27 @@
   min-height: 40px;
 }
 
-/* Flechas */
-.bestsellers__arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 2rem;
-  background: #ffe8f0;
-  border: 1px solid #f7c9d8;
-  color: #d94f7a;
-  padding: 10px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  z-index: 10;
+/* ============================
+   SWIPER DOTS (PAGINATION)
+============================ */
+
+.swiper-pagination {
+  position: relative;
+  margin-top: 40px;
+  /* MÁS ABAJO */
+  text-align: center;
 }
 
-.bestsellers__arrow.left {
-  left: 0;
+.swiper-pagination-bullet {
+  background: #d94f7a;
+  opacity: 0.35;
+  width: 12px;
+  height: 12px;
+  margin: 0 6px !important;
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
 }
 
-.bestsellers__arrow.right {
-  right: 0;
-}
-
-.bestsellers__arrow:hover {
-  background: #ffd9e7;
+.swiper-pagination-bullet-active {
+  opacity: 1;
 }
