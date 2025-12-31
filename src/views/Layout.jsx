@@ -14,8 +14,10 @@ export default function Layout() {
   const showPromoBanner = !esAdmin && location.pathname === "/";
   const isFullWidth =
     !esAdmin &&
-    (location.pathname.startsWith("/create-account") ||
+    (location.pathname === "/" ||
+      location.pathname.startsWith("/create-account") ||
       location.pathname.startsWith("/products"));
+
 
   return (
     <div className="layout">

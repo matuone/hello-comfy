@@ -6,12 +6,18 @@
 
   /* Tarjetas flexibles y centradas */
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  justify-content: center;
   justify-items: center;
 
   gap: 40px;
-  max-width: 1400px;
-  margin: 40px auto 0 auto;
+
+  /* 🔥 FIX: NO limitar el ancho global */
+  width: 100%;
+  max-width: none;
+
+  /* 🔥 FIX: NO usar margin auto que centra el layout global */
+  margin: 40px 0 0 0;
+
+  /* Mantiene padding interno sin romper nada */
   padding: 0 20px;
 }
 

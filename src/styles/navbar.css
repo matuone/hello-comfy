@@ -11,7 +11,7 @@
   --ab-height: 0px;
 
   /* Altura REAL del navbar fijo */
-  --navbar-height: 64px;
+  --navbar-height: 56px;
 }
 
 /* Ocultar navbar de escritorio en mobile */

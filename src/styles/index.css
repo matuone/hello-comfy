@@ -10,15 +10,14 @@
 ====================================== */
 html,
 body,
-main,
-section {
+main {
   margin: 0;
   padding: 0;
 }
 
 html,
 body {
-  overflow-x: scroll;
+  overflow-x: hidden;
   background: #fff;
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: #111;
