@@ -7,7 +7,14 @@ export default function NewIn() {
   const navigate = useNavigate();
   const [productos, setProductos] = useState([]);
   const [showOpinions, setShowOpinions] = useState(false);
-  const wrapperRef = useRef(null);
+  const [index, setIndex] = useState(0);
+
+  const trackRef = useRef(null);
+
+  const ITEM_WIDTH = 260 + 20; // tarjeta + gap
+  const VISIBLE = 5;           // se ven 5 tarjetas
+  const ITEMS_PER_PAGE = 1;    // avanzar de a 1
+  const PAGE_WIDTH = ITEM_WIDTH * ITEMS_PER_PAGE;
 
   useEffect(() => {
     fetch("http://localhost:5000/api/products/new")
@@ -16,13 +23,17 @@ export default function NewIn() {
       .catch(() => setProductos([]));
   }, []);
 
-  const scrollLeft = () => {
-    wrapperRef.current?.scrollBy({ left: -260, behavior: "smooth" });
-  };
+  // FIX: evitar que quede 1 tarjeta sola al final
+  const maxIndex = Math.max(0, productos.length - VISIBLE);
 
-  const scrollRight = () => {
-    wrapperRef.current?.scrollBy({ left: 260, behavior: "smooth" });
-  };
+  const scrollLeft = () => setIndex((prev) => Math.max(prev - 1, 0));
+  const scrollRight = () => setIndex((prev) => Math.min(prev + 1, maxIndex));
+
+  useEffect(() => {
+    if (trackRef.current) {
+      trackRef.current.style.transform = `translateX(-${index * PAGE_WIDTH}px)`;
+    }
+  }, [index]);
 
   return (
     <section className="newin">
@@ -33,7 +44,7 @@ export default function NewIn() {
           <button className="newin__arrow left" onClick={scrollLeft}>‹</button>
 
           <div className="newin__track-viewport">
-            <div className="newin__track" ref={wrapperRef}>
+            <div className="newin__track" ref={trackRef}>
               {productos.map((p) => (
                 <div key={p._id} className="newin__item">
                   <img

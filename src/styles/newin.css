@@ -16,6 +16,7 @@
   font-weight: 800;
   margin-bottom: 24px;
   color: var(--hc-text);
+  text-align: center;
 }
 
 /* ============================
@@ -28,9 +29,10 @@
   width: 100%;
 }
 
-/* Viewport FLUIDO (no fijo) */
+/* Viewport EXACTO para 5 tarjetas */
 .newin__track-viewport {
-  width: 100%;
+  width: 1400px;
+  margin: 0 auto;
   overflow: hidden;
 }
 
@@ -38,7 +40,8 @@
 .newin__track {
   display: flex;
   gap: 20px;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
+  will-change: transform;
 }
 
 /* ============================
@@ -46,7 +49,6 @@
 ============================ */
 .newin__item {
   flex: 0 0 260px;
-  /* 4 tarjetas entran perfecto en la mayoría de layouts */
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
@@ -66,9 +68,7 @@
   cursor: pointer;
 }
 
-/* ============================
-   TEXTOS ALINEADOS
-============================ */
+/* Textos */
 .newin__name {
   font-size: 18px;
   font-weight: 700;
@@ -104,9 +104,7 @@
   cursor: pointer;
 }
 
-/* ============================
-   BOTONES
-============================ */
+/* Botones */
 .newin__buttons {
   margin-top: auto;
   display: flex;
@@ -153,9 +151,7 @@
   min-height: 40px;
 }
 
-/* ============================
-   FLECHAS
-============================ */
+/* Flechas */
 .newin__arrow {
   position: absolute;
   top: 50%;
