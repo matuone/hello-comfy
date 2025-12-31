@@ -27,7 +27,9 @@ export default function NewIn() {
         <h2 className="newin__title">Nuevos ingresos:</h2>
 
         {/* HINT VISUAL */}
-        <div className="carousel-hint">Arrastrá para ver más →</div>
+        <div className="carousel-hint">
+          <span className="hand-icon">🤚</span> Arrastrá para ver más
+        </div>
 
         <Swiper
           modules={[Pagination]}

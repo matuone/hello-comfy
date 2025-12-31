@@ -25,8 +25,31 @@
   text-align: right;
   font-size: 14px;
   color: #d94f7a;
-  margin-bottom: 8px;
-  opacity: 0.7;
+  margin-bottom: 12px;
+  opacity: 0.8;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.hand-icon {
+  display: inline-block;
+  animation: handMove 1.4s infinite ease-in-out;
+}
+
+@keyframes handMove {
+  0% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(6px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
 
 /* ============================
@@ -140,7 +163,6 @@
 .swiper-pagination {
   position: relative;
   margin-top: 40px;
-  /* MÁS ABAJO */
   text-align: center;
 }
 

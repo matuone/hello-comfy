@@ -27,7 +27,9 @@ export default function BestSellers() {
         <h2 className="bestsellers__title">Los más vendidos:</h2>
 
         {/* HINT VISUAL */}
-        <div className="carousel-hint">Arrastrá para ver más →</div>
+        <div className="carousel-hint">
+          <span className="hand-icon">🤚</span> Arrastrá para ver más
+        </div>
 
         <Swiper
           modules={[Pagination]}
