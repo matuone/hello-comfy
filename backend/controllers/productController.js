@@ -1,4 +1,3 @@
-// backend/controllers/productController.js
 import Product from "../models/Product.js";
 
 // ============================
@@ -69,9 +68,13 @@ export const getNewProducts = async (req, res) => {
 // ============================
 export const createProduct = async (req, res) => {
   try {
-    const newProduct = new Product(req.body);
-    await newProduct.save();
-    res.json(newProduct);
+    const product = new Product({
+      ...req.body,
+      images: req.body.images || [], // URLs de Cloudinary
+    });
+
+    await product.save();
+    res.json(product);
   } catch (err) {
     console.error("Error al crear producto:", err);
     res.status(500).json({ error: "Error al crear producto" });
@@ -83,9 +86,14 @@ export const createProduct = async (req, res) => {
 // ============================
 export const updateProduct = async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...req.body,
+        images: req.body.images || [], // URLs nuevas
+      },
+      { new: true }
+    );
 
     if (!updated) {
       return res.status(404).json({ error: "Producto no encontrado" });

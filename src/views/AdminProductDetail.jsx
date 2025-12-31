@@ -20,20 +20,14 @@ export default function AdminProductDetail() {
     color: "",
     imagenes: [],
     description: "",
-    sizeGuide: "remeras", // 👈 guía de talles por defecto
+    sizeGuide: "remeras",
   });
 
   const [colores, setColores] = useState([]);
-
-  // Estados nuevos
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [errorImagen, setErrorImagen] = useState("");
   const [dragIndex, setDragIndex] = useState(null);
-
-  // Validaciones
   const [errores, setErrores] = useState({});
-
-  // Notification
   const [noti, setNoti] = useState(null);
 
   const loadingGlobal = subiendoImagen;
@@ -79,7 +73,7 @@ export default function AdminProductDetail() {
           color: data.colors?.[0] || "",
           imagenes: data.images || [],
           description: data.description || "",
-          sizeGuide: data.sizeGuide || "remeras", // 👈 carga lo que venga o default
+          sizeGuide: data.sizeGuide || "remeras",
         });
       })
       .catch((err) => console.error("Error cargando producto:", err));
@@ -116,7 +110,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // HANDLERS
+  // HANDLERS GENERALES
   // ============================
   function actualizarCampo(campo, valor) {
     setErrores((prev) => ({ ...prev, [campo]: "" }));
@@ -138,7 +132,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // SUBIR IMAGEN (CON COMPRESIÓN)
+  // SUBIR IMAGEN (CON COMPRESIÓN + CLOUDINARY)
   // ============================
   async function agregarImagen(e) {
     const file = e.target.files[0];
@@ -146,7 +140,7 @@ export default function AdminProductDetail() {
 
     setErrorImagen("");
 
-    // Preview instantáneo
+    // Preview instantáneo local
     const previewLocal = URL.createObjectURL(file);
     setProducto((prev) => ({
       ...prev,
@@ -165,7 +159,8 @@ export default function AdminProductDetail() {
       const archivoComprimido = await imageCompression(file, opciones);
 
       const formData = new FormData();
-      formData.append("image", archivoComprimido);
+      // 👇 nombre de campo alineado con upload.array("images", 10)
+      formData.append("images", archivoComprimido);
 
       const res = await fetch("http://localhost:5000/api/products/upload", {
         method: "POST",
@@ -176,17 +171,25 @@ export default function AdminProductDetail() {
 
       const data = await res.json();
 
+      // backend devuelve { urls: [...] }
+      const urlSubida = data.urls?.[0];
+
+      if (!urlSubida) {
+        throw new Error("Respuesta de subida sin URL válida");
+      }
+
       setProducto((prev) => {
         const sinPreview = prev.imagenes.filter((img) => img !== previewLocal);
         return {
           ...prev,
-          imagenes: [...sinPreview, data.url],
+          imagenes: [...sinPreview, urlSubida],
         };
       });
     } catch (err) {
       console.error("Error al subir imagen:", err);
       setErrorImagen("No se pudo subir la imagen. Probá de nuevo.");
 
+      // saco el preview temporal
       setProducto((prev) => ({
         ...prev,
         imagenes: prev.imagenes.filter((img) => img !== previewLocal),
@@ -195,6 +198,7 @@ export default function AdminProductDetail() {
       setSubiendoImagen(false);
     }
 
+    // reset input file
     e.target.value = "";
   }
 
@@ -209,7 +213,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // ⭐ MARCAR COMO PRINCIPAL
+  // MARCAR COMO PRINCIPAL
   // ============================
   function marcarComoPrincipal(index) {
     const nuevas = [...producto.imagenes];
@@ -276,7 +280,7 @@ export default function AdminProductDetail() {
       colors: [producto.color.trim()],
       images: producto.imagenes || [],
       description: producto.description || "",
-      sizeGuide: producto.sizeGuide, // 👈 se guarda en backend
+      sizeGuide: producto.sizeGuide,
     };
 
     try {
@@ -355,7 +359,7 @@ export default function AdminProductDetail() {
       colors: producto.color ? [producto.color.trim()] : [],
       images: producto.imagenes,
       description: producto.description,
-      sizeGuide: producto.sizeGuide, // 👈 también se copia
+      sizeGuide: producto.sizeGuide,
     };
 
     try {
@@ -543,7 +547,7 @@ export default function AdminProductDetail() {
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, i)}
               >
-                {/* ⭐ BOTÓN PRINCIPAL */}
+                {/* BOTÓN PRINCIPAL */}
                 <button
                   className="foto-star-btn"
                   onClick={() => marcarComoPrincipal(i)}

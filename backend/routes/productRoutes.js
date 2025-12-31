@@ -9,21 +9,33 @@ import {
   getNewProducts,
 } from "../controllers/productController.js";
 
-import upload from "../middleware/upload.js";
+import upload, { uploadToCloudinary } from "../middleware/upload.js";
 
 const router = express.Router();
 
 // ============================
-// RUTAS ESPECÍFICAS (IMPORTANTE: VAN PRIMERO)
+// RUTAS ESPECÍFICAS
 // ============================
 router.get("/bestsellers", getBestSellers);
 router.get("/new", getNewProducts);
 
 // ============================
-// SUBIR IMAGEN (TAMBIÉN ES ESPECÍFICA → VA ARRIBA)
+// SUBIR MÚLTIPLES IMÁGENES A CLOUDINARY
 // ============================
-router.post("/upload", upload.single("image"), (req, res) => {
-  res.json({ url: req.file.path });
+router.post("/upload", upload.array("images", 10), async (req, res) => {
+  try {
+    const urls = [];
+
+    for (const file of req.files) {
+      const url = await uploadToCloudinary(file);
+      urls.push(url);
+    }
+
+    res.json({ urls });
+  } catch (err) {
+    console.error("Error al subir imágenes:", err);
+    res.status(500).json({ error: "Error al subir imágenes" });
+  }
 });
 
 // ============================
