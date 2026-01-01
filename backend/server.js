@@ -1,10 +1,14 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+
 import productRoutes from "./routes/productRoutes.js";
 import stockRoutes from "./routes/stock.js";
+import discountRoutes from "./routes/discountRoutes.js";
+import promoCodeRoutes from "./routes/promoCodeRoutes.js"; // ⭐ NUEVO
 
 const app = express();
 
@@ -15,6 +19,8 @@ app.use(express.json());
 // Rutas
 app.use("/api/stock", stockRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/discounts", discountRoutes);
+app.use("/api/promocodes", promoCodeRoutes); // ⭐ NUEVO
 
 // Conexión a MongoDB
 mongoose

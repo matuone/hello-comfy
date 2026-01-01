@@ -17,7 +17,7 @@ import MyAccount from "../views/MyAccount";
 import CreateAccount from "../views/CreateAccount";
 import Products from "../views/Products";
 import Category from "../views/Category";
-import ProductDetail from "../views/ProductDetail"; // ✅ Import correcto
+import ProductDetail from "../views/ProductDetail";
 
 // Admin
 import AdminLayout from "../views/AdminLayout";
@@ -33,6 +33,10 @@ import AdminCustomerEdit from "../views/AdminCustomerEdit";
 import AdminStats from "../views/AdminStats";
 import AdminMarketing from "../views/AdminMarketing";
 
+// ⭐ NUEVOS IMPORTS
+import AdminDiscounts from "../views/AdminDiscounts";
+import AdminPromoCodes from "../views/AdminPromoCodes";
+
 // Protección de rutas admin
 import AdminRoute from "./AdminRoute";
 
@@ -46,8 +50,6 @@ export default function AppRouter() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
-
-        {/* ✅ Ruta del detalle del producto */}
         <Route path="/products/:id" element={<ProductDetail />} />
 
         <Route
@@ -97,6 +99,10 @@ export default function AppRouter() {
         <Route path="/admin/customers/:id/edit" element={<AdminCustomerEdit />} />
         <Route path="/admin/stats" element={<AdminStats />} />
         <Route path="/admin/marketing" element={<AdminMarketing />} />
+
+        {/* ⭐ NUEVAS RUTAS */}
+        <Route path="/admin/discounts" element={<AdminDiscounts />} />
+        <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
       </Route>
 
     </Routes>

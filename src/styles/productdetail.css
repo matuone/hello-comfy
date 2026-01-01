@@ -2,46 +2,47 @@
    CONTENEDOR GENERAL
 ============================ */
 .pd-container {
-  display: flex;
-  gap: 40px;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 40px auto;
   padding: 20px;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
 }
 
 /* ============================
-   IMÁGENES
+   PRODUCTO PRINCIPAL
 ============================ */
-.pd-images {
-  flex: 1;
+.pd-main {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  gap: 40px;
+  margin-bottom: 40px;
 }
 
+/* IMAGEN PRINCIPAL */
 .pd-main-img {
-  width: 100%;
-  border-radius: 12px;
+  width: 480px;
+  height: 480px;
   object-fit: cover;
-  aspect-ratio: 4 / 5;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
+/* MINIATURAS */
 .pd-thumbs {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
 .pd-thumb {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
+  border-radius: 10px;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s ease, transform 0.2s ease, border 0.2s ease;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .pd-thumb:hover {
@@ -55,163 +56,181 @@
 }
 
 /* ============================
-   INFORMACIÓN
+   INFO DEL PRODUCTO
 ============================ */
 .pd-info {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
 }
 
 .pd-title {
   font-size: 2rem;
   font-weight: 800;
-  color: var(--hc-text);
+  margin-bottom: 10px;
 }
 
-/* ============================
-   PRECIO + DESCUENTO
-============================ */
 .pd-price-block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  margin-bottom: 20px;
 }
 
 .pd-discount-tag {
   background: #d94f7a;
   color: white;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 0.9rem;
-  width: fit-content;
+  font-weight: 700;
 }
 
 .pd-prices {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
+  margin-top: 10px;
 }
 
 .pd-old-price {
   text-decoration: line-through;
-  color: #999;
+  color: #777;
   font-size: 1.1rem;
 }
 
 .pd-price {
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 1.6rem;
+  font-weight: 700;
   color: #d94f7a;
 }
 
 .pd-secondary-text {
   font-size: 0.9rem;
   color: #666;
+  margin-top: 6px;
 }
 
-/* ============================
-   DESCRIPCIÓN
-============================ */
 .pd-description {
   font-size: 1rem;
   color: #444;
-  line-height: 1.6;
+  margin: 20px 0;
+}
+
+/* ============================
+   COLORES (CÍRCULOS)
+============================ */
+.pd-colors {
+  margin-top: 20px;
+}
+
+.pd-colors-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.pd-color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.pd-color-dot:hover {
+  transform: scale(1.15);
+}
+
+.pd-color-dot.active {
+  border-color: #d94f7a;
+  transform: scale(1.2);
 }
 
 /* ============================
    TALLES
 ============================ */
-.pd-sizes h3 {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
+.pd-sizes {
+  margin-top: 25px;
 }
 
 .pd-sizes-row {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .pd-size-btn {
   padding: 10px 16px;
+  background: #eee;
   border-radius: 8px;
-  border: 1px solid #ddd;
-  background: white;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 700;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  border: 2px solid transparent;
+  transition: 0.2s ease;
 }
 
 .pd-size-btn:hover {
-  background: #ffe8f0;
-  border-color: #d94f7a;
-  color: #d94f7a;
+  background: #ddd;
 }
 
 .pd-size-btn.active {
-  background: #d94f7a;
   border-color: #d94f7a;
-  color: #fff;
+  background: #ffe6ef;
 }
 
 /* ============================
    GUÍA DE TALLES
 ============================ */
 .pd-size-guide {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .pd-size-guide h3 {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 /* ============================
-   SECCIONES INFO (PAGOS / ENVÍOS / OPINIONES)
+   PAGOS
 ============================ */
-.pd-payments,
-.pd-shipping,
-.pd-opinions {
-  padding: 12px 0;
-  border-top: 1px solid #eee;
-}
-
-.pd-payments h3,
-.pd-shipping h3,
-.pd-opinions h3 {
-  font-size: 1.1rem;
-  margin-bottom: 6px;
+.pd-payments {
+  margin-top: 30px;
 }
 
 .pd-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  margin-top: 10px;
+  padding-left: 20px;
+  color: #444;
 }
 
 .pd-list li {
-  font-size: 0.95rem;
-  color: #555;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-/* Opiniones */
+/* ============================
+   ENVÍOS
+============================ */
+.pd-shipping {
+  margin-top: 30px;
+}
+
+/* ============================
+   OPINIONES
+============================ */
+.pd-opinions {
+  margin-top: 30px;
+}
+
 .pd-stars-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .pd-stars {
-  color: #ffb400;
+  color: #f5b400;
   font-size: 1.2rem;
 }
 
 .pd-opinions-count {
+  color: #777;
   font-size: 0.9rem;
-  color: #666;
 }
 
 /* ============================
@@ -219,65 +238,100 @@
 ============================ */
 .pd-actions {
   display: flex;
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.pd-btn-buy,
-.pd-btn-cart {
-  flex: 1;
-  padding: 14px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  font-size: 1rem;
+  gap: 14px;
+  margin-top: 30px;
 }
 
 .pd-btn-buy {
+  flex: 1;
+  padding: 14px;
   background: #d94f7a;
   color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .pd-btn-buy:hover {
-  background: #c23f6a;
+  background: #c43f6a;
 }
 
 .pd-btn-cart {
-  background: #eee;
-  color: #333;
+  flex: 1;
+  padding: 14px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .pd-btn-cart:hover {
-  background: #ddd;
+  background: #111;
+}
+
+/* ============================
+   PRODUCTOS SIMILARES
+============================ */
+.pd-similares {
+  margin-top: 40px;
+}
+
+.pd-similares h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.similar-card {
+  background: white;
+  padding: 14px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.similar-card:hover {
+  transform: translateY(-4px);
+}
+
+.similar-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.similar-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.similar-price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #d94f7a;
+  margin-top: 4px;
 }
 
 /* ============================
    RESPONSIVE
 ============================ */
 @media (max-width: 900px) {
-  .pd-container {
+  .pd-main {
     flex-direction: column;
-    gap: 24px;
+    align-items: center;
   }
 
   .pd-main-img {
-    aspect-ratio: 4 / 4.5;
-  }
-}
-
-@media (max-width: 600px) {
-  .pd-container {
-    padding: 16px;
-    margin: 20px auto;
-  }
-
-  .pd-title {
-    font-size: 1.6rem;
-  }
-
-  .pd-price {
-    font-size: 1.5rem;
+    width: 100%;
+    height: 380px;
   }
 
   .pd-actions {

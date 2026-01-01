@@ -103,7 +103,7 @@ export default function AdminSidebar() {
         </li>
 
         {/* ============================
-            NUEVA SECCIÓN: MARKETING
+            MARKETING
         ============================ */}
         <li>
           <NavLink
@@ -114,6 +114,36 @@ export default function AdminSidebar() {
             }
           >
             Marketing
+          </NavLink>
+        </li>
+
+        {/* ============================
+            DESCUENTOS
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/discounts"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Descuentos
+          </NavLink>
+        </li>
+
+        {/* ============================
+            CÓDIGOS PROMOCIONALES
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/promocodes"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Códigos promocionales
           </NavLink>
         </li>
 

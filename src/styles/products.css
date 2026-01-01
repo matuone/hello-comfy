@@ -1,237 +1,86 @@
-/* ============================
-   CONTENEDOR GENERAL
-============================ */
-.products {
-  width: 100%;
-  max-width: 1400px;
+.products-container {
+  max-width: 1200px;
   margin: 40px auto;
   padding: 20px;
-  text-align: center;
-  color: var(--hc-text);
-  box-sizing: border-box;
 }
 
-.products__title {
-  font-size: 2.4rem;
+.products-title {
+  font-size: 2rem;
   font-weight: 800;
-  color: #d94f7a;
-  margin-bottom: 8px;
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--hc-text);
 }
 
-.products__subtitle {
-  font-size: 1rem;
-  color: rgba(0, 0, 0, 0.65);
-  margin-bottom: 40px;
-}
-
-/* ============================
-   FILTROS HORIZONTALES (sticky)
-============================ */
-.products__filters-horizontal {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  padding: 12px 0;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(8px);
-}
-
-.products__filters-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-/* Cada dropdown */
-.products__dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-/* ============================
-   BOTÓN PRINCIPAL — Pastel Comfy
-============================ */
-.products__dropdown-toggle {
-  padding: 10px 18px;
-  background: #ffe8f0;
-  border: 1px solid #f7c9d8;
-  border-radius: 14px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #d94f7a;
-  transition: background 0.2s ease, border-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Flechita */
-.products__dropdown-toggle::after {
-  content: "▼";
-  font-size: 0.75rem;
-  transition: transform 0.25s ease;
-}
-
-/* Flecha rotada cuando está abierto */
-.products__dropdown.open .products__dropdown-toggle::after {
-  transform: rotate(180deg);
-}
-
-.products__dropdown-toggle:hover {
-  background: #ffd9e7;
-  border-color: #f3b3c7;
-}
-
-/* ============================
-   MENÚ DESPLEGABLE
-============================ */
-.products__dropdown-menu {
-  position: absolute;
-  top: 48px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 12px;
-  width: 200px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  z-index: 10;
-
-  animation: dropdownFadeIn 0.25s ease forwards;
-  transform-origin: top center;
-}
-
-.products__dropdown-menu.closing {
-  animation: dropdownFadeOut 0.2s ease forwards;
-}
-
-/* ============================
-   ANIMACIONES
-============================ */
-@keyframes dropdownFadeIn {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -6px);
-    filter: blur(3px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate(-50%, 0);
-    filter: blur(0);
-  }
-}
-
-@keyframes dropdownFadeOut {
-  0% {
-    opacity: 1;
-    transform: translate(-50%, 0);
-    filter: blur(0);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -6px);
-    filter: blur(3px);
-  }
-}
-
-/* ============================
-   ITEMS DEL MENÚ — underline slide
-============================ */
-.products__dropdown-item {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #444;
-  position: relative;
-  overflow: hidden;
-  transition: color 0.2s ease;
-}
-
-.products__dropdown-item::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 4px;
-  width: 0%;
-  height: 2px;
-  background: #d94f7a;
-  transition: width 0.25s ease;
-  border-radius: 2px;
-}
-
-.products__dropdown-item:hover {
-  color: #d94f7a;
-}
-
-.products__dropdown-item:hover::after {
-  width: 100%;
-}
-
-.products__dropdown-item.active {
-  background: #d94f7a;
-  color: #fff;
-}
-
-/* ============================
-   GRID — columnas centradas
-============================ */
-.products__grid {
+.products-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  justify-content: center;
 }
 
-/* ============================
-   SKELETON LOADERS
-============================ */
-.skeleton-card {
-  animation: pulse 1.4s infinite ease-in-out;
+.product-card {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.skeleton-img {
+.product-card:hover {
+  transform: translateY(-4px);
+}
+
+.product-img {
   width: 100%;
-  aspect-ratio: 4 / 5.5;
-  background: #f0f0f0;
-  border-radius: 8px;
-  margin-bottom: 12px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
-.skeleton-line {
-  height: 16px;
-  background: #f0f0f0;
-  border-radius: 8px;
-  margin-bottom: 8px;
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 12px;
+  color: #333;
 }
 
-.skeleton-line.short {
-  width: 60%;
+.product-price {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 4px;
+  color: #d94f7a;
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
+/* COLORES */
+.product-colors {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
 
-  50% {
-    opacity: 0.45;
-  }
+.color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
 
-  100% {
-    opacity: 1;
-  }
+.color-dot:hover {
+  transform: scale(1.15);
+}
+
+.color-dot.selected {
+  border-color: #d94f7a;
+  transform: scale(1.2);
+}
+
+/* LOADING */
+.products-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #555;
 }

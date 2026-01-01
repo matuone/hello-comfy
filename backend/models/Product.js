@@ -3,9 +3,14 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+
     category: { type: String, required: true },
     subcategory: { type: String, required: true },
+
     price: { type: Number, required: true },
+
+    // ⭐ NUEVO: DESCUENTO
+    discount: { type: Number, default: 0 },
 
     colors: {
       type: [String],
@@ -41,11 +46,11 @@ const productSchema = new mongoose.Schema(
       default: ""
     },
 
-    // ⭐ NUEVO: GUÍA DE TALLES
+    // ⭐ NUEVO: GUÍA DE TALLES (incluye opción "none")
     sizeGuide: {
       type: String,
-      enum: ["babytees", "croptops", "remeras"],
-      default: "remeras"
+      enum: ["none", "babytees", "croptops", "remeras"],
+      default: "none"
     },
 
     // ⭐ NECESARIO PARA BEST SELLERS
@@ -55,5 +60,24 @@ const productSchema = new mongoose.Schema(
   // ⭐ ACTIVAMOS TIMESTAMPS
   { timestamps: true }
 );
+
+/* ============================================================
+   🧼 NORMALIZACIÓN AUTOMÁTICA DE CATEGORY Y SUBCATEGORY
+   ============================================================ */
+
+function normalize(str) {
+  if (!str) return str;
+  const clean = str.trim().toLowerCase();
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+productSchema.pre("save", async function () {
+  if (this.category) {
+    this.category = normalize(this.category);
+  }
+  if (this.subcategory) {
+    this.subcategory = normalize(this.subcategory);
+  }
+});
 
 export default mongoose.model("Product", productSchema);
