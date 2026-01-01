@@ -14,45 +14,45 @@
 /* ============================
    SIDEBAR
 ============================ */
-.admin-sidebar {
+.admin-shell .admin-sidebar {
   background: #ffffff;
   border-right: 1px solid rgba(0, 0, 0, 0.06);
   padding: 20px 18px;
   box-sizing: border-box;
 }
 
-.admin-sidebar-nav {
+.admin-shell .admin-sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.admin-sidebar-header {
+.admin-shell .admin-sidebar-header {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.admin-sidebar-logo {
+.admin-shell .admin-sidebar-logo {
   font-weight: 800;
   font-size: 1.1rem;
   color: #d94f7a;
 }
 
-.admin-sidebar-tag {
+.admin-shell .admin-sidebar-tag {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #888;
 }
 
-.admin-sidebar-list {
+.admin-shell .admin-sidebar-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.admin-sidebar-link {
+.admin-shell .admin-sidebar-link {
   display: block;
   padding: 10px 12px;
   border-radius: 10px;
@@ -64,11 +64,11 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.admin-sidebar-link:hover {
+.admin-shell .admin-sidebar-link:hover {
   background: #fce4ec;
 }
 
-.admin-sidebar-link--active {
+.admin-shell .admin-sidebar-link--active {
   background: #d94f7a;
   color: #fff;
 }
@@ -76,37 +76,37 @@
 /* ============================
    MAIN DEL ADMIN
 ============================ */
-.admin-main {
+.admin-shell .admin-main {
   padding: 24px 28px;
   box-sizing: border-box;
   overflow-x: hidden;
 }
 
-.admin-main-header {
+.admin-shell .admin-main-header {
   margin-bottom: 20px;
 }
 
-.admin-main-title {
+.admin-shell .admin-main-title {
   font-size: 1.8rem;
   font-weight: 800;
   margin: 0 0 4px;
   color: #d94f7a;
 }
 
-.admin-main-subtitle {
+.admin-shell .admin-main-subtitle {
   margin: 0;
   font-size: 0.95rem;
   color: #666;
 }
 
-.admin-main-content {
+.admin-shell .admin-main-content {
   margin-top: 10px;
 }
 
 /* ============================
    SECCIONES
 ============================ */
-.admin-section {
+.admin-shell .admin-section {
   background: #ffffff;
   border-radius: 16px;
   padding: 20px 22px;
@@ -114,14 +114,14 @@
   box-sizing: border-box;
 }
 
-.admin-section-title {
+.admin-shell .admin-section-title {
   margin: 0 0 10px;
   font-size: 1.3rem;
   font-weight: 700;
   color: #333;
 }
 
-.admin-section-text {
+.admin-shell .admin-section-text {
   margin: 0 0 18px;
   font-size: 0.95rem;
   color: #555;
@@ -130,27 +130,27 @@
 /* ============================
    CARDS RESUMEN
 ============================ */
-.admin-cards-grid {
+.admin-shell .admin-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
-.admin-card {
+.admin-shell .admin-card {
   background: #fafafa;
   border-radius: 14px;
   padding: 14px 16px;
   border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
-.admin-card-title {
+.admin-shell .admin-card-title {
   font-size: 0.9rem;
   font-weight: 600;
   color: #666;
   margin: 0 0 8px;
 }
 
-.admin-card-value {
+.admin-shell .admin-card-value {
   font-size: 1.3rem;
   font-weight: 800;
   color: #222;
@@ -160,7 +160,7 @@
 /* ============================
    CONTADOR DE VENTAS
 ============================ */
-.sales-count {
+.admin-shell .sales-count {
   font-weight: 500;
   font-size: 1rem;
   color: #888;
@@ -170,14 +170,14 @@
 /* ============================
    BOTONES DE FILTRO
 ============================ */
-.sales-filters {
+.admin-shell .sales-filters {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
-.sales-filter-btn {
+.admin-shell .sales-filter-btn {
   padding: 8px 14px;
   border-radius: 10px;
   border: 1px solid #ccc;
@@ -188,11 +188,11 @@
   transition: 0.15s ease;
 }
 
-.sales-filter-btn:hover {
+.admin-shell .sales-filter-btn:hover {
   background: #fce4ec;
 }
 
-.sales-filter-btn.active {
+.admin-shell .sales-filter-btn.active {
   background: #d94f7a;
   color: white;
   border-color: #d94f7a;
@@ -201,7 +201,7 @@
 /* ============================
    TABLA ESTILO EXCEL
 ============================ */
-.admin-table-container {
+.admin-shell .admin-table-container {
   overflow-x: auto;
   background: white;
   padding: 20px;
@@ -209,13 +209,13 @@
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-.admin-table {
+.admin-shell .admin-table {
   width: 100%;
   border-collapse: collapse;
   min-width: 1100px;
 }
 
-.admin-table th {
+.admin-shell .admin-table th {
   background: #fce4ec;
   color: #d94f7a;
   padding: 12px;
@@ -225,21 +225,21 @@
   font-size: 0.95rem;
 }
 
-.admin-table td {
+.admin-shell .admin-table td {
   padding: 12px;
   border-bottom: 1px solid #eee;
   color: #444;
   font-size: 0.95rem;
 }
 
-.admin-table tr:hover {
+.admin-shell .admin-table tr:hover {
   background: #fff7fa;
 }
 
 /* ============================
    ESTADOS DE PAGO
 ============================ */
-.payment-status {
+.admin-shell .payment-status {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 12px;
@@ -247,13 +247,13 @@
   font-size: 0.85rem;
 }
 
-.payment-status.paid {
+.admin-shell .payment-status.paid {
   background: #d4f8d4;
   color: #2e7d32;
   border: 1px solid #81c784;
 }
 
-.payment-status.pending {
+.admin-shell .payment-status.pending {
   background: #ffe7c2;
   color: #e65100;
   border: 1px solid #ffb74d;
@@ -262,7 +262,7 @@
 /* ============================
    BOTÓN DE ACCIÓN EN TABLA
 ============================ */
-.table-btn {
+.admin-shell .table-btn {
   background: #d94f7a;
   color: #fff;
   padding: 8px 12px;
@@ -274,24 +274,21 @@
   transition: 0.15s ease;
 }
 
-.table-btn:hover {
+.admin-shell .table-btn:hover {
   background: #42a5f5;
 }
 
 /* ============================
    INPUTS & SELECTS DEL ADMIN
 ============================ */
-/* ============================
-   INPUTS & SELECTS DEL ADMIN
-============================ */
-.admin-form-group {
+.admin-shell .admin-form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
   max-width: 320px;
 }
 
-.admin-input {
+.admin-shell .admin-input {
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid #ddd;
@@ -302,12 +299,12 @@
   box-sizing: border-box;
 }
 
-.admin-input:focus {
+.admin-shell .admin-input:focus {
   outline: none;
   border-color: #d94f7a;
   background: #fff;
 }
 
-.admin-input:hover {
+.admin-shell .admin-input:hover {
   background: #fff;
 }

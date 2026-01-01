@@ -1,7 +1,7 @@
 /* ============================
    CONTENEDOR PRINCIPAL
 ============================ */
-.detalle-box {
+.admin-shell .detalle-box {
   background: #fafafa;
   padding: 18px 20px;
   border-radius: 14px;
@@ -13,7 +13,7 @@
 /* ============================
    TÍTULOS
 ============================ */
-.detalle-title {
+.admin-shell .detalle-title {
   margin: 0 0 12px;
   font-size: 1.15rem;
   font-weight: 700;
@@ -23,7 +23,7 @@
 /* ============================
    NUEVO CONTENEDOR EN COLUMNA
 ============================ */
-.product-column {
+.admin-shell .product-column {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -33,7 +33,7 @@
 /* ============================
    LABELS + INPUTS
 ============================ */
-.input-label {
+.admin-shell .input-label {
   font-size: 0.9rem;
   font-weight: 600;
   color: #444;
@@ -41,7 +41,7 @@
   display: block;
 }
 
-.input-field {
+.admin-shell .input-field {
   width: 100%;
   max-width: 360px;
   padding: 10px 12px;
@@ -54,14 +54,14 @@
   transition: 0.2s ease;
 }
 
-.input-field:focus {
+.admin-shell .input-field:focus {
   outline: none;
   border-color: #d94f7a;
   box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.2);
 }
 
 /* Estado de error en input */
-.input-error {
+.admin-shell .input-error {
   border-color: #e57373 !important;
   background: #ffecec;
 }
@@ -69,14 +69,14 @@
 /* ============================
    COLOR
 ============================ */
-.color-row {
+.admin-shell .color-row {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 14px;
 }
 
-.color-picker {
+.admin-shell .color-picker {
   width: 60px;
   height: 40px;
   padding: 0;
@@ -85,7 +85,7 @@
   cursor: pointer;
 }
 
-.color-preview {
+.admin-shell .color-preview {
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -95,14 +95,14 @@
 /* ============================
    TALLES
 ============================ */
-.talles-selector {
+.admin-shell .talles-selector {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 14px;
 }
 
-.talle-chip {
+.admin-shell .talle-chip {
   padding: 6px 10px;
   border-radius: 8px;
   background: #eee;
@@ -112,19 +112,19 @@
   transition: 0.2s ease;
 }
 
-.talle-chip--active {
+.admin-shell .talle-chip--active {
   background: #d94f7a;
   color: white;
   border-color: #d94f7a;
 }
 
-.talles-grid {
+.admin-shell .talles-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
-.talle-item label {
+.admin-shell .talle-item label {
   font-size: 0.85rem;
   font-weight: 600;
   color: #444;
@@ -132,7 +132,7 @@
   display: block;
 }
 
-.talle-item input {
+.admin-shell .talle-item input {
   width: 100%;
   max-width: 90px;
   margin-top: 4px;
@@ -145,14 +145,14 @@
 /* ============================
    FOTOS
 ============================ */
-.fotos-grid {
+.admin-shell .fotos-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
 }
 
 /* ITEM DE FOTO (drag & drop) */
-.foto-item {
+.admin-shell .foto-item {
   position: relative;
   width: 110px;
   height: 110px;
@@ -161,19 +161,19 @@
 }
 
 /* Animación suave al arrastrar */
-.foto-item.dragging {
+.admin-shell .foto-item.dragging {
   opacity: 0.4;
   transform: scale(0.9);
 }
 
 /* Cuando una imagen es target de drop */
-.foto-item.drag-over {
+.admin-shell .foto-item.drag-over {
   border: 2px dashed #d94f7a;
   border-radius: 12px;
 }
 
 /* PREVIEW */
-.foto-preview {
+.admin-shell .foto-preview {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -182,7 +182,7 @@
 }
 
 /* BOTÓN ELIMINAR */
-.foto-delete-btn {
+.admin-shell .foto-delete-btn {
   position: absolute;
   top: -6px;
   right: -6px;
@@ -200,12 +200,12 @@
   justify-content: center;
 }
 
-.foto-delete-btn:hover {
+.admin-shell .foto-delete-btn:hover {
   background: #b71c1c;
 }
 
 /* UPLOAD */
-.foto-upload {
+.admin-shell .foto-upload {
   width: 110px;
   height: 110px;
   border: 2px dashed #d94f7a;
@@ -221,16 +221,16 @@
   transition: 0.2s ease;
 }
 
-.foto-upload input {
+.admin-shell .foto-upload input {
   display: none;
 }
 
-.foto-upload:hover {
+.admin-shell .foto-upload:hover {
   background: #fde4ec;
 }
 
 /* Estado deshabilitado mientras sube */
-.foto-upload-disabled {
+.admin-shell .foto-upload-disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -238,7 +238,7 @@
 /* ============================
    IMAGEN PRINCIPAL (⭐)
 ============================ */
-.foto-star-btn {
+.admin-shell .foto-star-btn {
   position: absolute;
   top: -6px;
   left: -6px;
@@ -256,11 +256,11 @@
   justify-content: center;
 }
 
-.foto-star-btn:hover {
+.admin-shell .foto-star-btn:hover {
   background: #ffca28;
 }
 
-.foto-principal {
+.admin-shell .foto-principal {
   outline: 3px solid #ffd54f;
   border-radius: 12px;
 }
@@ -268,14 +268,14 @@
 /* ============================
    BOTONES SUPERIORES
 ============================ */
-.product-actions {
+.admin-shell .product-actions {
   display: flex;
   gap: 12px;
   margin-bottom: 20px;
 }
 
-.btn-duplicar,
-.btn-eliminar {
+.admin-shell .btn-duplicar,
+.admin-shell .btn-eliminar {
   padding: 8px 14px;
   border-radius: 10px;
   font-weight: 600;
@@ -284,28 +284,28 @@
   font-size: 0.9rem;
 }
 
-.btn-duplicar {
+.admin-shell .btn-duplicar {
   background: #6a1b9a;
   color: white;
 }
 
-.btn-duplicar:hover {
+.admin-shell .btn-duplicar:hover {
   background: #4a0f6d;
 }
 
-.btn-eliminar {
+.admin-shell .btn-eliminar {
   background: #d32f2f;
   color: white;
 }
 
-.btn-eliminar:hover {
+.admin-shell .btn-eliminar:hover {
   background: #b71c1c;
 }
 
 /* ============================
    BOTÓN GUARDAR
 ============================ */
-.btn-guardar {
+.admin-shell .btn-guardar {
   background: #d94f7a;
   color: white;
   border: none;
@@ -318,12 +318,12 @@
   transition: 0.2s ease;
 }
 
-.btn-guardar:hover {
+.admin-shell .btn-guardar:hover {
   background: #c63f6a;
 }
 
 /* Estado deshabilitado (esperando imágenes) */
-.btn-guardar-disabled {
+.admin-shell .btn-guardar-disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -331,7 +331,7 @@
 /* ============================
    ERRORES
 ============================ */
-.input-error-text {
+.admin-shell .input-error-text {
   color: #e57373;
   font-size: 0.85rem;
   margin-top: -6px;

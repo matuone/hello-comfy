@@ -1,28 +1,4 @@
-/* Vista general */
-.category-view {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Título */
-.category-title {
-  font-size: 2.4rem;
-  font-weight: 700;
-  margin-bottom: 24px;
-  color: var(--hc-text);
-  text-transform: capitalize;
-}
-
-/* Estado vacío */
-.category-empty {
-  margin-top: 40px;
-  font-size: 1.2rem;
-  color: #777;
-  text-align: center;
-}
-
-/* 📦 Contenedor general */
+/* 📦 Vista general */
 .category-view {
   width: 100%;
   max-width: 1400px;
@@ -39,6 +15,7 @@
   font-weight: 800;
   color: #d94f7a;
   margin-bottom: 8px;
+  text-transform: capitalize;
 }
 
 /* 📝 Estado vacío */

@@ -2,6 +2,8 @@ import "../styles/newin.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "./OpinionsPopup";
+import "../styles/product-card.css";
+
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";

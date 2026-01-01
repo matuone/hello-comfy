@@ -517,16 +517,19 @@ export default function AdminProductDetail() {
           />
 
           {/* GUIA DE TALLES */}
+          {/* GUIA DE TALLES */}
           <label className="input-label">Guía de talles</label>
           <select
             className="input-field"
             value={producto.sizeGuide}
             onChange={(e) => actualizarCampo("sizeGuide", e.target.value)}
           >
+            <option value="none">Sin tabla</option>
             <option value="babytees">Baby Tees</option>
             <option value="croptops">Crop Tops</option>
             <option value="remeras">Remeras</option>
           </select>
+
         </div>
 
         {/* FOTOS */}

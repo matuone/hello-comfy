@@ -1,97 +1,413 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../styles/products.css";
+import "../styles/bestsellers.css";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import OpinionsPopup from "../components/OpinionsPopup";
 
 export default function Products() {
   const navigate = useNavigate();
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedColors, setSelectedColors] = useState({}); // color por tarjeta
+  const [allProducts, setAllProducts] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [categories, setCategories] = useState({});
+
+  const [selectedGroup, setSelectedGroup] = useState("Todos");
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [sortBy, setSortBy] = useState("none");
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [showOpinions, setShowOpinions] = useState(false);
+
+  const filtersRef = useRef(null);
+
+  const formatLabel = (str) => {
+    if (!str) return "";
+    const clean = str.trim();
+    return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+  };
 
   // ============================
-  // FETCH DE PRODUCTOS
+  // CARGAR CATEGORÍAS
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products/filters/data")
+      .then((res) => res.json())
+      .then((data) => {
+        const normalized = {};
+        Object.entries(data.groupedSubcategories).forEach(([groupName, subs]) => {
+          const seen = new Map();
+          subs.forEach((sub) => {
+            if (!sub) return;
+            const key = sub.trim().toLowerCase();
+            if (!seen.has(key)) {
+              seen.set(key, {
+                value: sub.trim(),
+                label: formatLabel(sub),
+              });
+            }
+          });
+          normalized[groupName] = Array.from(seen.values());
+        });
+        setCategories(normalized);
+      })
+      .catch((err) => console.error("Error cargando categorías dinámicas:", err));
+  }, []);
+
+  // ============================
+  // ORDENAR FILTROS MANUALMENTE
+  // ============================
+  const filterOrder = ["Indumentaria", "Cute items", "Merch"];
+
+  const orderedCategories = filterOrder
+    .filter((key) => categories[key])
+    .map((key) => [key, categories[key]]);
+
+  // ============================
+  // CARGAR TODOS LOS PRODUCTOS
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => setAllProducts(data))
+      .catch((err) => console.error("Error cargando todos los productos:", err));
+  }, []);
+
+  // ============================
+  // CARGAR PRODUCTOS SEGÚN FILTRO + ORDEN + PÁGINA
   // ============================
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/products");
+        setLoading(true);
+        if (page === 1) setInitialLoading(true);
+
+        let url = "http://localhost:5000/api/products";
+        const params = [];
+
+        if (selectedGroup !== "Todos") {
+          params.push(`category=${encodeURIComponent(selectedGroup)}`);
+        }
+
+        if (selectedCategory !== "Todos") {
+          params.push(`subcategory=${encodeURIComponent(selectedCategory)}`);
+        }
+
+        if (sortBy !== "none") {
+          params.push(`sort=${encodeURIComponent(sortBy)}`);
+        }
+
+        params.push(`page=${page}`);
+        params.push(`limit=12`);
+
+        if (params.length > 0) {
+          url += "?" + params.join("&");
+        }
+
+        const res = await fetch(url);
         const data = await res.json();
-        setProducts(data);
+
+        if (page === 1) {
+          setProductos(data.products || []);
+        } else {
+          setProductos((prev) => [...prev, ...(data.products || [])]);
+        }
+
+        setHasMore(data.hasMore ?? false);
       } catch (err) {
-        console.error("Error al obtener productos:", err);
+        console.error("Error cargando productos:", err);
       } finally {
         setLoading(false);
+        setInitialLoading(false);
       }
     };
 
     fetchProducts();
+  }, [selectedGroup, selectedCategory, sortBy, page]);
+
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+  }, [selectedGroup, selectedCategory, sortBy]);
+
+  // ============================
+  // INFINITE SCROLL
+  // ============================
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 400 &&
+        hasMore &&
+        !loading
+      ) {
+        setPage((prev) => prev + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loading]);
+
+  // ============================
+  // CERRAR DROPDOWN AL HACER CLICK FUERA
+  // ============================
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (filtersRef.current && !filtersRef.current.contains(e.target)) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ============================
-  // MANEJAR SELECCIÓN DE COLOR
-  // ============================
-  const handleColorSelect = (productId, color) => {
-    setSelectedColors((prev) => ({
-      ...prev,
-      [productId]: color,
-    }));
+  const handleDropdownToggle = (group) => {
+    setOpenDropdown(openDropdown === group ? null : group);
   };
 
-  if (loading) {
-    return <div className="products-loading">Cargando productos...</div>;
-  }
+  const countByCategory = {};
+  allProducts.forEach((p) => {
+    if (!p.subcategory) return;
+    const key = p.subcategory.trim();
+    countByCategory[key] = (countByCategory[key] || 0) + 1;
+  });
+
+  const totalCount = allProducts.length;
+
+  const getSortLabel = () => {
+    if (sortBy === "none") return "Destacados";
+    if (sortBy === "price_asc") return "Precio más bajo";
+    if (sortBy === "price_desc") return "Precio más alto";
+    if (sortBy === "sold_desc") return "Más vendidos";
+    return "Destacados";
+  };
 
   return (
-    <div className="products-container">
-      <h1 className="products-title">Productos</h1>
+    <div className="products">
+      <h1 className="products__title">Nuestros Productos</h1>
+      <p className="products__subtitle">
+        Todo lo que necesitás para una vida más comfy 🧸✨
+      </p>
 
-      <div className="products-grid">
-        {products.map((product) => {
-          const selectedColor = selectedColors[product._id];
-
-          return (
-            <div
-              key={product._id}
-              className="product-card"
-              onClick={() => navigate(`/products/${product._id}`)}
+      {/* ============================
+          FILTROS + ORDEN
+      ============================ */}
+      <div ref={filtersRef} className="products__filters-horizontal">
+        <div className="products__filters-row">
+          {/* Botón "Todos" */}
+          <div
+            className={`products__dropdown ${openDropdown === "Todos" ? "open" : ""
+              }`}
+          >
+            <button
+              className="products__dropdown-toggle"
+              onClick={() => {
+                setSelectedGroup("Todos");
+                setSelectedCategory("Todos");
+                setOpenDropdown(null);
+              }}
             >
-              {/* IMAGEN */}
-              <img
-                src={product.images?.[0] || "https://via.placeholder.com/300"}
-                alt={product.name}
-                className="product-img"
-              />
+              Todos ({totalCount})
+            </button>
+          </div>
 
-              {/* NOMBRE */}
-              <h3 className="product-name">{product.name}</h3>
+          {/* Dropdowns ordenados */}
+          {orderedCategories.map(([group, cats]) => (
+            <div
+              key={group}
+              className={`products__dropdown ${openDropdown === group ? "open" : ""
+                }`}
+            >
+              <button
+                className="products__dropdown-toggle"
+                onClick={() => handleDropdownToggle(group)}
+              >
+                {group}
+              </button>
 
-              {/* PRECIO */}
-              <p className="product-price">
-                ${product.price.toLocaleString("es-AR")}
-              </p>
-
-              {/* COLORES */}
-              {product.colors?.length > 0 && (
-                <div
-                  className="product-colors"
-                  onClick={(e) => e.stopPropagation()} // evita navegar al hacer click en color
-                >
-                  {product.colors.map((color) => (
-                    <div
-                      key={color}
-                      className={`color-dot ${selectedColor === color ? "selected" : ""
-                        }`}
-                      style={{ backgroundColor: color.toLowerCase() }}
-                      onClick={() => handleColorSelect(product._id, color)}
-                    ></div>
-                  ))}
-                </div>
+              {openDropdown === group && (
+                <>
+                  <div className="products__backdrop" />
+                  <div className="products__dropdown-menu">
+                    {cats.map(({ value, label }) => (
+                      <button
+                        key={value}
+                        className={`products__dropdown-item ${selectedCategory === value ? "active" : ""
+                          }`}
+                        onClick={() => {
+                          setSelectedGroup(group);
+                          setSelectedCategory(value);
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        {label} ({countByCategory[value] || 0})
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
-          );
-        })}
+          ))}
+
+          {/* Ordenar por */}
+          <div
+            className={`products__dropdown ${openDropdown === "Ordenar" ? "open" : ""
+              }`}
+          >
+            <button
+              className="products__dropdown-toggle"
+              onClick={() =>
+                setOpenDropdown(openDropdown === "Ordenar" ? null : "Ordenar")
+              }
+            >
+              Ordenar por: {getSortLabel()}
+            </button>
+
+            {openDropdown === "Ordenar" && (
+              <>
+                <div className="products__backdrop" />
+                <div className="products__dropdown-menu">
+                  <button
+                    className={`products__dropdown-item ${sortBy === "none" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("none");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Destacados
+                  </button>
+                  <button
+                    className={`products__dropdown-item ${sortBy === "price_asc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("price_asc");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Precio más bajo
+                  </button>
+                  <button
+                    className={`products__dropdown-item ${sortBy === "price_desc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("price_desc");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Precio más alto
+                  </button>
+                  <button
+                    className={`products__dropdown-item ${sortBy === "sold_desc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("sold_desc");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Más vendidos
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* ============================
+          SKELETON LOADERS
+      ============================ */}
+      {initialLoading && (
+        <div className="products__grid">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="bestsellers__item skeleton-card">
+              <div className="skeleton-img"></div>
+              <div className="skeleton-line"></div>
+              <div className="skeleton-line short"></div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ============================
+          GRILLA DE PRODUCTOS
+      ============================ */}
+      {!initialLoading && (
+        <div className="products__grid">
+          {productos.map((p) => (
+            <div
+              key={p._id}
+              className="bestsellers__item"
+              onClick={() => navigate(`/products/${p._id}`)}
+            >
+              <img
+                src={p.images?.[0] || "https://via.placeholder.com/300"}
+                alt={p.name}
+                className="bestsellers__image"
+              />
+
+              <h3 className="bestsellers__name">{p.name}</h3>
+
+              <p className="bestsellers__price">
+                ${p.price?.toLocaleString("es-AR")}
+              </p>
+
+              <p className="bestsellers__desc">
+                {p.description?.slice(0, 80) || "Producto destacado"}
+              </p>
+
+              <div
+                className="bestsellers__stars"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowOpinions(true);
+                }}
+              >
+                {"★".repeat(5)}
+              </div>
+
+              <div
+                className="bestsellers__buttons"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button className="bestsellers__btn-buy">Comprar</button>
+                <button className="bestsellers__btn-cart">
+                  Agregar al carrito
+                </button>
+              </div>
+
+              <button
+                className="bestsellers__btn-viewmore"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/products/${p._id}`);
+                }}
+              >
+                Ver más
+              </button>
+            </div>
+          ))}
+
+          {/* Skeleton al cargar más */}
+          {loading &&
+            !initialLoading &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={`loader-${i}`} className="bestsellers__item skeleton-card">
+                <div className="skeleton-img"></div>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line short"></div>
+              </div>
+            ))}
+        </div>
+      )}
+
+      {showOpinions && <OpinionsPopup onClose={() => setShowOpinions(false)} />}
     </div>
   );
 }

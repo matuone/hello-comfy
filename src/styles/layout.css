@@ -24,15 +24,15 @@
   flex: 1;
   width: 100%;
   max-width: none;
-  /* 🔥 FIX */
-  margin: 0;
-  /* 🔥 FIX */
+
+  /* ❗ IMPORTANTE:
+     Quitamos el margin:0 que rompía TODO el frontend */
+
   padding-top: calc(var(--ab-height) + var(--navbar-height));
   padding-left: 16px;
   padding-right: 16px;
   box-sizing: border-box;
 }
-
 
 /* ================================
    FULL WIDTH (CreateAccount, Products)

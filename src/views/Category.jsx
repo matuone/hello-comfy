@@ -2,7 +2,8 @@
 import { useParams } from "react-router-dom";
 import products from "../data/products.json";
 import ProductGrid from "../components/ProductGrid";
-import "../styles/category.css";
+import "../styles/product-card.css";
+
 
 export default function Category({ section }) {
   const { subcategory } = useParams();

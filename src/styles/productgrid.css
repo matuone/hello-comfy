@@ -10,14 +10,11 @@
 
   gap: 40px;
 
-  /* 🔥 FIX: NO limitar el ancho global */
   width: 100%;
   max-width: none;
 
-  /* 🔥 FIX: NO usar margin auto que centra el layout global */
   margin: 40px 0 0 0;
 
-  /* Mantiene padding interno sin romper nada */
   padding: 0 20px;
 }
 
@@ -32,47 +29,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* ============================
-   CARD — estilo comfy
-============================ */
-.product-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: var(--hc-shadow);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-  width: 200px;
-  text-align: center;
-  position: relative;
-
-  animation: fadeIn 0.4s ease forwards;
-}
-
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* ============================
-   IMAGEN — comfy zoom
-============================ */
-.product-card img {
-  max-height: 180px;
-  width: auto;
-  object-fit: contain;
-
-  display: block;
-  margin: 0 auto 18px auto;
-
-  transition: transform 0.25s ease;
-}
-
-.product-card:hover img {
-  transform: scale(1.08);
 }
 
 /* ============================
@@ -122,41 +78,6 @@
 }
 
 /* ============================
-   TEXTOS
-============================ */
-.product-card h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--hc-text);
-}
-
-.product-card .price {
-  font-size: 1.05rem;
-  color: #333;
-  margin-bottom: 18px;
-  font-weight: 700;
-}
-
-/* ============================
-   BOTÓN
-============================ */
-.product-card button {
-  background: #d94f7a;
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.product-card button:hover {
-  background: #c23f6a;
-}
-
-/* ============================
    RESPONSIVE
 ============================ */
 @media (max-width: 1024px) {
@@ -176,9 +97,5 @@
   .product-grid {
     grid-template-columns: 1fr;
     gap: 24px;
-  }
-
-  .product-card img {
-    max-height: 160px;
   }
 }
