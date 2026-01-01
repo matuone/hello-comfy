@@ -26,8 +26,14 @@ export default function AdminPromoCodes() {
       .then((data) => setProducts(data));
   }, []);
 
-  const categories = ["all", ...new Set(products.map((p) => p.category))];
+  // Normalización visual
+  const normalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
 
+  // Categorías únicas
+  const categories = ["all", ...new Set(products.map((p) => normalize(p.category)))];
+
+  // Subcategorías según categoría seleccionada
   const subcategories =
     form.category === "all"
       ? ["all"]
@@ -35,8 +41,8 @@ export default function AdminPromoCodes() {
         "all",
         ...new Set(
           products
-            .filter((p) => p.category === form.category)
-            .map((p) => p.subcategory)
+            .filter((p) => normalize(p.category) === form.category)
+            .map((p) => normalize(p.subcategory))
         ),
       ];
 
@@ -115,9 +121,11 @@ export default function AdminPromoCodes() {
           </h2>
 
           <form onSubmit={handleSubmit} style={{ display: "grid", gap: "16px" }}>
-            <div>
+
+            <div className="admin-form-group">
               <label>Código</label>
               <input
+                className="admin-input"
                 value={form.code}
                 onChange={(e) =>
                   setForm({ ...form, code: e.target.value.toUpperCase() })
@@ -125,9 +133,10 @@ export default function AdminPromoCodes() {
               />
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Descuento (%)</label>
               <input
+                className="admin-input"
                 type="number"
                 value={form.discount}
                 onChange={(e) =>
@@ -136,18 +145,20 @@ export default function AdminPromoCodes() {
               />
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Desde</label>
               <input
+                className="admin-input"
                 type="date"
                 value={form.validFrom}
                 onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
               />
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Hasta</label>
               <input
+                className="admin-input"
                 type="date"
                 value={form.validUntil}
                 onChange={(e) =>
@@ -156,9 +167,10 @@ export default function AdminPromoCodes() {
               />
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Categoría</label>
               <select
+                className="admin-input"
                 value={form.category}
                 onChange={(e) =>
                   setForm({ ...form, category: e.target.value, subcategory: "all" })
@@ -170,9 +182,10 @@ export default function AdminPromoCodes() {
               </select>
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Subcategoría</label>
               <select
+                className="admin-input"
                 value={form.subcategory}
                 onChange={(e) =>
                   setForm({ ...form, subcategory: e.target.value })
@@ -184,9 +197,10 @@ export default function AdminPromoCodes() {
               </select>
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Activo</label>
               <select
+                className="admin-input"
                 value={form.active}
                 onChange={(e) =>
                   setForm({ ...form, active: e.target.value === "true" })
@@ -197,7 +211,7 @@ export default function AdminPromoCodes() {
               </select>
             </div>
 
-            <button className="table-btn" style={{ width: "fit-content" }}>
+            <button className="table-btn table-btn--pink" style={{ width: "fit-content" }}>
               {editingId ? "Guardar cambios" : "Crear código"}
             </button>
           </form>

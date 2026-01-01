@@ -27,15 +27,20 @@ export default function AdminDiscounts() {
       .then((data) => setRules(data));
   }, []);
 
-  // Extraer categorías y subcategorías únicas
-  const categories = [...new Set(products.map((p) => p.category))];
+  // Normalizar visualmente (por si quedó algo mal en la base)
+  const normalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
 
+  // Extraer categorías únicas
+  const categories = [...new Set(products.map((p) => normalize(p.category)))];
+
+  // Extraer subcategorías únicas según categoría seleccionada
   const subcategories = form.category
     ? [
       ...new Set(
         products
-          .filter((p) => p.category === form.category)
-          .map((p) => p.subcategory)
+          .filter((p) => normalize(p.category) === form.category)
+          .map((p) => normalize(p.subcategory))
       ),
     ]
     : [];
@@ -109,9 +114,11 @@ export default function AdminDiscounts() {
           </h2>
 
           <form onSubmit={handleSubmit} style={{ display: "grid", gap: "16px" }}>
-            <div>
+
+            <div className="admin-form-group">
               <label>Categoría</label>
               <select
+                className="admin-input"
                 value={form.category}
                 onChange={(e) =>
                   setForm({ ...form, category: e.target.value, subcategory: "" })
@@ -124,9 +131,10 @@ export default function AdminDiscounts() {
               </select>
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Subcategoría</label>
               <select
+                className="admin-input"
                 value={form.subcategory}
                 onChange={(e) =>
                   setForm({ ...form, subcategory: e.target.value })
@@ -139,9 +147,10 @@ export default function AdminDiscounts() {
               </select>
             </div>
 
-            <div>
+            <div className="admin-form-group">
               <label>Tipo de descuento</label>
               <select
+                className="admin-input"
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
               >
@@ -151,9 +160,10 @@ export default function AdminDiscounts() {
             </div>
 
             {form.type === "percentage" && (
-              <div>
+              <div className="admin-form-group">
                 <label>Descuento (%)</label>
                 <input
+                  className="admin-input"
                   type="number"
                   value={form.discount}
                   onChange={(e) =>
@@ -163,7 +173,7 @@ export default function AdminDiscounts() {
               </div>
             )}
 
-            <button className="table-btn" style={{ width: "fit-content" }}>
+            <button className="table-btn table-btn--pink" style={{ width: "fit-content" }}>
               {editingId ? "Guardar cambios" : "Crear regla"}
             </button>
           </form>

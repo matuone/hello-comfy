@@ -263,8 +263,8 @@
    BOTÓN DE ACCIÓN EN TABLA
 ============================ */
 .table-btn {
-  background: #64b5f6;
-  color: #0d47a1;
+  background: #d94f7a;
+  color: #fff;
   padding: 8px 12px;
   border-radius: 10px;
   border: none;
@@ -276,4 +276,38 @@
 
 .table-btn:hover {
   background: #42a5f5;
+}
+
+/* ============================
+   INPUTS & SELECTS DEL ADMIN
+============================ */
+/* ============================
+   INPUTS & SELECTS DEL ADMIN
+============================ */
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 320px;
+}
+
+.admin-input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 0.95rem;
+  color: #333;
+  transition: border 0.15s ease, background 0.15s ease;
+  box-sizing: border-box;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: #d94f7a;
+  background: #fff;
+}
+
+.admin-input:hover {
+  background: #fff;
 }
