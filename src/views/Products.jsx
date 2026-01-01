@@ -5,12 +5,19 @@ import { useNavigate } from "react-router-dom";
 export default function Products() {
   const navigate = useNavigate();
 
-  const [allProducts, setAllProducts] = useState([]); // todos los productos (para contadores)
-  const [productos, setProductos] = useState([]); // productos filtrados
-  const [categories, setCategories] = useState({}); // { "Indumentaria": [{ value, label }, ...], ... }
+  const [allProducts, setAllProducts] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [categories, setCategories] = useState({});
 
-  const [selectedGroup, setSelectedGroup] = useState("Todos"); // categoría
-  const [selectedCategory, setSelectedCategory] = useState("Todos"); // subcategoría (value)
+  const [selectedGroup, setSelectedGroup] = useState("Todos");
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [sortBy, setSortBy] = useState("none");
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const filtersRef = useRef(null);
@@ -33,19 +40,17 @@ export default function Products() {
       .then((data) => {
         const normalized = {};
 
-        // data.groupedSubcategories = { "Indumentaria": ["remeras", "Remeras", "Buzos", ...], ... }
         Object.entries(data.groupedSubcategories).forEach(
           ([groupName, subs]) => {
-            // usamos un mapa para evitar duplicados por mayúsculas/minúsculas
             const seen = new Map();
 
             subs.forEach((sub) => {
               if (!sub) return;
-              const key = sub.trim().toLowerCase(); // clave normalizada
+              const key = sub.trim().toLowerCase();
               if (!seen.has(key)) {
                 seen.set(key, {
-                  value: sub.trim(), // valor real que viaja al backend
-                  label: formatLabel(sub), // cómo se muestra
+                  value: sub.trim(),
+                  label: formatLabel(sub),
                 });
               }
             });
@@ -62,7 +67,7 @@ export default function Products() {
   }, []);
 
   // ============================
-  // CARGAR TODOS LOS PRODUCTOS UNA SOLA VEZ (para contadores)
+  // CARGAR TODOS LOS PRODUCTOS (para contadores)
   // ============================
   useEffect(() => {
     fetch("http://localhost:5000/api/products")
@@ -72,30 +77,83 @@ export default function Products() {
   }, []);
 
   // ============================
-  // CARGAR PRODUCTOS SEGÚN FILTRO REAL
+  // CARGAR PRODUCTOS SEGÚN FILTROS + ORDEN + PÁGINA
   // ============================
   useEffect(() => {
-    let url = "http://localhost:5000/api/products";
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        if (page === 1) setInitialLoading(true);
 
-    const params = [];
+        let url = "http://localhost:5000/api/products";
+        const params = [];
 
-    if (selectedGroup !== "Todos") {
-      params.push(`category=${encodeURIComponent(selectedGroup)}`);
-    }
+        if (selectedGroup !== "Todos") {
+          params.push(`category=${encodeURIComponent(selectedGroup)}`);
+        }
 
-    if (selectedCategory !== "Todos") {
-      params.push(`subcategory=${encodeURIComponent(selectedCategory)}`);
-    }
+        if (selectedCategory !== "Todos") {
+          params.push(`subcategory=${encodeURIComponent(selectedCategory)}`);
+        }
 
-    if (params.length > 0) {
-      url += "?" + params.join("&");
-    }
+        if (sortBy !== "none") {
+          params.push(`sort=${encodeURIComponent(sortBy)}`);
+        }
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => setProductos(data))
-      .catch((err) => console.error("Error cargando productos:", err));
-  }, [selectedGroup, selectedCategory]);
+        params.push(`page=${page}`);
+        params.push(`limit=12`);
+
+        if (params.length > 0) {
+          url += "?" + params.join("&");
+        }
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (page === 1) {
+          setProductos(data.products || []);
+        } else {
+          setProductos((prev) => [...prev, ...(data.products || [])]);
+        }
+
+        setHasMore(data.hasMore ?? false);
+      } catch (err) {
+        console.error("Error cargando productos:", err);
+      } finally {
+        setLoading(false);
+        setInitialLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [selectedGroup, selectedCategory, sortBy, page]);
+
+  // ============================
+  // RESET PAGE CUANDO CAMBIA FILTRO U ORDEN
+  // ============================
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+  }, [selectedGroup, selectedCategory, sortBy]);
+
+  // ============================
+  // INFINITE SCROLL
+  // ============================
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 400 &&
+        hasMore &&
+        !loading
+      ) {
+        setPage((prev) => prev + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loading]);
 
   // ============================
   // CERRAR DROPDOWN AL HACER CLICK FUERA
@@ -116,7 +174,7 @@ export default function Products() {
   };
 
   // ============================
-  // CONTADOR POR SUBCATEGORÍA (sobre TODOS los productos)
+  // CONTADOR POR SUBCATEGORÍA
   // ============================
   const countByCategory = {};
   allProducts.forEach((p) => {
@@ -135,98 +193,197 @@ export default function Products() {
       </p>
 
       {/* ============================
-          FILTROS HORIZONTALES (sticky)
+          FILTROS + ORDEN (centrado)
       ============================ */}
       <div ref={filtersRef} className="products__filters-horizontal sticky">
-        {/* Botón "Todos" */}
-        <div
-          className={`products__dropdown ${openDropdown === "Todos" ? "open" : ""
-            }`}
-        >
-          <button
-            className="products__dropdown-toggle"
-            onClick={() => {
-              setSelectedGroup("Todos");
-              setSelectedCategory("Todos");
-              setOpenDropdown(null);
-            }}
-          >
-            Todos ({totalCount})
-          </button>
-        </div>
-
-        {/* Dropdowns dinámicos */}
-        {Object.entries(categories).map(([group, cats]) => (
+        <div className="products__filters-row">
+          {/* Botón "Todos" */}
           <div
-            key={group}
-            className={`products__dropdown ${openDropdown === group ? "open" : ""
+            className={`products__dropdown ${openDropdown === "Todos" ? "open" : ""
               }`}
           >
             <button
               className="products__dropdown-toggle"
-              onClick={() => handleDropdownToggle(group)}
+              onClick={() => {
+                setSelectedGroup("Todos");
+                setSelectedCategory("Todos");
+                setOpenDropdown(null);
+              }}
             >
-              {group}
+              Todos ({totalCount})
+            </button>
+          </div>
+
+          {/* Dropdowns dinámicos */}
+          {Object.entries(categories).map(([group, cats]) => (
+            <div
+              key={group}
+              className={`products__dropdown ${openDropdown === group ? "open" : ""
+                }`}
+            >
+              <button
+                className="products__dropdown-toggle"
+                onClick={() => handleDropdownToggle(group)}
+              >
+                {group}
+              </button>
+
+              {openDropdown === group && (
+                <>
+                  <div className="products__backdrop" />
+                  <div className="products__dropdown-menu">
+                    {cats.map(({ value, label }) => (
+                      <button
+                        key={value}
+                        className={`products__dropdown-item ${selectedCategory === value ? "active" : ""
+                          }`}
+                        onClick={() => {
+                          setSelectedGroup(group);
+                          setSelectedCategory(value);
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        {label} ({countByCategory[value] || 0})
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+
+          {/* Ordenar por — mismo estilo que los otros */}
+          <div
+            className={`products__dropdown ${openDropdown === "Ordenar" ? "open" : ""
+              }`}
+          >
+            <button
+              className="products__dropdown-toggle"
+              onClick={() =>
+                setOpenDropdown(openDropdown === "Ordenar" ? null : "Ordenar")
+              }
+            >
+              Ordenar por:{" "}
+              {sortBy === "none"
+                ? "Destacados"
+                : sortBy === "price_asc"
+                  ? "Precio más bajo"
+                  : sortBy === "price_desc"
+                    ? "Precio más alto"
+                    : "Más vendidos"}
             </button>
 
-            {openDropdown === group && (
+            {openDropdown === "Ordenar" && (
               <>
                 <div className="products__backdrop" />
-
                 <div className="products__dropdown-menu">
-                  {cats.map(({ value, label }) => (
-                    <button
-                      key={value}
-                      className={`products__dropdown-item ${selectedCategory === value ? "active" : ""
-                        }`}
-                      onClick={() => {
-                        setSelectedGroup(group);
-                        setSelectedCategory(value);
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      {label} ({countByCategory[value] || 0})
-                    </button>
-                  ))}
+                  <button
+                    className={`products__dropdown-item ${sortBy === "none" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("none");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Destacados
+                  </button>
+                  <button
+                    className={`products__dropdown-item ${sortBy === "price_asc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("price_asc");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Precio más bajo
+                  </button>
+                  <button
+                    className={`products__dropdown-item ${sortBy === "price_desc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("price_desc");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Precio más alto
+                  </button>
+                  <button
+                    className={`products__dropdown-item ${sortBy === "sold_desc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSortBy("sold_desc");
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    Más vendidos
+                  </button>
                 </div>
               </>
             )}
           </div>
-        ))}
+        </div>
       </div>
+
+      {/* ============================
+          SKELETON LOADERS (carga inicial)
+// ============================ */}
+      {initialLoading && (
+        <div className="products__grid">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-img"></div>
+              <div className="skeleton-line"></div>
+              <div className="skeleton-line short"></div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ============================
           GRILLA DE PRODUCTOS
       ============================ */}
-      <div className="products__grid">
-        {productos.map((p) => (
-          <div key={p._id} className="products__card">
-            <div
-              className="products__imgbox"
-              onClick={() => navigate(`/products/${p._id}`)}
-              style={{ cursor: "pointer" }}
-            >
-              <img
-                src={p.images?.[0] || "https://via.placeholder.com/300"}
-                alt={p.name}
-                className="products__img"
-              />
+      {!initialLoading && (
+        <div className="products__grid">
+          {productos.map((p) => (
+            <div key={p._id} className="products__card">
+              <div
+                className="products__imgbox"
+                onClick={() => navigate(`/products/${p._id}`)}
+                style={{ cursor: "pointer" }}
+              >
+                <img
+                  src={p.images?.[0] || "https://via.placeholder.com/300"}
+                  alt={p.name}
+                  className="products__img"
+                />
+              </div>
+
+              <h3 className="products__name">{p.name}</h3>
+              <p className="products__price">
+                ${p.price?.toLocaleString("es-AR")}
+              </p>
+
+              <button
+                className="products__btn"
+                onClick={() => navigate(`/products/${p._id}`)}
+              >
+                Ver más
+              </button>
             </div>
+          ))}
 
-            <h3 className="products__name">{p.name}</h3>
-            <p className="products__price">
-              ${p.price?.toLocaleString("es-AR")}
-            </p>
-
-            <button
-              className="products__btn"
-              onClick={() => navigate(`/products/${p._id}`)}
-            >
-              Ver más
-            </button>
-          </div>
-        ))}
-      </div>
+          {/* Skeleton al cargar más (infinite scroll) */}
+          {loading &&
+            !initialLoading &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={`loader-${i}`} className="skeleton-card">
+                <div className="skeleton-img"></div>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line short"></div>
+              </div>
+            ))}
+        </div>
+      )}
     </div>
   );
 }

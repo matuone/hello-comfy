@@ -1,20 +1,59 @@
 import Product from "../models/Product.js";
 
 // ============================
-// GET → obtener todos los productos (con filtros)
+// Helper → Normalizar strings
+// ============================
+const normalize = (str) => {
+  if (!str) return "";
+  const clean = str.trim();
+  return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+};
+
+// ============================
+// GET → obtener todos los productos (con filtros, orden y paginación)
 // ============================
 export const getAllProducts = async (req, res) => {
   try {
-    const { category, subcategory } = req.query;
+    const { category, subcategory, sort, page, limit } = req.query;
 
     const filtros = {};
 
     if (category) filtros.category = category;
     if (subcategory) filtros.subcategory = subcategory;
 
-    const products = await Product.find(filtros);
+    // ORDEN
+    let sortOption = {};
+    if (sort === "price_asc") {
+      sortOption = { price: 1 };
+    } else if (sort === "price_desc") {
+      sortOption = { price: -1 };
+    } else if (sort === "sold_desc") {
+      sortOption = { sold: -1 };
+    }
 
-    res.json(products);
+    // Si NO hay paginación, devolver todo (lo usa allProducts en el front)
+    if (!page || !limit) {
+      const products = await Product.find(filtros).sort(sortOption);
+      return res.json(products);
+    }
+
+    // Paginación real
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 12;
+    const skip = (pageNum - 1) * limitNum;
+
+    const [products, total] = await Promise.all([
+      Product.find(filtros).sort(sortOption).skip(skip).limit(limitNum),
+      Product.countDocuments(filtros),
+    ]);
+
+    const hasMore = pageNum * limitNum < total;
+
+    res.json({
+      products,
+      total,
+      hasMore,
+    });
   } catch (err) {
     console.error("Error al obtener productos:", err);
     res.status(500).json({ error: "Error al obtener productos" });
@@ -76,8 +115,13 @@ export const getNewProducts = async (req, res) => {
 // ============================
 export const createProduct = async (req, res) => {
   try {
+    const normalizedCategory = normalize(req.body.category);
+    const normalizedSubcategory = normalize(req.body.subcategory);
+
     const product = new Product({
       ...req.body,
+      category: normalizedCategory,
+      subcategory: normalizedSubcategory,
       images: req.body.images || [], // URLs de Cloudinary
     });
 
@@ -94,10 +138,15 @@ export const createProduct = async (req, res) => {
 // ============================
 export const updateProduct = async (req, res) => {
   try {
+    const normalizedCategory = normalize(req.body.category);
+    const normalizedSubcategory = normalize(req.body.subcategory);
+
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
       {
         ...req.body,
+        category: normalizedCategory,
+        subcategory: normalizedSubcategory,
         images: req.body.images || [], // URLs nuevas
       },
       { new: true }
@@ -138,11 +187,8 @@ export const deleteProduct = async (req, res) => {
 export const getCategoriesAndSubcategories = async (req, res) => {
   try {
     const categorias = await Product.distinct("category");
-    const subcategorias = await Product.distinct("subcategory");
 
-    // Agrupar subcategorías por categoría
     const grouped = {};
-
     categorias.forEach((cat) => {
       grouped[cat] = [];
     });
@@ -151,8 +197,9 @@ export const getCategoriesAndSubcategories = async (req, res) => {
 
     productos.forEach((p) => {
       if (p.category && p.subcategory) {
-        if (!grouped[p.category].includes(p.subcategory)) {
-          grouped[p.category].push(p.subcategory);
+        const sub = normalize(p.subcategory);
+        if (!grouped[p.category].includes(sub)) {
+          grouped[p.category].push(sub);
         }
       }
     });
