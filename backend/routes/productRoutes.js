@@ -7,6 +7,7 @@ import {
   deleteProduct,
   getBestSellers,
   getNewProducts,
+  getCategoriesAndSubcategories,
 } from "../controllers/productController.js";
 
 import upload, { uploadToCloudinary } from "../middleware/upload.js";
@@ -18,6 +19,11 @@ const router = express.Router();
 // ============================
 router.get("/bestsellers", getBestSellers);
 router.get("/new", getNewProducts);
+
+// ============================
+// RUTA PARA FILTROS (categorías y subcategorías)
+// ============================
+router.get("/filters/data", getCategoriesAndSubcategories);
 
 // ============================
 // SUBIR MÚLTIPLES IMÁGENES A CLOUDINARY

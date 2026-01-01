@@ -1,12 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
-
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-
 import productRoutes from "./routes/productRoutes.js";
-
 import stockRoutes from "./routes/stock.js";
 
 const app = express();

@@ -1,11 +1,19 @@
 import Product from "../models/Product.js";
 
 // ============================
-// GET → obtener todos los productos
+// GET → obtener todos los productos (con filtros)
 // ============================
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { category, subcategory } = req.query;
+
+    const filtros = {};
+
+    if (category) filtros.category = category;
+    if (subcategory) filtros.subcategory = subcategory;
+
+    const products = await Product.find(filtros);
+
     res.json(products);
   } catch (err) {
     console.error("Error al obtener productos:", err);
@@ -121,5 +129,40 @@ export const deleteProduct = async (req, res) => {
   } catch (err) {
     console.error("Error al eliminar producto:", err);
     res.status(500).json({ error: "Error al eliminar producto" });
+  }
+};
+
+// ============================
+// GET → obtener categorías + subcategorías agrupadas
+// ============================
+export const getCategoriesAndSubcategories = async (req, res) => {
+  try {
+    const categorias = await Product.distinct("category");
+    const subcategorias = await Product.distinct("subcategory");
+
+    // Agrupar subcategorías por categoría
+    const grouped = {};
+
+    categorias.forEach((cat) => {
+      grouped[cat] = [];
+    });
+
+    const productos = await Product.find();
+
+    productos.forEach((p) => {
+      if (p.category && p.subcategory) {
+        if (!grouped[p.category].includes(p.subcategory)) {
+          grouped[p.category].push(p.subcategory);
+        }
+      }
+    });
+
+    res.json({
+      categories: categorias,
+      groupedSubcategories: grouped,
+    });
+  } catch (err) {
+    console.error("Error al obtener categorías:", err);
+    res.status(500).json({ error: "Error al obtener categorías" });
   }
 };
