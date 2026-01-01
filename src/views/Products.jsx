@@ -1,6 +1,8 @@
 import "../styles/products.css";
+import "../styles/bestsellers.css"; // reutilizamos la estética de la tarjeta
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import OpinionsPopup from "../components/OpinionsPopup"; // ajustá la ruta si es distinta
 
 export default function Products() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ export default function Products() {
   const [initialLoading, setInitialLoading] = useState(true);
 
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [showOpinions, setShowOpinions] = useState(false);
 
   const filtersRef = useRef(null);
 
@@ -77,7 +80,7 @@ export default function Products() {
   }, []);
 
   // ============================
-  // CARGAR PRODUCTOS SEGÚN FILTROS + ORDEN + PÁGINA
+  // CARGAR PRODUCTOS SEGÚN FILTRO + ORDEN + PÁGINA
   // ============================
   useEffect(() => {
     const fetchProducts = async () => {
@@ -185,6 +188,14 @@ export default function Products() {
 
   const totalCount = allProducts.length;
 
+  const getSortLabel = () => {
+    if (sortBy === "none") return "Destacados";
+    if (sortBy === "price_asc") return "Precio más bajo";
+    if (sortBy === "price_desc") return "Precio más alto";
+    if (sortBy === "sold_desc") return "Más vendidos";
+    return "Destacados";
+  };
+
   return (
     <div className="products">
       <h1 className="products__title">Nuestros Productos</h1>
@@ -263,14 +274,7 @@ export default function Products() {
                 setOpenDropdown(openDropdown === "Ordenar" ? null : "Ordenar")
               }
             >
-              Ordenar por:{" "}
-              {sortBy === "none"
-                ? "Destacados"
-                : sortBy === "price_asc"
-                  ? "Precio más bajo"
-                  : sortBy === "price_desc"
-                    ? "Precio más alto"
-                    : "Más vendidos"}
+              Ordenar por: {getSortLabel()}
             </button>
 
             {openDropdown === "Ordenar" && (
@@ -326,11 +330,11 @@ export default function Products() {
 
       {/* ============================
           SKELETON LOADERS (carga inicial)
-// ============================ */}
+      ============================ */}
       {initialLoading && (
         <div className="products__grid">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="skeleton-card">
+            <div key={i} className="bestsellers__item skeleton-card">
               <div className="skeleton-img"></div>
               <div className="skeleton-line"></div>
               <div className="skeleton-line short"></div>
@@ -345,26 +349,45 @@ export default function Products() {
       {!initialLoading && (
         <div className="products__grid">
           {productos.map((p) => (
-            <div key={p._id} className="products__card">
-              <div
-                className="products__imgbox"
+            <div key={p._id} className="bestsellers__item">
+              <img
+                src={p.images?.[0] || "https://via.placeholder.com/300"}
+                alt={p.name}
+                className="bestsellers__image"
                 onClick={() => navigate(`/products/${p._id}`)}
-                style={{ cursor: "pointer" }}
-              >
-                <img
-                  src={p.images?.[0] || "https://via.placeholder.com/300"}
-                  alt={p.name}
-                  className="products__img"
-                />
-              </div>
+              />
 
-              <h3 className="products__name">{p.name}</h3>
-              <p className="products__price">
+              <h3
+                className="bestsellers__name"
+                onClick={() => navigate(`/products/${p._id}`)}
+              >
+                {p.name}
+              </h3>
+
+              <p className="bestsellers__price">
                 ${p.price?.toLocaleString("es-AR")}
               </p>
 
+              <p className="bestsellers__desc">
+                {p.description?.slice(0, 80) || "Producto destacado"}
+              </p>
+
+              <div
+                className="bestsellers__stars"
+                onClick={() => setShowOpinions(true)}
+              >
+                {"★".repeat(5)}
+              </div>
+
+              <div className="bestsellers__buttons">
+                <button className="bestsellers__btn-buy">Comprar</button>
+                <button className="bestsellers__btn-cart">
+                  Agregar al carrito
+                </button>
+              </div>
+
               <button
-                className="products__btn"
+                className="bestsellers__btn-viewmore"
                 onClick={() => navigate(`/products/${p._id}`)}
               >
                 Ver más
@@ -376,7 +399,7 @@ export default function Products() {
           {loading &&
             !initialLoading &&
             Array.from({ length: 6 }).map((_, i) => (
-              <div key={`loader-${i}`} className="skeleton-card">
+              <div key={`loader-${i}`} className="bestsellers__item skeleton-card">
                 <div className="skeleton-img"></div>
                 <div className="skeleton-line"></div>
                 <div className="skeleton-line short"></div>
@@ -384,6 +407,8 @@ export default function Products() {
             ))}
         </div>
       )}
+
+      {showOpinions && <OpinionsPopup onClose={() => setShowOpinions(false)} />}
     </div>
   );
 }

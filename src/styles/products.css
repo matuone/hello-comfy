@@ -105,7 +105,6 @@
   transform-origin: top center;
 }
 
-/* Estado de cierre (si lo usás) */
 .products__dropdown-menu.closing {
   animation: dropdownFadeOut 0.2s ease forwards;
 }
@@ -160,7 +159,6 @@
   transition: color 0.2s ease;
 }
 
-/* Línea animada */
 .products__dropdown-item::after {
   content: "";
   position: absolute;
@@ -187,154 +185,37 @@
 }
 
 /* ============================
-   ORDEN (Ordenar por)
-============================ */
-.products__sort {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.products__sort-label {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.products__sort-select {
-  padding: 8px 12px;
-  border-radius: 12px;
-  border: 1px solid #f0c7d8;
-  background: #fff7fb;
-  font-size: 0.9rem;
-  color: #d94f7a;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.products__sort-select:hover {
-  border-color: #d94f7a;
-  background: #ffe8f3;
-}
-
-/* ============================
-   GRID — 6 columnas centradas
+   GRID — columnas centradas
 ============================ */
 .products__grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 40px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 24px;
   max-width: 1400px;
   margin: 0 auto;
   justify-content: center;
 }
 
 /* ============================
-   CARD
-============================ */
-.products__card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: var(--hc-shadow);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-  width: 200px;
-  text-align: center;
-}
-
-/* Hover con zoom suave */
-.products__imgbox img {
-  transition: transform 0.25s ease;
-}
-
-.products__imgbox:hover img {
-  transform: scale(1.08);
-}
-
-.products__card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* ============================
-   IMAGEN
-============================ */
-.products__imgbox {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 18px;
-}
-
-.products__img {
-  max-height: 180px;
-  width: auto;
-  object-fit: contain;
-}
-
-/* ============================
-   TEXTOS
-============================ */
-.products__name {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.products__price {
-  font-size: 1.05rem;
-  color: #333;
-  margin-bottom: 18px;
-}
-
-/* ============================
-   BOTÓN
-============================ */
-.products__btn {
-  background: #d94f7a;
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.products__btn:hover {
-  background: #c23f6a;
-}
-
-/* ============================
    SKELETON LOADERS
 ============================ */
 .skeleton-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: var(--hc-shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 200px;
   animation: pulse 1.4s infinite ease-in-out;
 }
 
 .skeleton-img {
   width: 100%;
-  height: 200px;
+  aspect-ratio: 4 / 5.5;
   background: #f0f0f0;
-  border-radius: 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
 
 .skeleton-line {
   height: 16px;
   background: #f0f0f0;
   border-radius: 8px;
+  margin-bottom: 8px;
 }
 
 .skeleton-line.short {
