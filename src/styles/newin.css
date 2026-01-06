@@ -53,7 +53,7 @@
 }
 
 /* ============================
-   TARJETA
+   TARJETA (UNIFICADA)
 ============================ */
 .newin__item {
   flex: 0 0 260px;
@@ -63,18 +63,40 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+
+  /* 🔥 Animación igual que Products y BestSellers */
+  transition: transform 0.2s ease;
 }
 
+.newin__item:hover {
+  transform: translateY(-4px);
+}
+
+/* ============================
+   IMAGEN (UNIFICADA)
+============================ */
 .newin__image {
   width: 100%;
   aspect-ratio: 4 / 5.5;
+  /* 🔥 misma proporción */
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 12px;
   background: #eee;
   cursor: pointer;
+
+  /* 🔥 Animación igual que Products */
+  transition: transform 0.25s ease;
 }
 
+.newin__item:hover .newin__image {
+  transform: scale(1.03);
+}
+
+/* ============================
+   TEXTO (UNIFICADO)
+============================ */
 .newin__name {
   font-size: 18px;
   font-weight: 700;
@@ -100,6 +122,9 @@
   min-height: 40px;
 }
 
+/* ============================
+   ESTRELLAS (UNIFICADAS)
+============================ */
 .newin__stars {
   font-size: 1.2rem;
   color: #ffb400;
@@ -110,6 +135,9 @@
   cursor: pointer;
 }
 
+/* ============================
+   BOTONES (UNIFICADOS)
+============================ */
 .newin__buttons {
   margin-top: auto;
   display: flex;
@@ -124,6 +152,14 @@
   border: none;
   font-weight: 700;
   cursor: pointer;
+
+  /* 🔥 Animación igual que Products */
+  transition: transform 0.15s ease;
+}
+
+.newin__btn-buy:hover,
+.newin__btn-cart:hover {
+  transform: scale(1.03);
 }
 
 .newin__btn-buy {
@@ -144,6 +180,9 @@
   background: #ddd;
 }
 
+/* ============================
+   VER MÁS (UNIFICADO)
+============================ */
 .newin__btn-viewmore {
   margin-top: 8px;
   background: none;
@@ -157,9 +196,8 @@
 }
 
 /* ============================
-   SWIPER DOTS (PAGINATION)
+   SWIPER DOTS
 ============================ */
-
 .swiper-pagination {
   position: relative;
   margin-top: 40px;
