@@ -255,7 +255,11 @@
 /* Asegurar que la descripción no mueva las estrellas */
 .bestsellers__desc {
   min-height: 48px;
+  max-height: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 /* Alinear estrellas entre tarjetas */
 .bestsellers__stars {

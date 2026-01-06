@@ -53,16 +53,13 @@ export default function ProductDetail() {
 
     const fetchSimilares = async () => {
       try {
-        // 1) Buscar por categoría
         const res = await fetch(
           `http://localhost:5000/api/products?category=${producto.category}`
         );
         let data = await res.json();
 
-        // Filtrar el producto actual
         data = data.filter((p) => p._id !== producto._id);
 
-        // Si no hay suficientes → fallback a best sellers
         if (data.length < 4) {
           const best = await fetch(
             "http://localhost:5000/api/products/bestsellers"
@@ -109,167 +106,157 @@ export default function ProductDetail() {
     <div className="pd-container">
 
       {/* ============================
-          IMÁGENES
+          PRODUCTO PRINCIPAL (IMAGEN + INFO)
       ============================ */}
-      <div className="pd-images">
-        <img
-          src={selectedImage}
-          alt={producto.name}
-          className="pd-main-img"
-        />
+      <div className="pd-main">
 
-        <div className="pd-thumbs">
-          {producto.images?.map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              alt=""
-              className={`pd-thumb ${selectedImage === img ? "active" : ""}`}
-              onClick={() => setSelectedImage(img)}
-            />
-          ))}
+        {/* IMÁGENES */}
+        <div className="pd-images">
+          <img
+            src={selectedImage}
+            alt={producto.name}
+            className="pd-main-img"
+          />
+
+          <div className="pd-thumbs">
+            {producto.images?.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt=""
+                className={`pd-thumb ${selectedImage === img ? "active" : ""}`}
+                onClick={() => setSelectedImage(img)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* ============================
-          INFORMACIÓN
-      ============================ */}
-      <div className="pd-info">
-        <h1 className="pd-title">{producto.name}</h1>
+        {/* INFORMACIÓN */}
+        <div className="pd-info">
+          <h1 className="pd-title">{producto.name}</h1>
 
-        {/* PRECIO + DESCUENTO */}
-        <div className="pd-price-block">
-          {hasDiscount && (
-            <span className="pd-discount-tag">-{producto.discount}% OFF</span>
-          )}
-
-          <div className="pd-prices">
+          {/* PRECIO + DESCUENTO */}
+          <div className="pd-price-block">
             {hasDiscount && (
-              <p className="pd-old-price">
-                ${producto.price.toLocaleString("es-AR")}
-              </p>
+              <span className="pd-discount-tag">-{producto.discount}% OFF</span>
             )}
 
-            <p className="pd-price">
-              ${discountedPrice.toLocaleString("es-AR")}
-            </p>
+            <div className="pd-prices">
+              {hasDiscount && (
+                <p className="pd-old-price">
+                  ${producto.price.toLocaleString("es-AR")}
+                </p>
+              )}
+
+              <p className="pd-price">
+                ${discountedPrice.toLocaleString("es-AR")}
+              </p>
+            </div>
+
+            {hasDiscount && (
+              <p className="pd-secondary-text">
+                ${discountedPrice.toLocaleString("es-AR")} pagando con
+                transferencia o depósito bancario.
+              </p>
+            )}
           </div>
 
-          {hasDiscount && (
-            <p className="pd-secondary-text">
-              ${discountedPrice.toLocaleString("es-AR")} pagando con
-              transferencia o depósito bancario.
-            </p>
+          {/* DESCRIPCIÓN */}
+          <p className="pd-description">{producto.description}</p>
+
+          {/* COLORES */}
+          {producto.colors?.length > 0 && (
+            <div className="pd-colors">
+              <h3>Colores disponibles</h3>
+
+              <div className="pd-colors-row">
+                {producto.colors.map((color) => (
+                  <div
+                    key={color}
+                    className={`pd-color-dot ${selectedColor === color ? "active" : ""
+                      }`}
+                    style={{ backgroundColor: color.toLowerCase() }}
+                    onClick={() => setSelectedColor(color)}
+                  ></div>
+                ))}
+              </div>
+            </div>
           )}
-        </div>
 
-        {/* DESCRIPCIÓN */}
-        <p className="pd-description">{producto.description}</p>
+          {/* TALLES */}
+          {producto.sizes?.length > 0 && (
+            <div className="pd-sizes">
+              <h3>Talles disponibles</h3>
+              <div className="pd-sizes-row">
+                {producto.sizes.map((talle) => (
+                  <button
+                    key={talle}
+                    className={`pd-size-btn ${selectedSize === talle ? "active" : ""
+                      }`}
+                    onClick={() => setSelectedSize(talle)}
+                  >
+                    {talle}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-        {/* ============================
-            COLORES (CÍRCULOS)
-        ============================ */}
-        {producto.colors?.length > 0 && (
-          <div className="pd-colors">
-            <h3>Colores disponibles</h3>
+          {/* GUÍA DE TALLES */}
+          {producto.sizeGuide && producto.sizeGuide !== "none" && (
+            <div className="pd-size-guide">
+              <h3>Guía de talles</h3>
 
-            <div className="pd-colors-row">
-              {producto.colors.map((color) => (
-                <div
-                  key={color}
-                  className={`pd-color-dot ${selectedColor === color ? "active" : ""
-                    }`}
-                  style={{ backgroundColor: color.toLowerCase() }}
-                  onClick={() => setSelectedColor(color)}
-                ></div>
-              ))}
+              {producto.sizeGuide === "babytees" && <BabyTeesTable />}
+              {producto.sizeGuide === "croptops" && <CropTopsTable />}
+              {producto.sizeGuide === "remeras" && <RemerasTable />}
+            </div>
+          )}
+
+          {/* PAGOS */}
+          <div className="pd-payments">
+            <h3>Medios de pago</h3>
+            <ul className="pd-list">
+              <li>3 cuotas sin interés con débito seleccionados.</li>
+              <li>
+                {hasDiscount
+                  ? "10% de descuento pagando con transferencia o depósito."
+                  : "Beneficios extra pagando con transferencia o depósito."}
+              </li>
+              <li>Compra protegida y cambios fáciles.</li>
+            </ul>
+          </div>
+
+          {/* ENVÍOS */}
+          <div className="pd-shipping">
+            <h3>Envíos</h3>
+            <ul className="pd-list">
+              <li>Envío gratis superando los $15.000.</li>
+              <li>Retiro en punto de pick-up (showroom) a coordinar.</li>
+              <li>Próximamente: cálculo automático de envío por código postal.</li>
+            </ul>
+          </div>
+
+          {/* OPINIONES */}
+          <div className="pd-opinions">
+            <h3>Opiniones</h3>
+            <div className="pd-stars-row">
+              <span className="pd-stars">★★★★★</span>
+              <span className="pd-opinions-count">
+                (Próximamente opiniones reales)
+              </span>
             </div>
           </div>
-        )}
 
-        {/* ============================
-            TALLES DISPONIBLES
-        ============================ */}
-        {producto.sizes?.length > 0 && (
-          <div className="pd-sizes">
-            <h3>Talles disponibles</h3>
-            <div className="pd-sizes-row">
-              {producto.sizes.map((talle) => (
-                <button
-                  key={talle}
-                  className={`pd-size-btn ${selectedSize === talle ? "active" : ""
-                    }`}
-                  onClick={() => setSelectedSize(talle)}
-                >
-                  {talle}
-                </button>
-              ))}
-            </div>
+          {/* BOTONES */}
+          <div className="pd-actions">
+            <button className="pd-btn-buy" onClick={handleBuyNow}>
+              Comprar ahora
+            </button>
+            <button className="pd-btn-cart" onClick={handleAddToCart}>
+              Agregar al carrito
+            </button>
           </div>
-        )}
-
-        {/* ============================
-            GUÍA DE TALLES
-        ============================ */}
-        {producto.sizeGuide && (
-          <div className="pd-size-guide">
-            <h3>Guía de talles</h3>
-
-            {producto.sizeGuide === "babytees" && <BabyTeesTable />}
-            {producto.sizeGuide === "croptops" && <CropTopsTable />}
-            {producto.sizeGuide === "remeras" && <RemerasTable />}
-          </div>
-        )}
-
-        {/* ============================
-            PAGOS
-        ============================ */}
-        <div className="pd-payments">
-          <h3>Medios de pago</h3>
-          <ul className="pd-list">
-            <li>3 cuotas sin interés con débito seleccionados.</li>
-            <li>
-              {hasDiscount
-                ? "10% de descuento pagando con transferencia o depósito."
-                : "Beneficios extra pagando con transferencia o depósito."}
-            </li>
-            <li>Compra protegida y cambios fáciles.</li>
-          </ul>
-        </div>
-
-        {/* ============================
-            ENVÍOS
-        ============================ */}
-        <div className="pd-shipping">
-          <h3>Envíos</h3>
-          <ul className="pd-list">
-            <li>Envío gratis superando los $15.000.</li>
-            <li>Retiro en punto de pick-up (showroom) a coordinar.</li>
-            <li>Próximamente: cálculo automático de envío por código postal.</li>
-          </ul>
-        </div>
-
-        {/* ============================
-            OPINIONES
-        ============================ */}
-        <div className="pd-opinions">
-          <h3>Opiniones</h3>
-          <div className="pd-stars-row">
-            <span className="pd-stars">★★★★★</span>
-            <span className="pd-opinions-count">(Próximamente opiniones reales)</span>
-          </div>
-        </div>
-
-        {/* ============================
-            BOTONES
-        ============================ */}
-        <div className="pd-actions">
-          <button className="pd-btn-buy" onClick={handleBuyNow}>
-            Comprar ahora
-          </button>
-          <button className="pd-btn-cart" onClick={handleAddToCart}>
-            Agregar al carrito
-          </button>
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import "../styles/products.css";
-import "../styles/bestsellers.css";
+import "../styles/productsgrid.css"; // NUEVO CSS AISLADO
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "../components/OpinionsPopup";
@@ -58,9 +58,6 @@ export default function Products() {
       .catch((err) => console.error("Error cargando categorías dinámicas:", err));
   }, []);
 
-  // ============================
-  // ORDENAR FILTROS MANUALMENTE
-  // ============================
   const filterOrder = ["Indumentaria", "Cute items", "Merch"];
 
   const orderedCategories = filterOrder
@@ -78,7 +75,7 @@ export default function Products() {
   }, []);
 
   // ============================
-  // CARGAR PRODUCTOS SEGÚN FILTRO + ORDEN + PÁGINA
+  // CARGAR PRODUCTOS SEGÚN FILTRO
   // ============================
   useEffect(() => {
     const fetchProducts = async () => {
@@ -154,7 +151,7 @@ export default function Products() {
   }, [hasMore, loading]);
 
   // ============================
-  // CERRAR DROPDOWN AL HACER CLICK FUERA
+  // CERRAR DROPDOWN
   // ============================
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -196,14 +193,12 @@ export default function Products() {
       </p>
 
       {/* ============================
-          FILTROS + ORDEN
+          FILTROS
       ============================ */}
       <div ref={filtersRef} className="products__filters-horizontal">
         <div className="products__filters-row">
-          {/* Botón "Todos" */}
           <div
-            className={`products__dropdown ${openDropdown === "Todos" ? "open" : ""
-              }`}
+            className={`products__dropdown ${openDropdown === "Todos" ? "open" : ""}`}
           >
             <button
               className="products__dropdown-toggle"
@@ -217,12 +212,10 @@ export default function Products() {
             </button>
           </div>
 
-          {/* Dropdowns ordenados */}
           {orderedCategories.map(([group, cats]) => (
             <div
               key={group}
-              className={`products__dropdown ${openDropdown === group ? "open" : ""
-                }`}
+              className={`products__dropdown ${openDropdown === group ? "open" : ""}`}
             >
               <button
                 className="products__dropdown-toggle"
@@ -255,7 +248,6 @@ export default function Products() {
             </div>
           ))}
 
-          {/* Ordenar por */}
           <div
             className={`products__dropdown ${openDropdown === "Ordenar" ? "open" : ""
               }`}
@@ -321,12 +313,12 @@ export default function Products() {
       </div>
 
       {/* ============================
-          SKELETON LOADERS
+          SKELETON
       ============================ */}
       {initialLoading && (
         <div className="products__grid">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="bestsellers__item skeleton-card">
+            <div key={i} className="productcard__item skeleton-card">
               <div className="skeleton-img"></div>
               <div className="skeleton-line"></div>
               <div className="skeleton-line short"></div>
@@ -343,27 +335,31 @@ export default function Products() {
           {productos.map((p) => (
             <div
               key={p._id}
-              className="bestsellers__item"
+              className="productcard__item"
               onClick={() => navigate(`/products/${p._id}`)}
             >
               <img
                 src={p.images?.[0] || "https://via.placeholder.com/300"}
                 alt={p.name}
-                className="bestsellers__image"
+                className="productcard__image"
               />
 
-              <h3 className="bestsellers__name">{p.name}</h3>
+              {/* BLOQUE SUPERIOR FIJO */}
+              <div className="productcard__top">
+                <h3 className="productcard__name">{p.name}</h3>
 
-              <p className="bestsellers__price">
-                ${p.price?.toLocaleString("es-AR")}
-              </p>
+                <p className="productcard__price">
+                  ${p.price?.toLocaleString("es-AR")}
+                </p>
 
-              <p className="bestsellers__desc">
-                {p.description?.slice(0, 80) || "Producto destacado"}
-              </p>
+                <p className="productcard__desc">
+                  {p.description?.slice(0, 80) || "Producto destacado"}
+                </p>
+              </div>
 
+              {/* ESTRELLAS ALINEADAS */}
               <div
-                className="bestsellers__stars"
+                className="productcard__stars"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowOpinions(true);
@@ -373,17 +369,17 @@ export default function Products() {
               </div>
 
               <div
-                className="bestsellers__buttons"
+                className="productcard__buttons"
                 onClick={(e) => e.stopPropagation()}
               >
-                <button className="bestsellers__btn-buy">Comprar</button>
-                <button className="bestsellers__btn-cart">
+                <button className="productcard__btn-buy">Comprar</button>
+                <button className="productcard__btn-cart">
                   Agregar al carrito
                 </button>
               </div>
 
               <button
-                className="bestsellers__btn-viewmore"
+                className="productcard__btn-viewmore"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/products/${p._id}`);
@@ -394,11 +390,10 @@ export default function Products() {
             </div>
           ))}
 
-          {/* Skeleton al cargar más */}
           {loading &&
             !initialLoading &&
             Array.from({ length: 6 }).map((_, i) => (
-              <div key={`loader-${i}`} className="bestsellers__item skeleton-card">
+              <div key={`loader-${i}`} className="productcard__item skeleton-card">
                 <div className="skeleton-img"></div>
                 <div className="skeleton-line"></div>
                 <div className="skeleton-line short"></div>
