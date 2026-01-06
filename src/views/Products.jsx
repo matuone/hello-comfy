@@ -1,5 +1,5 @@
 import "../styles/products.css";
-import "../styles/productsgrid.css"; // NUEVO CSS AISLADO
+import "../styles/productgrid.css"; // CSS aislado
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "../components/OpinionsPopup";
@@ -344,6 +344,11 @@ export default function Products() {
                 className="productcard__image"
               />
 
+              {/* BADGE DESTACADO */}
+              {p.featured && (
+                <span className="productcard__badge">Destacado</span>
+              )}
+
               {/* BLOQUE SUPERIOR FIJO */}
               <div className="productcard__top">
                 <h3 className="productcard__name">{p.name}</h3>
@@ -373,8 +378,11 @@ export default function Products() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <button className="productcard__btn-buy">Comprar</button>
-                <button className="productcard__btn-cart">
-                  Agregar al carrito
+                <button
+                  className="productcard__btn-cart"
+                  onClick={() => console.log("Agregar al carrito", p._id)}
+                >
+                  Agregar
                 </button>
               </div>
 
@@ -389,6 +397,16 @@ export default function Products() {
               </button>
             </div>
           ))}
+
+          {/* PAGINACIÓN VISUAL */}
+          {hasMore && !loading && (
+            <button
+              className="productcard__loadmore"
+              onClick={() => setPage((prev) => prev + 1)}
+            >
+              Cargar más productos
+            </button>
+          )}
 
           {loading &&
             !initialLoading &&
