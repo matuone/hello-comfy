@@ -27,7 +27,6 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);
 
   const [similares, setSimilares] = useState([]);
   const [loadingSimilares, setLoadingSimilares] = useState(true);
@@ -43,13 +42,9 @@ export default function ProductDetail() {
       .then((res) => res.json())
       .then((data) => {
         setProducto(data);
-
         setSelectedImage(data.images?.[0] || null);
-        setSelectedColor(data.colors?.[0] || null);
 
         const allSizes = ["S", "M", "L", "XL", "XXL", "3XL"];
-
-        // ⭐ STOCK REAL
         const firstAvailable = allSizes.find(
           (t) => (data.stockColorId?.talles?.[t] ?? 0) > 0
         );
@@ -115,7 +110,7 @@ export default function ProductDetail() {
 
     addToCart(producto, {
       size: selectedSize,
-      color: selectedColor,
+      color: producto.stockColorId?.color,
     });
 
     toast.success("Producto agregado al carrito");
@@ -129,7 +124,7 @@ export default function ProductDetail() {
 
     addToCart(producto, {
       size: selectedSize,
-      color: selectedColor,
+      color: producto.stockColorId?.color,
     });
 
     navigate("/cart");
@@ -168,63 +163,65 @@ export default function ProductDetail() {
 
   return (
     <div className="pd-container">
+      {/* ⭐ TÍTULO CENTRADO ARRIBA */}
+      <h1 className="pd-title pd-title-centered">{producto.name}</h1>
+
       <div className="pd-main">
 
-        {/* ⭐ TÍTULO + TEXTO + CORAZÓN */}
-        <h1 className="pd-title">{producto.name}</h1>
 
-        <div className="pd-wishlist-row">
-          <p className="pd-wishlist-text">Agregar a tu lista de deseados</p>
 
-          <button
-            className="pd-wishlist-icon"
-            onClick={() => {
-              toggleWishlist(producto);
 
-              if (isInWishlist(producto._id)) {
-                toast("Quitado de favoritos", { icon: "💔" });
-              } else {
-                toast("Agregado a favoritos", { icon: "❤️" });
-              }
-            }}
-          >
-            {isInWishlist(producto._id) ? (
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="#d94f7a"
-                stroke="#d94f7a"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20.8 4.6c-1.7-1.7-4.5-1.7-6.2 0L12 7.2l-2.6-2.6c-1.7-1.7-4.5-1.7-6.2 0s-1.7 4.5 0 6.2L12 21l8.8-10.2c1.7-1.7 1.7-4.5 0-6.2z" />
-              </svg>
-            ) : (
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#d94f7a"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20.8 4.6c-1.7-1.7-4.5-1.7-6.2 0L12 7.2l-2.6-2.6c-1.7-1.7-4.5-1.7-6.2 0s-1.7 4.5 0 6.2L12 21l8.8-10.2c1.7-1.7 1.7-4.5 0-6.2z" />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {/* IMÁGENES */}
+        {/* ⭐ IMAGEN PRINCIPAL + CORAZÓN */}
         <div className="pd-images">
-          <img
-            src={selectedImage}
-            alt={producto.name}
-            className="pd-main-img"
-          />
+          <div className="pd-main-img-wrapper">
+            <img
+              src={selectedImage}
+              alt={producto.name}
+              className="pd-main-img"
+            />
+
+            <button
+              className="pd-wishlist-floating"
+              onClick={() => {
+                toggleWishlist(producto);
+
+                if (isInWishlist(producto._id)) {
+                  toast("Quitado de favoritos", { icon: "💔" });
+                } else {
+                  toast("Agregado a favoritos", { icon: "❤️" });
+                }
+              }}
+            >
+              {isInWishlist(producto._id) ? (
+                <svg
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="#d94f7a"
+                  stroke="#d94f7a"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
+                </svg>
+              ) : (
+                <svg
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#d94f7a"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
+                </svg>
+              )}
+            </button>
+
+          </div>
 
           <div className="pd-thumbs">
             {producto.images?.map((img, i) => (
@@ -256,7 +253,6 @@ export default function ProductDetail() {
               <p className="pd-price">${formatPrice(discountedPrice)}</p>
             </div>
 
-            {/* ⭐ STOCK REAL */}
             {selectedSize &&
               (producto.stockColorId?.talles?.[selectedSize] ?? 0) === 0 && (
                 <p className="pd-no-stock-msg">Sin stock para este talle</p>
@@ -270,25 +266,6 @@ export default function ProductDetail() {
 
           {/* DESCRIPCIÓN */}
           <p className="pd-description">{producto.description}</p>
-
-          {/* COLORES */}
-          {producto.colors?.length > 0 && (
-            <div className="pd-colors">
-              <h3>Colores disponibles</h3>
-
-              <div className="pd-colors-row">
-                {producto.colors.map((color) => (
-                  <div
-                    key={color}
-                    className={`pd-color-dot ${selectedColor === color ? "active" : ""
-                      }`}
-                    style={{ backgroundColor: color.toLowerCase() }}
-                    onClick={() => setSelectedColor(color)}
-                  ></div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* TALLES */}
           <div className="pd-sizes">
@@ -322,6 +299,19 @@ export default function ProductDetail() {
               })}
             </div>
           </div>
+
+          {/* ⭐ COLOR COMO CIRCULITO */}
+          {producto.stockColorId?.colorHex && (
+            <div className="pd-color-preview">
+              <div
+                className="pd-color-circle"
+                style={{ backgroundColor: producto.stockColorId.colorHex }}
+              />
+              <span className="pd-color-label">
+                {producto.stockColorId.color}
+              </span>
+            </div>
+          )}
 
           {/* GUÍA DE TALLES */}
           {producto.sizeGuide !== "none" && (
