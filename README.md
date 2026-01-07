@@ -368,4 +368,68 @@ Reglas para IA:
 
 ---
 
+# 📁 Nuevos archivos incorporados
+
+Durante esta iteración se añadieron archivos clave para mejorar la modularidad, escalabilidad y consistencia visual del proyecto. Cada uno cumple un rol específico dentro de la arquitectura del frontend.
+
+---
+
+## `src/styles/category-filters.css`
+Archivo CSS dedicado exclusivamente a los estilos de la vista de categorías.
+
+**Motivación:**  
+Separar la lógica visual de Category.jsx del resto del proyecto, evitando mezclar estilos con `products.css` y manteniendo un enfoque modular.
+
+**Incluye:**  
+- Estilo del título de subcategoría (`.category-title`)  
+- Layout del contenedor de filtros (`.category-filters`)  
+- Estilos para mensajes vacíos y loaders  
+- Reglas responsive específicas para esta vista  
+
+Este archivo se mantiene liviano porque los estilos del dropdown se heredan directamente desde `products.css`, garantizando consistencia visual entre ambas secciones.
+
+---
+
+## Actualización de `Category.jsx`
+La vista de categorías fue actualizada para utilizar las mismas clases y estructura de dropdown que `Products.jsx`, logrando una experiencia visual unificada en todo el sitio.
+
+**Motivación:**  
+- Reutilizar estilos existentes  
+- Mantener coherencia visual  
+- Evitar duplicación de CSS  
+- Facilitar mantenimiento futuro  
+
+**Cambios principales:**  
+- Reemplazo del `<select>` por un dropdown idéntico al de `Products.jsx`  
+- Incorporación de las clases `products__dropdown`, `products__dropdown-toggle`, `products__dropdown-menu` y `products__dropdown-item`  
+- Implementación de cierre automático del menú al hacer click fuera (click‑outside)  
+- Uso de `useRef` para detectar interacciones externas  
+
+---
+
+## Unificación visual de tarjetas de producto
+`Category.jsx` ahora utiliza la misma estructura de tarjeta que `Products.jsx`:
+
+- Imagen  
+- Badge “Destacado”  
+- Nombre, precio y descripción  
+- Estrellas  
+- Botones “Comprar”, “Agregar al carrito” y “Ver más”  
+
+**Motivación:**  
+Garantizar una experiencia consistente en todas las secciones del catálogo sin duplicar componentes ni estilos.
+
+---
+
+# ✔ Resultado final
+
+Con estos cambios:
+
+- La vista de categorías quedó completamente alineada con la estética de `Products.jsx`  
+- El código es más modular, claro y fácil de mantener  
+- Se eliminaron estilos obsoletos y se evitó duplicación innecesaria  
+- El proyecto avanza hacia una arquitectura más escalable y profesional  
+
+
+
 # Fin del README

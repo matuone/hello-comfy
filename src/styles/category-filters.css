@@ -1,43 +1,26 @@
 /* ==========================================
-   CATEGORY FILTERS — Estilos aislados
+   CATEGORY VIEW — Estilos aislados
    Archivo: category-filters.css
    ========================================== */
+
+/* Título de subcategoría */
+.category-title {
+  text-align: center;
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #d94f7a;
+  /* rosa comfy */
+}
 
 /* Contenedor del filtro */
 .category-filters {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   margin: 20px 0 30px;
-  padding: 10px 0;
-}
-
-/* Label */
-.category-sort-label {
-  font-size: 15px;
-  font-weight: 500;
-  color: #444;
-}
-
-/* Select */
-.category-sort-select {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fafafa;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.category-sort-select:hover {
-  background: #f0f0f0;
-}
-
-.category-sort-select:focus {
-  outline: none;
-  border-color: #b8b8ff;
-  box-shadow: 0 0 0 2px rgba(184, 184, 255, 0.4);
+  flex-wrap: wrap;
 }
 
 /* Loader */
@@ -60,11 +43,6 @@
 @media (max-width: 600px) {
   .category-filters {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .category-sort-select {
-    width: 100%;
+    gap: 8px;
   }
 }

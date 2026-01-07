@@ -1,8 +1,8 @@
 // src/views/Category.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/productgrid.css";
-import "../styles/products.css"; // usa el mismo estilo que Products.jsx
+import "../styles/products.css";
 import "../styles/category-filters.css";
 
 export default function Category() {
@@ -11,10 +11,23 @@ export default function Category() {
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [sort, setSort] = useState("newest");
+  const [openSort, setOpenSort] = useState(false);
+
+  // REF para detectar click fuera
+  const sortRef = useRef(null);
 
   const formatTitle = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1).replace("-", " ");
+
+  const getSortLabel = (s) => {
+    if (s === "newest") return "Nuevo";
+    if (s === "price_desc") return "Mayor precio";
+    if (s === "price_asc") return "Menor precio";
+    if (s === "sold_desc") return "Más vendido";
+    return "Nuevo";
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -31,6 +44,18 @@ export default function Category() {
       });
   }, [subcategory]);
 
+  // ⭐ CLICK FUERA DEL DROPDOWN
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sortRef.current && !sortRef.current.contains(e.target)) {
+        setOpenSort(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const sortedProducts = [...products].sort((a, b) => {
     if (sort === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
     if (sort === "price_desc") return b.price - a.price;
@@ -46,18 +71,70 @@ export default function Category() {
       {/* FILTRO */}
       {!loading && products.length > 0 && (
         <div className="category-filters">
-          <label className="category-sort-label">Ordenar por:</label>
+          <div className="products__dropdown" ref={sortRef}>
+            <button
+              className={`products__dropdown-toggle ${openSort ? "open" : ""
+                }`}
+              onClick={() => setOpenSort(!openSort)}
+            >
+              Ordenar por: {getSortLabel(sort)}
+            </button>
 
-          <select
-            className="category-sort-select"
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-          >
-            <option value="newest">Nuevo</option>
-            <option value="price_desc">Mayor precio</option>
-            <option value="price_asc">Menor precio</option>
-            <option value="sold_desc">Más vendido</option>
-          </select>
+            {openSort && (
+              <>
+                <div
+                  className="products__backdrop"
+                  onClick={() => setOpenSort(false)}
+                />
+
+                <div className="products__dropdown-menu">
+                  <button
+                    className={`products__dropdown-item ${sort === "newest" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSort("newest");
+                      setOpenSort(false);
+                    }}
+                  >
+                    Nuevo
+                  </button>
+
+                  <button
+                    className={`products__dropdown-item ${sort === "price_desc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSort("price_desc");
+                      setOpenSort(false);
+                    }}
+                  >
+                    Mayor precio
+                  </button>
+
+                  <button
+                    className={`products__dropdown-item ${sort === "price_asc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSort("price_asc");
+                      setOpenSort(false);
+                    }}
+                  >
+                    Menor precio
+                  </button>
+
+                  <button
+                    className={`products__dropdown-item ${sort === "sold_desc" ? "active" : ""
+                      }`}
+                    onClick={() => {
+                      setSort("sold_desc");
+                      setOpenSort(false);
+                    }}
+                  >
+                    Más vendido
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
