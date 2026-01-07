@@ -145,9 +145,10 @@ export const createProduct = async (req, res) => {
       subcategory: normalizedSubcategory,
       price: req.body.price,
       discount: req.body.discount || 0,
-      stockColorId: req.body.stockColorId, // ⭐ único stock real
+      stockColorId: req.body.stockColorId,
       images: req.body.images || [],
       description: req.body.description || "",
+      cardDescription: req.body.cardDescription || "", // ⭐ NUEVO
       sizeGuide: req.body.sizeGuide || "none",
     });
 
@@ -178,6 +179,7 @@ export const updateProduct = async (req, res) => {
         stockColorId: req.body.stockColorId,
         images: req.body.images || [],
         description: req.body.description || "",
+        cardDescription: req.body.cardDescription || "", // ⭐ NUEVO
         sizeGuide: req.body.sizeGuide || "none",
       },
       { new: true }

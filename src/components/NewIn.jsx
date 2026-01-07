@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "./OpinionsPopup";
 import "../styles/product-card.css";
 
-
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
@@ -61,8 +60,9 @@ export default function NewIn() {
                   ${p.price?.toLocaleString("es-AR")}
                 </p>
 
+                {/* ⭐ AHORA USAMOS LA DESCRIPCIÓN CORTA */}
                 <p className="newin__desc">
-                  {p.description?.slice(0, 80) || "Nuevo producto disponible"}
+                  {p.cardDescription || p.description || "Nuevo producto disponible"}
                 </p>
 
                 <div

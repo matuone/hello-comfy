@@ -17,13 +17,14 @@ export default function AdminProductDetail() {
     categoria: "Indumentaria",
     subcategoria: "Remeras",
     precio: "",
-    stockColorId: "", // ⭐ único color real
+    stockColorId: "",
     imagenes: [],
     description: "",
+    cardDescription: "", // ⭐ NUEVO (para cards)
     sizeGuide: "remeras",
   });
 
-  const [colores, setColores] = useState([]); // ⭐ lista de StockColor reales
+  const [colores, setColores] = useState([]);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [errorImagen, setErrorImagen] = useState("");
   const [dragIndex, setDragIndex] = useState(null);
@@ -72,6 +73,7 @@ export default function AdminProductDetail() {
           stockColorId: data.stockColorId?._id || "",
           imagenes: data.images || [],
           description: data.description || "",
+          cardDescription: data.cardDescription || "", // ⭐ NUEVO
           sizeGuide: data.sizeGuide || "remeras",
         });
       })
@@ -268,12 +270,10 @@ export default function AdminProductDetail() {
       category: producto.categoria.trim(),
       subcategory: producto.subcategoria.trim(),
       price: Number(producto.precio),
-
-      // ❗ NO ENVIAR colors
       stockColorId: producto.stockColorId,
-
       images: producto.imagenes || [],
       description: producto.description || "",
+      cardDescription: producto.cardDescription || "", // ⭐ NUEVO
       sizeGuide: producto.sizeGuide,
     };
 
@@ -319,12 +319,10 @@ export default function AdminProductDetail() {
       category: producto.categoria,
       subcategory: producto.subcategoria || "",
       price: Number(producto.precio) || 0,
-
-      // ❗ NO ENVIAR colors
       stockColorId: producto.stockColorId,
-
       images: producto.imagenes,
       description: producto.description,
+      cardDescription: producto.cardDescription || "", // ⭐ NUEVO
       sizeGuide: producto.sizeGuide,
     };
 
@@ -502,8 +500,17 @@ export default function AdminProductDetail() {
             <p className="input-error-text">{errores.precio}</p>
           )}
 
-          {/* DESCRIPCIÓN */}
-          <label className="input-label">Descripción</label>
+          {/* DESCRIPCIÓN CORTA (cards) */}
+          <label className="input-label">Descripción corta (para cards)</label>
+          <textarea
+            className="input-field textarea-field"
+            value={producto.cardDescription}
+            onChange={(e) => actualizarCampo("cardDescription", e.target.value)}
+            placeholder="Texto breve para mostrar en las cards..."
+          />
+
+          {/* DESCRIPCIÓN LARGA */}
+          <label className="input-label">Descripción larga</label>
           <textarea
             className="input-field textarea-field"
             value={producto.description}
@@ -563,7 +570,8 @@ export default function AdminProductDetail() {
             ))}
 
             <label
-              className={`foto-upload ${subiendoImagen ? "foto-upload-disabled" : ""}`}
+              className={`foto-upload ${subiendoImagen ? "foto-upload-disabled" : ""
+                }`}
             >
               {subiendoImagen ? "Subiendo foto..." : "+ Agregar foto"}
               <input

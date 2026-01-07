@@ -355,12 +355,20 @@ export default function Products() {
                 {/* ⭐ STOCK REAL */}
                 {p.stockColorId?.talles && (
                   <div className="productcard__stock">
-                    {Object.entries(p.stockColorId.talles).every(([t, qty]) => qty === 0) ? (
+                    {Object.entries(p.stockColorId.talles).every(
+                      ([t, qty]) => qty === 0
+                    ) ? (
                       <span className="productcard__nostock">Sin stock</span>
-                    ) : Object.values(p.stockColorId.talles).some((qty) => qty > 0 && qty <= 3) ? (
-                      <span className="productcard__lowstock">¡Pocas unidades!</span>
+                    ) : Object.values(p.stockColorId.talles).some(
+                      (qty) => qty > 0 && qty <= 3
+                    ) ? (
+                      <span className="productcard__lowstock">
+                        ¡Pocas unidades!
+                      </span>
                     ) : (
-                      <span className="productcard__instock">Stock disponible</span>
+                      <span className="productcard__instock">
+                        Stock disponible
+                      </span>
                     )}
                   </div>
                 )}
@@ -371,7 +379,9 @@ export default function Products() {
                     {Object.entries(p.stockColorId.talles)
                       .filter(([t, qty]) => qty > 0)
                       .map(([t]) => (
-                        <span key={t} className="productcard__size-pill">{t}</span>
+                        <span key={t} className="productcard__size-pill">
+                          {t}
+                        </span>
                       ))}
                   </div>
                 )}
@@ -382,8 +392,9 @@ export default function Products() {
                   ${p.price?.toLocaleString("es-AR")}
                 </p>
 
+                {/* ⭐ DESCRIPCIÓN CORTA */}
                 <p className="productcard__desc">
-                  {p.description?.slice(0, 80) || "Producto destacado"}
+                  {p.cardDescription || p.description || "Producto destacado"}
                 </p>
               </div>
 
@@ -436,7 +447,10 @@ export default function Products() {
           {loading &&
             !initialLoading &&
             Array.from({ length: 6 }).map((_, i) => (
-              <div key={`loader-${i}`} className="productcard__item skeleton-card">
+              <div
+                key={`loader-${i}`}
+                className="productcard__item skeleton-card"
+              >
                 <div className="skeleton-img"></div>
                 <div className="skeleton-line"></div>
                 <div className="skeleton-line short"></div>

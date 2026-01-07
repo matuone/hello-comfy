@@ -12,9 +12,6 @@ const productSchema = new mongoose.Schema(
     // ⭐ DESCUENTO
     discount: { type: Number, default: 0 },
 
-    // ❌ ELIMINADO: colors
-    // ❌ ELIMINADO: stock legacy
-
     // ⭐ STOCK REAL POR COLOR (StockColor)
     stockColorId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -28,9 +25,17 @@ const productSchema = new mongoose.Schema(
       default: []
     },
 
+    // ⭐ DESCRIPCIÓN LARGA (para el detalle)
     description: {
       type: String,
       default: ""
+    },
+
+    // ⭐ DESCRIPCIÓN CORTA (para las cards)
+    cardDescription: {
+      type: String,
+      default: "",
+      trim: true
     },
 
     // ⭐ GUÍA DE TALLES
