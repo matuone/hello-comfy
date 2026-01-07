@@ -111,6 +111,24 @@ export const getNewProducts = async (req, res) => {
 };
 
 // ============================
+// ⭐ NUEVO → obtener productos por subcategoría
+// ============================
+export const getProductsBySubcategory = async (req, res) => {
+  try {
+    const name = req.params.name;
+
+    const productos = await Product.find({
+      subcategory: { $regex: new RegExp(`^${name}$`, "i") }
+    });
+
+    res.json(productos);
+  } catch (err) {
+    console.error("Error al obtener productos por subcategoría:", err);
+    res.status(500).json({ error: "Error al obtener productos" });
+  }
+};
+
+// ============================
 // POST → crear un producto
 // ============================
 export const createProduct = async (req, res) => {

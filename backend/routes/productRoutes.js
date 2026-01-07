@@ -8,6 +8,7 @@ import {
   getBestSellers,
   getNewProducts,
   getCategoriesAndSubcategories,
+  getProductsBySubcategory, // ⭐ NUEVO CONTROLADOR
 } from "../controllers/productController.js";
 
 import upload, { uploadToCloudinary } from "../middleware/upload.js";
@@ -24,6 +25,12 @@ router.get("/new", getNewProducts);
 // RUTA PARA FILTROS (categorías y subcategorías)
 // ============================
 router.get("/filters/data", getCategoriesAndSubcategories);
+
+// ============================
+// ⭐ RUTA: productos por subcategoría
+// ⚠️ IMPORTANTE: debe ir ANTES de /:id
+// ============================
+router.get("/subcategory/:name", getProductsBySubcategory);
 
 // ============================
 // SUBIR MÚLTIPLES IMÁGENES A CLOUDINARY
