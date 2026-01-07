@@ -1,3 +1,6 @@
+/* ============================
+   SECCIÓN BESTSELLERS
+============================ */
 .bestsellers {
   width: 100%;
   padding: 64px 0;
@@ -53,7 +56,7 @@
 }
 
 /* ============================
-   TARJETA
+   CARD BESTSELLERS
 ============================ */
 .bestsellers__item {
   flex: 0 0 260px;
@@ -71,9 +74,7 @@
   transform: translateY(-4px);
 }
 
-/* ============================
-   IMAGEN
-============================ */
+/* IMAGEN */
 .bestsellers__image {
   width: 100%;
   aspect-ratio: 4 / 5.5;
@@ -89,58 +90,70 @@
   transform: scale(1.03);
 }
 
-/* ============================
-   TEXTO
-============================ */
+/* NOMBRE — TRUNCADO + CENTRADO */
 .bestsellers__name {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 6px;
   color: var(--hc-text);
   cursor: pointer;
+  text-align: center;
 
-  /* ⭐ Altura homogénea: 2 líneas */
   line-height: 1.3;
   min-height: calc(1.3em * 2);
 
-  /* ⭐ Truncado */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
+/* PRECIO */
 .bestsellers__price {
   font-size: 18px;
   font-weight: 700;
   color: #d94f7a;
   margin-bottom: 10px;
   min-height: 24px;
+  text-align: center;
 }
 
+/* DESCRIPCIÓN — TRUNCADA + CENTRADA */
 .bestsellers__desc {
   font-size: 14px;
   color: #555;
   line-height: 1.5;
   margin-bottom: 12px;
-
-  /* ⭐ Altura homogénea */
   min-height: 4.5em;
+  text-align: center;
 
-  /* ⭐ Truncado */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* ============================
-   ESTRELLAS
-============================ */
+/* ⭐ TALLES */
+.bestsellers__sizes {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bestsellers__size-pill {
+  background: #f2f2f2;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* ESTRELLAS */
 .bestsellers__stars {
   font-size: 1.2rem;
   color: #ffb400;
@@ -151,9 +164,7 @@
   cursor: pointer;
 }
 
-/* ============================
-   BOTONES
-============================ */
+/* BOTONES */
 .bestsellers__buttons {
   margin-top: auto;
   display: flex;
@@ -169,11 +180,6 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s ease;
-}
-
-.bestsellers__btn-buy:hover,
-.bestsellers__btn-cart:hover {
-  transform: scale(1.03);
 }
 
 .bestsellers__btn-buy {
@@ -194,9 +200,7 @@
   background: #ddd;
 }
 
-/* ============================
-   VER MÁS
-============================ */
+/* VER MÁS */
 .bestsellers__btn-viewmore {
   margin-top: 8px;
   background: none;
@@ -209,9 +213,7 @@
   min-height: 40px;
 }
 
-/* ============================
-   SWIPER DOTS
-============================ */
+/* SWIPER DOTS */
 .swiper-pagination {
   position: relative;
   margin-top: 40px;

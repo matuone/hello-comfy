@@ -60,10 +60,21 @@ export default function NewIn() {
                   ${p.price?.toLocaleString("es-AR")}
                 </p>
 
-                {/* ⭐ AHORA USAMOS LA DESCRIPCIÓN CORTA */}
+                {/* ⭐ DESCRIPCIÓN */}
                 <p className="newin__desc">
                   {p.cardDescription || p.description || "Nuevo producto disponible"}
                 </p>
+
+                {/* ⭐ TALLES */}
+                {p.sizes?.length > 0 && (
+                  <div className="newin__sizes">
+                    {p.sizes.map((talle) => (
+                      <span key={talle} className="newin__size-pill">
+                        {talle}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 <div
                   className="newin__stars"

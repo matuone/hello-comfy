@@ -10,6 +10,19 @@ const normalize = (str) => {
 };
 
 // ============================
+// Helper → extraer talles desde StockColor
+// ============================
+const extraerSizes = (product) => {
+  if (!product.stockColorId || !product.stockColorId.talles) return [];
+
+  const tallesObj = product.stockColorId.talles;
+
+  return Object.entries(tallesObj)
+    .filter(([talle, cantidad]) => cantidad > 0)
+    .map(([talle]) => talle);
+};
+
+// ============================
 // GET → obtener todos los productos (con filtros, orden y paginación)
 // ============================
 export const getAllProducts = async (req, res) => {
@@ -29,9 +42,15 @@ export const getAllProducts = async (req, res) => {
 
     // Si NO hay paginación, devolver todo
     if (!page || !limit) {
-      const products = await Product.find(filtros)
+      let products = await Product.find(filtros)
         .sort(sortOption)
         .populate("stockColorId");
+
+      products = products.map((p) => {
+        p = p.toObject();
+        p.sizes = extraerSizes(p);
+        return p;
+      });
 
       return res.json(products);
     }
@@ -41,7 +60,7 @@ export const getAllProducts = async (req, res) => {
     const limitNum = parseInt(limit, 10) || 12;
     const skip = (pageNum - 1) * limitNum;
 
-    const [products, total] = await Promise.all([
+    let [products, total] = await Promise.all([
       Product.find(filtros)
         .sort(sortOption)
         .skip(skip)
@@ -50,6 +69,12 @@ export const getAllProducts = async (req, res) => {
 
       Product.countDocuments(filtros),
     ]);
+
+    products = products.map((p) => {
+      p = p.toObject();
+      p.sizes = extraerSizes(p);
+      return p;
+    });
 
     const hasMore = pageNum * limitNum < total;
 
@@ -65,12 +90,15 @@ export const getAllProducts = async (req, res) => {
 // ============================
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
+    let product = await Product.findById(req.params.id)
       .populate("stockColorId");
 
     if (!product) {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
+
+    product = product.toObject();
+    product.sizes = extraerSizes(product);
 
     res.json(product);
   } catch (err) {
@@ -84,10 +112,16 @@ export const getProductById = async (req, res) => {
 // ============================
 export const getBestSellers = async (req, res) => {
   try {
-    const productos = await Product.find()
+    let productos = await Product.find()
       .sort({ sold: -1 })
       .limit(8)
       .populate("stockColorId");
+
+    productos = productos.map((p) => {
+      p = p.toObject();
+      p.sizes = extraerSizes(p);
+      return p;
+    });
 
     res.json(productos);
   } catch (err) {
@@ -101,10 +135,16 @@ export const getBestSellers = async (req, res) => {
 // ============================
 export const getNewProducts = async (req, res) => {
   try {
-    const productos = await Product.find()
+    let productos = await Product.find()
       .sort({ createdAt: -1 })
       .limit(8)
       .populate("stockColorId");
+
+    productos = productos.map((p) => {
+      p = p.toObject();
+      p.sizes = extraerSizes(p);
+      return p;
+    });
 
     res.json(productos);
   } catch (err) {
@@ -120,9 +160,15 @@ export const getProductsBySubcategory = async (req, res) => {
   try {
     const name = req.params.name;
 
-    const productos = await Product.find({
+    let productos = await Product.find({
       subcategory: { $regex: new RegExp(`^${name}$`, "i") }
     }).populate("stockColorId");
+
+    productos = productos.map((p) => {
+      p = p.toObject();
+      p.sizes = extraerSizes(p);
+      return p;
+    });
 
     res.json(productos);
   } catch (err) {
@@ -148,7 +194,7 @@ export const createProduct = async (req, res) => {
       stockColorId: req.body.stockColorId,
       images: req.body.images || [],
       description: req.body.description || "",
-      cardDescription: req.body.cardDescription || "", // ⭐ NUEVO
+      cardDescription: req.body.cardDescription || "",
       sizeGuide: req.body.sizeGuide || "none",
     });
 
@@ -168,7 +214,7 @@ export const updateProduct = async (req, res) => {
     const normalizedCategory = normalize(req.body.category);
     const normalizedSubcategory = normalize(req.body.subcategory);
 
-    const updated = await Product.findByIdAndUpdate(
+    let updated = await Product.findByIdAndUpdate(
       req.params.id,
       {
         name: req.body.name,
@@ -179,7 +225,7 @@ export const updateProduct = async (req, res) => {
         stockColorId: req.body.stockColorId,
         images: req.body.images || [],
         description: req.body.description || "",
-        cardDescription: req.body.cardDescription || "", // ⭐ NUEVO
+        cardDescription: req.body.cardDescription || "",
         sizeGuide: req.body.sizeGuide || "none",
       },
       { new: true }
@@ -188,6 +234,9 @@ export const updateProduct = async (req, res) => {
     if (!updated) {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
+
+    updated = updated.toObject();
+    updated.sizes = extraerSizes(updated);
 
     res.json(updated);
   } catch (err) {

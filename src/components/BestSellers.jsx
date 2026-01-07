@@ -65,6 +65,17 @@ export default function BestSellers() {
                   {p.cardDescription || p.description || "Producto destacado"}
                 </p>
 
+                {/* ⭐ TALLES (si existen) */}
+                {p.sizes?.length > 0 && (
+                  <div className="bestsellers__sizes">
+                    {p.sizes.map((talle) => (
+                      <span key={talle} className="bestsellers__size-pill">
+                        {talle}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div
                   className="bestsellers__stars"
                   onClick={() => setShowOpinions(true)}
