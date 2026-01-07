@@ -351,6 +351,31 @@ export default function Products() {
 
               {/* BLOQUE SUPERIOR FIJO */}
               <div className="productcard__top">
+
+                {/* ⭐ STOCK REAL */}
+                {p.stockColorId?.talles && (
+                  <div className="productcard__stock">
+                    {Object.entries(p.stockColorId.talles).every(([t, qty]) => qty === 0) ? (
+                      <span className="productcard__nostock">Sin stock</span>
+                    ) : Object.values(p.stockColorId.talles).some((qty) => qty > 0 && qty <= 3) ? (
+                      <span className="productcard__lowstock">¡Pocas unidades!</span>
+                    ) : (
+                      <span className="productcard__instock">Stock disponible</span>
+                    )}
+                  </div>
+                )}
+
+                {/* ⭐ TALLES DISPONIBLES */}
+                {p.stockColorId?.talles && (
+                  <div className="productcard__sizes">
+                    {Object.entries(p.stockColorId.talles)
+                      .filter(([t, qty]) => qty > 0)
+                      .map(([t]) => (
+                        <span key={t} className="productcard__size-pill">{t}</span>
+                      ))}
+                  </div>
+                )}
+
                 <h3 className="productcard__name">{p.name}</h3>
 
                 <p className="productcard__price">

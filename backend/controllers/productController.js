@@ -23,17 +23,16 @@ export const getAllProducts = async (req, res) => {
 
     // ORDEN
     let sortOption = {};
-    if (sort === "price_asc") {
-      sortOption = { price: 1 };
-    } else if (sort === "price_desc") {
-      sortOption = { price: -1 };
-    } else if (sort === "sold_desc") {
-      sortOption = { sold: -1 };
-    }
+    if (sort === "price_asc") sortOption = { price: 1 };
+    else if (sort === "price_desc") sortOption = { price: -1 };
+    else if (sort === "sold_desc") sortOption = { sold: -1 };
 
-    // Si NO hay paginación, devolver todo (lo usa allProducts en el front)
+    // Si NO hay paginación, devolver todo
     if (!page || !limit) {
-      const products = await Product.find(filtros).sort(sortOption);
+      const products = await Product.find(filtros)
+        .sort(sortOption)
+        .populate("stockColorId");
+
       return res.json(products);
     }
 
@@ -43,17 +42,18 @@ export const getAllProducts = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const [products, total] = await Promise.all([
-      Product.find(filtros).sort(sortOption).skip(skip).limit(limitNum),
+      Product.find(filtros)
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limitNum)
+        .populate("stockColorId"),
+
       Product.countDocuments(filtros),
     ]);
 
     const hasMore = pageNum * limitNum < total;
 
-    res.json({
-      products,
-      total,
-      hasMore,
-    });
+    res.json({ products, total, hasMore });
   } catch (err) {
     console.error("Error al obtener productos:", err);
     res.status(500).json({ error: "Error al obtener productos" });
@@ -65,7 +65,8 @@ export const getAllProducts = async (req, res) => {
 // ============================
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id)
+      .populate("stockColorId");
 
     if (!product) {
       return res.status(404).json({ error: "Producto no encontrado" });
@@ -85,7 +86,8 @@ export const getBestSellers = async (req, res) => {
   try {
     const productos = await Product.find()
       .sort({ sold: -1 })
-      .limit(8);
+      .limit(8)
+      .populate("stockColorId");
 
     res.json(productos);
   } catch (err) {
@@ -101,7 +103,8 @@ export const getNewProducts = async (req, res) => {
   try {
     const productos = await Product.find()
       .sort({ createdAt: -1 })
-      .limit(8);
+      .limit(8)
+      .populate("stockColorId");
 
     res.json(productos);
   } catch (err) {
@@ -111,7 +114,7 @@ export const getNewProducts = async (req, res) => {
 };
 
 // ============================
-// ⭐ NUEVO → obtener productos por subcategoría
+// GET → obtener productos por subcategoría
 // ============================
 export const getProductsBySubcategory = async (req, res) => {
   try {
@@ -119,7 +122,7 @@ export const getProductsBySubcategory = async (req, res) => {
 
     const productos = await Product.find({
       subcategory: { $regex: new RegExp(`^${name}$`, "i") }
-    });
+    }).populate("stockColorId");
 
     res.json(productos);
   } catch (err) {
@@ -137,10 +140,15 @@ export const createProduct = async (req, res) => {
     const normalizedSubcategory = normalize(req.body.subcategory);
 
     const product = new Product({
-      ...req.body,
+      name: req.body.name,
       category: normalizedCategory,
       subcategory: normalizedSubcategory,
-      images: req.body.images || [], // URLs de Cloudinary
+      price: req.body.price,
+      discount: req.body.discount || 0,
+      stockColorId: req.body.stockColorId, // ⭐ único stock real
+      images: req.body.images || [],
+      description: req.body.description || "",
+      sizeGuide: req.body.sizeGuide || "none",
     });
 
     await product.save();
@@ -162,13 +170,18 @@ export const updateProduct = async (req, res) => {
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
       {
-        ...req.body,
+        name: req.body.name,
         category: normalizedCategory,
         subcategory: normalizedSubcategory,
-        images: req.body.images || [], // URLs nuevas
+        price: req.body.price,
+        discount: req.body.discount || 0,
+        stockColorId: req.body.stockColorId,
+        images: req.body.images || [],
+        description: req.body.description || "",
+        sizeGuide: req.body.sizeGuide || "none",
       },
       { new: true }
-    );
+    ).populate("stockColorId");
 
     if (!updated) {
       return res.status(404).json({ error: "Producto no encontrado" });

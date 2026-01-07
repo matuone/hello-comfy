@@ -17,13 +17,13 @@ export default function AdminProductDetail() {
     categoria: "Indumentaria",
     subcategoria: "Remeras",
     precio: "",
-    color: "",
+    stockColorId: "", // ⭐ único color real
     imagenes: [],
     description: "",
     sizeGuide: "remeras",
   });
 
-  const [colores, setColores] = useState([]);
+  const [colores, setColores] = useState([]); // ⭐ lista de StockColor reales
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [errorImagen, setErrorImagen] = useState("");
   const [dragIndex, setDragIndex] = useState(null);
@@ -33,14 +33,13 @@ export default function AdminProductDetail() {
   const loadingGlobal = subiendoImagen;
 
   // ============================
-  // CARGAR COLORES
+  // CARGAR COLORES (StockColor)
   // ============================
   useEffect(() => {
     fetch("http://localhost:5000/api/stock")
       .then((res) => res.json())
       .then((data) => {
-        const lista = data.map((c) => c.color);
-        setColores(lista);
+        setColores(data);
       })
       .catch((err) => console.error("Error cargando colores:", err));
   }, []);
@@ -70,7 +69,7 @@ export default function AdminProductDetail() {
           categoria: categoriaNormalizada,
           subcategoria: data.subcategory || "",
           precio: data.price,
-          color: data.colors?.[0] || "",
+          stockColorId: data.stockColorId?._id || "",
           imagenes: data.images || [],
           description: data.description || "",
           sizeGuide: data.sizeGuide || "remeras",
@@ -97,8 +96,8 @@ export default function AdminProductDetail() {
       nuevosErrores.subcategoria = "Seleccioná una subcategoría.";
     }
 
-    if (!producto.color) {
-      nuevosErrores.color = "Seleccioná un color.";
+    if (!producto.stockColorId) {
+      nuevosErrores.color = "Seleccioná un color real.";
     }
 
     if (!producto.precio || Number(producto.precio) <= 0) {
@@ -132,7 +131,7 @@ export default function AdminProductDetail() {
   }
 
   // ============================
-  // SUBIR IMAGEN (CON COMPRESIÓN + CLOUDINARY)
+  // SUBIR IMAGEN
   // ============================
   async function agregarImagen(e) {
     const file = e.target.files[0];
@@ -140,7 +139,6 @@ export default function AdminProductDetail() {
 
     setErrorImagen("");
 
-    // Preview instantáneo local
     const previewLocal = URL.createObjectURL(file);
     setProducto((prev) => ({
       ...prev,
@@ -159,7 +157,6 @@ export default function AdminProductDetail() {
       const archivoComprimido = await imageCompression(file, opciones);
 
       const formData = new FormData();
-      // 👇 nombre de campo alineado con upload.array("images", 10)
       formData.append("images", archivoComprimido);
 
       const res = await fetch("http://localhost:5000/api/products/upload", {
@@ -170,13 +167,9 @@ export default function AdminProductDetail() {
       if (!res.ok) throw new Error("Error al subir imagen");
 
       const data = await res.json();
-
-      // backend devuelve { urls: [...] }
       const urlSubida = data.urls?.[0];
 
-      if (!urlSubida) {
-        throw new Error("Respuesta de subida sin URL válida");
-      }
+      if (!urlSubida) throw new Error("Respuesta inválida");
 
       setProducto((prev) => {
         const sinPreview = prev.imagenes.filter((img) => img !== previewLocal);
@@ -189,7 +182,6 @@ export default function AdminProductDetail() {
       console.error("Error al subir imagen:", err);
       setErrorImagen("No se pudo subir la imagen. Probá de nuevo.");
 
-      // saco el preview temporal
       setProducto((prev) => ({
         ...prev,
         imagenes: prev.imagenes.filter((img) => img !== previewLocal),
@@ -198,7 +190,6 @@ export default function AdminProductDetail() {
       setSubiendoImagen(false);
     }
 
-    // reset input file
     e.target.value = "";
   }
 
@@ -277,7 +268,10 @@ export default function AdminProductDetail() {
       category: producto.categoria.trim(),
       subcategory: producto.subcategoria.trim(),
       price: Number(producto.precio),
-      colors: [producto.color.trim()],
+
+      // ❗ NO ENVIAR colors
+      stockColorId: producto.stockColorId,
+
       images: producto.imagenes || [],
       description: producto.description || "",
       sizeGuide: producto.sizeGuide,
@@ -287,7 +281,6 @@ export default function AdminProductDetail() {
       const url = esEdicion
         ? `http://localhost:5000/api/products/${id}`
         : `http://localhost:5000/api/products`;
-
       const method = esEdicion ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -310,6 +303,50 @@ export default function AdminProductDetail() {
       console.error(err);
       setNoti({
         mensaje: "Hubo un error al guardar el producto",
+        tipo: "error",
+      });
+    }
+  }
+
+  // ============================
+  // DUPLICAR PRODUCTO
+  // ============================
+  async function duplicarProducto() {
+    if (!esEdicion) return;
+
+    const payload = {
+      name: producto.nombre + " (copia)",
+      category: producto.categoria,
+      subcategory: producto.subcategoria || "",
+      price: Number(producto.precio) || 0,
+
+      // ❗ NO ENVIAR colors
+      stockColorId: producto.stockColorId,
+
+      images: producto.imagenes,
+      description: producto.description,
+      sizeGuide: producto.sizeGuide,
+    };
+
+    try {
+      const res = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Error al duplicar");
+
+      setNoti({
+        mensaje: "Producto duplicado",
+        tipo: "exito",
+      });
+
+      navigate("/admin/products");
+    } catch (err) {
+      console.error(err);
+      setNoti({
+        mensaje: "No se pudo duplicar el producto",
         tipo: "error",
       });
     }
@@ -340,47 +377,6 @@ export default function AdminProductDetail() {
       console.error(err);
       setNoti({
         mensaje: "No se pudo eliminar el producto",
-        tipo: "error",
-      });
-    }
-  }
-
-  // ============================
-  // DUPLICAR PRODUCTO
-  // ============================
-  async function duplicarProducto() {
-    if (!esEdicion) return;
-
-    const payload = {
-      name: producto.nombre + " (copia)",
-      category: producto.categoria,
-      subcategory: producto.subcategoria || "",
-      price: Number(producto.precio) || 0,
-      colors: producto.color ? [producto.color.trim()] : [],
-      images: producto.imagenes,
-      description: producto.description,
-      sizeGuide: producto.sizeGuide,
-    };
-
-    try {
-      const res = await fetch("http://localhost:5000/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Error al duplicar");
-
-      setNoti({
-        mensaje: "Producto duplicado",
-        tipo: "exito",
-      });
-
-      navigate("/admin/products");
-    } catch (err) {
-      console.error(err);
-      setNoti({
-        mensaje: "No se pudo duplicar el producto",
         tipo: "error",
       });
     }
@@ -449,8 +445,7 @@ export default function AdminProductDetail() {
           {/* SUBCATEGORÍA */}
           <label className="input-label">Subcategoría</label>
           <select
-            className={`input-field ${errores.subcategoria ? "input-error" : ""
-              }`}
+            className={`input-field ${errores.subcategoria ? "input-error" : ""}`}
             value={producto.subcategoria}
             onChange={(e) => actualizarCampo("subcategoria", e.target.value)}
           >
@@ -476,17 +471,17 @@ export default function AdminProductDetail() {
             <p className="input-error-text">{errores.subcategoria}</p>
           )}
 
-          {/* COLOR */}
-          <label className="input-label">Color</label>
+          {/* COLOR REAL */}
+          <label className="input-label">Color real (StockColor)</label>
           <select
             className={`input-field ${errores.color ? "input-error" : ""}`}
-            value={producto.color}
-            onChange={(e) => actualizarCampo("color", e.target.value)}
+            value={producto.stockColorId}
+            onChange={(e) => actualizarCampo("stockColorId", e.target.value)}
           >
-            <option value="">Seleccionar color</option>
-            {colores.map((color, i) => (
-              <option key={i} value={color}>
-                {color}
+            <option value="">Seleccionar color…</option>
+            {colores.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.color} — {c.colorHex}
               </option>
             ))}
           </select>
@@ -517,7 +512,6 @@ export default function AdminProductDetail() {
           />
 
           {/* GUIA DE TALLES */}
-          {/* GUIA DE TALLES */}
           <label className="input-label">Guía de talles</label>
           <select
             className="input-field"
@@ -529,7 +523,6 @@ export default function AdminProductDetail() {
             <option value="croptops">Crop Tops</option>
             <option value="remeras">Remeras</option>
           </select>
-
         </div>
 
         {/* FOTOS */}
@@ -550,7 +543,6 @@ export default function AdminProductDetail() {
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, i)}
               >
-                {/* BOTÓN PRINCIPAL */}
                 <button
                   className="foto-star-btn"
                   onClick={() => marcarComoPrincipal(i)}
@@ -571,8 +563,7 @@ export default function AdminProductDetail() {
             ))}
 
             <label
-              className={`foto-upload ${subiendoImagen ? "foto-upload-disabled" : ""
-                }`}
+              className={`foto-upload ${subiendoImagen ? "foto-upload-disabled" : ""}`}
             >
               {subiendoImagen ? "Subiendo foto..." : "+ Agregar foto"}
               <input

@@ -10,7 +10,6 @@ export default function AdminProducts() {
   const [busqueda, setBusqueda] = useState("");
   const [expandedRows, setExpandedRows] = useState([]);
   const [productos, setProductos] = useState([]);
-  const [stockColores, setStockColores] = useState([]);
   const [mostrarPanelPrecios, setMostrarPanelPrecios] = useState(false);
   const [porcentaje, setPorcentaje] = useState("");
 
@@ -34,29 +33,21 @@ export default function AdminProducts() {
       .then((res) => res.json())
       .then((data) => {
         const adaptados = data.map((p) => ({
-          id: p._id || "",
+          id: p._id,
           nombre: p.name,
           categoria: p.category,
           subcategoria: p.subcategory,
           precio: p.price,
           imagenes: p.images,
-          color: p.colors?.[0] || "Sin color",
+          color: p.stockColorId?.color || "Sin color",
+          colorHex: p.stockColorId?.colorHex || "#ccc",
+          stock: p.stockColorId?.talles || {},
+          stockColorId: p.stockColorId?._id || null,
         }));
 
-        const limpios = adaptados.filter((p) => p.id);
-        setProductos(limpios);
+        setProductos(adaptados);
       })
       .catch((err) => console.error("Error al cargar productos:", err));
-  }, []);
-
-  // ============================
-  // CARGAR STOCK
-  // ============================
-  useEffect(() => {
-    fetch("http://localhost:5000/api/stock")
-      .then((res) => res.json())
-      .then((data) => setStockColores(data))
-      .catch((err) => console.error("Error cargando stock:", err));
   }, []);
 
   // ============================
@@ -129,30 +120,49 @@ export default function AdminProducts() {
   }
 
   // ============================
-  // DUPLICAR PRODUCTO + STOCK
+  // DUPLICAR PRODUCTO (desde la tabla, usando datos completos)
   // ============================
   async function duplicarProducto(prod) {
     try {
-      // 1) Buscar stock del producto original
-      const stockOriginal = stockColores.find(
-        (s) => s.color === prod.color
+      // 1) Traer el producto completo desde el backend (con descripción, sizeGuide y stockColorId correcto)
+      const detalleRes = await fetch(
+        `http://localhost:5000/api/products/${prod.id}`
       );
 
-      // 2) Crear objeto para MongoDB
-      const nuevoProducto = {
-        name: prod.nombre + " (copia)",
-        category: prod.categoria,
-        subcategory: prod.subcategoria,
-        price: prod.precio,
-        images: prod.imagenes,
-        colors: [prod.color],
+      if (!detalleRes.ok) {
+        console.error("Error al obtener producto original para duplicar");
+        setNoti({
+          mensaje: "No se pudo obtener el producto original para duplicar",
+          tipo: "error",
+        });
+        return;
+      }
+
+      const original = await detalleRes.json();
+
+      // stockColorId puede venir como objeto (populate) o como string (id)
+      const stockColorId =
+        original.stockColorId?._id || original.stockColorId || prod.stockColorId;
+
+      // 2) Armar el payload con TODOS los datos necesarios
+      const payload = {
+        name: (original.name || prod.nombre) + " (copia)",
+        category: original.category || prod.categoria,
+        subcategory: original.subcategory || prod.subcategoria || "",
+        price: Number(original.price ?? prod.precio) || 0,
+        images: original.images && original.images.length > 0
+          ? original.images
+          : prod.imagenes,
+        stockColorId, // 👈 MISMO STOCK REAL
+        description: original.description || "",
+        sizeGuide: original.sizeGuide || "remeras",
       };
 
-      // 3) Guardar producto en MongoDB
+      // 3) Crear el nuevo producto
       const res = await fetch("http://localhost:5000/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevoProducto),
+        body: JSON.stringify(payload),
       });
 
       const saved = await res.json();
@@ -166,7 +176,9 @@ export default function AdminProducts() {
         return;
       }
 
-      // 4) Adaptar al formato del admin
+      // 4) Adaptar para la tabla.
+      // OJO: el backend puede NO devolver stockColorId populado,
+      // así que usamos el original como fallback para color / stock.
       const adaptado = {
         id: saved._id,
         nombre: saved.name,
@@ -174,29 +186,28 @@ export default function AdminProducts() {
         subcategoria: saved.subcategory,
         precio: saved.price,
         imagenes: saved.images,
-        color: saved.colors?.[0] || "Sin color",
+        color:
+          saved.stockColorId?.color ||
+          original.stockColorId?.color ||
+          prod.color ||
+          "Sin color",
+        colorHex:
+          saved.stockColorId?.colorHex ||
+          original.stockColorId?.colorHex ||
+          prod.colorHex ||
+          "#ccc",
+        stock:
+          saved.stockColorId?.talles ||
+          original.stockColorId?.talles ||
+          prod.stock ||
+          {},
+        stockColorId:
+          saved.stockColorId?._id ||
+          original.stockColorId?._id ||
+          stockColorId ||
+          null,
       };
 
-      // 5) Duplicar stock si existe
-      if (stockOriginal) {
-        const nuevoStock = {
-          productId: saved._id,
-          color: stockOriginal.color,
-          colorHex: stockOriginal.colorHex,
-          talles: { ...stockOriginal.talles },
-        };
-
-        await fetch("http://localhost:5000/api/stock", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(nuevoStock),
-        });
-
-        // Actualizar stock en estado
-        setStockColores((prev) => [...prev, nuevoStock]);
-      }
-
-      // 6) Agregar a la tabla
       setProductos((prev) => [...prev, adaptado]);
 
       setNoti({
@@ -299,14 +310,8 @@ export default function AdminProducts() {
 
           <tbody>
             {productosFiltrados.map((prod) => {
-              const stockColor = stockColores.find(
-                (s) => s.color === prod.color
-              );
-
-              const colorHex = stockColor?.colorHex || "#ccc";
-
-              const stockTotal = stockColor
-                ? Object.values(stockColor.talles).reduce((a, b) => a + b, 0)
+              const stockTotal = prod.stock
+                ? Object.values(prod.stock).reduce((a, b) => a + b, 0)
                 : 0;
 
               return (
@@ -334,7 +339,7 @@ export default function AdminProducts() {
                             <span className="prod-color-label">Color:</span>
                             <span
                               className="prod-color-box"
-                              style={{ backgroundColor: colorHex }}
+                              style={{ backgroundColor: prod.colorHex }}
                             ></span>
                             <span className="prod-color-name">
                               {prod.color}
@@ -366,11 +371,11 @@ export default function AdminProducts() {
                     <td>${prod.precio?.toLocaleString()}</td>
 
                     <td>
-                      {stockColor ? (
+                      {prod.stock ? (
                         <>
                           {ORDEN_TALLES.map((talle) => (
                             <span key={talle} style={{ marginRight: "6px" }}>
-                              {talle}: {stockColor.talles[talle]}
+                              {talle}: {prod.stock[talle] ?? 0}
                             </span>
                           ))}
                           <br />
@@ -431,9 +436,9 @@ export default function AdminProducts() {
                           <div>
                             <h4 className="detalle-subtitle">Talles</h4>
 
-                            {stockColor ? (
+                            {prod.stock ? (
                               <ul className="detalle-talles">
-                                {Object.entries(stockColor.talles).map(
+                                {Object.entries(prod.stock).map(
                                   ([talle, stock]) => (
                                     <li key={talle}>
                                       <strong>{talle}:</strong> {stock} unid.

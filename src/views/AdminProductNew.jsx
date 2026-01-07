@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/adminproducts.css";
 
 export default function AdminProductNew() {
   const navigate = useNavigate();
+
+  const [stockColors, setStockColors] = useState([]);
+  const [selectedStockColorId, setSelectedStockColorId] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -16,6 +19,22 @@ export default function AdminProductNew() {
     description: "",
   });
 
+  // ============================
+  // Cargar colores reales desde StockColor
+  // ============================
+  useEffect(() => {
+    async function fetchColors() {
+      try {
+        const res = await fetch("http://localhost:5000/api/stock");
+        const data = await res.json();
+        setStockColors(data);
+      } catch (err) {
+        console.error("Error al cargar colores:", err);
+      }
+    }
+    fetchColors();
+  }, []);
+
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
@@ -23,15 +42,41 @@ export default function AdminProductNew() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    // ⭐ Validación obligatoria
+    if (!selectedStockColorId) {
+      alert("Seleccioná un color real (StockColor)");
+      return;
+    }
+
+    // ⭐ Normalización de arrays
+    const parsedColors =
+      form.colors.trim() === ""
+        ? []
+        : form.colors.split(",").map((c) => c.trim());
+
+    const parsedSizes =
+      form.sizes.trim() === ""
+        ? []
+        : form.sizes.split(",").map((s) => s.trim());
+
+    const parsedImages =
+      form.images.trim() === ""
+        ? []
+        : form.images.split(",").map((i) => i.trim());
+
     const payload = {
       name: form.name,
       category: form.category,
       subcategory: form.subcategory,
       price: Number(form.price),
-      colors: form.colors.split(",").map((c) => c.trim()),
-      sizes: form.sizes.split(",").map((s) => s.trim()),
-      images: form.images.split(",").map((i) => i.trim()),
+
+      colors: parsedColors,
+      sizes: parsedSizes,
+      images: parsedImages,
       description: form.description,
+
+      // ⭐ EL STOCK REAL
+      stockColorId: selectedStockColorId,
     };
 
     try {
@@ -47,7 +92,6 @@ export default function AdminProductNew() {
 
       alert("Producto creado con éxito");
       navigate("/admin/products");
-
     } catch (error) {
       console.error(error);
       alert("Hubo un problema al crear el producto");
@@ -80,7 +124,21 @@ export default function AdminProductNew() {
           onChange={handleChange}
         />
 
-        <label>Colores (separados por coma)</label>
+        {/* ⭐ NUEVO: selector de color real */}
+        <label>Color real (StockColor)</label>
+        <select
+          value={selectedStockColorId}
+          onChange={(e) => setSelectedStockColorId(e.target.value)}
+        >
+          <option value="">Seleccionar color…</option>
+          {stockColors.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.color} — {c.colorHex}
+            </option>
+          ))}
+        </select>
+
+        <label>Colores (texto opcional, separados por coma)</label>
         <input
           name="colors"
           value={form.colors}

@@ -9,31 +9,18 @@ const productSchema = new mongoose.Schema(
 
     price: { type: Number, required: true },
 
-    // ⭐ NUEVO: DESCUENTO
+    // ⭐ DESCUENTO
     discount: { type: Number, default: 0 },
 
-    colors: {
-      type: [String],
-      default: []
-    },
+    // ❌ ELIMINADO: colors
+    // ❌ ELIMINADO: stock legacy
 
-    sizes: {
-      type: [String],
-      default: ["S", "M", "L", "XL", "2XL", "3XL"]
-    },
-
-    // 🟦 STOCK REAL DESDE S HASTA 3XL
-    stock: {
-      type: Map,
-      of: Number,
-      default: {
-        S: 0,
-        M: 0,
-        L: 0,
-        XL: 0,
-        "2XL": 0,
-        "3XL": 0
-      }
+    // ⭐ STOCK REAL POR COLOR (StockColor)
+    stockColorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StockColor",
+      default: null,
+      required: true,
     },
 
     images: {
@@ -46,7 +33,7 @@ const productSchema = new mongoose.Schema(
       default: ""
     },
 
-    // ⭐ NUEVO: GUÍA DE TALLES (incluye opción "none")
+    // ⭐ GUÍA DE TALLES
     sizeGuide: {
       type: String,
       enum: ["none", "babytees", "croptops", "remeras"],
@@ -57,7 +44,6 @@ const productSchema = new mongoose.Schema(
     sold: { type: Number, default: 0 }
   },
 
-  // ⭐ ACTIVAMOS TIMESTAMPS
   { timestamps: true }
 );
 

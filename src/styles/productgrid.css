@@ -132,3 +132,52 @@
   width: 100%;
   min-height: 40px;
 }
+
+/* STOCK BADGES */
+.productcard__stock {
+  margin-bottom: 6px;
+}
+
+.productcard__instock {
+  background: #d4f8d4;
+  color: #2d7a2d;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.productcard__nostock {
+  background: #ffd6d6;
+  color: #b30000;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.productcard__lowstock {
+  background: #fff3c4;
+  color: #8a6d00;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* TALLES DISPONIBLES */
+.productcard__sizes {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.productcard__size-pill {
+  background: #f2f2f2;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+}

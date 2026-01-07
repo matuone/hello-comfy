@@ -18,6 +18,7 @@ import CreateAccount from "../views/CreateAccount";
 import Products from "../views/Products";
 import Category from "../views/Category";
 import ProductDetail from "../views/ProductDetail";
+import Wishlist from "../views/Wishlist"; // ⭐ Wishlist
 
 // Admin
 import AdminLayout from "../views/AdminLayout";
@@ -52,6 +53,7 @@ export default function AppRouter() {
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
 
+        {/* Categorías dinámicas */}
         <Route
           path="/indumentaria/:subcategory"
           element={<Category section="indumentaria" />}
@@ -65,15 +67,24 @@ export default function AppRouter() {
           element={<Category section="merch" />}
         />
 
+        {/* Páginas informativas */}
         <Route path="/categorias" element={<Categories />} />
         <Route path="/talles" element={<SizeGuide />} />
         <Route path="/algodon" element={<CottonCare />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/medios-de-pago" element={<PaymentMethods />} />
+
+        {/* Cuenta */}
         <Route path="/mi-cuenta" element={<MyAccount />} />
         <Route path="/create-account" element={<CreateAccount />} />
+
+        {/* Carrito */}
         <Route path="/cart" element={<Cart />} />
 
+        {/* ⭐ Wishlist */}
+        <Route path="/wishlist" element={<Wishlist />} />
+
+        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Route>
 
@@ -90,13 +101,17 @@ export default function AppRouter() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/sales" element={<AdminSales />} />
         <Route path="/admin/sales/:id" element={<AdminSaleDetail />} />
+
         <Route path="/admin/products" element={<AdminProducts />} />
         <Route path="/admin/products/new" element={<AdminProductDetail />} />
         <Route path="/admin/products/:id" element={<AdminProductDetail />} />
+
         <Route path="/admin/stock" element={<AdminStock />} />
+
         <Route path="/admin/customers" element={<AdminCustomers />} />
         <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
         <Route path="/admin/customers/:id/edit" element={<AdminCustomerEdit />} />
+
         <Route path="/admin/stats" element={<AdminStats />} />
         <Route path="/admin/marketing" element={<AdminMarketing />} />
 

@@ -6,11 +6,14 @@ import CropTopsTable from "../components/sizeTables/CropTopsTable";
 import RemerasTable from "../components/sizeTables/RemerasTable";
 
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+
+import { toast } from "react-hot-toast";
 
 import "../styles/productdetail.css";
 
@@ -18,6 +21,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,40 +32,34 @@ export default function ProductDetail() {
   const [similares, setSimilares] = useState([]);
   const [loadingSimilares, setLoadingSimilares] = useState(true);
 
-  // ============================
-  // ENVÍOS
-  // ============================
   const [postalCode, setPostalCode] = useState("");
   const [shippingOptions, setShippingOptions] = useState(null);
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState("");
 
-  // ============================
-  // FETCH PRODUCTO PRINCIPAL
-  // ============================
   useEffect(() => {
     setLoading(true);
     fetch(`http://localhost:5000/api/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProducto(data);
+
         setSelectedImage(data.images?.[0] || null);
         setSelectedColor(data.colors?.[0] || null);
 
-        const allSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
-        const firstAvailable = allSizes.find(
-          (t) => (data.stock?.[t] ?? 0) > 0
-        );
-        setSelectedSize(firstAvailable || null);
+        const allSizes = ["S", "M", "L", "XL", "XXL", "3XL"];
 
+        // ⭐ STOCK REAL
+        const firstAvailable = allSizes.find(
+          (t) => (data.stockColorId?.talles?.[t] ?? 0) > 0
+        );
+
+        setSelectedSize(firstAvailable || null);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [id]);
 
-  // ============================
-  // FETCH SIMILARES
-  // ============================
   useEffect(() => {
     if (!producto) return;
 
@@ -96,9 +94,6 @@ export default function ProductDetail() {
   if (loading) return <p className="loading">Cargando producto...</p>;
   if (!producto) return <p className="error">Producto no encontrado.</p>;
 
-  // ============================
-  // PRECIOS SIN DECIMALES
-  // ============================
   const hasDiscount = producto.discount > 0;
 
   const cleanPrice = Number(producto.price);
@@ -112,12 +107,9 @@ export default function ProductDetail() {
       maximumFractionDigits: 0,
     });
 
-  // ============================
-  // CARRITO
-  // ============================
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Seleccioná un talle disponible");
+      toast.error("Seleccioná un talle disponible antes de agregar al carrito");
       return;
     }
 
@@ -125,11 +117,13 @@ export default function ProductDetail() {
       size: selectedSize,
       color: selectedColor,
     });
+
+    toast.success("Producto agregado al carrito");
   };
 
   const handleBuyNow = () => {
     if (!selectedSize) {
-      alert("Seleccioná un talle disponible");
+      toast.error("Seleccioná un talle disponible para continuar con la compra");
       return;
     }
 
@@ -141,9 +135,6 @@ export default function ProductDetail() {
     navigate("/cart");
   };
 
-  // ============================
-  // ENVÍOS (mock)
-  // ============================
   const handleCalculateShipping = () => {
     setShippingError("");
 
@@ -173,14 +164,60 @@ export default function ProductDetail() {
     }, 700);
   };
 
-  // ============================
-  // Talles S → 3XL
-  // ============================
-  const allSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
+  const allSizes = ["S", "M", "L", "XL", "XXL", "3XL"];
 
   return (
     <div className="pd-container">
       <div className="pd-main">
+
+        {/* ⭐ TÍTULO + TEXTO + CORAZÓN */}
+        <h1 className="pd-title">{producto.name}</h1>
+
+        <div className="pd-wishlist-row">
+          <p className="pd-wishlist-text">Agregar a tu lista de deseados</p>
+
+          <button
+            className="pd-wishlist-icon"
+            onClick={() => {
+              toggleWishlist(producto);
+
+              if (isInWishlist(producto._id)) {
+                toast("Quitado de favoritos", { icon: "💔" });
+              } else {
+                toast("Agregado a favoritos", { icon: "❤️" });
+              }
+            }}
+          >
+            {isInWishlist(producto._id) ? (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="#d94f7a"
+                stroke="#d94f7a"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20.8 4.6c-1.7-1.7-4.5-1.7-6.2 0L12 7.2l-2.6-2.6c-1.7-1.7-4.5-1.7-6.2 0s-1.7 4.5 0 6.2L12 21l8.8-10.2c1.7-1.7 1.7-4.5 0-6.2z" />
+              </svg>
+            ) : (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#d94f7a"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20.8 4.6c-1.7-1.7-4.5-1.7-6.2 0L12 7.2l-2.6-2.6c-1.7-1.7-4.5-1.7-6.2 0s-1.7 4.5 0 6.2L12 21l8.8-10.2c1.7-1.7 1.7-4.5 0-6.2z" />
+              </svg>
+            )}
+          </button>
+        </div>
+
         {/* IMÁGENES */}
         <div className="pd-images">
           <img
@@ -204,7 +241,6 @@ export default function ProductDetail() {
 
         {/* INFO */}
         <div className="pd-info">
-          <h1 className="pd-title">{producto.name}</h1>
 
           {/* PRECIO */}
           <div className="pd-price-block">
@@ -220,17 +256,17 @@ export default function ProductDetail() {
               <p className="pd-price">${formatPrice(discountedPrice)}</p>
             </div>
 
-            {/* SIN STOCK DEL TALLE */}
-            {selectedSize && producto.stock?.[selectedSize] === 0 && (
-              <p className="pd-no-stock-msg">Sin stock para este talle</p>
-            )}
+            {/* ⭐ STOCK REAL */}
+            {selectedSize &&
+              (producto.stockColorId?.talles?.[selectedSize] ?? 0) === 0 && (
+                <p className="pd-no-stock-msg">Sin stock para este talle</p>
+              )}
 
-            {/* SIEMPRE mostrar transferencia */}
             <p className="pd-secondary-text">
-              ${formatPrice(discountedPrice)} pagando con transferencia o depósito bancario.
+              ${formatPrice(discountedPrice)} pagando con transferencia o
+              depósito bancario.
             </p>
           </div>
-
 
           {/* DESCRIPCIÓN */}
           <p className="pd-description">{producto.description}</p>
@@ -260,7 +296,9 @@ export default function ProductDetail() {
 
             <div className="pd-sizes-row">
               {allSizes.map((talle) => {
-                const stockForSize = producto.stock?.[talle] ?? 0;
+                const stockForSize =
+                  producto.stockColorId?.talles?.[talle] ?? 0;
+
                 const isOut = stockForSize <= 0;
 
                 return (
@@ -271,7 +309,7 @@ export default function ProductDetail() {
                       ${isOut ? "out-of-stock" : ""}`}
                     onClick={() => {
                       if (isOut) {
-                        alert("Este talle no tiene stock disponible");
+                        toast.error("Este talle no tiene stock disponible");
                         return;
                       }
                       setSelectedSize(talle);
@@ -407,11 +445,12 @@ export default function ProductDetail() {
 
           {/* BOTONES */}
           <div className="pd-actions">
-            {selectedSize && producto.stock?.[selectedSize] > 0 && (
-              <button className="pd-btn-buy" onClick={handleBuyNow}>
-                Comprar ahora
-              </button>
-            )}
+            {selectedSize &&
+              (producto.stockColorId?.talles?.[selectedSize] ?? 0) > 0 && (
+                <button className="pd-btn-buy" onClick={handleBuyNow}>
+                  Comprar ahora
+                </button>
+              )}
 
             <button className="pd-btn-cart" onClick={handleAddToCart}>
               Agregar al carrito

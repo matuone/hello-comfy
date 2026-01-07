@@ -3,7 +3,9 @@ import StockColor from "../models/StockColor.js";
 
 const router = express.Router();
 
-// Obtener todos los colores
+// ============================
+// OBTENER TODOS LOS COLORES
+// ============================
 router.get("/", async (req, res) => {
   try {
     const colores = await StockColor.find();
@@ -13,7 +15,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Crear un nuevo color
+// ============================
+// CREAR COLOR
+// ============================
 router.post("/", async (req, res) => {
   try {
     const nuevo = await StockColor.create(req.body);
@@ -23,7 +27,9 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Actualizar un color
+// ============================
+// ACTUALIZAR COLOR
+// ============================
 router.put("/:id", async (req, res) => {
   try {
     const actualizado = await StockColor.findByIdAndUpdate(
@@ -37,7 +43,9 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Eliminar un color
+// ============================
+// ELIMINAR COLOR
+// ============================
 router.delete("/:id", async (req, res) => {
   try {
     await StockColor.findByIdAndDelete(req.params.id);
