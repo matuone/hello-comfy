@@ -29,6 +29,14 @@ export default function ProductDetail() {
   const [loadingSimilares, setLoadingSimilares] = useState(true);
 
   // ============================
+  // ENVÍOS
+  // ============================
+  const [postalCode, setPostalCode] = useState("");
+  const [shippingOptions, setShippingOptions] = useState(null);
+  const [loadingShipping, setLoadingShipping] = useState(false);
+  const [shippingError, setShippingError] = useState("");
+
+  // ============================
   // FETCH PRODUCTO PRINCIPAL
   // ============================
   useEffect(() => {
@@ -38,15 +46,21 @@ export default function ProductDetail() {
       .then((data) => {
         setProducto(data);
         setSelectedImage(data.images?.[0] || null);
-        setSelectedSize(data.sizes?.[0] || null);
         setSelectedColor(data.colors?.[0] || null);
+
+        const allSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
+        const firstAvailable = allSizes.find(
+          (t) => (data.stock?.[t] ?? 0) > 0
+        );
+        setSelectedSize(firstAvailable || null);
+
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [id]);
 
   // ============================
-  // FETCH PRODUCTOS SIMILARES
+  // FETCH SIMILARES
   // ============================
   useEffect(() => {
     if (!producto) return;
@@ -82,12 +96,31 @@ export default function ProductDetail() {
   if (loading) return <p className="loading">Cargando producto...</p>;
   if (!producto) return <p className="error">Producto no encontrado.</p>;
 
-  const hasDiscount = producto.discount && producto.discount > 0;
-  const discountedPrice = hasDiscount
-    ? producto.price - (producto.price * producto.discount) / 100
-    : producto.price;
+  // ============================
+  // PRECIOS SIN DECIMALES
+  // ============================
+  const hasDiscount = producto.discount > 0;
 
+  const cleanPrice = Number(producto.price);
+  const discountedPrice = hasDiscount
+    ? Number(producto.price - (producto.price * producto.discount) / 100)
+    : cleanPrice;
+
+  const formatPrice = (num) =>
+    Number(num).toLocaleString("es-AR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+
+  // ============================
+  // CARRITO
+  // ============================
   const handleAddToCart = () => {
+    if (!selectedSize) {
+      alert("Seleccioná un talle disponible");
+      return;
+    }
+
     addToCart(producto, {
       size: selectedSize,
       color: selectedColor,
@@ -95,21 +128,59 @@ export default function ProductDetail() {
   };
 
   const handleBuyNow = () => {
+    if (!selectedSize) {
+      alert("Seleccioná un talle disponible");
+      return;
+    }
+
     addToCart(producto, {
       size: selectedSize,
       color: selectedColor,
     });
+
     navigate("/cart");
   };
 
+  // ============================
+  // ENVÍOS (mock)
+  // ============================
+  const handleCalculateShipping = () => {
+    setShippingError("");
+
+    if (!postalCode || postalCode.length < 4) {
+      setShippingError("Ingresá un código postal válido.");
+      return;
+    }
+
+    setLoadingShipping(true);
+
+    const base = cleanPrice > 15000 ? 0 : 1900;
+
+    setTimeout(() => {
+      setShippingOptions({
+        andreani: {
+          carrier: "Andreani",
+          price: base,
+          eta: "3 a 5 días hábiles",
+        },
+        correoArgentino: {
+          carrier: "Correo Argentino",
+          price: base === 0 ? 0 : base - 300,
+          eta: "4 a 7 días hábiles",
+        },
+      });
+      setLoadingShipping(false);
+    }, 700);
+  };
+
+  // ============================
+  // Talles S → 3XL
+  // ============================
+  const allSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
+
   return (
     <div className="pd-container">
-
-      {/* ============================
-          PRODUCTO PRINCIPAL (IMAGEN + INFO)
-      ============================ */}
       <div className="pd-main">
-
         {/* IMÁGENES */}
         <div className="pd-images">
           <img
@@ -131,11 +202,11 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* INFORMACIÓN */}
+        {/* INFO */}
         <div className="pd-info">
           <h1 className="pd-title">{producto.name}</h1>
 
-          {/* PRECIO + DESCUENTO */}
+          {/* PRECIO */}
           <div className="pd-price-block">
             {hasDiscount && (
               <span className="pd-discount-tag">-{producto.discount}% OFF</span>
@@ -143,23 +214,23 @@ export default function ProductDetail() {
 
             <div className="pd-prices">
               {hasDiscount && (
-                <p className="pd-old-price">
-                  ${producto.price.toLocaleString("es-AR")}
-                </p>
+                <p className="pd-old-price">${formatPrice(cleanPrice)}</p>
               )}
 
-              <p className="pd-price">
-                ${discountedPrice.toLocaleString("es-AR")}
-              </p>
+              <p className="pd-price">${formatPrice(discountedPrice)}</p>
             </div>
 
-            {hasDiscount && (
-              <p className="pd-secondary-text">
-                ${discountedPrice.toLocaleString("es-AR")} pagando con
-                transferencia o depósito bancario.
-              </p>
+            {/* SIN STOCK DEL TALLE */}
+            {selectedSize && producto.stock?.[selectedSize] === 0 && (
+              <p className="pd-no-stock-msg">Sin stock para este talle</p>
             )}
+
+            {/* SIEMPRE mostrar transferencia */}
+            <p className="pd-secondary-text">
+              ${formatPrice(discountedPrice)} pagando con transferencia o depósito bancario.
+            </p>
           </div>
+
 
           {/* DESCRIPCIÓN */}
           <p className="pd-description">{producto.description}</p>
@@ -184,26 +255,38 @@ export default function ProductDetail() {
           )}
 
           {/* TALLES */}
-          {producto.sizes?.length > 0 && (
-            <div className="pd-sizes">
-              <h3>Talles disponibles</h3>
-              <div className="pd-sizes-row">
-                {producto.sizes.map((talle) => (
+          <div className="pd-sizes">
+            <h3>Talles disponibles</h3>
+
+            <div className="pd-sizes-row">
+              {allSizes.map((talle) => {
+                const stockForSize = producto.stock?.[talle] ?? 0;
+                const isOut = stockForSize <= 0;
+
+                return (
                   <button
                     key={talle}
-                    className={`pd-size-btn ${selectedSize === talle ? "active" : ""
-                      }`}
-                    onClick={() => setSelectedSize(talle)}
+                    className={`pd-size-btn 
+                      ${selectedSize === talle ? "active" : ""} 
+                      ${isOut ? "out-of-stock" : ""}`}
+                    onClick={() => {
+                      if (isOut) {
+                        alert("Este talle no tiene stock disponible");
+                        return;
+                      }
+                      setSelectedSize(talle);
+                    }}
+                    disabled={isOut}
                   >
                     {talle}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          )}
+          </div>
 
           {/* GUÍA DE TALLES */}
-          {producto.sizeGuide && producto.sizeGuide !== "none" && (
+          {producto.sizeGuide !== "none" && (
             <div className="pd-size-guide">
               <h3>Guía de talles</h3>
 
@@ -216,24 +299,98 @@ export default function ProductDetail() {
           {/* PAGOS */}
           <div className="pd-payments">
             <h3>Medios de pago</h3>
-            <ul className="pd-list">
-              <li>3 cuotas sin interés con débito seleccionados.</li>
-              <li>
-                {hasDiscount
-                  ? "10% de descuento pagando con transferencia o depósito."
-                  : "Beneficios extra pagando con transferencia o depósito."}
-              </li>
-              <li>Compra protegida y cambios fáciles.</li>
-            </ul>
+
+            <div className="pd-payments-row">
+              <div className="pd-payments-icons">
+                <span className="pd-payment-pill">Visa</span>
+                <span className="pd-payment-pill">Mastercard</span>
+                <span className="pd-payment-pill">Amex</span>
+                <span className="pd-payment-pill">Mercado Pago</span>
+                <span className="pd-payment-pill">Transferencia</span>
+                <span className="pd-payment-pill">Cuenta DNI</span>
+                <span className="pd-payment-pill">GoCuotas</span>
+                <span className="pd-payment-pill">MODO</span>
+              </div>
+
+              <ul className="pd-list">
+                <li>3 cuotas sin interés en productos seleccionados.</li>
+                <li>
+                  {hasDiscount
+                    ? "10% de descuento pagando con transferencia o depósito."
+                    : "Beneficios extra pagando con transferencia o depósito."}
+                </li>
+                <li>
+                  Total estimado:{" "}
+                  <strong>${formatPrice(discountedPrice)}</strong>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* ENVÍOS */}
           <div className="pd-shipping">
             <h3>Envíos</h3>
-            <ul className="pd-list">
+
+            <p className="pd-shipping-text">
+              Ingresá tu código postal para ver las opciones de envío con
+              Andreani y Correo Argentino.
+            </p>
+
+            <div className="pd-shipping-form">
+              <input
+                type="text"
+                className="pd-input"
+                placeholder="Código postal"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+              />
+
+              <button
+                className="pd-btn-outline"
+                onClick={handleCalculateShipping}
+                disabled={loadingShipping}
+              >
+                {loadingShipping ? "Calculando..." : "Calcular envío"}
+              </button>
+            </div>
+
+            {shippingError && (
+              <p className="pd-shipping-error">{shippingError}</p>
+            )}
+
+            {shippingOptions && (
+              <div className="pd-shipping-results">
+                <div className="pd-shipping-card">
+                  <h4>Andreani</h4>
+                  <p className="pd-shipping-price">
+                    {shippingOptions.andreani.price === 0
+                      ? "Envío gratis"
+                      : `$${formatPrice(shippingOptions.andreani.price)}`}
+                  </p>
+                  <p className="pd-shipping-eta">
+                    {shippingOptions.andreani.eta}
+                  </p>
+                </div>
+
+                <div className="pd-shipping-card">
+                  <h4>Correo Argentino</h4>
+                  <p className="pd-shipping-price">
+                    {shippingOptions.correoArgentino.price === 0
+                      ? "Envío gratis"
+                      : `$${formatPrice(
+                        shippingOptions.correoArgentino.price
+                      )}`}
+                  </p>
+                  <p className="pd-shipping-eta">
+                    {shippingOptions.correoArgentino.eta}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <ul className="pd-list pd-shipping-extra">
               <li>Envío gratis superando los $15.000.</li>
               <li>Retiro en punto de pick-up (showroom) a coordinar.</li>
-              <li>Próximamente: cálculo automático de envío por código postal.</li>
             </ul>
           </div>
 
@@ -250,9 +407,12 @@ export default function ProductDetail() {
 
           {/* BOTONES */}
           <div className="pd-actions">
-            <button className="pd-btn-buy" onClick={handleBuyNow}>
-              Comprar ahora
-            </button>
+            {selectedSize && producto.stock?.[selectedSize] > 0 && (
+              <button className="pd-btn-buy" onClick={handleBuyNow}>
+                Comprar ahora
+              </button>
+            )}
+
             <button className="pd-btn-cart" onClick={handleAddToCart}>
               Agregar al carrito
             </button>
@@ -260,9 +420,7 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* ============================
-          PRODUCTOS SIMILARES
-      ============================ */}
+      {/* SIMILARES */}
       <div className="pd-similares">
         <h2>Productos similares</h2>
 
@@ -296,7 +454,7 @@ export default function ProductDetail() {
                   <h3 className="similar-name">{p.name}</h3>
 
                   <p className="similar-price">
-                    ${p.price.toLocaleString("es-AR")}
+                    ${formatPrice(p.price)}
                   </p>
                 </div>
               </SwiperSlide>
