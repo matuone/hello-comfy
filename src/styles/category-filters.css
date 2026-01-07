@@ -1,0 +1,70 @@
+/* ==========================================
+   CATEGORY FILTERS — Estilos aislados
+   Archivo: category-filters.css
+   ========================================== */
+
+/* Contenedor del filtro */
+.category-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 30px;
+  padding: 10px 0;
+}
+
+/* Label */
+.category-sort-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+}
+
+/* Select */
+.category-sort-select {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-sort-select:hover {
+  background: #f0f0f0;
+}
+
+.category-sort-select:focus {
+  outline: none;
+  border-color: #b8b8ff;
+  box-shadow: 0 0 0 2px rgba(184, 184, 255, 0.4);
+}
+
+/* Loader */
+.category-loading {
+  text-align: center;
+  font-size: 16px;
+  color: #777;
+  margin-top: 40px;
+}
+
+/* Mensaje vacío */
+.category-empty {
+  text-align: center;
+  font-size: 17px;
+  margin-top: 40px;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .category-filters {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .category-sort-select {
+    width: 100%;
+  }
+}

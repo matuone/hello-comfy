@@ -382,7 +382,7 @@ export default function Products() {
                   className="productcard__btn-cart"
                   onClick={() => console.log("Agregar al carrito", p._id)}
                 >
-                  Agregar
+                  Agregar al carrito
                 </button>
               </div>
 
