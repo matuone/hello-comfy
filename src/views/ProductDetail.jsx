@@ -9,9 +9,9 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 import { toast } from "react-hot-toast";
 
@@ -167,10 +167,6 @@ export default function ProductDetail() {
       <h1 className="pd-title pd-title-centered">{producto.name}</h1>
 
       <div className="pd-main">
-
-
-
-
         {/* ⭐ IMAGEN PRINCIPAL + CORAZÓN */}
         <div className="pd-images">
           <div className="pd-main-img-wrapper">
@@ -220,7 +216,6 @@ export default function ProductDetail() {
                 </svg>
               )}
             </button>
-
           </div>
 
           <div className="pd-thumbs">
@@ -238,7 +233,6 @@ export default function ProductDetail() {
 
         {/* INFO */}
         <div className="pd-info">
-
           {/* PRECIO */}
           <div className="pd-price-block">
             {hasDiscount && (
@@ -451,41 +445,71 @@ export default function ProductDetail() {
 
       {/* SIMILARES */}
       <div className="pd-similares">
-        <h2>Productos similares</h2>
+        <h2 className="pd-subtitle-centered">Productos similares</h2>
 
         {loadingSimilares ? (
           <p className="similar-loading">Cargando productos...</p>
         ) : (
           <Swiper
-            modules={[Navigation]}
-            navigation
+            modules={[Pagination]}
+            pagination={{ clickable: true }}
+            slidesPerView={5}
             spaceBetween={20}
-            slidesPerView={1.3}
-            breakpoints={{
-              600: { slidesPerView: 2.2 },
-              900: { slidesPerView: 3.2 },
-              1200: { slidesPerView: 4.2 },
-            }}
+            speed={400}
             className="similar-swiper"
           >
             {similares.map((p) => (
               <SwiperSlide key={p._id}>
-                <div
-                  className="similar-card"
-                  onClick={() => navigate(`/products/${p._id}`)}
-                >
+                <div className="newin__item">
                   <img
                     src={p.images?.[0] || "https://via.placeholder.com/300"}
                     alt={p.name}
-                    className="similar-img"
+                    className="newin__image"
+                    onClick={() => navigate(`/products/${p._id}`)}
                   />
 
-                  <h3 className="similar-name">{p.name}</h3>
+                  <h3
+                    className="newin__name"
+                    onClick={() => navigate(`/products/${p._id}`)}
+                  >
+                    {p.name}
+                  </h3>
 
-                  <p className="similar-price">
-                    ${formatPrice(p.price)}
+                  <p className="newin__price">
+                    ${p.price?.toLocaleString("es-AR")}
                   </p>
+
+                  <p className="newin__desc">
+                    {p.cardDescription || p.description || "Nuevo producto disponible"}
+                  </p>
+
+                  {p.sizes?.length > 0 && (
+                    <div className="newin__sizes">
+                      {p.sizes.map((talle) => (
+                        <span key={talle} className="newin__size-pill">
+                          {talle}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="newin__stars">
+                    {"★".repeat(4)}☆
+                  </div>
+
+                  <div className="newin__buttons">
+                    <button className="newin__btn-buy">Comprar</button>
+                    <button className="newin__btn-cart">Agregar al carrito</button>
+                  </div>
+
+                  <button
+                    className="newin__btn-viewmore"
+                    onClick={() => navigate(`/products/${p._id}`)}
+                  >
+                    Ver más
+                  </button>
                 </div>
+
               </SwiperSlide>
             ))}
           </Swiper>

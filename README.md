@@ -431,5 +431,5 @@ Con estos cambios:
 - El proyecto avanza hacia una arquitectura más escalable y profesional  
 
 
-
+- Productdetail es el encargado de la apariencia de cada producto particular. 
 # Fin del README

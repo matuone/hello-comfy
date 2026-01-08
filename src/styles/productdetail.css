@@ -62,40 +62,64 @@
   flex: 1;
 }
 
-/* ⭐ NUEVO: fila título + corazón */
-.pd-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  /* restaura el espacio original */
-}
-
-/* ⭐ FIX: restaurar margen original del título */
-.pd-title {
-  font-size: 2rem;
+/* ============================
+   TÍTULOS
+============================ */
+.pd-title-centered {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 30px !important;
+  font-size: 2.2rem;
   font-weight: 800;
-  margin-bottom: 10px !important;
+  color: #d94f7a;
+  animation: fadeInUp 0.6s ease-out both;
 }
 
-/* ⭐ NUEVO: botón del corazón */
-.pd-wishlist-icon {
+.pd-subtitle-centered {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #d94f7a;
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+/* Animación suave */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================
+   CORAZÓN FLOTANTE
+============================ */
+.pd-main-img-wrapper {
+  position: relative;
+  width: fit-content;
+}
+
+.pd-wishlist-floating {
+  position: absolute;
+  top: 12px;
+  right: 12px;
   background: none;
   border: none;
-  padding: 0;
+  font-size: 28px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.pd-wishlist-icon:hover {
-  transform: scale(1.08);
+.pd-wishlist-floating:hover {
+  transform: scale(1.15);
   opacity: 0.9;
-}
-
-.pd-wishlist-icon svg {
-  pointer-events: none;
 }
 
 /* ============================
@@ -152,37 +176,6 @@
 }
 
 /* ============================
-   COLORES
-============================ */
-.pd-colors {
-  margin-top: 20px;
-}
-
-.pd-colors-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.pd-color-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.pd-color-dot:hover {
-  transform: scale(1.15);
-}
-
-.pd-color-dot.active {
-  border-color: #d94f7a;
-  transform: scale(1.2);
-}
-
-/* ============================
    TALLES
 ============================ */
 .pd-sizes {
@@ -216,7 +209,6 @@
   transform: scale(1.05);
 }
 
-/* Talle sin stock */
 .pd-size-btn.out-of-stock {
   background: #f5f5f5;
   color: #aaa;
@@ -225,7 +217,6 @@
   opacity: 0.6;
 }
 
-/* ✕ visual */
 .pd-size-btn.out-of-stock::after {
   content: "✕";
   position: absolute;
@@ -234,6 +225,29 @@
   font-size: 0.8rem;
   color: #d94f7a;
   font-weight: 700;
+}
+
+/* ============================
+   COLOR PREVIEW
+============================ */
+.pd-color-preview {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pd-color-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+}
+
+.pd-color-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #444;
 }
 
 /* ============================
@@ -277,16 +291,6 @@
   color: #d94f7a;
   font-size: 0.8rem;
   font-weight: 600;
-}
-
-.pd-list {
-  margin-top: 10px;
-  padding-left: 20px;
-  color: #444;
-}
-
-.pd-list li {
-  margin-bottom: 6px;
 }
 
 /* ============================
@@ -346,48 +350,6 @@
 .pd-btn-outline:disabled {
   opacity: 0.6;
   cursor: default;
-}
-
-.pd-shipping-error {
-  font-size: 0.85rem;
-  color: #d94f7a;
-  margin-bottom: 6px;
-}
-
-.pd-shipping-results {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.pd-shipping-card {
-  flex: 1 1 160px;
-  padding: 10px;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-}
-
-.pd-shipping-card h4 {
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-  color: #333;
-}
-
-.pd-shipping-price {
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 2px;
-}
-
-.pd-shipping-eta {
-  font-size: 0.85rem;
-  color: #6b7280;
-}
-
-.pd-shipping-extra {
-  margin-top: 4px;
 }
 
 /* ============================
@@ -459,42 +421,37 @@
 }
 
 /* ============================
-   PRODUCTOS SIMILARES
+   PRODUCTOS SIMILARES (NEWIN STYLE)
 ============================ */
 .pd-similares {
   margin-top: 40px;
 }
 
-.pd-similares h2 {
-  font-size: 1.6rem;
-  font-weight: 800;
-  margin-bottom: 20px;
-}
-
 .similar-card {
-  background: white;
-  padding: 14px;
+  padding: 0;
+  background: none;
   border-radius: 14px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  cursor: pointer;
   transition: transform 0.2s ease;
+  cursor: pointer;
 }
 
 .similar-card:hover {
   transform: translateY(-4px);
 }
 
-.similar-img {
+.similar-card img {
   width: 100%;
-  height: 220px;
+  height: 260px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .similar-name {
   font-size: 1rem;
   font-weight: 700;
   margin-top: 10px;
+  text-align: center;
 }
 
 .similar-price {
@@ -502,6 +459,18 @@
   font-weight: 600;
   color: #d94f7a;
   margin-top: 4px;
+  text-align: center;
+}
+
+/* Paginación comfy */
+.swiper-pagination-bullet {
+  background: #f7b6c8 !important;
+  opacity: 0.6;
+}
+
+.swiper-pagination-bullet-active {
+  background: #d94f7a !important;
+  opacity: 1;
 }
 
 /* ============================
@@ -524,77 +493,5 @@
 
   .pd-shipping-form {
     flex-direction: column;
-  }
-}
-
-/* ============================
-   CORAZÓN FLOTANTE EN LA IMAGEN
-============================ */
-.pd-main-img-wrapper {
-  position: relative;
-  width: fit-content;
-}
-
-.pd-wishlist-floating {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.pd-wishlist-floating:hover {
-  transform: scale(1.15);
-  opacity: 0.9;
-}
-
-/* ============================
-   CIRCULITO DE COLOR
-============================ */
-.pd-color-preview {
-  margin-top: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pd-color-circle {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid #ddd;
-}
-
-.pd-color-label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #444;
-}
-
-/* Título centrado con estilo HelloComfy */
-.pd-title-centered {
-  text-align: center;
-  width: 100%;
-  margin-bottom: 30px !important;
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: #d94f7a;
-  /* Rosa comfy */
-  animation: fadeInUp 0.6s ease-out both;
-}
-
-/* Animación suave de entrada */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
