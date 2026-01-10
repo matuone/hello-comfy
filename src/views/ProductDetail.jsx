@@ -28,6 +28,8 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
+  const [quantity, setQuantity] = useState(1); // ⭐ NUEVO
+
   const [similares, setSimilares] = useState([]);
   const [loadingSimilares, setLoadingSimilares] = useState(true);
 
@@ -50,6 +52,7 @@ export default function ProductDetail() {
         );
 
         setSelectedSize(firstAvailable || null);
+        setQuantity(1); // reset cantidad al cargar producto
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -102,15 +105,54 @@ export default function ProductDetail() {
       maximumFractionDigits: 0,
     });
 
+  const allSizes = ["S", "M", "L", "XL", "XXL", "3XL"];
+
+  const stockForSelectedSize =
+    selectedSize ? producto.stockColorId?.talles?.[selectedSize] ?? 0 : 0;
+
+  // ⭐ CANTIDAD
+  const handleDecreaseQuantity = () => {
+    setQuantity((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleIncreaseQuantity = () => {
+    if (!selectedSize) {
+      toast.error("Seleccioná un talle antes de elegir cantidad");
+      return;
+    }
+
+    if (stockForSelectedSize <= 0) {
+      toast.error("No hay stock disponible para este talle");
+      return;
+    }
+
+    setQuantity((prev) => {
+      if (prev >= stockForSelectedSize) {
+        toast.error(
+          `Solo hay ${stockForSelectedSize} unidad${stockForSelectedSize > 1 ? "es" : ""
+          } disponibles para este talle`
+        );
+        return prev;
+      }
+      return prev + 1;
+    });
+  };
+
   const handleAddToCart = () => {
     if (!selectedSize) {
       toast.error("Seleccioná un talle disponible antes de agregar al carrito");
       return;
     }
 
+    if (stockForSelectedSize <= 0) {
+      toast.error("No hay stock disponible para este talle");
+      return;
+    }
+
     addToCart(producto, {
       size: selectedSize,
       color: producto.stockColorId?.color,
+      quantity,
     });
 
     toast.success("Producto agregado al carrito");
@@ -122,9 +164,15 @@ export default function ProductDetail() {
       return;
     }
 
+    if (stockForSelectedSize <= 0) {
+      toast.error("No hay stock disponible para este talle");
+      return;
+    }
+
     addToCart(producto, {
       size: selectedSize,
       color: producto.stockColorId?.color,
+      quantity,
     });
 
     navigate("/cart");
@@ -158,8 +206,6 @@ export default function ProductDetail() {
       setLoadingShipping(false);
     }, 700);
   };
-
-  const allSizes = ["S", "M", "L", "XL", "XXL", "3XL"];
 
   return (
     <div className="pd-container">
@@ -284,6 +330,7 @@ export default function ProductDetail() {
                         return;
                       }
                       setSelectedSize(talle);
+                      setQuantity(1); // reset cantidad al cambiar talle
                     }}
                     disabled={isOut}
                   >
@@ -306,6 +353,39 @@ export default function ProductDetail() {
               </span>
             </div>
           )}
+
+          {/* ⭐ SELECTOR DE CANTIDAD */}
+          <div className="pd-quantity">
+            <span className="pd-quantity-label">
+              Cantidad{" "}
+              {selectedSize && stockForSelectedSize > 0 && (
+                <span className="pd-quantity-stock">
+                  (Stock disponible: {stockForSelectedSize})
+                </span>
+              )}
+            </span>
+
+            <div className="pd-quantity-controls">
+              <button
+                type="button"
+                className="pd-qty-btn"
+                onClick={handleDecreaseQuantity}
+              >
+                -
+              </button>
+
+              <span className="pd-qty-value">{quantity}</span>
+
+              <button
+                type="button"
+                className="pd-qty-btn"
+                onClick={handleIncreaseQuantity}
+                disabled={stockForSelectedSize <= 0}
+              >
+                +
+              </button>
+            </div>
+          </div>
 
           {/* GUÍA DE TALLES */}
           {producto.sizeGuide !== "none" && (
@@ -480,7 +560,9 @@ export default function ProductDetail() {
                   </p>
 
                   <p className="newin__desc">
-                    {p.cardDescription || p.description || "Nuevo producto disponible"}
+                    {p.cardDescription ||
+                      p.description ||
+                      "Nuevo producto disponible"}
                   </p>
 
                   {p.sizes?.length > 0 && (
@@ -499,7 +581,9 @@ export default function ProductDetail() {
 
                   <div className="newin__buttons">
                     <button className="newin__btn-buy">Comprar</button>
-                    <button className="newin__btn-cart">Agregar al carrito</button>
+                    <button className="newin__btn-cart">
+                      Agregar al carrito
+                    </button>
                   </div>
 
                   <button
@@ -509,7 +593,6 @@ export default function ProductDetail() {
                     Ver más
                   </button>
                 </div>
-
               </SwiperSlide>
             ))}
           </Swiper>

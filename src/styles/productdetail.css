@@ -421,45 +421,86 @@
 }
 
 /* ============================
+   CANTIDAD
+============================ */
+.pd-quantity {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pd-quantity-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.pd-quantity-stock {
+  font-weight: 500;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.pd-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pd-qty-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #d94f7a;
+  background: #fff;
+  color: #d94f7a;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.pd-qty-btn:hover:not(:disabled) {
+  background: #d94f7a;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.pd-qty-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pd-qty-value {
+  min-width: 32px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ============================
    PRODUCTOS SIMILARES (NEWIN STYLE)
 ============================ */
 .pd-similares {
   margin-top: 40px;
 }
 
-.similar-card {
-  padding: 0;
-  background: none;
-  border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease;
-  cursor: pointer;
+/* Alinear newin__item dentro de similares */
+.pd-similares .swiper-slide {
+  display: flex;
+  justify-content: center;
 }
 
-.similar-card:hover {
-  transform: translateY(-4px);
-}
-
-.similar-card img {
+.pd-similares .newin__item {
   width: 100%;
-  height: 260px;
-  object-fit: cover;
-  border-radius: 14px;
-}
-
-.similar-name {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.similar-price {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #d94f7a;
-  margin-top: 4px;
-  text-align: center;
+  min-width: 240px;
+  max-width: 260px;
+  margin: 0 auto;
 }
 
 /* Paginación comfy */
