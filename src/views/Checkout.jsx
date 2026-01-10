@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
 
-import Step1 from "../components/checkout/CheckoutStep1";
-import Step2 from "../components/checkout/CheckoutStep2";
-import Step3 from "../components/checkout/CheckoutStep3";
-import Step4 from "../components/checkout/CheckoutStep4";
+import Step1 from "./CheckoutStep1";
+import Step2 from "./CheckoutStep2";
+import Step3 from "./CheckoutStep3";
+import Step4 from "./CheckoutStep4";
+
 
 import "../styles/checkout.css";
 
