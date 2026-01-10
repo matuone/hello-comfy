@@ -1,14 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import "../styles/cart.css";
 
 export default function Cart() {
   const navigate = useNavigate();
-  const { items, removeFromCart, clearCart, totalItems } = useCart();
+  const {
+    items,
+    removeFromCart,
+    clearCart,
+    totalItems,
+  } = useCart();
 
   // ============================
   // REGLAS DE DESCUENTO DEL ADMIN
+  // (estas las estás manejando local acá)
   // ============================
   const [discountRules, setDiscountRules] = useState([]);
 
@@ -17,6 +24,61 @@ export default function Cart() {
       .then((res) => res.json())
       .then((data) => setDiscountRules(data));
   }, []);
+
+  // ============================
+  // STOCK POR ITEM (POR TALLE)
+  // ============================
+  const [stockMap, setStockMap] = useState({});
+
+  useEffect(() => {
+    if (!items.length) {
+      setStockMap({});
+      return;
+    }
+
+    const fetchStocks = async () => {
+      const map = {};
+      const groupedByProduct = {};
+
+      items.forEach((item) => {
+        if (!groupedByProduct[item.productId]) {
+          groupedByProduct[item.productId] = [];
+        }
+        groupedByProduct[item.productId].push(item);
+      });
+
+      await Promise.all(
+        Object.keys(groupedByProduct).map(async (productId) => {
+          try {
+            const res = await fetch(
+              `http://localhost:5000/api/products/${productId}`
+            );
+            const data = await res.json();
+            const talles = data.stockColorId?.talles || {};
+
+            groupedByProduct[productId].forEach((item) => {
+              if (item.size) {
+                const stock = talles[item.size] ?? 0;
+                map[item.key] = stock;
+              } else {
+                // productos sin talle: no limitamos por stock desde acá
+                map[item.key] = Infinity;
+              }
+            });
+          } catch (err) {
+            // si falla el fetch, no limitamos stock (para no bloquear la compra)
+            groupedByProduct[productId].forEach((item) => {
+              map[item.key] = Infinity;
+            });
+          }
+        })
+      );
+
+      setStockMap(map);
+    };
+
+    fetchStocks();
+  }, [items]);
 
   // ============================
   // CÓDIGO PROMOCIONAL
@@ -112,6 +174,34 @@ export default function Cart() {
     console.log("Checkout iniciado (próximamente integrado con backend)");
   };
 
+  // ============================
+  // HANDLERS DE CANTIDAD (RESPETAN STOCK)
+  // ============================
+  const { updateQuantity } = useCart();
+
+  const handleDecrease = (item) => {
+    if (item.quantity <= 1) return;
+    updateQuantity(item.key, item.quantity - 1);
+  };
+
+  const handleIncrease = (item) => {
+    const stock = stockMap[item.key];
+
+    if (
+      stock !== undefined &&
+      stock !== Infinity &&
+      item.quantity >= stock
+    ) {
+      toast.error(
+        `Solo hay ${stock} unidad${stock === 1 ? "" : "es"
+        } disponibles para este talle`
+      );
+      return;
+    }
+
+    updateQuantity(item.key, item.quantity + 1);
+  };
+
   if (totalItems === 0) {
     return (
       <div className="cart container-empty">
@@ -119,7 +209,10 @@ export default function Cart() {
         <p className="cart-subtitle">
           Agregá algunos productos comfy y volvé por acá.
         </p>
-        <button className="cart-btn-primary" onClick={() => navigate("/products")}>
+        <button
+          className="cart-btn-primary"
+          onClick={() => navigate("/products")}
+        >
           Ver productos
         </button>
       </div>
@@ -130,7 +223,8 @@ export default function Cart() {
     <div className="cart">
       <h1 className="cart-title">Tu carrito</h1>
       <p className="cart-subtitle">
-        Tenés {totalItems} {totalItems === 1 ? "producto" : "productos"} en tu carrito.
+        Tenés {totalItems}{" "}
+        {totalItems === 1 ? "producto" : "productos"} en tu carrito.
       </p>
 
       <div className="cart-layout">
@@ -155,6 +249,7 @@ export default function Cart() {
             }
 
             const hasAnyDiscount = finalPrice !== basePrice;
+            const stockForItem = stockMap[item.key];
 
             return (
               <div key={item.key} className="cart-item">
@@ -196,9 +291,33 @@ export default function Cart() {
                     </span>
                   </div>
 
-                  <p className="cart-item-qty">
-                    Cantidad: <strong>{item.quantity}</strong>
-                  </p>
+                  {/* ============================
+                      CANTIDAD + STOCK
+                  ============================ */}
+                  <div className="cart-item-qty">
+                    <span>Cantidad:</span>
+                    <button
+                      type="button"
+                      className="cart-qty-btn"
+                      onClick={() => handleDecrease(item)}
+                    >
+                      -
+                    </button>
+                    <strong>{item.quantity}</strong>
+                    <button
+                      type="button"
+                      className="cart-qty-btn"
+                      onClick={() => handleIncrease(item)}
+                    >
+                      +
+                    </button>
+                    {stockForItem !== undefined &&
+                      stockForItem !== Infinity && (
+                        <span className="cart-item-stock">
+                          (Stock: {stockForItem})
+                        </span>
+                      )}
+                  </div>
 
                   <button
                     className="cart-item-remove"
@@ -245,7 +364,9 @@ export default function Cart() {
             </button>
 
             {promoError && (
-              <p style={{ color: "#b71c1c", marginTop: "6px" }}>{promoError}</p>
+              <p style={{ color: "#b71c1c", marginTop: "6px" }}>
+                {promoError}
+              </p>
             )}
 
             {promoData && (
@@ -271,7 +392,9 @@ export default function Cart() {
               <span>Descuento ({promoData.discount}%)</span>
               <span>
                 -$
-                {(subtotal * (promoData.discount / 100)).toLocaleString("es-AR")}
+                {(subtotal * (promoData.discount / 100)).toLocaleString(
+                  "es-AR"
+                )}
               </span>
             </div>
           )}

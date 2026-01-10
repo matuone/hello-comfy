@@ -77,6 +77,12 @@
   color: #555;
 }
 
+.cart-item-promo {
+  font-size: 0.85rem;
+  color: #d94f7a;
+}
+
+/* PRECIO */
 .cart-item-price-row {
   display: flex;
   align-items: baseline;
@@ -95,11 +101,59 @@
   color: #d94f7a;
 }
 
+/* ============================
+   CANTIDAD + STOCK
+============================ */
 .cart-item-qty {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   font-size: 0.9rem;
   color: #444;
 }
 
+.cart-item-qty>span:first-child {
+  margin-right: 4px;
+}
+
+.cart-qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid #d94f7a;
+  background: #fff;
+  color: #d94f7a;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.cart-qty-btn:hover {
+  background: #d94f7a;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.cart-item-qty strong {
+  min-width: 24px;
+  text-align: center;
+}
+
+.cart-item-stock {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* ============================
+   ACCIONES ITEM
+============================ */
 .cart-item-remove {
   margin-top: 6px;
   align-self: flex-start;
@@ -178,8 +232,24 @@
 }
 
 /* ============================
-   BOTONES
+   INPUTS / BOTONES
 ============================ */
+.cart-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.cart-input:focus {
+  outline: none;
+  border-color: #d94f7a;
+  box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.2);
+}
+
+/* BOTONES GENERALES */
 .cart-btn-primary,
 .cart-btn-secondary {
   width: 100%;
@@ -221,6 +291,38 @@
   max-width: 260px;
   margin: 16px auto 0;
 }
+
+/* ============================
+   INPUT CÓDIGO PROMOCIONAL (COMFY)
+============================ */
+.cart-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e3e3e3;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #444;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.cart-input::placeholder {
+  color: #aaa;
+  opacity: 1;
+}
+
+.cart-input:hover {
+  border-color: #d94f7a;
+}
+
+.cart-input:focus {
+  outline: none;
+  border-color: #d94f7a;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.18);
+}
+
 
 /* ============================
    RESPONSIVE

@@ -5,10 +5,10 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
 
-  // ⭐ NUEVO: reglas de descuento por categoría/subcategoría
+  // ⭐ Reglas de descuento por categoría/subcategoría
   const [discountRules, setDiscountRules] = useState([]);
 
-  // ⭐ NUEVO: código promocional ingresado
+  // ⭐ Código promocional ingresado
   const [promoCode, setPromoCode] = useState("");
   const [promoCodeData, setPromoCodeData] = useState(null);
   const [promoCodeError, setPromoCodeError] = useState("");
@@ -38,22 +38,24 @@ export function CartProvider({ children }) {
   }, []);
 
   // ============================
-  // AGREGAR AL CARRITO
+  // AGREGAR AL CARRITO (respeta cantidad)
   // ============================
   const addToCart = (product, options = {}) => {
-    const { size } = options;
+    const { size, quantity = 1 } = options;
 
     const key = `${product._id}-${size || "nosize"}`;
 
     setItems((prev) => {
       const existing = prev.find((item) => item.key === key);
+
       if (existing) {
         return prev.map((item) =>
           item.key === key
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
+
       return [
         ...prev,
         {
@@ -66,12 +68,28 @@ export function CartProvider({ children }) {
           discount: product.discount || 0,
           image: product.images?.[0] || "",
           size: size || null,
-          quantity: 1,
+          quantity, // ⭐ respeta la cantidad real
         },
       ];
     });
   };
 
+  // ============================
+  // ACTUALIZAR CANTIDAD DESDE CARRITO
+  // ============================
+  const updateQuantity = (key, newQty) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.key === key
+          ? { ...item, quantity: Math.max(1, newQty) }
+          : item
+      )
+    );
+  };
+
+  // ============================
+  // REMOVER / LIMPIAR
+  // ============================
   const removeFromCart = (key) => {
     setItems((prev) => prev.filter((item) => item.key !== key));
   };
@@ -102,7 +120,7 @@ export function CartProvider({ children }) {
   // ============================
   // APLICAR PROMOCIÓN 3x2
   // ============================
-  const apply3x2Promotions = (subtotal) => {
+  const apply3x2Promotions = () => {
     let discountAmount = 0;
 
     discountRules
@@ -179,7 +197,7 @@ export function CartProvider({ children }) {
     });
 
     // 2) aplicar 3x2
-    const promo3x2Discount = apply3x2Promotions(subtotal);
+    const promo3x2Discount = apply3x2Promotions();
 
     let total = subtotal - promo3x2Discount;
 
@@ -189,7 +207,8 @@ export function CartProvider({ children }) {
 
       const applicableItems = items.filter((item) => {
         const matchCategory = category === "all" || item.category === category;
-        const matchSub = subcategory === "all" || item.subcategory === subcategory;
+        const matchSub =
+          subcategory === "all" || item.subcategory === subcategory;
         return matchCategory && matchSub;
       });
 
@@ -213,12 +232,13 @@ export function CartProvider({ children }) {
       value={{
         items,
         addToCart,
+        updateQuantity,
         removeFromCart,
         clearCart,
         totalItems,
         totalPrice,
 
-        // ⭐ NUEVO: códigos promocionales
+        // códigos promocionales
         promoCode,
         setPromoCode,
         validatePromoCode,
