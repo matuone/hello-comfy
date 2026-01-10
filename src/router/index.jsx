@@ -25,6 +25,9 @@ import Checkout from "../views/Checkout";
 import CheckoutSuccess from "../views/CheckoutSuccess";
 import CheckoutError from "../views/CheckoutError";
 
+// ⭐ Order Tracking
+import OrderTracking from "../views/OrderTracking";
+
 // Admin
 import AdminLayout from "../views/AdminLayout";
 import AdminDashboard from "../views/AdminDashboard";
@@ -93,6 +96,9 @@ export default function AppRouter() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
         <Route path="/checkout/error" element={<CheckoutError />} />
+
+        {/* ⭐ Order Tracking */}
+        <Route path="/seguimiento" element={<OrderTracking />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
