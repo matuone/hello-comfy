@@ -21,6 +21,7 @@ export default function Checkout() {
     postalCode: "",
     province: "",
     shippingMethod: "",
+    pickPoint: "",       // ⭐ agregado para Pick Up Point
     paymentMethod: "",
     notes: "",
   });
@@ -48,11 +49,21 @@ export default function Checkout() {
       )}
 
       {step === 2 && (
-        <Step2 formData={formData} updateField={updateField} next={next} back={back} />
+        <Step2
+          formData={formData}
+          updateField={updateField}
+          next={next}
+          back={back}
+        />
       )}
 
       {step === 3 && (
-        <Step3 formData={formData} updateField={updateField} next={next} back={back} />
+        <Step3
+          formData={formData}
+          updateField={updateField}
+          next={next}
+          back={back}
+        />
       )}
 
       {step === 4 && (

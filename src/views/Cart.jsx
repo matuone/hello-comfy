@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import "../styles/cart.css";
 
+// ⭐ NUEVO
+import { useShippingCalculator } from "../hooks/useShippingCalculator";
+import ShippingOptions from "../components/ShippingOptions";
+
 export default function Cart() {
   const navigate = useNavigate();
   const {
@@ -11,11 +15,11 @@ export default function Cart() {
     removeFromCart,
     clearCart,
     totalItems,
+    updateQuantity,
   } = useCart();
 
   // ============================
   // REGLAS DE DESCUENTO DEL ADMIN
-  // (estas las estás manejando local acá)
   // ============================
   const [discountRules, setDiscountRules] = useState([]);
 
@@ -61,12 +65,10 @@ export default function Cart() {
                 const stock = talles[item.size] ?? 0;
                 map[item.key] = stock;
               } else {
-                // productos sin talle: no limitamos por stock desde acá
                 map[item.key] = Infinity;
               }
             });
           } catch (err) {
-            // si falla el fetch, no limitamos stock (para no bloquear la compra)
             groupedByProduct[productId].forEach((item) => {
               map[item.key] = Infinity;
             });
@@ -139,25 +141,21 @@ export default function Cart() {
   const subtotal = items.reduce((acc, item) => {
     const basePrice = typeof item.price === "number" ? item.price : 0;
 
-    // 1) descuento individual del producto
     let finalPrice =
       typeof item.discount === "number" && item.discount > 0
         ? basePrice - (basePrice * item.discount) / 100
         : basePrice;
 
-    // 2) descuento por categoría/subcategoría
     const rule = getCategoryRule(item);
 
     if (rule?.type === "percentage") {
       finalPrice = finalPrice - (finalPrice * rule.discount) / 100;
     }
 
-    // 3) si es 3x2 → cálculo especial
     if (rule?.type === "3x2") {
       return acc + apply3x2(finalPrice, item.quantity);
     }
 
-    // caso normal
     return acc + finalPrice * item.quantity;
   }, 0);
 
@@ -175,10 +173,8 @@ export default function Cart() {
   };
 
   // ============================
-  // HANDLERS DE CANTIDAD (RESPETAN STOCK)
+  // HANDLERS DE CANTIDAD
   // ============================
-  const { updateQuantity } = useCart();
-
   const handleDecrease = (item) => {
     if (item.quantity <= 1) return;
     updateQuantity(item.key, item.quantity - 1);
@@ -193,14 +189,46 @@ export default function Cart() {
       item.quantity >= stock
     ) {
       toast.error(
-        `Solo hay ${stock} unidad${stock === 1 ? "" : "es"
-        } disponibles para este talle`
+        `Solo hay ${stock} unidad${stock === 1 ? "" : "es"} disponibles para este talle`
       );
       return;
     }
 
     updateQuantity(item.key, item.quantity + 1);
   };
+
+  // ============================
+  // ENVÍO REAL
+  // ============================
+  const [postalCode, setPostalCode] = useState("");
+
+  const {
+    loading: loadingShipping,
+    result: shippingOptions,
+    error: shippingError,
+    calcular: calcularEnvio,
+  } = useShippingCalculator();
+
+  const handleCalculateShipping = () => {
+    if (!postalCode || postalCode.length < 4) {
+      toast.error("Ingresá un código postal válido");
+      return;
+    }
+
+    const products = items.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      weight: item.weight,
+      dimensions: item.dimensions,
+    }));
+
+    calcularEnvio(postalCode, products);
+  };
+
+  // ============================
+  // PICK UP POINT
+  // ============================
+  const [pickPoint, setPickPoint] = useState("");
 
   if (totalItems === 0) {
     return (
@@ -223,8 +251,7 @@ export default function Cart() {
     <div className="cart">
       <h1 className="cart-title">Tu carrito</h1>
       <p className="cart-subtitle">
-        Tenés {totalItems}{" "}
-        {totalItems === 1 ? "producto" : "productos"} en tu carrito.
+        Tenés {totalItems} {totalItems === 1 ? "producto" : "productos"} en tu carrito.
       </p>
 
       <div className="cart-layout">
@@ -235,13 +262,11 @@ export default function Cart() {
           {items.map((item) => {
             const basePrice = typeof item.price === "number" ? item.price : 0;
 
-            // 1) descuento individual
             let finalPrice =
               typeof item.discount === "number" && item.discount > 0
                 ? basePrice - (basePrice * item.discount) / 100
                 : basePrice;
 
-            // 2) descuento por categoría/subcategoría
             const rule = getCategoryRule(item);
 
             if (rule?.type === "percentage") {
@@ -276,9 +301,6 @@ export default function Cart() {
                     <p className="cart-item-promo">Promo 3x2 aplicada</p>
                   )}
 
-                  {/* ============================
-                      PRECIO FINAL
-                  ============================ */}
                   <div className="cart-item-price-row">
                     {hasAnyDiscount && (
                       <span className="cart-item-old-price">
@@ -399,9 +421,56 @@ export default function Cart() {
             </div>
           )}
 
-          <div className="cart-summary-row">
-            <span>Envío</span>
-            <span>A calcular</span>
+          {/* ============================
+              ENVÍO REAL
+          ============================ */}
+          <div className="cart-box">
+            <h3>Envíos</h3>
+
+            <input
+              className="cart-input"
+              type="text"
+              placeholder="Código postal"
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+            />
+
+            <button
+              className="cart-btn-secondary"
+              style={{ marginTop: "8px" }}
+              onClick={handleCalculateShipping}
+              disabled={loadingShipping}
+            >
+              {loadingShipping ? "Calculando..." : "Calcular envío"}
+            </button>
+
+            {shippingError && (
+              <p style={{ color: "#b71c1c", marginTop: "6px" }}>
+                {shippingError}
+              </p>
+            )}
+
+            {/* ⭐ Muestra Andreani + Correo */}
+            <ShippingOptions result={shippingOptions} />
+
+            {/* ⭐ PICK UP POINT */}
+            <div className="cart-pickup">
+              <h4 className="cart-pickup-title">Pick Up Point</h4>
+
+              <select
+                className="cart-input cart-pickup-dropdown"
+                value={pickPoint}
+                onChange={(e) => setPickPoint(e.target.value)}
+              >
+                <option value="">Elegí un punto de retiro</option>
+                <option value="aquelarre">Pick Up Point Aquelarre — CABA</option>
+                <option value="temperley">Pick Up Point Temperley — ZS-GBA</option>
+              </select>
+
+              <p className="cart-pickup-note">
+                Retiro sin costo. Te avisamos cuando esté listo.
+              </p>
+            </div>
           </div>
 
           {/* ============================
@@ -419,16 +488,6 @@ export default function Cart() {
               <li>3 cuotas sin interés con débito seleccionados.</li>
               <li>Descuento extra con transferencia o depósito.</li>
               <li>Compra protegida.</li>
-            </ul>
-          </div>
-
-          {/* ENVÍOS */}
-          <div className="cart-box">
-            <h3>Envíos</h3>
-            <ul>
-              <li>Envío gratis superando cierto monto.</li>
-              <li>Retiro en pick-up point (showroom).</li>
-              <li>Próximamente cálculo por código postal.</li>
             </ul>
           </div>
 

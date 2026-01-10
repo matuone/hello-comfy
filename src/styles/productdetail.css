@@ -515,6 +515,50 @@
 }
 
 /* ============================
+   PICK UP POINT
+============================ */
+.pd-pickup {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #fff7fb;
+  border: 1px solid #f7c9d8;
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.pd-pickup-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d94f7a;
+  margin-bottom: 10px;
+}
+
+.pd-pickup-select {
+  margin-top: 6px;
+}
+
+.pd-pickup-dropdown {
+  background: #fff;
+  border: 1px solid #f7c9d8 !important;
+  color: #444;
+  font-weight: 500;
+  padding: 10px 12px !important;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.pd-pickup-dropdown:hover {
+  background: #ffe8f0;
+}
+
+.pd-pickup-dropdown:focus {
+  border-color: #d94f7a !important;
+  box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.25);
+}
+
+
+/* ============================
    RESPONSIVE
 ============================ */
 @media (max-width: 900px) {

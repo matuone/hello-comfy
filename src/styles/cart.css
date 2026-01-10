@@ -236,17 +236,29 @@
 ============================ */
 .cart-input {
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 0.9rem;
-  box-sizing: border-box;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e3e3e3;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #444;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.cart-input::placeholder {
+  color: #aaa;
+}
+
+.cart-input:hover {
+  border-color: #d94f7a;
 }
 
 .cart-input:focus {
   outline: none;
   border-color: #d94f7a;
-  box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.2);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.18);
 }
 
 /* BOTONES GENERALES */
@@ -281,6 +293,52 @@
 }
 
 /* ============================
+   PICK UP POINT (COMFY)
+============================ */
+.cart-pickup {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff7fb;
+  border: 1px solid #f7c9d8;
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.cart-pickup-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d94f7a;
+  margin-bottom: 8px;
+}
+
+.cart-pickup-dropdown {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #f7c9d8 !important;
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.cart-pickup-dropdown:hover {
+  background: #ffe8f0;
+}
+
+.cart-pickup-dropdown:focus {
+  border-color: #d94f7a !important;
+  box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.25);
+}
+
+.cart-pickup-note {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* ============================
    ESTADO VACÍO
 ============================ */
 .container-empty {
@@ -291,38 +349,6 @@
   max-width: 260px;
   margin: 16px auto 0;
 }
-
-/* ============================
-   INPUT CÓDIGO PROMOCIONAL (COMFY)
-============================ */
-.cart-input {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1.5px solid #e3e3e3;
-  background: #fff;
-  font-size: 0.95rem;
-  color: #444;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-}
-
-.cart-input::placeholder {
-  color: #aaa;
-  opacity: 1;
-}
-
-.cart-input:hover {
-  border-color: #d94f7a;
-}
-
-.cart-input:focus {
-  outline: none;
-  border-color: #d94f7a;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.18);
-}
-
 
 /* ============================
    RESPONSIVE

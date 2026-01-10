@@ -18,7 +18,12 @@ import CreateAccount from "../views/CreateAccount";
 import Products from "../views/Products";
 import Category from "../views/Category";
 import ProductDetail from "../views/ProductDetail";
-import Wishlist from "../views/Wishlist"; // ⭐ Wishlist
+import Wishlist from "../views/Wishlist";
+
+// ⭐ Checkout
+import Checkout from "../views/Checkout";
+import CheckoutSuccess from "../views/CheckoutSuccess";
+import CheckoutError from "../views/CheckoutError";
 
 // Admin
 import AdminLayout from "../views/AdminLayout";
@@ -83,6 +88,11 @@ export default function AppRouter() {
 
         {/* ⭐ Wishlist */}
         <Route path="/wishlist" element={<Wishlist />} />
+
+        {/* ⭐ Checkout */}
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout/success" element={<CheckoutSuccess />} />
+        <Route path="/checkout/error" element={<CheckoutError />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

@@ -17,6 +17,10 @@ import { toast } from "react-hot-toast";
 
 import "../styles/productdetail.css";
 
+// ⭐ NUEVO
+import { useShippingCalculator } from "../hooks/useShippingCalculator";
+import ShippingOptions from "../components/ShippingOptions";
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,15 +32,20 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  const [quantity, setQuantity] = useState(1); // ⭐ NUEVO
+  const [quantity, setQuantity] = useState(1);
 
   const [similares, setSimilares] = useState([]);
   const [loadingSimilares, setLoadingSimilares] = useState(true);
 
+  // ⭐ NUEVO — Estados de envío REAL
   const [postalCode, setPostalCode] = useState("");
-  const [shippingOptions, setShippingOptions] = useState(null);
-  const [loadingShipping, setLoadingShipping] = useState(false);
-  const [shippingError, setShippingError] = useState("");
+
+  const {
+    loading: loadingShipping,
+    result: shippingOptions,
+    error: shippingError,
+    calcular: calcularEnvio,
+  } = useShippingCalculator();
 
   useEffect(() => {
     setLoading(true);
@@ -52,7 +61,7 @@ export default function ProductDetail() {
         );
 
         setSelectedSize(firstAvailable || null);
-        setQuantity(1); // reset cantidad al cargar producto
+        setQuantity(1);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -178,42 +187,29 @@ export default function ProductDetail() {
     navigate("/cart");
   };
 
+  // ⭐ NUEVO — Cálculo REAL de envío
   const handleCalculateShipping = () => {
-    setShippingError("");
-
     if (!postalCode || postalCode.length < 4) {
-      setShippingError("Ingresá un código postal válido.");
+      toast.error("Ingresá un código postal válido");
       return;
     }
 
-    setLoadingShipping(true);
-
-    const base = cleanPrice > 15000 ? 0 : 1900;
-
-    setTimeout(() => {
-      setShippingOptions({
-        andreani: {
-          carrier: "Andreani",
-          price: base,
-          eta: "3 a 5 días hábiles",
-        },
-        correoArgentino: {
-          carrier: "Correo Argentino",
-          price: base === 0 ? 0 : base - 300,
-          eta: "4 a 7 días hábiles",
-        },
-      });
-      setLoadingShipping(false);
-    }, 700);
+    calcularEnvio(postalCode, [
+      {
+        productId: producto._id,
+        quantity,
+        weight: producto.weight,
+        dimensions: producto.dimensions,
+      },
+    ]);
   };
 
   return (
     <div className="pd-container">
-      {/* ⭐ TÍTULO CENTRADO ARRIBA */}
       <h1 className="pd-title pd-title-centered">{producto.name}</h1>
 
       <div className="pd-main">
-        {/* ⭐ IMAGEN PRINCIPAL + CORAZÓN */}
+        {/* IMÁGENES */}
         <div className="pd-images">
           <div className="pd-main-img-wrapper">
             <img
@@ -313,24 +309,22 @@ export default function ProductDetail() {
 
             <div className="pd-sizes-row">
               {allSizes.map((talle) => {
-                const stockForSize =
-                  producto.stockColorId?.talles?.[talle] ?? 0;
-
+                const stockForSize = producto.stockColorId?.talles?.[talle] ?? 0;
                 const isOut = stockForSize <= 0;
 
                 return (
                   <button
                     key={talle}
                     className={`pd-size-btn 
-                      ${selectedSize === talle ? "active" : ""} 
-                      ${isOut ? "out-of-stock" : ""}`}
+            ${selectedSize === talle ? "active" : ""} 
+            ${isOut ? "out-of-stock" : ""}`}
                     onClick={() => {
                       if (isOut) {
                         toast.error("Este talle no tiene stock disponible");
                         return;
                       }
                       setSelectedSize(talle);
-                      setQuantity(1); // reset cantidad al cambiar talle
+                      setQuantity(1);
                     }}
                     disabled={isOut}
                   >
@@ -460,42 +454,45 @@ export default function ProductDetail() {
               <p className="pd-shipping-error">{shippingError}</p>
             )}
 
-            {shippingOptions && (
-              <div className="pd-shipping-results">
-                <div className="pd-shipping-card">
-                  <h4>Andreani</h4>
-                  <p className="pd-shipping-price">
-                    {shippingOptions.andreani.price === 0
-                      ? "Envío gratis"
-                      : `$${formatPrice(shippingOptions.andreani.price)}`}
-                  </p>
-                  <p className="pd-shipping-eta">
-                    {shippingOptions.andreani.eta}
-                  </p>
-                </div>
+            {/* ⭐ NUEVO — Componente con las 4 opciones reales */}
+            <ShippingOptions result={shippingOptions} />
+            {/* ⭐ PICK UP POINT */}
+            <div className="pd-pickup">
+              <h4 style={{ marginTop: "1.5rem" }}>Pick Up Point</h4>
 
-                <div className="pd-shipping-card">
-                  <h4>Correo Argentino</h4>
-                  <p className="pd-shipping-price">
-                    {shippingOptions.correoArgentino.price === 0
-                      ? "Envío gratis"
-                      : `$${formatPrice(
-                        shippingOptions.correoArgentino.price
-                      )}`}
-                  </p>
-                  <p className="pd-shipping-eta">
-                    {shippingOptions.correoArgentino.eta}
-                  </p>
-                </div>
+              <div className="pd-pickup-select">
+                <select
+                  className="pd-input"
+                  style={{
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                    background: "#fafafa",
+                    fontSize: "15px",
+                  }}
+                  onChange={(e) => console.log("Pick point seleccionado:", e.target.value)}
+                >
+                  <option value="">Elegí un punto de retiro</option>
+                  <option value="aquelarre">
+                    Pick Up Point Aquelarre — CABA
+                  </option>
+                  <option value="temperley">
+                    Pick Up Point Temperley — ZS-GBA
+                  </option>
+                </select>
               </div>
-            )}
+
+              <p className="pd-secondary-text" style={{ marginTop: "6px" }}>
+                Retiro sin costo. Te avisamos cuando esté listo.
+              </p>
+            </div>
+
 
             <ul className="pd-list pd-shipping-extra">
               <li>Envío gratis superando los $15.000.</li>
               <li>Retiro en punto de pick-up (showroom) a coordinar.</li>
             </ul>
           </div>
-
           {/* OPINIONES */}
           <div className="pd-opinions">
             <h3>Opiniones</h3>
