@@ -273,7 +273,7 @@
 }
 
 /* ============================
-   ICONOS EN CELDA CLIENTE (MINIMALISTAS)
+   ICONOS EN CELDA CLIENTE
 ============================ */
 .cliente-cell {
   white-space: nowrap;
@@ -457,10 +457,65 @@
 }
 
 /* ============================
-   MÉTODO DE ENVÍO (NUEVA COLUMNA)
+   MÉTODO DE ENVÍO
 ============================ */
 .shipping-method-cell {
   white-space: nowrap;
   font-size: 0.85rem;
   opacity: 0.85;
+}
+
+/* ============================
+   FACTURACIÓN (NUEVA COLUMNA)
+============================ */
+.factura-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.factura-status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.facturado {
+  background: #4caf50;
+  color: white;
+}
+
+.pendiente {
+  background: #ff9800;
+  color: white;
+}
+
+.factura-num {
+  font-size: 12px;
+  color: #555;
+}
+
+.factura-btn {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s ease;
+}
+
+.factura-btn:hover {
+  background: #125a9c;
+}
+
+.factura-btn.reenviar {
+  background: #9c27b0;
+}
+
+.factura-btn.reenviar:hover {
+  background: #7b1fa2;
 }

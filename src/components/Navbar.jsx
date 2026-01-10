@@ -14,7 +14,8 @@ export default function Navbar() {
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
   const { pathname } = useLocation();
 
-  const { isAuthenticated } = useAuth();
+  // 🔥 Ahora usamos user e isAdmin
+  const { user, isAdmin } = useAuth();
 
   const [scrolled, setScrolled] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -144,8 +145,8 @@ export default function Navbar() {
             {/* DERECHA */}
             <div className="navbar__right">
 
-              {/* BOTÓN ADMIN — SOLO SI ESTÁ LOGUEADO */}
-              {isAuthenticated && (
+              {/* ⭐ BOTÓN ADMIN — SOLO SI ES ADMIN REAL */}
+              {isAdmin && (
                 <Link
                   to="/admin"
                   className="nav-action"

@@ -26,6 +26,25 @@ const OrderSchema = new mongoose.Schema(
       default: "recibido",
     },
 
+    // ⭐ Estado del pago
+    pagoEstado: {
+      type: String,
+      enum: ["pendiente", "recibido"],
+      default: "pendiente",
+    },
+
+    // ⭐ Estado del envío
+    envioEstado: {
+      type: String,
+      enum: ["pendiente", "enviado"],
+      default: "pendiente",
+    },
+
+    // ⭐ Número de factura (para Facturante)
+    facturaNumero: {
+      type: String,
+    },
+
     timeline: [
       {
         status: { type: String },
@@ -38,6 +57,9 @@ const OrderSchema = new mongoose.Schema(
       address: { type: String },
       pickPoint: { type: String },
       eta: { type: String },
+
+      // ⭐ Código de seguimiento
+      tracking: { type: String },
     },
 
     items: [
@@ -55,6 +77,11 @@ const OrderSchema = new mongoose.Schema(
       shipping: { type: Number, default: 0 },
       discount: { type: Number, default: 0 },
       total: { type: Number, required: true },
+    },
+
+    // ⭐ Comentarios del cliente
+    comentarios: {
+      type: String,
     },
 
     date: {

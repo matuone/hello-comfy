@@ -1,33 +1,41 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "../styles/adminsales.css";
 
 export default function AdminSales() {
-  const [busqueda, setBusqueda] = useState("");
+  const { token } = useAuth();
+  const navigate = useNavigate();
 
-  // Selección
+  const [busqueda, setBusqueda] = useState("");
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-
-  // Dropdown acciones
   const [accionesAbiertas, setAccionesAbiertas] = useState(false);
   const accionesRef = useRef(null);
 
-  // Popup seguimiento
   const [popupAbierto, setPopupAbierto] = useState(false);
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
   const [codigoSeguimiento, setCodigoSeguimiento] = useState("");
 
-  // Filas expandidas
   const [expandedRows, setExpandedRows] = useState([]);
 
   // ============================
   // DATOS DE VENTAS (BACKEND)
   // ============================
   const [ventasData, setVentasData] = useState([]);
-  const token = localStorage.getItem("adminToken");
+  const [error, setError] = useState(false);
 
+  // Redirigir si no hay token
   useEffect(() => {
+    if (!token) {
+      navigate("/my-account");
+    }
+  }, [token, navigate]);
+
+  // Fetch de ventas
+  useEffect(() => {
+    if (!token) return;
+
     async function fetchVentas() {
       try {
         const res = await fetch("http://localhost:5000/api/admin/orders", {
@@ -36,10 +44,17 @@ export default function AdminSales() {
           },
         });
 
+        if (!res.ok) {
+          console.error("Error cargando ventas:", await res.text());
+          setError(true);
+          return;
+        }
+
         const data = await res.json();
         setVentasData(data);
       } catch (err) {
         console.error("Error cargando ventas:", err);
+        setError(true);
       }
     }
 
@@ -78,14 +93,74 @@ export default function AdminSales() {
     }
   }
 
-  // Acciones masivas (placeholder)
-  function ejecutarAccion(nombre) {
-    alert(`Acción ejecutada: ${nombre} para ${seleccionadas.length} ventas`);
-    setAccionesAbiertas(false);
+  // ============================
+  // FACTURACIÓN MASIVA
+  // ============================
+  async function facturarSeleccionadas() {
+    if (seleccionadas.length === 0) {
+      alert("No seleccionaste ninguna venta");
+      return;
+    }
+
+    if (!window.confirm(`¿Facturar ${seleccionadas.length} venta(s) con Facturante?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/admin/orders/status/batch", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ids: seleccionadas,
+          status: "facturado",
+          facturar: true,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert("Error al facturar: " + (data.error || "Desconocido"));
+        return;
+      }
+
+      setVentasData((prev) =>
+        prev.map((v) =>
+          seleccionadas.includes(v._id)
+            ? { ...v, facturaNumero: "GENERADA" }
+            : v
+        )
+      );
+
+      alert("Facturación masiva completada");
+      setAccionesAbiertas(false);
+      setSeleccionadas([]);
+      setSelectAll(false);
+    } catch (err) {
+      console.error("Error facturando:", err);
+      alert("Error al facturar las ventas");
+    }
   }
 
   // ============================
-  // MARCAR PAGO RECIBIDO (BACKEND)
+  // DESCARGAR FACTURA (placeholder)
+  // ============================
+  async function descargarFactura(id) {
+    alert("Descargar PDF todavía no está conectado a Facturante");
+  }
+
+  // ============================
+  // REENVIAR FACTURA (placeholder)
+  // ============================
+  async function reenviarFactura(id) {
+    alert("Reenviar factura todavía no está conectado al email");
+  }
+
+  // ============================
+  // MARCAR PAGO RECIBIDO
   // ============================
   async function marcarPagoRecibido(id) {
     try {
@@ -163,6 +238,19 @@ export default function AdminSales() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ============================
+  // RENDER
+  // ============================
+
+  if (error) {
+    return (
+      <div className="admin-section">
+        <h2>Error cargando ventas</h2>
+        <p>Verificá que estés logueado correctamente.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">
@@ -216,7 +304,10 @@ export default function AdminSales() {
               <button onClick={() => ejecutarAccion("Marcar como empaquetadas")}>Marcar como empaquetadas</button>
               <button onClick={() => ejecutarAccion("Marcar y notificar como enviadas")}>Marcar y notificar como enviadas</button>
               <button onClick={() => ejecutarAccion("Imprimir resumen del pedido")}>Imprimir resumen del pedido</button>
-              <button onClick={() => ejecutarAccion("Facturación Masiva")}>Facturación Masiva</button>
+
+              {/* ⭐ NUEVO: Facturación real */}
+              <button onClick={facturarSeleccionadas}>Facturar con Facturante</button>
+
               <button onClick={() => ejecutarAccion("Registrar órdenes en Correo Argentino")}>Registrar órdenes en Correo Argentino</button>
               <button onClick={() => ejecutarAccion("Andreani - Descargar Etiquetas")}>Andreani - Descargar Etiquetas</button>
             </div>
@@ -238,6 +329,7 @@ export default function AdminSales() {
               <th>Pago</th>
               <th>Método</th>
               <th>Envío</th>
+              <th>Factura</th>
             </tr>
           </thead>
 
@@ -261,7 +353,6 @@ export default function AdminSales() {
 
                   <td>{venta.date}</td>
 
-                  {/* Cliente */}
                   <td className="cliente-cell">
                     <Link to={`/admin/customers/${venta.customer.email}`} className="venta-link">
                       {venta.customer.name || "Cliente"}
@@ -270,7 +361,6 @@ export default function AdminSales() {
 
                   <td>${venta.totals.total.toLocaleString("es-AR")}</td>
 
-                  {/* Productos */}
                   <td>
                     <button
                       className="productos-toggle"
@@ -284,7 +374,6 @@ export default function AdminSales() {
                     </button>
                   </td>
 
-                  {/* Pago */}
                   <td>
                     {venta.pagoEstado === "recibido" ? (
                       <span className="payment-status paid">Recibido</span>
@@ -301,13 +390,11 @@ export default function AdminSales() {
                     )}
                   </td>
 
-                  {/* Método de envío */}
                   <td className="shipping-method-cell">
                     {venta.shipping.method === "home" && "📦 Envío a domicilio"}
                     {venta.shipping.method === "pickup" && "🏬 Pick Up Point"}
                   </td>
 
-                  {/* Envío */}
                   <td>
                     {venta.envioEstado === "enviado" ? (
                       <span className="envio-status enviado">✈️ Enviado</span>
@@ -320,12 +407,36 @@ export default function AdminSales() {
                       </button>
                     )}
                   </td>
+
+                  <td>
+                    {venta.facturaNumero ? (
+                      <div className="factura-info">
+                        <span className="factura-status facturado">Facturado</span>
+                        <div className="factura-num">#{venta.facturaNumero}</div>
+
+                        <button
+                          className="factura-btn"
+                          onClick={() => descargarFactura(venta._id)}
+                        >
+                          Descargar PDF
+                        </button>
+
+                        <button
+                          className="factura-btn reenviar"
+                          onClick={() => reenviarFactura(venta._id)}
+                        >
+                          Reenviar
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="factura-status pendiente">Pendiente</span>
+                    )}
+                  </td>
                 </tr>
 
-                {/* Fila expandida */}
                 {expandedRows.includes(venta._id) && (
                   <tr className="fila-expandida">
-                    <td colSpan="9">
+                    <td colSpan="10">
                       <div className="productos-grid">
                         {venta.items.map((item, index) => (
                           <div key={index} className="producto-card">
@@ -356,7 +467,6 @@ export default function AdminSales() {
         </table>
       </div>
 
-      {/* POPUP SEGUIMIENTO */}
       {popupAbierto && (
         <div className="popup-overlay">
           <div className="popup">

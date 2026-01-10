@@ -41,6 +41,59 @@ export default function AdminSaleDetail() {
   }, [id, token]);
 
   // ============================
+  // FACTURAR ESTA VENTA
+  // ============================
+  async function facturarVenta() {
+    if (!window.confirm("¿Seguro que querés facturar esta venta?")) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/admin/orders/${id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            status: "facturado",
+            facturar: true,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert("Error al facturar: " + (data.error || "Desconocido"));
+        return;
+      }
+
+      alert("Factura generada correctamente");
+
+      // Actualizar venta en pantalla
+      setVenta(data.order);
+    } catch (err) {
+      console.error("Error facturando:", err);
+      alert("Error al facturar la venta");
+    }
+  }
+
+  // ============================
+  // DESCARGAR PDF (placeholder)
+  // ============================
+  function descargarPDF() {
+    alert("Descargar PDF todavía no está conectado a Facturante");
+  }
+
+  // ============================
+  // REENVIAR FACTURA (placeholder)
+  // ============================
+  function reenviarFactura() {
+    alert("Reenviar factura todavía no está conectado al email");
+  }
+
+  // ============================
   // CERRAR DROPDOWNS AL CLIC FUERA
   // ============================
   useEffect(() => {
@@ -116,6 +169,11 @@ export default function AdminSaleDetail() {
           BOTONES DE ACCIÓN
       ============================ */}
       <div className="detalle-actions">
+
+        {/* Facturar esta venta */}
+        <button className="facturar-btn" onClick={facturarVenta}>
+          Facturar esta venta
+        </button>
 
         <div className="dropdown" ref={appsRef}>
           <button className="dropdown-btn" onClick={toggleApps}>
@@ -206,6 +264,34 @@ export default function AdminSaleDetail() {
           )}
         </div>
 
+      </div>
+
+      {/* ============================
+          FACTURACIÓN
+      ============================ */}
+      <div className="detalle-box">
+        <h3 className="detalle-title">Facturación</h3>
+
+        <p className="detalle-info-line">
+          <strong>Estado:</strong>{" "}
+          {venta.facturaNumero ? "Facturado" : "Pendiente"}
+        </p>
+
+        {venta.facturaNumero && (
+          <>
+            <p className="detalle-info-line">
+              <strong>Número de factura:</strong> {venta.facturaNumero}
+            </p>
+
+            <button className="factura-btn" onClick={descargarPDF}>
+              Descargar PDF
+            </button>
+
+            <button className="factura-btn reenviar" onClick={reenviarFactura}>
+              Reenviar factura
+            </button>
+          </>
+        )}
       </div>
 
       {/* ============================
