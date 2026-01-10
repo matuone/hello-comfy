@@ -1,4 +1,5 @@
 // src/components/ShippingOptions.jsx
+import "../styles/shippingoptions.css";
 
 export default function ShippingOptions({ result }) {
   if (!result) return null;
@@ -33,26 +34,22 @@ export default function ShippingOptions({ result }) {
   ];
 
   return (
-    <div style={{ marginTop: "1rem" }}>
-      <h4 style={{ marginBottom: "0.5rem" }}>Opciones de envío</h4>
+    <div className="shipopt-container">
+      <h4 className="shipopt-title">Opciones de envío</h4>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+      <div className="shipopt-list">
         {options.map((opt) =>
           opt.data?.available ? (
-            <div
-              key={opt.id}
-              style={{
-                padding: "12px",
-                borderRadius: "8px",
-                border: "1px solid #ddd",
-                background: "#fafafa",
-              }}
-            >
-              <strong>
+            <div key={opt.id} className="shipopt-item">
+              <strong className="shipopt-carrier">
                 {opt.carrier} — {opt.type}
               </strong>
-              <p style={{ margin: "4px 0" }}>${opt.data.price}</p>
-              <small style={{ color: "#666" }}>{opt.data.eta}</small>
+
+              <p className="shipopt-price">
+                ${opt.data.price.toLocaleString("es-AR")}
+              </p>
+
+              <small className="shipopt-eta">{opt.data.eta}</small>
             </div>
           ) : null
         )}

@@ -369,21 +369,22 @@ export default function Cart() {
           <div className="cart-box">
             <h3>Código promocional</h3>
 
-            <input
-              className="cart-input"
-              type="text"
-              placeholder="Ingresá tu código"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-            />
+            <div className="cart-field">
+              <input
+                className="cart-input"
+                type="text"
+                placeholder="Ingresá tu código"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+              />
 
-            <button
-              className="cart-btn-secondary"
-              style={{ marginTop: "8px" }}
-              onClick={applyPromoCode}
-            >
-              Aplicar código
-            </button>
+              <button
+                className="cart-btn-secondary"
+                onClick={applyPromoCode}
+              >
+                Aplicar código
+              </button>
+            </div>
 
             {promoError && (
               <p style={{ color: "#b71c1c", marginTop: "6px" }}>
@@ -427,22 +428,23 @@ export default function Cart() {
           <div className="cart-box">
             <h3>Envíos</h3>
 
-            <input
-              className="cart-input"
-              type="text"
-              placeholder="Código postal"
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-            />
+            <div className="cart-field">
+              <input
+                className="cart-input"
+                type="text"
+                placeholder="Código postal"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+              />
 
-            <button
-              className="cart-btn-secondary"
-              style={{ marginTop: "8px" }}
-              onClick={handleCalculateShipping}
-              disabled={loadingShipping}
-            >
-              {loadingShipping ? "Calculando..." : "Calcular envío"}
-            </button>
+              <button
+                className="cart-btn-secondary"
+                onClick={handleCalculateShipping}
+                disabled={loadingShipping}
+              >
+                {loadingShipping ? "Calculando..." : "Calcular envío"}
+              </button>
+            </div>
 
             {shippingError && (
               <p style={{ color: "#b71c1c", marginTop: "6px" }}>
@@ -457,15 +459,17 @@ export default function Cart() {
             <div className="cart-pickup">
               <h4 className="cart-pickup-title">Pick Up Point</h4>
 
-              <select
-                className="cart-input cart-pickup-dropdown"
-                value={pickPoint}
-                onChange={(e) => setPickPoint(e.target.value)}
-              >
-                <option value="">Elegí un punto de retiro</option>
-                <option value="aquelarre">Pick Up Point Aquelarre — CABA</option>
-                <option value="temperley">Pick Up Point Temperley — ZS-GBA</option>
-              </select>
+              <div className="cart-field">
+                <select
+                  className="cart-input cart-pickup-dropdown"
+                  value={pickPoint}
+                  onChange={(e) => setPickPoint(e.target.value)}
+                >
+                  <option value="">Elegí un punto de retiro</option>
+                  <option value="aquelarre">Pick Up Point Aquelarre — CABA</option>
+                  <option value="temperley">Pick Up Point Temperley — ZS-GBA</option>
+                </select>
+              </div>
 
               <p className="cart-pickup-note">
                 Retiro sin costo. Te avisamos cuando esté listo.
