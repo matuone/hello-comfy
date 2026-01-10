@@ -10,6 +10,12 @@ import productRoutes from "./routes/productRoutes.js";
 import stockRoutes from "./routes/stock.js";
 import discountRoutes from "./routes/discountRoutes.js";
 import promoCodeRoutes from "./routes/promoCodeRoutes.js";
+import adminOrderRoutes from "./routes/adminOrderRoutes.js";
+app.use("/api", adminOrderRoutes);
+
+
+// ⭐ NUEVO — Rutas de pedidos
+import orderRoutes from "./routes/orderRoutes.js";
 
 // Servicios de envío
 import { cotizarAndreani } from "./services/shipping/andreani.js";
@@ -26,6 +32,9 @@ app.use("/api/stock", stockRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/discounts", discountRoutes);
 app.use("/api/promocodes", promoCodeRoutes);
+
+// ⭐ NUEVO — Rutas de pedidos (públicas y privadas)
+app.use("/api", orderRoutes);
 
 // ⭐ NUEVO — Endpoint Andreani
 app.post("/api/shipping/andreani", async (req, res) => {

@@ -28,6 +28,9 @@ import CheckoutError from "../views/CheckoutError";
 // ⭐ Order Tracking
 import OrderTracking from "../views/OrderTracking";
 
+// ⭐ Order Details (NUEVO)
+import OrderDetails from "../views/OrderDetails";
+
 // Admin
 import AdminLayout from "../views/AdminLayout";
 import AdminDashboard from "../views/AdminDashboard";
@@ -100,6 +103,9 @@ export default function AppRouter() {
         {/* ⭐ Order Tracking */}
         <Route path="/seguimiento" element={<OrderTracking />} />
 
+        {/* ⭐ Order Details (PÚBLICO) */}
+        <Route path="/orden/:code" element={<OrderDetails />} />
+
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Route>
@@ -135,6 +141,11 @@ export default function AppRouter() {
         <Route path="/admin/discounts" element={<AdminDiscounts />} />
         <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
       </Route>
+
+      {/* ============================
+          RUTA PRIVADA PARA ORDER DETAILS
+      ============================ */}
+      <Route path="/mi-cuenta/orden/:id" element={<OrderDetails />} />
 
     </Routes>
   );

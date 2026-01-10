@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/adminsales.css";
-import { salesData } from "../data/salesData";
 
 export default function AdminSales() {
   const [busqueda, setBusqueda] = useState("");
@@ -22,29 +21,38 @@ export default function AdminSales() {
   // Filas expandidas
   const [expandedRows, setExpandedRows] = useState([]);
 
-  // Cerrar dropdown al hacer click fuera
+  // ============================
+  // DATOS DE VENTAS (BACKEND)
+  // ============================
+  const [ventasData, setVentasData] = useState([]);
+  const token = localStorage.getItem("adminToken");
+
   useEffect(() => {
-    function handleClickOutside(e) {
-      if (accionesRef.current && !accionesRef.current.contains(e.target)) {
-        setAccionesAbiertas(false);
+    async function fetchVentas() {
+      try {
+        const res = await fetch("http://localhost:5000/api/admin/orders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setVentasData(data);
+      } catch (err) {
+        console.error("Error cargando ventas:", err);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
-  // ============================
-  // DATOS DE VENTAS
-  // ============================
-  const [ventasData, setVentasData] = useState(salesData);
+    fetchVentas();
+  }, [token]);
 
+  // Filtrado
   const ventasFiltradas = ventasData.filter((venta) =>
     [
-      venta.id,
-      venta.cliente,
-      venta.email,
-      venta.telefono,
-      venta.total
+      venta._id,
+      venta.customer?.name,
+      venta.customer?.email,
+      venta.totals?.total,
     ]
       .join(" ")
       .toLowerCase()
@@ -64,44 +72,77 @@ export default function AdminSales() {
       setSeleccionadas([]);
       setSelectAll(false);
     } else {
-      const todos = ventasFiltradas.map((v) => v.id);
+      const todos = ventasFiltradas.map((v) => v._id);
       setSeleccionadas(todos);
       setSelectAll(true);
     }
   }
 
-  // Acciones masivas
+  // Acciones masivas (placeholder)
   function ejecutarAccion(nombre) {
     alert(`Acción ejecutada: ${nombre} para ${seleccionadas.length} ventas`);
     setAccionesAbiertas(false);
   }
 
-  // Marcar pago recibido
-  function marcarPagoRecibido(id) {
-    setVentasData((prev) =>
-      prev.map((v) =>
-        v.id === id ? { ...v, pagoEstado: "recibido" } : v
-      )
-    );
+  // ============================
+  // MARCAR PAGO RECIBIDO (BACKEND)
+  // ============================
+  async function marcarPagoRecibido(id) {
+    try {
+      await fetch(`http://localhost:5000/api/admin/orders/${id}/payment`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ pagoEstado: "recibido" }),
+      });
+
+      setVentasData((prev) =>
+        prev.map((v) =>
+          v._id === id ? { ...v, pagoEstado: "recibido" } : v
+        )
+      );
+    } catch (err) {
+      console.error("Error marcando pago:", err);
+    }
   }
 
-  // Abrir popup seguimiento
+  // ============================
+  // POPUP SEGUIMIENTO
+  // ============================
   function abrirPopup(id) {
     setVentaSeleccionada(id);
     setCodigoSeguimiento("");
     setPopupAbierto(true);
   }
 
-  // Guardar seguimiento
-  function guardarSeguimiento() {
-    setVentasData((prev) =>
-      prev.map((v) =>
-        v.id === ventaSeleccionada
-          ? { ...v, envioEstado: "enviado", seguimiento: codigoSeguimiento }
-          : v
-      )
-    );
-    setPopupAbierto(false);
+  async function guardarSeguimiento() {
+    try {
+      await fetch(`http://localhost:5000/api/admin/orders/${ventaSeleccionada}/shipping`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          envioEstado: "enviado",
+          seguimiento: codigoSeguimiento,
+        }),
+      });
+
+      setVentasData((prev) =>
+        prev.map((v) =>
+          v._id === ventaSeleccionada
+            ? { ...v, envioEstado: "enviado", seguimiento: codigoSeguimiento }
+            : v
+        )
+      );
+
+      setPopupAbierto(false);
+    } catch (err) {
+      console.error("Error guardando seguimiento:", err);
+    }
   }
 
   // Expandir/colapsar fila
@@ -111,10 +152,21 @@ export default function AdminSales() {
     );
   }
 
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (accionesRef.current && !accionesRef.current.contains(e.target)) {
+        setAccionesAbiertas(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">
-        Ventas <span className="sales-count">({ventasData.length} abiertas)</span>
+        Ventas <span className="sales-count">({ventasData.length})</span>
       </h2>
 
       <p className="admin-section-text">
@@ -191,55 +243,42 @@ export default function AdminSales() {
 
           <tbody>
             {ventasFiltradas.map((venta) => (
-              <React.Fragment key={venta.id}>
+              <React.Fragment key={venta._id}>
                 <tr>
                   <td>
                     <input
                       type="checkbox"
-                      checked={seleccionadas.includes(venta.id)}
-                      onChange={() => toggleSeleccion(venta.id)}
+                      checked={seleccionadas.includes(venta._id)}
+                      onChange={() => toggleSeleccion(venta._id)}
                     />
                   </td>
 
                   <td>
-                    <Link to={`/admin/sales/${venta.id}`} className="venta-link">
-                      #{venta.id}
+                    <Link to={`/admin/sales/${venta._id}`} className="venta-link">
+                      #{venta.code}
                     </Link>
                   </td>
 
-                  <td>{venta.fecha}</td>
+                  <td>{venta.date}</td>
 
-                  {/* Cliente con link al detalle */}
+                  {/* Cliente */}
                   <td className="cliente-cell">
-                    <Link to={`/admin/customers/${venta.email}`} className="venta-link">
-                      {venta.cliente}
+                    <Link to={`/admin/customers/${venta.customer.email}`} className="venta-link">
+                      {venta.customer.name || "Cliente"}
                     </Link>
-
-                    {venta.comentarios && (
-                      <span className="icono-comentario">
-                        💬
-                        <span className="tooltip-comentario">
-                          {venta.comentarios}
-                        </span>
-                      </span>
-                    )}
-
-                    {venta.esRegalo && (
-                      <span className="icono-regalo">🎁</span>
-                    )}
                   </td>
 
-                  <td>{venta.total}</td>
+                  <td>${venta.totals.total.toLocaleString("es-AR")}</td>
 
                   {/* Productos */}
                   <td>
                     <button
                       className="productos-toggle"
-                      onClick={() => toggleExpand(venta.id)}
+                      onClick={() => toggleExpand(venta._id)}
                     >
-                      {Array.isArray(venta.items) ? venta.items.length : 0} producto
-                      {Array.isArray(venta.items) && venta.items.length !== 1 ? "s" : ""}{" "}
-                      <span className={expandedRows.includes(venta.id) ? "flecha up" : "flecha"}>
+                      {venta.items.length} producto
+                      {venta.items.length !== 1 ? "s" : ""}{" "}
+                      <span className={expandedRows.includes(venta._id) ? "flecha up" : "flecha"}>
                         ▾
                       </span>
                     </button>
@@ -254,7 +293,7 @@ export default function AdminSales() {
                         <span className="payment-status pending">No recibido</span>
                         <button
                           className="mark-paid-btn"
-                          onClick={() => marcarPagoRecibido(venta.id)}
+                          onClick={() => marcarPagoRecibido(venta._id)}
                         >
                           Marcar como recibido
                         </button>
@@ -264,11 +303,8 @@ export default function AdminSales() {
 
                   {/* Método de envío */}
                   <td className="shipping-method-cell">
-                    {venta.shippingMethod === "andreani" && "📦 Andreani"}
-                    {venta.shippingMethod === "correo" && "✉️ Correo Argentino"}
-                    {venta.shippingMethod === "retiro_temperley" && "🏬 Retiro Temperley"}
-                    {venta.shippingMethod === "retiro_aquelarre" && "🏬 Retiro Aquelarre"}
-                    {venta.shippingMethod === "nextday_moto" && "🏍️ Envío Next Day 24 hs (Moto CABA y GBA Sur)"}
+                    {venta.shipping.method === "home" && "📦 Envío a domicilio"}
+                    {venta.shipping.method === "pickup" && "🏬 Pick Up Point"}
                   </td>
 
                   {/* Envío */}
@@ -278,7 +314,7 @@ export default function AdminSales() {
                     ) : (
                       <button
                         className="envio-pendiente-btn"
-                        onClick={() => abrirPopup(venta.id)}
+                        onClick={() => abrirPopup(venta._id)}
                       >
                         Agregar seguimiento
                       </button>
@@ -287,30 +323,29 @@ export default function AdminSales() {
                 </tr>
 
                 {/* Fila expandida */}
-                {expandedRows.includes(venta.id) && (
+                {expandedRows.includes(venta._id) && (
                   <tr className="fila-expandida">
                     <td colSpan="9">
                       <div className="productos-grid">
-                        {Array.isArray(venta.items) &&
-                          venta.items.map((item, index) => (
-                            <div key={index} className="producto-card">
-                              <img
-                                src={item.imagen}
-                                alt={item.nombre}
-                                className="producto-img"
-                              />
-                              <div className="producto-info">
-                                <div className="producto-nombre">{item.nombre}</div>
-                                <div className="producto-detalle">
-                                  {item.color}, {item.talle} — {item.cantidad} unid.
-                                </div>
-                                <div className="producto-precio">
-                                  ${item.precio.toLocaleString()} c/u — Total: $
-                                  {(item.precio * item.cantidad).toLocaleString()}
-                                </div>
+                        {venta.items.map((item, index) => (
+                          <div key={index} className="producto-card">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="producto-img"
+                            />
+                            <div className="producto-info">
+                              <div className="producto-nombre">{item.name}</div>
+                              <div className="producto-detalle">
+                                {item.quantity} unid.
+                              </div>
+                              <div className="producto-precio">
+                                ${item.price.toLocaleString("es-AR")} c/u — Total: $
+                                {(item.price * item.quantity).toLocaleString("es-AR")}
                               </div>
                             </div>
-                          ))}
+                          </div>
+                        ))}
                       </div>
                     </td>
                   </tr>
