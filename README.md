@@ -433,3 +433,29 @@ Con estos cambios:
 
 - Productdetail es el encargado de la apariencia de cada producto particular. 
 # Fin del README
+
+
+
+hacer mañana: 
+Mañana seguimos con:
+
+• Integración logística:
+  - Terminar la estructura final de Correo Argentino (zonas, sucursales, tarifas y cálculo de envío).
+  - Unificar el modelo de datos entre Andreani y Correo Argentino para que el checkout use una sola interfaz.
+  - Ajustar los endpoints del backend para devolver tiempos, costos y sucursales de forma consistente.
+
+• Facturante:
+  - Implementar el flujo completo de emisión de factura desde el backend.
+  - Crear el endpoint para generar comprobantes y guardar el CAE.
+  - Integrar el frontend para que el admin pueda ver el estado de facturación.
+  - Preparar manejo de errores y reintentos si Facturante no responde.
+
+• Checkout:
+  - Conectar el cálculo de envío real con el flujo de compra.
+  - Validar que los datos del cliente coincidan con los requeridos por Facturante.
+  - Ajustar UI para mostrar costos, tiempos y sucursales de forma clara.
+
+• Infraestructura:
+  - Dejar lista la estructura para agregar más operadores logísticos en el futuro.
+  - Documentar todo en el README para onboarding y para que el flujo quede blindado.
+
