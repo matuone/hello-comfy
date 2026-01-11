@@ -4,61 +4,46 @@ import "../styles/adminstock.css";
 export default function AdminStock() {
   const ORDEN_TALLES = ["S", "M", "L", "XL", "XXL", "3XL"];
 
-  const [stock, setStock] = useState([]);
-  const [highlightIndex, setHighlightIndex] = useState(null);
+  const [rows, setRows] = useState([]);
+  const [toast, setToast] = useState(null); // { message, type }
+  const [modal, setModal] = useState(null); // { message, type, onConfirm }
+
+  function showToast(message, type = "success") {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2500);
+  }
+
+  function pedirConfirmacion(message, type, onConfirm) {
+    setModal({ message, type, onConfirm });
+  }
+
+  // Cerrar modal con ESC
+  useEffect(() => {
+    function handleEsc(e) {
+      if (e.key === "Escape") setModal(null);
+    }
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   // ============================
-  // CARGAR STOCK DESDE BACKEND
+  // CARGAR STOCK
   // ============================
   useEffect(() => {
     fetch("http://localhost:5000/api/stock")
       .then((res) => res.json())
-      .then((data) => setStock(data))
-      .catch((err) => console.error("Error cargando stock:", err));
+      .then((data) =>
+        setRows(
+          data.map((item) => ({
+            data: item,
+            dirty: false,
+            saving: false,
+            saved: false,
+            error: false,
+          }))
+        )
+      );
   }, []);
-
-  // ============================
-  // ACTUALIZAR TALLE (FIX PERFECTO)
-  // ============================
-  async function actualizarTalle(indexColor, talle, valor) {
-    const copia = [...stock];
-
-    // Permitir borrar → queda ""
-    copia[indexColor].talles[talle] =
-      valor === "" ? "" : Number(valor);
-
-    setStock(copia);
-
-    // Convertir "" a 0 antes de enviar al backend
-    const payload = {
-      ...copia[indexColor],
-      talles: {
-        ...copia[indexColor].talles,
-        [talle]: valor === "" ? 0 : Number(valor),
-      },
-    };
-
-    await fetch(`http://localhost:5000/api/stock/${copia[indexColor]._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  }
-
-  // ============================
-  // ACTUALIZAR COLOR O HEX
-  // ============================
-  async function actualizarColor(indexColor, campo, valor) {
-    const copia = [...stock];
-    copia[indexColor][campo] = valor;
-    setStock(copia);
-
-    await fetch(`http://localhost:5000/api/stock/${copia[indexColor]._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(copia[indexColor]),
-    });
-  }
 
   // ============================
   // AGREGAR COLOR NUEVO
@@ -67,6 +52,7 @@ export default function AdminStock() {
     const nuevo = {
       color: "Nuevo color",
       colorHex: "#cccccc",
+      paused: false,
       talles: { S: 0, M: 0, L: 0, XL: 0, XXL: 0, "3XL": 0 },
     };
 
@@ -78,107 +64,308 @@ export default function AdminStock() {
 
     const creado = await res.json();
 
-    setStock((prev) => [creado, ...prev]);
-    setHighlightIndex(0);
-    setTimeout(() => setHighlightIndex(null), 1500);
+    setRows((prev) => [
+      {
+        data: creado,
+        dirty: false,
+        saving: false,
+        saved: false,
+        error: false,
+      },
+      ...prev,
+    ]);
+
+    showToast("Color agregado al stock.", "success");
   }
 
   // ============================
-  // ELIMINAR COLOR
+  // ELIMINAR COLOR (confirmado)
   // ============================
-  async function eliminarColor(index) {
-    if (!confirm("¿Eliminar este color del stock general?")) return;
-
-    const id = stock[index]._id;
+  async function eliminarFilaConfirmado(index) {
+    const id = rows[index].data._id;
 
     await fetch(`http://localhost:5000/api/stock/${id}`, {
       method: "DELETE",
     });
 
-    setStock((prev) => prev.filter((_, i) => i !== index));
+    setRows((prev) => prev.filter((_, i) => i !== index));
+    showToast("Color eliminado del stock.", "warning");
+  }
+
+  function eliminarFila(index) {
+    const nombre = rows[index].data.color || "este color";
+    pedirConfirmacion(
+      `¿Eliminar ${nombre} del stock?`,
+      "delete",
+      () => eliminarFilaConfirmado(index)
+    );
+  }
+
+  // ============================
+  // PAUSAR / REACTIVAR COLOR
+  // ============================
+  async function togglePauseConfirmado(index) {
+    const copia = [...rows];
+    const row = copia[index];
+
+    row.data.paused = !row.data.paused;
+    setRows(copia);
+
+    await fetch(`http://localhost:5000/api/stock/${row.data._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(row.data),
+    });
+
+    showToast(
+      row.data.paused
+        ? "Color pausado. Ya no se muestra en el sitio."
+        : "Color reactivado. Vuelve a estar disponible.",
+      "info"
+    );
+  }
+
+  function togglePause(index) {
+    const row = rows[index];
+    const nombre = row.data.color || "este color";
+
+    pedirConfirmacion(
+      row.data.paused
+        ? `¿Reactivar ${nombre}?`
+        : `¿Pausar ${nombre}?`,
+      row.data.paused ? "resume" : "pause",
+      () => togglePauseConfirmado(index)
+    );
+  }
+
+  // ============================
+  // EDITAR CELDA
+  // ============================
+  function editar(index, campo, valor) {
+    setRows((prev) => {
+      const copia = [...prev];
+      copia[index].data[campo] = valor;
+      copia[index].dirty = true;
+      return copia;
+    });
+  }
+
+  function editarTalle(index, talle, valor) {
+    setRows((prev) => {
+      const copia = [...prev];
+      copia[index].data.talles[talle] = valor === "" ? "" : Number(valor);
+      copia[index].dirty = true;
+      return copia;
+    });
+  }
+
+  // ============================
+  // GUARDAR FILA (confirmado)
+  // ============================
+  async function guardarFilaConfirmado(index) {
+    setRows((prev) => {
+      const copia = [...prev];
+      copia[index].saving = true;
+      copia[index].saved = false;
+      copia[index].error = false;
+      return copia;
+    });
+
+    const row = rows[index].data;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/stock/${row._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(row),
+      });
+
+      if (!res.ok) throw new Error();
+
+      setRows((prev) => {
+        const copia = [...prev];
+        copia[index].saving = false;
+        copia[index].dirty = false;
+        copia[index].saved = true;
+        return copia;
+      });
+
+      showToast("Cambios guardados correctamente.", "success");
+
+      setTimeout(() => {
+        setRows((prev) => {
+          const copia = [...prev];
+          copia[index].saved = false;
+          return copia;
+        });
+      }, 1500);
+    } catch (err) {
+      setRows((prev) => {
+        const copia = [...prev];
+        copia[index].saving = false;
+        copia[index].error = true;
+        return copia;
+      });
+      showToast("No se pudieron guardar los cambios.", "error");
+    }
+  }
+
+  function guardarFila(index) {
+    const nombre = rows[index].data.color || "este color";
+    pedirConfirmacion(
+      `¿Guardar cambios de ${nombre}?`,
+      "save",
+      () => guardarFilaConfirmado(index)
+    );
   }
 
   // ============================
   // RENDER
   // ============================
   return (
-    <div className="admin-section">
-      <h2 className="admin-section-title">Stock general</h2>
-      <p className="admin-section-text">
-        Stock real de remeras lisas por talle y color.
-      </p>
+    <div className="admin-stock-excel">
+
+      {/* ============================
+          MODAL COMFY
+      ============================ */}
+      {modal && (
+        <div
+          className="comfy-modal-backdrop"
+          onClick={(e) => {
+            if (e.target.classList.contains("comfy-modal-backdrop")) {
+              setModal(null);
+            }
+          }}
+        >
+          <div className="comfy-modal animate-in">
+            <div className="modal-icon">
+              {modal.type === "delete" && "🗑️"}
+              {modal.type === "pause" && "⏸️"}
+              {modal.type === "resume" && "▶️"}
+              {modal.type === "save" && "💾"}
+            </div>
+
+            <p className="modal-message">{modal.message}</p>
+
+            <div className="comfy-modal-buttons">
+              <button
+                className="btn-confirm"
+                onClick={() => {
+                  modal.onConfirm();
+                  setModal(null);
+                }}
+              >
+                Confirmar
+              </button>
+
+              <button className="btn-cancel" onClick={() => setModal(null)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TOAST COMFY */}
+      {toast && (
+        <div className={`comfy-toast comfy-toast-${toast.type}`}>
+          {toast.message}
+        </div>
+      )}
+
+      <h2>Stock general</h2>
 
       <button className="btn-agregar-color" onClick={agregarColor}>
         + Agregar color
       </button>
 
-      <div className="stock-column">
-        {stock.map((item, index) => (
-          <div
-            key={item._id}
-            className={
-              "detalle-box" + (highlightIndex === index ? " color-added" : "")
-            }
-          >
-            <div className="stock-header">
-              <h3 className="detalle-title">{item.color}</h3>
+      <table className="excel-table">
+        <thead>
+          <tr>
+            <th>Color</th>
+            <th>Hex</th>
+            <th>Pausado</th>
+            {ORDEN_TALLES.map((t) => (
+              <th key={t}>{t}</th>
+            ))}
+            <th>Acciones</th>
+          </tr>
+        </thead>
 
-              <button
-                className="btn-eliminar-color"
-                onClick={() => eliminarColor(index)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <label className="input-label">Nombre del color</label>
-            <input
-              type="text"
-              className="input-field"
-              value={item.color}
-              onChange={(e) =>
-                actualizarColor(index, "color", e.target.value)
+        <tbody>
+          {rows.map((row, index) => (
+            <tr
+              key={row.data._id}
+              className={
+                row.saving
+                  ? "saving-row"
+                  : row.saved
+                    ? "saved-row"
+                    : row.dirty
+                      ? "dirty-row"
+                      : ""
               }
-            />
+            >
+              <td>
+                <input
+                  value={row.data.color}
+                  onChange={(e) => editar(index, "color", e.target.value)}
+                />
+              </td>
 
-            <label className="input-label">Color visual</label>
-            <div className="color-row">
-              <input
-                type="color"
-                className="color-picker"
-                value={item.colorHex}
-                onChange={(e) =>
-                  actualizarColor(index, "colorHex", e.target.value)
-                }
-              />
-              <div
-                className="color-preview"
-                style={{ backgroundColor: item.colorHex }}
-              ></div>
-            </div>
+              <td>
+                <input
+                  type="color"
+                  value={row.data.colorHex}
+                  onChange={(e) => editar(index, "colorHex", e.target.value)}
+                />
+              </td>
 
-            <h4 className="detalle-subtitle">Talles</h4>
+              {/* TOGGLE PAUSAR */}
+              <td>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={!row.data.paused}
+                    onChange={() => togglePause(index)}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </td>
 
-            <div className="talles-grid">
-              {ORDEN_TALLES.map((talle) => (
-                <div key={talle} className="talle-item">
-                  <label>{talle}</label>
+              {ORDEN_TALLES.map((t) => (
+                <td key={t}>
                   <input
                     type="number"
-                    className="input-field-talle"
-                    value={
-                      item.talles[talle] === "" ? "" : item.talles[talle]
-                    }
-                    onChange={(e) =>
-                      actualizarTalle(index, talle, e.target.value)
-                    }
+                    value={row.data.talles[t]}
+                    onChange={(e) => editarTalle(index, t, e.target.value)}
                   />
-                </div>
+                </td>
               ))}
-            </div>
-          </div>
-        ))}
-      </div>
+
+              <td className="acciones">
+                <button
+                  className="btn-guardar"
+                  disabled={!row.dirty || row.saving}
+                  onClick={() => guardarFila(index)}
+                >
+                  {row.saving ? "Guardando..." : "Guardar"}
+                </button>
+
+                <button
+                  className="btn-eliminar"
+                  onClick={() => eliminarFila(index)}
+                >
+                  ✕
+                </button>
+
+                {row.saved && <span className="ok-msg">✔ Guardado</span>}
+                {row.error && <span className="error-msg">✖ Error</span>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
