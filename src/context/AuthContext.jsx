@@ -3,24 +3,36 @@ import { createContext, useContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);     // Admin o usuario normal
+  const [token, setToken] = useState(null);   // Token correspondiente
 
   // ============================
-  // CARGAR LOGIN DESDE LOCALSTORAGE
+  // CARGAR SESIÓN DESDE LOCALSTORAGE
   // ============================
   useEffect(() => {
     const savedUser = localStorage.getItem("authUser");
-    const savedToken = localStorage.getItem("adminToken");
+    const savedAdminToken = localStorage.getItem("adminToken");
+    const savedUserToken = localStorage.getItem("userToken");
 
-    if (savedUser) setUser(JSON.parse(savedUser));
-    if (savedToken && savedToken !== "undefined") setToken(savedToken);
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+
+    // Si existe token admin → lo usamos
+    if (savedAdminToken && savedAdminToken !== "undefined") {
+      setToken(savedAdminToken);
+    }
+
+    // Si existe token usuario → lo usamos
+    if (savedUserToken && savedUserToken !== "undefined") {
+      setToken(savedUserToken);
+    }
   }, []);
 
   // ============================
-  // LOGIN REAL (con backend)
+  // LOGIN ADMIN (BACKEND)
   // ============================
-  async function login(email, password) {
+  async function loginAdmin(email, password) {
     try {
       const res = await fetch("http://localhost:5000/api/admin/login", {
         method: "POST",
@@ -31,25 +43,69 @@ export function AuthProvider({ children }) {
       const data = await res.json();
 
       if (!res.ok || !data.token) {
-        return false;
+        return { success: false };
       }
 
-      // El backend ahora devuelve email + isAdmin
       const loggedUser = {
+        id: data.id || null,
         email: data.email,
-        isAdmin: data.isAdmin,
+        name: data.name || null,
+        avatar: data.avatar || null,
+        isAdmin: true,
       };
 
       setUser(loggedUser);
       setToken(data.token);
 
+      // Guardar sesión admin
       localStorage.setItem("authUser", JSON.stringify(loggedUser));
       localStorage.setItem("adminToken", data.token);
+      localStorage.removeItem("userToken"); // Por si había sesión usuario
 
-      return true;
+      return { success: true, isAdmin: true };
     } catch (err) {
-      console.error("Error en login:", err);
-      return false;
+      console.error("Error en login admin:", err);
+      return { success: false };
+    }
+  }
+
+  // ============================
+  // LOGIN USUARIO NORMAL (BACKEND)
+  // ============================
+  async function loginUser(email, password) {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.token) {
+        return { success: false };
+      }
+
+      const loggedUser = {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        avatar: data.avatar || null,
+        isAdmin: false,
+      };
+
+      setUser(loggedUser);
+      setToken(data.token);
+
+      // Guardar sesión usuario
+      localStorage.setItem("authUser", JSON.stringify(loggedUser));
+      localStorage.setItem("userToken", data.token);
+      localStorage.removeItem("adminToken"); // Por si había sesión admin
+
+      return { success: true, isAdmin: false };
+    } catch (err) {
+      console.error("Error en login usuario:", err);
+      return { success: false };
     }
   }
 
@@ -61,6 +117,7 @@ export function AuthProvider({ children }) {
     setToken(null);
     localStorage.removeItem("authUser");
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("userToken");
   }
 
   return (
@@ -68,7 +125,8 @@ export function AuthProvider({ children }) {
       value={{
         user,
         token,
-        login,
+        loginAdmin,
+        loginUser,
         logout,
         isAdmin: user?.isAdmin === true,
       }}

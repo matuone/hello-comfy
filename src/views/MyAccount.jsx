@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import "../styles/myaccount.css";
 
 export default function MyAccount() {
-  const { login } = useAuth();
+  const { loginAdmin, loginUser } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -14,11 +14,21 @@ export default function MyAccount() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
 
-    const success = await login(email, password);
+    // Detectar si es admin por el dominio
+    const isAdminEmail = email.endsWith("@hellocomfy.com");
 
-    if (success) {
-      navigate("/");
+    const result = isAdminEmail
+      ? await loginAdmin(email, password)
+      : await loginUser(email, password);
+
+    if (result.success) {
+      if (result.isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/mi-cuenta/perfil");
+      }
     } else {
       setError("Email o contraseña incorrectos.");
     }
@@ -31,7 +41,6 @@ export default function MyAccount() {
         <p className="account-subtitle">Ingresá para acceder al panel</p>
 
         <form onSubmit={handleSubmit} className="account-form">
-
           <div className="account-input-wrapper">
             <input
               className="account-input"
