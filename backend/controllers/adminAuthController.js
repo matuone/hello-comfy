@@ -12,7 +12,9 @@ export async function adminLogin(req, res) {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
-    const match = await bcrypt.compare(password, admin.password);
+    // ⭐ CAMBIO CLAVE: usar passwordHash
+    const match = await bcrypt.compare(password, admin.passwordHash);
+
 
     if (!match) {
       return res.status(401).json({ error: "Credenciales inválidas" });

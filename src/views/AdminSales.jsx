@@ -28,7 +28,7 @@ export default function AdminSales() {
   // Redirigir si no hay token
   useEffect(() => {
     if (!token) {
-      navigate("/my-account");
+      navigate("/mi-cuenta");
     }
   }, [token, navigate]);
 

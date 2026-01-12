@@ -8,10 +8,14 @@ const adminSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    password: {
+    passwordHash: {
       type: String,
       required: true,
     },
+    nombre: {
+      type: String,
+      trim: true,
+    }
   },
   {
     timestamps: true,
