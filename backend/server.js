@@ -15,7 +15,8 @@ import promoCodeRoutes from "./routes/promoCodeRoutes.js";
 import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
-import authRoutes from "./routes/authRoutes.js"; // ⭐ NUEVO
+import authRoutes from "./routes/authRoutes.js";
+import supportRoutes from "./routes/supportRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -40,9 +41,14 @@ app.use(express.json());
 app.use("/api/admin", adminAuthRoutes);
 
 // ============================
-// RUTA DE LOGIN CLIENTE (NUEVA)
+// RUTA DE LOGIN CLIENTE
 // ============================
-app.use("/api/auth", authRoutes); // ⭐ NUEVO
+app.use("/api/auth", authRoutes);
+
+// ============================
+// RUTA DE SOPORTE (NUEVA)
+// ============================
+app.use("/api/support", supportRoutes); // ⭐ NUEVO
 
 // ============================
 // RUTAS EXISTENTES

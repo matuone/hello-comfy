@@ -1,0 +1,32 @@
+meta {
+  name: Support mensages
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:5000/api/support
+  body: json
+  auth: inherit
+}
+
+headers {
+  Key: Content-Type
+  Value: application/json
+}
+
+body:json {
+  {
+    "tema": "Problema con mi pedido",
+    "orden": "HC-12345",
+    "email": "cliente@test.com",
+    "whatsapp": "1122334455",
+    "descripcion": "Mi pedido no llegó todavía y quería saber el estado."
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
