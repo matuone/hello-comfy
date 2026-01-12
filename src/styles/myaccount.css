@@ -4,6 +4,7 @@
   padding: 60px 20px;
 }
 
+/* Aseguramos box-sizing dentro de la tarjeta */
 .account-box {
   width: 100%;
   max-width: 420px;
@@ -13,6 +14,11 @@
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
   text-align: center;
   animation: fadeIn 0.4s ease forwards;
+  box-sizing: border-box;
+}
+
+.account-box * {
+  box-sizing: border-box;
 }
 
 .account-title {
@@ -30,14 +36,31 @@
 .account-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  width: 100%;
 }
 
+/* Wrapper alineado al ancho interno del card */
+.account-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Input compacto y sin desbordarse */
 .account-input {
-  padding: 12px 16px;
-  border-radius: 12px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 10px;
   border: 1px solid #ddd;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  /* clave para que no se salga del card */
+  box-sizing: border-box;
+}
+
+.account-input-password,
+.account-input.account-input-password {
+  padding-right: 40px;
+  /* espacio para el ojo */
 }
 
 .account-input:focus {
@@ -46,14 +69,17 @@
 }
 
 .account-btn {
-  padding: 12px 20px;
+  padding: 9px 16px;
+  min-height: 40px;
   background: #d94f7a;
   color: #fff;
   border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 700;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease;
+  width: 100%;
 }
 
 .account-btn:hover {
@@ -74,6 +100,71 @@
   color: #777;
 }
 
+/* Ya no lo usamos, pero lo dejo por si reaprovechás */
+.account-password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Botón ojo contenedor */
+.account-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Icono de ojo 2D minimalista */
+.eye-icon {
+  width: 18px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1.5px solid #999;
+  position: relative;
+  display: inline-block;
+}
+
+/* Pupila */
+.eye-icon::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #999;
+  transform: translate(-50%, -50%);
+}
+
+/* Estado: contraseña OCULTA → ojo tachado */
+.eye-icon--hidden::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1.5px solid #999;
+  transform: rotate(-25deg);
+}
+
+/* Estado: contraseña VISIBLE → ojo limpio */
+.eye-icon--visible::after {
+  content: none;
+}
+
+.account-eye:hover .eye-icon {
+  border-color: #d94f7a;
+}
+
+.account-eye:hover .eye-icon::before {
+  background: #d94f7a;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -84,30 +175,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.account-password-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.account-eye {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  color: #999;
-}
-
-.account-eye:hover {
-  color: #d94f7a;
-}
-
-.account-input-wrapper {
-  position: relative;
-  width: 100%;
 }

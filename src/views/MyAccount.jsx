@@ -16,7 +16,6 @@ export default function MyAccount() {
     e.preventDefault();
     setError("");
 
-    // Detectar si es admin por el dominio
     const isAdminEmail = email.endsWith("@hellocomfy.com");
 
     const result = isAdminEmail
@@ -38,7 +37,7 @@ export default function MyAccount() {
     <div className="account-page">
       <div className="account-box">
         <h2 className="account-title">Mi cuenta</h2>
-        <p className="account-subtitle">Ingresá para acceder al panel</p>
+        <p className="account-subtitle">Ingresá para acceder a tu cuenta</p>
 
         <form onSubmit={handleSubmit} className="account-form">
           <div className="account-input-wrapper">
@@ -54,7 +53,7 @@ export default function MyAccount() {
 
           <div className="account-input-wrapper">
             <input
-              className="account-input"
+              className="account-input account-input-password"
               type={showPassword ? "text" : "password"}
               placeholder="Contraseña"
               value={password}
@@ -66,8 +65,15 @@ export default function MyAccount() {
               type="button"
               className="account-eye"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
-              {showPassword ? "🙈" : "👁️"}
+              <span
+                className={
+                  showPassword
+                    ? "eye-icon eye-icon--visible"
+                    : "eye-icon eye-icon--hidden"
+                }
+              />
             </button>
           </div>
 
