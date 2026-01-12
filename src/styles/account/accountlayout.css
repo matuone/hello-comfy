@@ -1,0 +1,111 @@
+/* CONTENEDOR GENERAL */
+.account-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: #f7f7f7;
+}
+
+/* SIDEBAR */
+.account-sidebar {
+  width: 240px;
+  padding: 24px;
+  background: #fafafa;
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  animation: fadein 0.3s ease;
+}
+
+/* Avatar */
+.account-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #ddd;
+  margin: 0 auto 12px;
+  overflow: hidden;
+}
+
+/* Navegación */
+.account-nav a {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #444;
+  display: block;
+  transition: background 0.2s ease, transform 0.15s ease;
+  margin-bottom: 16px;
+}
+
+.account-nav a:hover {
+  background: #f3d7e1;
+  transform: translateX(4px);
+}
+
+.account-nav a.active {
+  background: #ffe4ec;
+  color: #d94f7a;
+}
+
+/* Logout */
+.account-logout {
+  margin-top: auto;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #ffe4ec;
+  color: #d94f7a;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.account-logout:hover {
+  background: #ffd1df;
+  transform: translateX(4px);
+}
+
+/* CONTENIDO */
+.account-content {
+  flex: 1;
+  padding: 48px;
+  animation: fadein 0.3s ease;
+}
+
+/* Animación suave */
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .account-container {
+    flex-direction: column;
+  }
+
+  .account-sidebar {
+    width: 100%;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+  }
+
+  .account-content {
+    padding: 24px;
+  }
+}

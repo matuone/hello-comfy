@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../../styles/account/accounthelp.css";
 
 export default function AccountHelp() {
   const [form, setForm] = useState({
@@ -19,14 +20,28 @@ export default function AccountHelp() {
     e.preventDefault();
     setStatus("loading");
 
+    // Validación de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      setStatus("error");
+      alert("Ingresá un email válido");
+      return;
+    }
+
+    // Validación de WhatsApp (opcional)
+    const phoneRegex = /^[0-9+\-\s()]{6,20}$/;
+    if (form.whatsapp && !phoneRegex.test(form.whatsapp)) {
+      setStatus("error");
+      alert("Ingresá un número de WhatsApp válido");
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/api/support", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
-      const data = await res.json();
 
       if (res.ok) {
         setStatus("success");
@@ -37,6 +52,8 @@ export default function AccountHelp() {
           whatsapp: "",
           descripcion: "",
         });
+
+        setTimeout(() => setStatus(null), 3000);
       } else {
         setStatus("error");
       }
@@ -47,12 +64,14 @@ export default function AccountHelp() {
 
   return (
     <div>
-      <h2>Centro de ayuda</h2>
-      <p>Completá el formulario y nos pondremos en contacto.</p>
+      <h2 className="help-title">Centro de ayuda</h2>
+      <p className="help-subtitle">
+        Completá el formulario y nos pondremos en contacto.
+      </p>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "500px" }}>
-
+      <form className="help-form" onSubmit={handleSubmit}>
         <input
+          className="help-input"
           type="text"
           name="tema"
           placeholder="Tema"
@@ -62,6 +81,7 @@ export default function AccountHelp() {
         />
 
         <input
+          className="help-input"
           type="text"
           name="orden"
           placeholder="Orden de venta (opcional)"
@@ -70,24 +90,28 @@ export default function AccountHelp() {
         />
 
         <input
+          className="help-input"
           type="email"
           name="email"
           placeholder="Tu email"
           value={form.email}
           onChange={handleChange}
           required
+          pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
         />
 
         <input
+          className="help-input"
           type="text"
           name="whatsapp"
-          placeholder="Número de WhatsApp"
+          placeholder="+54 9 11 2233 4455"
           value={form.whatsapp}
           onChange={handleChange}
-          required
+          pattern="[0-9+\-\s()]{6,20}"
         />
 
         <textarea
+          className="help-textarea"
           name="descripcion"
           placeholder="Describí tu problema"
           rows="5"
@@ -96,11 +120,21 @@ export default function AccountHelp() {
           required
         />
 
-        <button type="submit">Enviar</button>
+        <button
+          className="help-button"
+          type="submit"
+          disabled={status === "loading"}
+        >
+          {status === "loading" ? "Enviando..." : "Enviar"}
+        </button>
 
-        {status === "loading" && <p>Enviando...</p>}
-        {status === "success" && <p style={{ color: "green" }}>Mensaje enviado con éxito</p>}
-        {status === "error" && <p style={{ color: "red" }}>Error al enviar el mensaje</p>}
+        {status === "success" && (
+          <p className="help-success">Mensaje enviado con éxito</p>
+        )}
+
+        {status === "error" && (
+          <p className="help-error">Hubo un error al enviar el mensaje</p>
+        )}
       </form>
     </div>
   );
