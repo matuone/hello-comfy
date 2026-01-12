@@ -20,15 +20,15 @@ import Category from "../views/Category";
 import ProductDetail from "../views/ProductDetail";
 import Wishlist from "../views/Wishlist";
 
-// ⭐ Checkout
+// Checkout
 import Checkout from "../views/Checkout";
 import CheckoutSuccess from "../views/CheckoutSuccess";
 import CheckoutError from "../views/CheckoutError";
 
-// ⭐ Order Tracking
+// Order Tracking
 import OrderTracking from "../views/OrderTracking";
 
-// ⭐ Order Details (PÚBLICO)
+// Order Details (PÚBLICO)
 import OrderDetails from "../views/OrderDetails";
 
 // Admin
@@ -45,14 +45,14 @@ import AdminCustomerEdit from "../views/AdminCustomerEdit";
 import AdminStats from "../views/AdminStats";
 import AdminMarketing from "../views/AdminMarketing";
 
-// ⭐ NUEVOS IMPORTS
+// Nuevos imports admin
 import AdminDiscounts from "../views/AdminDiscounts";
 import AdminPromoCodes from "../views/AdminPromoCodes";
 
-// Protección de rutas admin
+// Protección admin
 import AdminRoute from "./AdminRoute";
 
-// ⭐ Área de cliente (PROTEGIDA)
+// Área de cliente (PROTEGIDA)
 import UserRoute from "./UserRoute";
 import AccountLayout from "../views/account/AccountLayout";
 import AccountPurchases from "../views/account/AccountPurchases";
@@ -60,67 +60,46 @@ import AccountProfile from "../views/account/AccountProfile";
 import AccountShipping from "../views/account/AccountShipping";
 import AccountContact from "../views/account/AccountContact";
 
+// ⭐ NUEVO: soporte
+import AccountHelp from "../views/account/AccountHelp";
+
 export default function AppRouter() {
   return (
     <Routes>
 
-      {/* ============================
-          RUTAS PÚBLICAS
-      ============================ */}
+      {/* Públicas */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
 
-        {/* Categorías dinámicas */}
-        <Route
-          path="/indumentaria/:subcategory"
-          element={<Category section="indumentaria" />}
-        />
-        <Route
-          path="/cute-items/:subcategory"
-          element={<Category section="cute-items" />}
-        />
-        <Route
-          path="/merch/:subcategory"
-          element={<Category section="merch" />}
-        />
+        <Route path="/indumentaria/:subcategory" element={<Category section="indumentaria" />} />
+        <Route path="/cute-items/:subcategory" element={<Category section="cute-items" />} />
+        <Route path="/merch/:subcategory" element={<Category section="merch" />} />
 
-        {/* Páginas informativas */}
         <Route path="/categorias" element={<Categories />} />
         <Route path="/talles" element={<SizeGuide />} />
         <Route path="/algodon" element={<CottonCare />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/medios-de-pago" element={<PaymentMethods />} />
 
-        {/* Cuenta */}
         <Route path="/mi-cuenta" element={<MyAccount />} />
         <Route path="/create-account" element={<CreateAccount />} />
 
-        {/* Carrito */}
         <Route path="/cart" element={<Cart />} />
-
-        {/* ⭐ Wishlist */}
         <Route path="/wishlist" element={<Wishlist />} />
 
-        {/* ⭐ Checkout */}
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
         <Route path="/checkout/error" element={<CheckoutError />} />
 
-        {/* ⭐ Order Tracking */}
         <Route path="/seguimiento" element={<OrderTracking />} />
-
-        {/* ⭐ Order Details (PÚBLICO) */}
         <Route path="/orden/:code" element={<OrderDetails />} />
 
-        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Route>
 
-      {/* ============================
-          PANEL ADMIN (PROTEGIDO)
-      ============================ */}
+      {/* Admin */}
       <Route
         element={
           <AdminRoute>
@@ -145,14 +124,11 @@ export default function AppRouter() {
         <Route path="/admin/stats" element={<AdminStats />} />
         <Route path="/admin/marketing" element={<AdminMarketing />} />
 
-        {/* ⭐ NUEVAS RUTAS */}
         <Route path="/admin/discounts" element={<AdminDiscounts />} />
         <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
       </Route>
 
-      {/* ============================
-          ÁREA DE CLIENTE (PROTEGIDA)
-      ============================ */}
+      {/* Área de cliente */}
       <Route
         element={
           <UserRoute>
@@ -164,6 +140,9 @@ export default function AppRouter() {
         <Route path="/mi-cuenta/perfil" element={<AccountProfile />} />
         <Route path="/mi-cuenta/envio" element={<AccountShipping />} />
         <Route path="/mi-cuenta/contacto" element={<AccountContact />} />
+
+        {/* ⭐ NUEVA RUTA DE AYUDA */}
+        <Route path="/mi-cuenta/ayuda" element={<AccountHelp />} />
       </Route>
 
     </Routes>
