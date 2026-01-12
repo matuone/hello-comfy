@@ -60,34 +60,6 @@ export default function AccountLayout() {
         {/* Navegación */}
         <nav style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <NavLink
-            to="/mi-cuenta/compras"
-            style={({ isActive }) => ({
-              padding: "10px 14px",
-              borderRadius: "8px",
-              background: isActive ? "#ffe4ec" : "transparent",
-              color: isActive ? "#d94f7a" : "#444",
-              fontWeight: "600",
-              textDecoration: "none"
-            })}
-          >
-            🛒 Mis compras
-          </NavLink>
-
-          <NavLink
-            to="/mi-cuenta/envio"
-            style={({ isActive }) => ({
-              padding: "10px 14px",
-              borderRadius: "8px",
-              background: isActive ? "#ffe4ec" : "transparent",
-              color: isActive ? "#d94f7a" : "#444",
-              fontWeight: "600",
-              textDecoration: "none"
-            })}
-          >
-            📦 Datos de envío
-          </NavLink>
-
-          <NavLink
             to="/mi-cuenta/perfil"
             style={({ isActive }) => ({
               padding: "10px 14px",
@@ -102,7 +74,7 @@ export default function AccountLayout() {
           </NavLink>
 
           <NavLink
-            to="/mi-cuenta/contacto"
+            to="/mi-cuenta/compras"
             style={({ isActive }) => ({
               padding: "10px 14px",
               borderRadius: "8px",
@@ -112,7 +84,21 @@ export default function AccountLayout() {
               textDecoration: "none"
             })}
           >
-            📞 Contacto
+            🛒 Mis compras
+          </NavLink>
+
+          <NavLink
+            to="/mi-cuenta/ayuda"
+            style={({ isActive }) => ({
+              padding: "10px 14px",
+              borderRadius: "8px",
+              background: isActive ? "#ffe4ec" : "transparent",
+              color: isActive ? "#d94f7a" : "#444",
+              fontWeight: "600",
+              textDecoration: "none"
+            })}
+          >
+            ❓ Ayuda
           </NavLink>
         </nav>
 
