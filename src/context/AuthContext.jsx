@@ -3,8 +3,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);     // Admin o usuario normal
-  const [token, setToken] = useState(null);   // Token correspondiente
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   // ============================
   // CARGAR SESIÓN DESDE LOCALSTORAGE
@@ -18,19 +18,37 @@ export function AuthProvider({ children }) {
       setUser(JSON.parse(savedUser));
     }
 
-    // Si existe token admin → lo usamos
     if (savedAdminToken && savedAdminToken !== "undefined") {
       setToken(savedAdminToken);
     }
 
-    // Si existe token usuario → lo usamos
     if (savedUserToken && savedUserToken !== "undefined") {
       setToken(savedUserToken);
     }
   }, []);
 
   // ============================
-  // LOGIN ADMIN (BACKEND)
+  // LOGIN AUTOMÁTICO DESPUÉS DE REGISTRO
+  // ============================
+  function loginAfterRegister(token, userData) {
+    const loggedUser = {
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      avatar: userData.avatar || null,
+      isAdmin: userData.isAdmin || false,
+    };
+
+    setUser(loggedUser);
+    setToken(token);
+
+    localStorage.setItem("authUser", JSON.stringify(loggedUser));
+    localStorage.setItem("userToken", token);
+    localStorage.removeItem("adminToken");
+  }
+
+  // ============================
+  // LOGIN ADMIN
   // ============================
   async function loginAdmin(email, password) {
     try {
@@ -42,9 +60,7 @@ export function AuthProvider({ children }) {
 
       const data = await res.json();
 
-      if (!res.ok || !data.token) {
-        return { success: false };
-      }
+      if (!res.ok || !data.token) return { success: false };
 
       const loggedUser = {
         id: data.id || null,
@@ -57,10 +73,9 @@ export function AuthProvider({ children }) {
       setUser(loggedUser);
       setToken(data.token);
 
-      // Guardar sesión admin
       localStorage.setItem("authUser", JSON.stringify(loggedUser));
       localStorage.setItem("adminToken", data.token);
-      localStorage.removeItem("userToken"); // Por si había sesión usuario
+      localStorage.removeItem("userToken");
 
       return { success: true, isAdmin: true };
     } catch (err) {
@@ -70,7 +85,7 @@ export function AuthProvider({ children }) {
   }
 
   // ============================
-  // LOGIN USUARIO NORMAL (BACKEND)
+  // LOGIN USUARIO NORMAL
   // ============================
   async function loginUser(email, password) {
     try {
@@ -82,25 +97,24 @@ export function AuthProvider({ children }) {
 
       const data = await res.json();
 
-      if (!res.ok || !data.token) {
+      if (!res.ok || !data.token || !data.user) {
         return { success: false };
       }
 
       const loggedUser = {
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        avatar: data.avatar || null,
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        avatar: data.user.avatar || null,
         isAdmin: false,
       };
 
       setUser(loggedUser);
       setToken(data.token);
 
-      // Guardar sesión usuario
       localStorage.setItem("authUser", JSON.stringify(loggedUser));
       localStorage.setItem("userToken", data.token);
-      localStorage.removeItem("adminToken"); // Por si había sesión admin
+      localStorage.removeItem("adminToken");
 
       return { success: true, isAdmin: false };
     } catch (err) {
@@ -127,6 +141,7 @@ export function AuthProvider({ children }) {
         token,
         loginAdmin,
         loginUser,
+        loginAfterRegister, // ⭐ NUEVO
         logout,
         isAdmin: user?.isAdmin === true,
       }}

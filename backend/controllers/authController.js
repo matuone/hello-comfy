@@ -1,8 +1,98 @@
 // controllers/authController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/User.js"; // Ajustá el path si tu modelo está en otro lugar
+import validator from "validator";
+import User from "../models/User.js";
 
+// ===============================
+// REGISTRO DE USUARIO
+// ===============================
+export async function registerUser(req, res) {
+  try {
+    const {
+      name,
+      email,
+      password,
+      dni,
+      whatsapp,
+      address,
+    } = req.body;
+
+    // Validaciones básicas
+    if (!name || !email || !password || !dni || !whatsapp || !address) {
+      return res.status(400).json({ error: "Faltan campos obligatorios" });
+    }
+
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ error: "Email inválido" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+    }
+
+    // Validar dirección
+    const requiredAddressFields = ["street", "number", "city", "province", "postalCode"];
+    for (const field of requiredAddressFields) {
+      if (!address[field]) {
+        return res.status(400).json({ error: `Falta el campo de dirección: ${field}` });
+      }
+    }
+
+    // Verificar si el email ya existe
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ error: "El email ya está registrado" });
+    }
+
+    // Hash de contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear usuario
+    const newUser = await User.create({
+      name: validator.escape(name),
+      email: validator.normalizeEmail(email),
+      password: hashedPassword,
+      dni: validator.escape(dni),
+      whatsapp: validator.escape(whatsapp),
+      address: {
+        street: validator.escape(address.street),
+        number: validator.escape(address.number),
+        floor: address.floor ? validator.escape(address.floor) : "",
+        city: validator.escape(address.city),
+        province: validator.escape(address.province),
+        postalCode: validator.escape(address.postalCode),
+      },
+      method: "email",
+    });
+
+    // Generar token
+    const token = jwt.sign(
+      { id: newUser._id, isAdmin: newUser.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(201).json({
+      token,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        avatar: newUser.avatar,
+        isAdmin: newUser.isAdmin,
+      },
+    });
+
+  } catch (err) {
+    console.error("Error en registro:", err);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+// ===============================
+// LOGIN DE USUARIO
+// ===============================
 export async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
@@ -19,6 +109,10 @@ export async function loginUser(req, res) {
       return res.status(401).json({ error: "Email o contraseña incorrectos" });
     }
 
+    // Actualizar lastLogin
+    user.lastLogin = new Date();
+    await user.save();
+
     // Generar token
     const token = jwt.sign(
       { id: user._id, isAdmin: user.isAdmin },
@@ -33,7 +127,7 @@ export async function loginUser(req, res) {
         id: user._id,
         name: user.name,
         email: user.email,
-        avatar: user.avatar || null,
+        avatar: user.avatar,
         isAdmin: user.isAdmin,
       },
     });

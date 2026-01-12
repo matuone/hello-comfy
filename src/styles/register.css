@@ -1,0 +1,94 @@
+/* CONTENEDOR GENERAL */
+.register-container {
+  max-width: 480px;
+  margin: 60px auto;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.3s ease;
+}
+
+.register-container h2 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: #222;
+}
+
+/* FORMULARIO */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* INPUTS */
+.register-form input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.register-form input:focus {
+  outline: none;
+  border-color: #b38bff;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(179, 139, 255, 0.25);
+}
+
+/* BOTÓN */
+.register-form button {
+  margin-top: 10px;
+  padding: 14px;
+  background: #b38bff;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.register-form button:hover {
+  background: #a57af8;
+}
+
+.register-form button:active {
+  transform: scale(0.97);
+}
+
+.register-form button:disabled {
+  background: #d8c9ff;
+  cursor: not-allowed;
+}
+
+/* ERROR */
+.register-error {
+  background: #ffe5e5;
+  color: #b30000;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid #ffb3b3;
+}
+
+/* ANIMACIÓN */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

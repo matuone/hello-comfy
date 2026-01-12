@@ -1,7 +1,23 @@
 import mongoose from "mongoose";
 
+const DEFAULT_AVATAR =
+  "https://res.cloudinary.com/hellocomfy/image/upload/v173/avatar-default.png";
+
+const addressSchema = new mongoose.Schema(
+  {
+    street: { type: String, required: true },
+    number: { type: String, required: true },
+    floor: { type: String, default: "" }, // opcional
+    city: { type: String, required: true },
+    province: { type: String, required: true },
+    postalCode: { type: String, required: true },
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema(
   {
+    // Datos principales
     name: {
       type: String,
       required: true,
@@ -23,12 +39,43 @@ const userSchema = new mongoose.Schema(
 
     avatar: {
       type: String,
-      default: null,
+      default: DEFAULT_AVATAR, // avatar genérico comfy
     },
 
+    // Datos personales
+    dni: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    whatsapp: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    // Dirección completa
+    address: {
+      type: addressSchema,
+      required: true,
+    },
+
+    // Flags
     isAdmin: {
       type: Boolean,
       default: false,
+    },
+
+    // Datos internos
+    method: {
+      type: String,
+      default: "email", // email | google | etc.
+    },
+
+    lastLogin: {
+      type: Date,
+      default: null,
     },
   },
   {

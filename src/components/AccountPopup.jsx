@@ -3,6 +3,7 @@ import "../styles/accountpopup.css";
 import { useState } from "react";
 import avatar from "../assets/avatar/avatar.png";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 export default function AccountPopup(props) {
   const [showPassword, setShowPassword] = useState(false);
@@ -107,9 +108,13 @@ export default function AccountPopup(props) {
             {/* Crear cuenta */}
             <p className="popup__register">
               ¿No tenés cuenta?{" "}
-              <a href="/create-account" className="popup__register-link">
+              <Link
+                to="/register"
+                className="popup__register-link"
+                onClick={props.onClose}
+              >
                 Créala
-              </a>
+              </Link>
             </p>
 
             <a href="#" className="popup__link">

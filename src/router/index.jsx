@@ -14,11 +14,13 @@ import CottonCare from "../views/CottonCare";
 import FAQ from "../views/FAQ";
 import PaymentMethods from "../views/PaymentMethods";
 import MyAccount from "../views/MyAccount";
-import CreateAccount from "../views/CreateAccount";
 import Products from "../views/Products";
 import Category from "../views/Category";
 import ProductDetail from "../views/ProductDetail";
 import Wishlist from "../views/Wishlist";
+
+// ⭐ NUEVO: Registro
+import Register from "../views/account/Register";
 
 // Checkout
 import Checkout from "../views/Checkout";
@@ -84,7 +86,9 @@ export default function AppRouter() {
         <Route path="/medios-de-pago" element={<PaymentMethods />} />
 
         <Route path="/mi-cuenta" element={<MyAccount />} />
-        <Route path="/create-account" element={<CreateAccount />} />
+
+        {/* ⭐ NUEVA RUTA DE REGISTRO */}
+        <Route path="/register" element={<Register />} />
 
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
