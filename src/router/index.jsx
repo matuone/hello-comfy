@@ -28,7 +28,7 @@ import CheckoutError from "../views/CheckoutError";
 // ⭐ Order Tracking
 import OrderTracking from "../views/OrderTracking";
 
-// ⭐ Order Details (NUEVO)
+// ⭐ Order Details (PÚBLICO)
 import OrderDetails from "../views/OrderDetails";
 
 // Admin
@@ -51,6 +51,14 @@ import AdminPromoCodes from "../views/AdminPromoCodes";
 
 // Protección de rutas admin
 import AdminRoute from "./AdminRoute";
+
+// ⭐ Área de cliente (PROTEGIDA)
+import UserRoute from "./UserRoute";
+import AccountLayout from "../views/account/AccountLayout";
+import AccountPurchases from "../views/account/AccountPurchases";
+import AccountProfile from "../views/account/AccountProfile";
+import AccountShipping from "../views/account/AccountShipping";
+import AccountContact from "../views/account/AccountContact";
 
 export default function AppRouter() {
   return (
@@ -143,9 +151,20 @@ export default function AppRouter() {
       </Route>
 
       {/* ============================
-          RUTA PRIVADA PARA ORDER DETAILS
+          ÁREA DE CLIENTE (PROTEGIDA)
       ============================ */}
-      <Route path="/mi-cuenta/orden/:id" element={<OrderDetails />} />
+      <Route
+        element={
+          <UserRoute>
+            <AccountLayout />
+          </UserRoute>
+        }
+      >
+        <Route path="/mi-cuenta/compras" element={<AccountPurchases />} />
+        <Route path="/mi-cuenta/perfil" element={<AccountProfile />} />
+        <Route path="/mi-cuenta/envio" element={<AccountShipping />} />
+        <Route path="/mi-cuenta/contacto" element={<AccountContact />} />
+      </Route>
 
     </Routes>
   );
