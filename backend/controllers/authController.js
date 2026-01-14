@@ -137,3 +137,59 @@ export async function loginUser(req, res) {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }
+
+// ===============================
+// ACTUALIZAR PERFIL DE USUARIO
+// ===============================
+export async function updateUserProfile(req, res) {
+  try {
+    const { id } = req.params;
+    const { name, dni, whatsapp, address } = req.body;
+
+    // Validar que el usuario que hace la solicitud es el mismo
+    if (req.user.id !== id) {
+      return res.status(403).json({ error: "No tienes permiso para actualizar este perfil" });
+    }
+
+    // Buscar el usuario
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Actualizar campos
+    if (name) user.name = name.trim();
+    if (dni) user.dni = dni.trim();
+    if (whatsapp) user.whatsapp = whatsapp.trim();
+    if (address) {
+      user.address = {
+        street: address.street?.trim() || user.address?.street || "",
+        number: address.number?.trim() || user.address?.number || "",
+        floor: address.floor?.trim() || user.address?.floor || "",
+        city: address.city?.trim() || user.address?.city || "",
+        province: address.province?.trim() || user.address?.province || "",
+        postalCode: address.postalCode?.trim() || user.address?.postalCode || "",
+      };
+    }
+
+    // Guardar
+    await user.save();
+
+    // Respuesta
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        dni: user.dni,
+        whatsapp: user.whatsapp,
+        address: user.address,
+        avatar: user.avatar,
+      },
+    });
+  } catch (err) {
+    console.error("Error al actualizar perfil:", err);
+    res.status(500).json({ error: "Error al actualizar el perfil" });
+  }
+}
