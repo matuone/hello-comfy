@@ -3,10 +3,11 @@ import "../styles/accountpopup.css";
 import { useState } from "react";
 import avatar from "../assets/avatar/avatar.png";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function AccountPopup(props) {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const { user, logout, isAdmin } = useAuth();
 
@@ -37,8 +38,13 @@ export default function AccountPopup(props) {
   }
 
   function handleAdminClick() {
+    navigate("/admin");
+  }
+
+  function handleMyAccountClick() {
     props.onClose();
-    window.location.href = "/admin";
+    navigate("/mi-cuenta")
+    window.location.href = "/mi-cuenta";
   }
 
   return (
@@ -128,9 +134,17 @@ export default function AccountPopup(props) {
         ============================ */}
         {user && (
           <>
-            <p className="popup__email">{user.email}</p>
+            <p className="popup__email">{user.name}</p>
 
             <div className="popup__buttons">
+
+              {/* BOTÓN MI CUENTA */}
+              <button
+                className="popup__btn login"
+                onClick={handleMyAccountClick}
+              >
+                Mi Cuenta
+              </button>
 
               {/* BOTÓN ADMIN SOLO PARA ADMINS */}
               {isAdmin && (

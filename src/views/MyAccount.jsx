@@ -1,16 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/myaccount.css";
 
 export default function MyAccount() {
-  const { loginAdmin, loginUser } = useAuth();
+  const { loginAdmin, loginUser, user } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+
+  // ============================
+  // SI YA ESTÁ LOGUEADO, REDIRIGIR
+  // ============================
+  useEffect(() => {
+    if (user) {
+      navigate("/mi-cuenta/perfil", { replace: true });
+    }
+  }, [user, navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();
