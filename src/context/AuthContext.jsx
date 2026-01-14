@@ -124,6 +124,20 @@ export function AuthProvider({ children }) {
   }
 
   // ============================
+  // ACTUALIZAR AVATAR
+  // ============================
+  function updateUserAvatar(newAvatarUrl) {
+    if (user) {
+      const updatedUser = {
+        ...user,
+        avatar: newAvatarUrl,
+      };
+      setUser(updatedUser);
+      localStorage.setItem("authUser", JSON.stringify(updatedUser));
+    }
+  }
+
+  // ============================
   // LOGOUT
   // ============================
   function logout() {
@@ -142,6 +156,7 @@ export function AuthProvider({ children }) {
         loginAdmin,
         loginUser,
         loginAfterRegister, // ⭐ NUEVO
+        updateUserAvatar,
         logout,
         isAdmin: user?.isAdmin === true,
       }}

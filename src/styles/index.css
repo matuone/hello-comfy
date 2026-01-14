@@ -18,6 +18,8 @@ main {
 html,
 body {
   overflow-x: hidden;
+  /* Evita saltos horizontales/verticales al aparecer/desaparecer scrollbar */
+  scrollbar-gutter: stable;
   background: #fff;
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: #111;

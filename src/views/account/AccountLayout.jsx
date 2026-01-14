@@ -7,7 +7,7 @@ import "../../styles/account/accountlayout.css";
 const DEFAULT_AVATAR = defaultAvatarImg;
 
 export default function AccountLayout() {
-  const { user, logout, token } = useAuth();
+  const { user, logout, token, updateUserAvatar } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);

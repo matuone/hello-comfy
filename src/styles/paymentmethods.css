@@ -1,7 +1,7 @@
 /* src/styles/paymentmethods.css */
 
 .paymentmethods {
-  max-width: 1200px;
+  max-width: 1260px;
   margin: 40px auto;
   padding: 20px;
   text-align: center;
@@ -26,8 +26,8 @@
   justify-content: center;
   gap: 48px;
   /* separación clara entre tarjetas */
-  flex-wrap: nowrap;
-  /* mantiene todo en una fila */
+  flex-wrap: wrap;
+  /* permite que las tarjetas hagan wrap y evita overflow horizontal */
 }
 
 .paymentmethods__card {

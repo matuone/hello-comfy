@@ -1,5 +1,5 @@
 // src/views/PaymentMethods.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/paymentmethods.css";
 
 import mpLogo from "../assets/payments/mp.png";
@@ -43,6 +43,23 @@ export default function PaymentMethods() {
   ];
 
   const [selectedMethod, setSelectedMethod] = useState(null);
+
+  useEffect(() => {
+    // Cuando se abre el modal, evitamos el salto causado por la barra de scroll
+    if (selectedMethod) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [selectedMethod]);
 
   return (
     <section className="paymentmethods">
