@@ -1,7 +1,7 @@
 // src/components/Navbar.jsx
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useShop } from "../context/ShopContext";
+import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import CategoriesMenu from "./CategoriesMenu";
 import AccountPopup from "./AccountPopup";
@@ -9,9 +9,8 @@ import "../styles/navbar.css";
 import logoBear from "../assets/logo.png";
 
 export default function Navbar() {
-  const { cart } =
-    (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
-  const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
+  const { items } = useCart();
+  const count = items.reduce((total, item) => total + item.quantity, 0);
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
