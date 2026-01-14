@@ -18,6 +18,7 @@ import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js"; // ⭐ NUEVO
 import userRoutes from "./routes/userRoutes.js"; // ⭐ NUEVO
+import customerRoutes from "./routes/customerRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -55,6 +56,11 @@ app.use("/api/support", supportRoutes); // ⭐ NUEVO
 // RUTA DE USUARIOS (NUEVA)
 // ============================
 app.use("/api/users", userRoutes); // ⭐ NUEVO
+
+// ============================
+// RUTA DE CLIENTES (NUEVA)
+// ============================
+app.use("/api/customers", customerRoutes); // ⭐ NUEVO
 
 // ============================
 // RUTAS EXISTENTES

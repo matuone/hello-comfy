@@ -1,91 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/admincustomers.css";
-import { salesData } from "../data/salesData";
 import { Link } from "react-router-dom";
-
-function parseFechaDDMMYYYY(str) {
-  if (!str) return null;
-  const [dd, mm, yyyy] = str.split("/");
-  if (!dd || !mm || !yyyy) return null;
-  return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
-}
 
 export default function AdminCustomers() {
   const [busqueda, setBusqueda] = useState("");
+  const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [mostrarFiltros, setMostrarFiltros] = useState(false);
-  const [fechaDesde, setFechaDesde] = useState("");
-  const [fechaHasta, setFechaHasta] = useState("");
-  const [totalMin, setTotalMin] = useState("");
-  const [totalMax, setTotalMax] = useState("");
-  const [soloSinCompras, setSoloSinCompras] = useState(false);
-
-  const clientesBase = [
-    { nombre: "Cristian Weiss", email: "cristian@example.com", whatsapp: "+5491123456789" },
-    { nombre: "Lara Ailen Iris Mateo", email: "lara@example.com", whatsapp: "+5491123456790" },
-    { nombre: "María Laura Ambroggio", email: "mlaura@example.com", whatsapp: "+5491123456791" },
-    { nombre: "Camila Oshiro", email: "camila@example.com", whatsapp: "+5491123456792" },
-    { nombre: "guadalupe dominguez", email: "guada@example.com", whatsapp: "+5491123456793" },
-  ];
-
-  const clientes = clientesBase.map(c => {
-    const compras = salesData.filter(v => v.email === c.email);
-
-    const total = compras.reduce((acc, v) => {
-      const num = Number(String(v.total).replace(/[^0-9.-]+/g, ""));
-      return acc + num;
-    }, 0);
-
-    const ultimaCompra = compras.length
-      ? compras.reduce((a, b) =>
-        parseFechaDDMMYYYY(a.fecha) > parseFechaDDMMYYYY(b.fecha) ? a : b
-      )
-      : null;
-
-    return {
-      ...c,
-      compras,
-      total,
-      ultimaCompra,
+  // Cargar clientes de MongoDB
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://localhost:5000/api/customers");
+        const data = await res.json();
+        setClientes(Array.isArray(data) ? data : []);
+        setError(null);
+      } catch (err) {
+        console.error("Error al cargar clientes:", err);
+        setError("Error al cargar clientes");
+        setClientes([]);
+      } finally {
+        setLoading(false);
+      }
     };
-  });
+
+    fetchClientes();
+  }, []);
 
   const filtrados = clientes.filter((c) => {
     const texto = busqueda.toLowerCase();
-    const coincideBusqueda =
+    return (
       c.nombre.toLowerCase().includes(texto) ||
-      c.email.toLowerCase().includes(texto);
-
-    if (!coincideBusqueda) return false;
-
-    if (soloSinCompras && c.compras.length > 0) return false;
-
-    const min = totalMin !== "" ? Number(totalMin) : null;
-    const max = totalMax !== "" ? Number(totalMax) : null;
-
-    if (min !== null && c.total < min) return false;
-    if (max !== null && c.total > max) return false;
-
-    if (fechaDesde || fechaHasta) {
-      if (!c.ultimaCompra) return false;
-
-      const fechaCompra = parseFechaDDMMYYYY(c.ultimaCompra.fecha);
-      if (!fechaCompra) return false;
-
-      if (fechaDesde) {
-        const desde = new Date(fechaDesde);
-        if (fechaCompra < desde) return false;
-      }
-
-      if (fechaHasta) {
-        const hasta = new Date(fechaHasta);
-        hasta.setHours(23, 59, 59, 999);
-        if (fechaCompra > hasta) return false;
-      }
-    }
-
-    return true;
+      c.email.toLowerCase().includes(texto)
+    );
   });
+
+  if (loading) {
+    return (
+      <div className="admin-section">
+        <h2 className="admin-section-title">Clientes</h2>
+        <p className="admin-section-text">Cargando clientes...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-section">
+        <h2 className="admin-section-title">Clientes</h2>
+        <p className="admin-section-text" style={{ color: "red" }}>
+          {error}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-section">
@@ -107,22 +77,24 @@ export default function AdminCustomers() {
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Última compra</th>
-              <th>Total consumido</th>
+              <th>Email</th>
+              <th>WhatsApp</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
               <th>Ver</th>
             </tr>
           </thead>
           <tbody>
-            {filtrados.map((c, i) => (
-              <tr key={i}>
+            {filtrados.map((c) => (
+              <tr key={c._id}>
                 <td>{c.nombre}</td>
+                <td>{c.email}</td>
+                <td>{c.whatsapp || "—"}</td>
+                <td>{c.telefono || "—"}</td>
                 <td>
-                  {c.ultimaCompra
-                    ? `#${c.ultimaCompra.id} ${c.ultimaCompra.fecha}`
-                    : "—"}
-                </td>
-                <td>
-                  ${c.total.toLocaleString("es-AR")}
+                  <span className={`status-badge status-${c.estado}`}>
+                    {c.estado === "activo" ? "Activo" : "Inactivo"}
+                  </span>
                 </td>
                 <td>
                   <Link to={`/admin/customers/${c.email}`} className="btn-ver-venta">

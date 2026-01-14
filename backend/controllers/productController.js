@@ -33,7 +33,7 @@ export const getAllProducts = async (req, res) => {
 
     if (category) filtros.category = category;
     if (subcategory) filtros.subcategory = subcategory;
-    
+
     // Búsqueda por nombre o descripción
     if (search) {
       filtros.$or = [

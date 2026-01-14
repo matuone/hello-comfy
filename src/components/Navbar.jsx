@@ -108,41 +108,41 @@ export default function Navbar() {
                 <img src={logoBear} alt="Logo osito" className="navbar__logo" />
               </Link>
 
-            <form className="navbar__search" onSubmit={handleSearchSubmit} ref={searchRef}>
-              <input
-                type="text"
-                className="navbar__search-input"
-                placeholder="Buscar productos..."
-                aria-label="Buscar productos"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              
-              {/* Dropdown de resultados */}
-              {showResults && searchResults.length > 0 && (
-                <div className="navbar__search-results">
-                  {searchResults.map((product) => (
-                    <div
-                      key={product._id}
-                      className="navbar__search-item"
-                      onClick={() => handleProductClick(product._id)}
-                    >
-                      <img
-                        src={product.images?.[0] || "https://via.placeholder.com/60"}
-                        alt={product.name}
-                        className="navbar__search-thumb"
-                      />
-                      <div className="navbar__search-info">
-                        <p className="navbar__search-name">{product.name}</p>
-                        <p className="navbar__search-price">
-                          ${product.price?.toLocaleString("es-AR")}
-                        </p>
+              <form className="navbar__search" onSubmit={handleSearchSubmit} ref={searchRef}>
+                <input
+                  type="text"
+                  className="navbar__search-input"
+                  placeholder="Buscar productos..."
+                  aria-label="Buscar productos"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+
+                {/* Dropdown de resultados */}
+                {showResults && searchResults.length > 0 && (
+                  <div className="navbar__search-results">
+                    {searchResults.map((product) => (
+                      <div
+                        key={product._id}
+                        className="navbar__search-item"
+                        onClick={() => handleProductClick(product._id)}
+                      >
+                        <img
+                          src={product.images?.[0] || "https://via.placeholder.com/60"}
+                          alt={product.name}
+                          className="navbar__search-thumb"
+                        />
+                        <div className="navbar__search-info">
+                          <p className="navbar__search-name">{product.name}</p>
+                          <p className="navbar__search-price">
+                            ${product.price?.toLocaleString("es-AR")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </form>
+                    ))}
+                  </div>
+                )}
+              </form>
             </div>
 
             {/* CENTRO */}
