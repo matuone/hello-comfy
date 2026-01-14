@@ -38,7 +38,7 @@ export default function PaymentSuccess() {
         // Procesar el pago en el backend
         if (paymentId && pendingOrderData) {
           const response = await procesarPagoConfirmado(paymentId, pendingOrderData);
-          
+
           if (response.success && response.order) {
             setOrderCode(response.order.code);
             toast.success(`✅ ¡Pago procesado! Orden: ${response.order.code}`);

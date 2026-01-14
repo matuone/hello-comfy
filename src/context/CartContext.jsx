@@ -19,7 +19,7 @@ export function CartProvider({ children }) {
   useEffect(() => {
     const savedCart = localStorage.getItem("hc_cart");
     const savedPromo = localStorage.getItem("hc_promo");
-    
+
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
