@@ -520,81 +520,73 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* SIMILARES */}
-      <div className="pd-similares">
-        <h2 className="pd-subtitle-centered">Productos similares</h2>
-
-        {loadingSimilares ? (
-          <p className="similar-loading">Cargando productos...</p>
-        ) : (
-          <Swiper
-            modules={[Pagination]}
-            pagination={{ clickable: true }}
-            slidesPerView={'auto'}
-            spaceBetween={20}
-            speed={400}
-            className="similar-swiper"
-          >
-            {similares.map((p) => (
-              <SwiperSlide key={p._id}>
-                <div className="newin__item">
-                  <img
-                    src={p.images?.[0] || "https://via.placeholder.com/300"}
-                    alt={p.name}
-                    className="newin__image"
-                    onClick={() => navigate(`/products/${p._id}`)}
-                  />
-
-                  <h3
-                    className="newin__name"
-                    onClick={() => navigate(`/products/${p._id}`)}
-                  >
-                    {p.name}
-                  </h3>
-
-                  <p className="newin__price">
-                    ${p.price?.toLocaleString("es-AR")}
-                  </p>
-
-                  <p className="newin__desc">
-                    {p.cardDescription ||
-                      p.description ||
-                      "Nuevo producto disponible"}
-                  </p>
-
-                  {p.sizes?.length > 0 && (
-                    <div className="newin__sizes">
-                      {p.sizes.map((talle) => (
-                        <span key={talle} className="newin__size-pill">
-                          {talle}
-                        </span>
-                      ))}
+      {/* SIMILARES - Estructura igual a NewIn.jsx */}
+      <section className="newin">
+        <div className="newin__container">
+          <h2 className="newin__title">Productos similares</h2>
+          <div className="carousel-hint">
+            <span className="hand-icon">🤚</span> Arrastrá para ver más
+          </div>
+          {loadingSimilares ? (
+            <p className="similar-loading">Cargando productos...</p>
+          ) : (
+            <Swiper
+              modules={[Pagination]}
+              pagination={{ clickable: true }}
+              slidesPerView={5}
+              spaceBetween={20}
+              speed={400}
+            >
+              {similares.map((p) => (
+                <SwiperSlide key={p._id}>
+                  <div className="newin__item">
+                    <img
+                      src={p.images?.[0] || "https://via.placeholder.com/300"}
+                      alt={p.name}
+                      className="newin__image"
+                      onClick={() => navigate(`/products/${p._id}`)}
+                    />
+                    <h3
+                      className="newin__name"
+                      onClick={() => navigate(`/products/${p._id}`)}
+                    >
+                      {p.name}
+                    </h3>
+                    <p className="newin__price">
+                      ${p.price?.toLocaleString("es-AR")}
+                    </p>
+                    <p className="newin__desc">
+                      {p.cardDescription || p.description || "Nuevo producto disponible"}
+                    </p>
+                    {p.sizes?.length > 0 && (
+                      <div className="newin__sizes">
+                        {p.sizes.map((talle) => (
+                          <span key={talle} className="newin__size-pill">
+                            {talle}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="newin__stars">
+                      {"★".repeat(4)}☆
                     </div>
-                  )}
-
-                  <div className="newin__stars">
-                    {"★".repeat(4)}☆
-                  </div>
-
-                  <div className="newin__buttons">
-                    <button className="newin__btn-buy">Comprar</button>
-                    <button className="newin__btn-cart">
-                      Agregar al carrito
+                    <div className="newin__buttons">
+                      <button className="newin__btn-buy">Comprar</button>
+                      <button className="newin__btn-cart">Agregar al carrito</button>
+                    </div>
+                    <button
+                      className="newin__btn-viewmore"
+                      onClick={() => navigate(`/products/${p._id}`)}
+                    >
+                      Ver más
                     </button>
                   </div>
-
-                  <button
-                    className="newin__btn-viewmore"
-                    onClick={() => navigate(`/products/${p._id}`)}
-                  >
-                    Ver más
-                  </button>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        )}
-      </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
