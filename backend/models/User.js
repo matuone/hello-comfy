@@ -45,20 +45,20 @@ const userSchema = new mongoose.Schema(
     // Datos personales
     dni: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
 
     whatsapp: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
 
     // Dirección completa
     address: {
       type: addressSchema,
-      required: true,
+      required: false,
     },
 
     // Flags
