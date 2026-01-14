@@ -18,6 +18,13 @@ export async function crearPreferenciaMercadoPago({
   metadata = {},
 }) {
   try {
+    console.log("📤 Enviando preferencia:", {
+      items,
+      totalPrice,
+      customerData,
+      metadata,
+    });
+
     const response = await fetch(`${API_URL}/api/mercadopago/create-preference`, {
       method: "POST",
       headers: {
@@ -32,14 +39,19 @@ export async function crearPreferenciaMercadoPago({
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error("Error creando preferencia de Mercado Pago");
+      console.error("❌ Error del servidor:", data);
+      throw new Error(
+        data.message || data.error || "Error creando preferencia de Mercado Pago"
+      );
     }
 
-    const data = await response.json();
+    console.log("✅ Preferencia creada:", data);
     return data;
   } catch (error) {
-    console.error("Error en mercadopagoService:", error);
+    console.error("❌ Error en mercadopagoService:", error);
     throw error;
   }
 }

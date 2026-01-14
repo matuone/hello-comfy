@@ -12,22 +12,38 @@ export default function Step4({ formData, items, totalPrice, back }) {
       return;
     }
 
+    if (!formData.email) {
+      toast.error("Email requerido");
+      return;
+    }
+
     setLoadingPayment(true);
 
     try {
+      // Validar y mapear items correctamente
+      const itemsValidos = items.map((item) => {
+        if (!item.price || item.price <= 0) {
+          console.warn("⚠️ Item con precio inválido:", item);
+        }
+        return {
+          title: item.name || "Producto",
+          quantity: parseInt(item.quantity) || 1,
+          unit_price: parseFloat(item.price) || 0,
+          picture_url: item.image || "",
+          description: `Talle: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}`,
+        };
+      });
+
+      console.log("📦 Items para enviar:", itemsValidos);
+
       const preferencia = await crearPreferenciaMercadoPago({
-        items: items.map((item) => ({
-          title: item.name,
-          quantity: item.quantity,
-          unit_price: item.price,
-          picture_url: item.image,
-          description: `Talle: ${item.size}, Color: ${item.color}`,
-        })),
-        totalPrice: totalPrice,
+        items: itemsValidos,
+        totalPrice: parseFloat(totalPrice) || 0,
         customerData: {
           email: formData.email,
-          name: formData.name,
-          phone: formData.phone,
+          name: formData.name || "Cliente",
+          phone: formData.phone || "",
+          postalCode: formData.postalCode || "",
         },
         metadata: {
           orderType: "checkout",

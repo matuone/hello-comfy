@@ -16,27 +16,46 @@ export const createPreference = async (req, res) => {
 
     // Validar que tenemos la access token
     if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+      console.error("❌ MERCADOPAGO_ACCESS_TOKEN no configurado");
       return res.status(500).json({
         error: "MERCADOPAGO_ACCESS_TOKEN no configurado",
       });
     }
 
+    // Validar items
+    if (!items || items.length === 0) {
+      console.error("❌ Items vacíos o no proporcionados");
+      return res.status(400).json({
+        error: "Items requeridos",
+      });
+    }
+
+    // Validar customerData
+    if (!customerData || !customerData.email) {
+      console.error("❌ Customer data incompleto:", customerData);
+      return res.status(400).json({
+        error: "Datos del cliente incompletos (email requerido)",
+      });
+    }
+
     // Construir items para Mercado Pago
     const mercadopagoItems = items.map((item) => ({
-      title: item.title,
+      title: item.title || "Producto",
       description: item.description || "",
-      picture_url: item.picture_url,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
+      picture_url: item.picture_url || "",
+      quantity: parseInt(item.quantity) || 1,
+      unit_price: parseFloat(item.unit_price) || 0,
       currency_id: "ARS",
     }));
+
+    console.log("📦 Items para Mercado Pago:", mercadopagoItems);
 
     // Crear la preferencia
     const preference = {
       items: mercadopagoItems,
       payer: {
         email: customerData.email,
-        name: customerData.name,
+        name: customerData.name || "Cliente",
         phone: {
           area_code: customerData.phone?.substring(0, 3) || "11",
           number: customerData.phone?.substring(3) || "",
@@ -56,6 +75,8 @@ export const createPreference = async (req, res) => {
       auto_return: "approved",
     };
 
+    console.log("🔄 Enviando preferencia a Mercado Pago:", JSON.stringify(preference, null, 2));
+
     // Hacer request a Mercado Pago
     const response = await axios.post(
       "https://api.mercadopago.com/checkout/preferences",
@@ -68,16 +89,19 @@ export const createPreference = async (req, res) => {
       }
     );
 
+    console.log("✅ Preferencia creada en Mercado Pago:", response.data.id);
+
     res.json({
       id: response.data.id,
       init_point: response.data.init_point,
       sandbox_init_point: response.data.sandbox_init_point,
     });
   } catch (error) {
-    console.error("Error creando preferencia Mercado Pago:", error);
+    console.error("❌ Error creando preferencia Mercado Pago:", error.response?.data || error.message);
     res.status(500).json({
       error: "Error al crear preferencia de pago",
-      message: error.message,
+      message: error.response?.data?.message || error.message,
+      details: error.response?.data || null,
     });
   }
 };
