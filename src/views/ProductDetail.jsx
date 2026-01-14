@@ -530,7 +530,7 @@ export default function ProductDetail() {
           <Swiper
             modules={[Pagination]}
             pagination={{ clickable: true }}
-            slidesPerView={5}
+            slidesPerView={'auto'}
             spaceBetween={20}
             speed={400}
             className="similar-swiper"

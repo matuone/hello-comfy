@@ -496,6 +496,39 @@
   justify-content: center;
 }
 
+/* Evita superposición forzando comportamiento de Swiper dentro de la sección */
+.pd-similares .swiper {
+  width: 100%;
+}
+
+.pd-similares .swiper-wrapper {
+  align-items: stretch;
+}
+
+.pd-similares .swiper-slide {
+  /* asegurar que cada slide mantenga su ancho calculado y no se solapen */
+  width: auto !important;
+  flex: 0 0 auto !important;
+}
+
+/* Ajustes visuales para que el carrusel muestre tarjetas completas y con padding */
+.pd-similares .similar-swiper {
+  /* espacio extra para que el primer/último slide no se queden pegados al borde */
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.pd-similares .swiper-slide {
+  padding-left: 6px;
+  padding-right: 6px;
+  box-sizing: border-box;
+}
+
+.pd-similares .swiper-wrapper {
+  /* asegurar que el wrapper deje espacio al final para el último slide */
+  padding-right: 32px;
+}
+
 .pd-similares .newin__item {
   width: 100%;
   min-width: 240px;
