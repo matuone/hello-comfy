@@ -124,6 +124,7 @@
   display: flex;
   align-items: center;
   margin-left: 4px;
+  position: relative;
 }
 
 .navbar__search-input {
@@ -146,6 +147,69 @@
 .navbar__search-input:focus {
   border-color: rgba(0, 0, 0, 0.35);
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Dropdown de resultados de búsqueda */
+.navbar__search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  min-width: 260px;
+}
+
+.navbar__search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.navbar__search-item:last-child {
+  border-bottom: none;
+}
+
+.navbar__search-item:hover {
+  background: #f7f7f7;
+}
+
+.navbar__search-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #eee;
+}
+
+.navbar__search-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.navbar__search-name {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar__search-price {
+  margin: 2px 0 0 0;
+  font-size: 0.8rem;
+  color: #d94f7a;
+  font-weight: 700;
 }
 
 /* ====== CENTER ====== */

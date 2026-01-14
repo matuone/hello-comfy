@@ -27,12 +27,21 @@ const extraerSizes = (product) => {
 // ============================
 export const getAllProducts = async (req, res) => {
   try {
-    const { category, subcategory, sort, page, limit } = req.query;
+    const { category, subcategory, sort, page, limit, search } = req.query;
 
     const filtros = {};
 
     if (category) filtros.category = category;
     if (subcategory) filtros.subcategory = subcategory;
+    
+    // Búsqueda por nombre o descripción
+    if (search) {
+      filtros.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { cardDescription: { $regex: search, $options: "i" } },
+      ];
+    }
 
     // ORDEN
     let sortOption = {};

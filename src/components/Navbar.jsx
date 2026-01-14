@@ -1,5 +1,5 @@
 // src/components/Navbar.jsx
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useShop } from "../context/ShopContext";
 import { useAuth } from "../context/AuthContext";
@@ -13,6 +13,7 @@ export default function Navbar() {
     (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   // 🔥 Ahora usamos user e isAdmin
   const { user, isAdmin } = useAuth();
@@ -20,8 +21,12 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
 
   const menuRef = useRef(null);
+  const searchRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -37,13 +42,55 @@ export default function Navbar() {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowResults(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Buscar productos
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    const fetchResults = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/products?search=${encodeURIComponent(
+            searchQuery
+          )}`
+        );
+        const data = await res.json();
+        setSearchResults(Array.isArray(data) ? data.slice(0, 6) : []);
+        setShowResults(true);
+      } catch (err) {
+        console.error("Error en búsqueda:", err);
+        setSearchResults([]);
+      }
+    };
+
+    const timer = setTimeout(fetchResults, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   function handleSearchSubmit(e) {
     e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+      setShowResults(false);
+      setSearchQuery("");
+    }
+  }
+
+  function handleProductClick(productId) {
+    navigate(`/products/${productId}`);
+    setShowResults(false);
+    setSearchQuery("");
   }
 
   return (
@@ -61,14 +108,41 @@ export default function Navbar() {
                 <img src={logoBear} alt="Logo osito" className="navbar__logo" />
               </Link>
 
-              <form className="navbar__search" onSubmit={handleSearchSubmit}>
-                <input
-                  type="text"
-                  className="navbar__search-input"
-                  placeholder="Buscar productos..."
-                  aria-label="Buscar productos"
-                />
-              </form>
+            <form className="navbar__search" onSubmit={handleSearchSubmit} ref={searchRef}>
+              <input
+                type="text"
+                className="navbar__search-input"
+                placeholder="Buscar productos..."
+                aria-label="Buscar productos"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              
+              {/* Dropdown de resultados */}
+              {showResults && searchResults.length > 0 && (
+                <div className="navbar__search-results">
+                  {searchResults.map((product) => (
+                    <div
+                      key={product._id}
+                      className="navbar__search-item"
+                      onClick={() => handleProductClick(product._id)}
+                    >
+                      <img
+                        src={product.images?.[0] || "https://via.placeholder.com/60"}
+                        alt={product.name}
+                        className="navbar__search-thumb"
+                      />
+                      <div className="navbar__search-info">
+                        <p className="navbar__search-name">{product.name}</p>
+                        <p className="navbar__search-price">
+                          ${product.price?.toLocaleString("es-AR")}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </form>
             </div>
 
             {/* CENTRO */}
