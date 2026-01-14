@@ -4,6 +4,24 @@ import Order from "../models/Order.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 /* ============================================================
+   ⭐ RUTA PRIVADA — Obtener todas las órdenes del usuario logueado
+   GET /api/orders/my-orders (DEBE IR ANTES QUE /:code)
+============================================================ */
+router.get("/my-orders", authMiddleware, async (req, res) => {
+  try {
+    const orders = await Order.find({ "customer.email": req.user.email }).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      orders,
+    });
+  } catch (err) {
+    console.error("Error obteniendo órdenes del usuario:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
    ⭐ RUTA PÚBLICA — Pedidos sin cuenta
 ============================================================ */
 router.get("/orders/:code", async (req, res) => {
