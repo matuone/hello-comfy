@@ -44,6 +44,22 @@
   border: 3px solid #f5a623;
 }
 
+/* Contenedor del formulario */
+.popup__form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Mensaje de error */
+.popup__error {
+  color: #ef4444;
+  font-size: 13px;
+  margin: 8px 0;
+  text-align: center;
+  font-weight: 500;
+}
+
 /* Inputs */
 .popup__input {
   width: 100%;
@@ -53,6 +69,12 @@
   border-radius: 8px;
   font-size: 14px;
   box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.popup__input:focus {
+  outline: none;
+  border-color: #d94f7a;
 }
 
 /* Contenedor de contraseña */
@@ -98,6 +120,7 @@
   display: flex;
   justify-content: space-between;
   margin-top: 16px;
+  width: 100%;
 }
 
 .popup__btn {
@@ -108,7 +131,16 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.popup__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.popup__btn:not(:disabled):hover {
+  transform: translateY(-1px);
 }
 
 /* Botón iniciar sesión */
@@ -117,10 +149,18 @@
   color: #fff;
 }
 
+.popup__btn.login:not(:disabled):hover {
+  background: #333;
+}
+
 /* Botón cerrar sesión */
 .popup__btn.logout {
   background: #fe8d85;
   color: #fff;
+}
+
+.popup__btn.logout:not(:disabled):hover {
+  background: #f77369;
 }
 
 /* Crear cuenta */

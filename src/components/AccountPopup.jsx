@@ -7,8 +7,12 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function AccountPopup(props) {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, loginAdmin, loginUser } = useAuth();
   const navigate = useNavigate();
 
   function togglePassword() {
@@ -27,9 +31,36 @@ export default function AccountPopup(props) {
     props.onClose();
   }
 
-  function handleLoginClick() {
-    props.onClose();
-    navigate("/mi-cuenta");
+  async function handleLoginSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (!email || !password) {
+      setError("Por favor completa todos los campos");
+      setLoading(false);
+      return;
+    }
+
+    const isAdminEmail = email.endsWith("@hellocomfy.com");
+
+    const result = isAdminEmail
+      ? await loginAdmin(email, password)
+      : await loginUser(email, password);
+
+    if (result.success) {
+      setEmail("");
+      setPassword("");
+      props.onClose();
+      if (result.isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/mi-cuenta/perfil");
+      }
+    } else {
+      setError("Email o contraseña incorrectos");
+    }
+    setLoading(false);
   }
 
   function handleLogoutClick() {
@@ -70,48 +101,66 @@ export default function AccountPopup(props) {
         ============================ */}
         {!user && (
           <>
-            {/* Campo email */}
-            <input type="email" placeholder="Email" className="popup__input" />
-
-            {/* Campo contraseña */}
-            <div className="popup__password">
+            <form onSubmit={handleLoginSubmit} className="popup__form">
+              {/* Campo email */}
               <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Contraseña"
+                type="email"
+                placeholder="Email"
                 className="popup__input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
 
-              <button
-                type="button"
-                className="popup__eye"
-                onClick={togglePassword}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              >
-                {showPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5.05 0-9.29-3.14-11-8
-                             1.05-2.88 3.05-5.22 5.65-6.64M1 1l22 22" />
-                    <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-5.12" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                )}
-              </button>
-            </div>
+              {/* Campo contraseña */}
+              <div className="popup__password">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Contraseña"
+                  className="popup__input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
 
-            {/* Botones */}
-            <div className="popup__buttons">
-              <button className="popup__btn login" onClick={handleLoginClick}>
-                Iniciar sesión
-              </button>
-            </div>
+                <button
+                  type="button"
+                  className="popup__eye"
+                  onClick={togglePassword}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5.05 0-9.29-3.14-11-8
+                               1.05-2.88 3.05-5.22 5.65-6.64M1 1l22 22" />
+                      <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-5.12" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              {error && <p className="popup__error">{error}</p>}
+
+              {/* Botones */}
+              <div className="popup__buttons">
+                <button
+                  className="popup__btn login"
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? "Iniciando..." : "Iniciar sesión"}
+                </button>
+              </div>
+            </form>
 
             {/* Crear cuenta */}
             <p className="popup__register">
