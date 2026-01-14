@@ -1,53 +1,60 @@
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import "../styles/admincustomerdetail.css";
-import { salesData } from "../data/salesData";
+import EmailModal from "../components/EmailModal";
 
 export default function AdminCustomerDetail() {
   const { id } = useParams(); // id = email del cliente
+  const [cliente, setCliente] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
-  // ============================
-  // OBTENER CLIENTE DESDE VENTAS
-  // ============================
-  const compras = salesData.filter(v => v.email === id);
-
-  const clienteBase = compras.length
-    ? {
-      nombre: compras[0].cliente,
-      email: compras[0].email,
-      whatsapp: compras[0].telefono || "",
-      dni: "",
-      notas: "",
-    }
-    : {
-      nombre: "Cliente desconocido",
-      email: id,
-      whatsapp: "",
-      dni: "",
-      notas: "",
+  // Cargar cliente de MongoDB
+  useEffect(() => {
+    const fetchCliente = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`http://localhost:5000/api/customers/${id}`);
+        if (!res.ok) {
+          throw new Error("Cliente no encontrado");
+        }
+        const data = await res.json();
+        setCliente(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error al cargar cliente:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-  const total = compras.reduce((acc, v) => {
-    const num = Number(String(v.total).replace(/[^0-9.-]+/g, ""));
-    return acc + num;
-  }, 0);
+    fetchCliente();
+  }, [id]);
 
-  const ultimaCompra = compras.length
-    ? compras.reduce((a, b) => {
-      const fechaA = new Date(a.fecha);
-      const fechaB = new Date(b.fecha);
-      return fechaA > fechaB ? a : b;
-    })
-    : null;
+  if (loading) {
+    return (
+      <div className="admin-section">
+        <h2 className="admin-section-title">Cliente</h2>
+        <p className="admin-section-text">Cargando...</p>
+      </div>
+    );
+  }
 
-  const cliente = {
-    ...clienteBase,
-    compras,
-    total,
-    ultimaCompra,
-  };
-
-  const ticketPromedio =
-    cliente.compras.length > 0 ? cliente.total / cliente.compras.length : 0;
+  if (error || !cliente) {
+    return (
+      <div className="admin-section">
+        <h2 className="admin-section-title">Cliente</h2>
+        <p className="admin-section-text" style={{ color: "red" }}>
+          {error || "Cliente no encontrado"}
+        </p>
+        <Link to="/admin/customers" className="btn-volver">
+          ← Volver
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-section">
@@ -84,106 +91,83 @@ export default function AdminCustomerDetail() {
 
           <div>
             <label>WhatsApp</label>
-            <p>{cliente.whatsapp}</p>
+            <p>{cliente.whatsapp || "—"}</p>
           </div>
 
           <div>
-            <label>DNI</label>
-            <p>{cliente.dni || "—"}</p>
+            <label>Teléfono</label>
+            <p>{cliente.telefono || "—"}</p>
+          </div>
+
+          <div>
+            <label>Ciudad</label>
+            <p>{cliente.ciudad || "—"}</p>
+          </div>
+
+          <div>
+            <label>Código Postal</label>
+            <p>{cliente.codigoPostal || "—"}</p>
           </div>
         </div>
       </div>
 
       {/* ESTADÍSTICAS */}
       <div className="detalle-box">
-        <h3 className="detalle-title">Estadísticas</h3>
+        <h3 className="detalle-title">Información adicional</h3>
 
-        <div className="stats-grid">
-          <div className="stat-item">
-            <span className="stat-label">Total consumido</span>
-            <span className="stat-value">
-              ${cliente.total.toLocaleString("es-AR")}
-            </span>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-label">Compras totales</span>
-            <span className="stat-value">{cliente.compras.length}</span>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-label">Ticket promedio</span>
-            <span className="stat-value">
-              ${ticketPromedio.toLocaleString("es-AR", {
-                minimumFractionDigits: 2,
-              })}
-            </span>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-label">Última compra</span>
-            <span className="stat-value">
-              {cliente.ultimaCompra
-                ? `#${cliente.ultimaCompra.id} ${cliente.ultimaCompra.fecha}`
-                : "—"}
-            </span>
-          </div>
+        <div className="info-section">
+          <label>Dirección</label>
+          <p>{cliente.direccion || "—"}</p>
         </div>
-      </div>
 
-      {/* HISTORIAL DE COMPRAS */}
-      <div className="detalle-box">
-        <h3 className="detalle-title">Historial de compras</h3>
+        <div className="info-section">
+          <label>Notas</label>
+          <p>{cliente.notas || "Sin notas"}</p>
+        </div>
 
-        {cliente.compras.length === 0 ? (
-          <p>Este cliente no tiene compras registradas.</p>
-        ) : (
-          <table className="cliente-compras-table">
-            <thead>
-              <tr>
-                <th>N° Orden</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Ver</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cliente.compras.map((c) => (
-                <tr key={c.id}>
-                  <td>#{c.id}</td>
-                  <td>{c.fecha}</td>
-                  <td>{c.total}</td>
-                  <td>
-                    <Link to={`/admin/sales/${c.id}`} className="btn-ver-venta">
-                      Ver venta →
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <div className="info-section">
+          <label>Estado</label>
+          <p>
+            <span className={`status-badge status-${cliente.estado}`}>
+              {cliente.estado === "activo" ? "Activo" : "Inactivo"}
+            </span>
+          </p>
+        </div>
       </div>
 
       {/* CONTACTAR */}
       <div className="detalle-box">
-        <h3 className="detalle-title">Contactar</h3>
+        <h3 className="detalle-title">Contactar cliente</h3>
 
         <div className="contact-buttons">
-          <a href={`mailto:${cliente.email}`} className="btn-contact email">
+          <button
+            className="btn-contact email"
+            onClick={() => setShowEmailModal(true)}
+            disabled={!cliente.email}
+          >
             📧 Enviar email
-          </a>
+          </button>
 
           <a
-            href={`https://wa.me/${cliente.whatsapp}`}
+            href={`https://wa.me/${cliente.whatsapp.replace(/\D/g, "")}`}
             target="_blank"
             rel="noreferrer"
             className="btn-contact whatsapp"
+            disabled={!cliente.whatsapp}
           >
             💬 WhatsApp
           </a>
         </div>
       </div>
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <EmailModal
+          customerEmail={cliente.email}
+          customerName={cliente.nombre}
+          onClose={() => setShowEmailModal(false)}
+        />
+      )}
     </div>
   );
 }
