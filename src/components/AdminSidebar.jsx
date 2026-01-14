@@ -1,7 +1,20 @@
 // src/components/AdminSidebar.jsx
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function AdminSidebar() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/");
+  }
+
+  function handleHome() {
+    navigate("/");
+  }
+
   return (
     <nav className="admin-sidebar-nav">
       <div className="admin-sidebar-header">
@@ -148,6 +161,34 @@ export default function AdminSidebar() {
         </li>
 
       </ul>
+
+      {/* ============================
+          BOTONES DE ACCIÓN
+      ============================ */}
+      <div className="admin-sidebar-actions">
+        <button
+          className="admin-sidebar-action-btn home-btn"
+          onClick={handleHome}
+          title="Volver al home"
+        >
+          🏠 Volver al home
+        </button>
+
+        <button
+          className="admin-sidebar-action-btn tools-btn"
+          title="Herramientas (próximamente)"
+        >
+          🛠️ Herramientas
+        </button>
+
+        <button
+          className="admin-sidebar-action-btn logout-btn"
+          onClick={handleLogout}
+          title="Cerrar sesión"
+        >
+          🚪 Cerrar sesión
+        </button>
+      </div>
     </nav>
   );
 }

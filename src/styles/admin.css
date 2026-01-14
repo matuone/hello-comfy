@@ -25,6 +25,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 100%;
 }
 
 .admin-shell .admin-sidebar-header {
@@ -50,6 +51,7 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  flex: 1;
 }
 
 .admin-shell .admin-sidebar-link {
@@ -74,8 +76,59 @@
 }
 
 /* ============================
-   MAIN DEL ADMIN
+   BOTONES DE ACCIÓN DEL SIDEBAR
 ============================ */
+.admin-shell .admin-sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  margin-top: auto;
+}
+
+.admin-shell .admin-sidebar-action-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.admin-shell .admin-sidebar-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.admin-shell .home-btn {
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+.admin-shell .home-btn:hover {
+  background: #e0f2fe;
+}
+
+.admin-shell .tools-btn {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.admin-shell .tools-btn:hover {
+  background: #fde68a;
+}
+
+.admin-shell .logout-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.admin-shell .logout-btn:hover {
+  background: #fecaca;
+}
 .admin-shell .admin-main {
   padding: 24px 28px;
   box-sizing: border-box;
