@@ -147,29 +147,45 @@ export async function updateUserProfile(req, res) {
     const { id } = req.params;
     const { name, dni, whatsapp, address } = req.body;
 
-    // Validar que el usuario que hace la solicitud es el mismo
+    // Verificar que el usuario sea propietario del perfil
     if (req.user.id !== id) {
-      return res.status(403).json({ error: "No tienes permiso para actualizar este perfil" });
+      return res.status(403).json({ error: "No autorizado" });
     }
 
-    // Buscar el usuario
+    // Buscar usuario
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Actualizar campos
-    if (name) user.name = name.trim();
-    if (dni) user.dni = dni.trim();
-    if (whatsapp) user.whatsapp = whatsapp.trim();
+    // Validar campos
+    if (!name || !dni || !whatsapp) {
+      return res.status(400).json({ error: "Faltan campos requeridos" });
+    }
+
+    // Validar dirección si se proporciona
+    if (address) {
+      const requiredAddressFields = ["street", "number", "city", "province", "postalCode"];
+      for (const field of requiredAddressFields) {
+        if (!address[field]) {
+          return res.status(400).json({ error: `Falta el campo de dirección: ${field}` });
+        }
+      }
+    }
+
+    // Actualizar datos
+    user.name = validator.escape(name);
+    user.dni = validator.escape(dni);
+    user.whatsapp = validator.escape(whatsapp);
+
     if (address) {
       user.address = {
-        street: address.street?.trim() || user.address?.street || "",
-        number: address.number?.trim() || user.address?.number || "",
-        floor: address.floor?.trim() || user.address?.floor || "",
-        city: address.city?.trim() || user.address?.city || "",
-        province: address.province?.trim() || user.address?.province || "",
-        postalCode: address.postalCode?.trim() || user.address?.postalCode || "",
+        street: validator.escape(address.street),
+        number: validator.escape(address.number),
+        floor: address.floor ? validator.escape(address.floor) : "",
+        city: validator.escape(address.city),
+        province: validator.escape(address.province),
+        postalCode: validator.escape(address.postalCode),
       };
     }
 
@@ -178,64 +194,67 @@ export async function updateUserProfile(req, res) {
 
     // Respuesta
     res.json({
-      success: true,
+      message: "Perfil actualizado correctamente",
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        avatar: user.avatar,
         dni: user.dni,
         whatsapp: user.whatsapp,
         address: user.address,
-        avatar: user.avatar,
       },
     });
+
   } catch (err) {
-    console.error("Error al actualizar perfil:", err);
-    res.status(500).json({ error: "Error al actualizar el perfil" });
+    console.error("Error actualizando perfil:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 }
 
 // ===============================
-// ACTUALIZAR AVATAR DEL USUARIO
+// ACTUALIZAR AVATAR DE USUARIO
 // ===============================
 export async function updateUserAvatar(req, res) {
   try {
     const { id } = req.params;
 
-    // Validar que el usuario que hace la solicitud es el mismo
+    // Verificar que el usuario sea propietario
     if (req.user.id !== id) {
-      return res.status(403).json({ error: "No tienes permiso para actualizar este avatar" });
+      return res.status(403).json({ error: "No autorizado" });
     }
 
-    // Validar que hay archivo
+    // Verificar que se subió archivo
     if (!req.file) {
-      return res.status(400).json({ error: "No se envió ninguna imagen" });
+      return res.status(400).json({ error: "No se subió ningún archivo" });
     }
 
-    // Buscar el usuario
+    // Buscar usuario
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Convertir buffer a base64 y subir a Cloudinary
-    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-    const result = await cloudinary.uploader.upload(base64, {
-      folder: "hello-comfy/avatars",
+    // Subir a Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "hellocomfy/avatars",
       resource_type: "auto",
+      quality: "auto",
     });
 
-    // Actualizar avatar del usuario
+    // Actualizar avatar
     user.avatar = result.secure_url;
     await user.save();
 
     // Respuesta
     res.json({
-      success: true,
+      message: "Avatar actualizado correctamente",
       avatar: user.avatar,
     });
+
   } catch (err) {
-    console.error("Error al actualizar avatar:", err);
-    res.status(500).json({ error: "Error al actualizar el avatar" });
+    console.error("Error actualizando avatar:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 }
+

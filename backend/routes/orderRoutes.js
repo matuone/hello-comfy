@@ -1,19 +1,47 @@
 import express from "express";
 const router = express.Router();
 import Order from "../models/Order.js";
+import User from "../models/User.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 /* ============================================================
-   ⭐ RUTA PRIVADA — Obtener todas las órdenes del usuario logueado
-   GET /api/orders/my-orders (DEBE IR ANTES QUE /:code)
+   ⭐ RUTA PRIVADA — Mis órdenes (usuario autenticado)
+   GET /api/orders/my-orders
 ============================================================ */
-router.get("/my-orders", authMiddleware, async (req, res) => {
+router.get("/orders/my-orders", authMiddleware, async (req, res) => {
   try {
-    const orders = await Order.find({ "customer.email": req.user.email }).sort({ createdAt: -1 });
+    // Obtener usuario autenticado
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Buscar órdenes por email del usuario
+    const orders = await Order.find({ "customer.email": user.email }).sort({
+      createdAt: -1,
+    });
 
     res.json({
-      success: true,
-      orders,
+      orders: orders.map((order) => ({
+        _id: order._id,
+        code: order.code,
+        status: order.status,
+        createdAt: order.createdAt,
+        items: order.items || [],
+        totals: order.totals || {
+          subtotal: 0,
+          shipping: 0,
+          discount: 0,
+          total: 0,
+        },
+        shipping: {
+          method: order.shipping?.method || "N/A",
+          address: order.shipping?.address || null,
+          pickPoint: order.shipping?.pickPoint || null,
+          tracking: order.shipping?.tracking || null,
+          eta: order.shipping?.eta || null,
+        },
+      })),
     });
   } catch (err) {
     console.error("Error obteniendo órdenes del usuario:", err);

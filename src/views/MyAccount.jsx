@@ -12,9 +12,7 @@ export default function MyAccount() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  // ============================
-  // SI YA ESTÁ LOGUEADO, REDIRIGIR
-  // ============================
+  // Si el usuario ya está logueado, redirigir al perfil
   useEffect(() => {
     if (user) {
       navigate("/mi-cuenta/perfil", { replace: true });

@@ -1,9 +1,10 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useState, useRef } from "react";
+import defaultAvatarImg from "../../assets/avatar/avatar.png";
 import "../../styles/account/accountlayout.css";
 
-const DEFAULT_AVATAR = "https://res.cloudinary.com/hellocomfy/image/upload/v173/avatar-default.png";
+const DEFAULT_AVATAR = defaultAvatarImg;
 
 export default function AccountLayout() {
   const { user, logout, token } = useAuth();

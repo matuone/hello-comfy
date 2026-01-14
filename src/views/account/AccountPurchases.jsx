@@ -1,238 +1,223 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useState, useContext, useEffect } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import "../../styles/account/accountpurchases.css";
 
 export default function AccountPurchases() {
-  const { token } = useAuth();
+  const { user, token } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   // ============================
-  // CARGAR ÓRDENES DEL USUARIO
+  // FETCH DE ÓRDENES
   // ============================
   useEffect(() => {
+    if (!user || !token) return;
+
     async function fetchOrders() {
       try {
-        // Verificar que hay token
-        if (!token) {
-          setError("Token no disponible");
-          setLoading(false);
-          return;
-        }
-
         const res = await fetch("/api/orders/my-orders", {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         });
 
-        // Si la respuesta no es OK, intenta parsear como JSON
+        const data = await res.json();
+
         if (!res.ok) {
-          const text = await res.text();
-          try {
-            const data = JSON.parse(text);
-            setError(data.error || `Error: ${res.status}`);
-          } catch {
-            setError(`Error ${res.status}: ${text.substring(0, 100)}`);
-          }
+          setError(data.error || "Error al cargar las órdenes");
           setLoading(false);
           return;
         }
 
-        const data = await res.json();
         setOrders(data.orders || []);
         setLoading(false);
       } catch (err) {
-        console.error("Error:", err);
-        setError(`Error al conectar: ${err.message}`);
+        console.error("Error fetching orders:", err);
+        setError("Error de conexión al cargar las órdenes");
         setLoading(false);
       }
     }
 
     fetchOrders();
-  }, [token]);
+  }, [user, token]);
 
   // ============================
-  // RENDER ESTADOS
-  // ============================
-  if (loading) {
-    return (
-      <div className="account-purchases">
-        <h2>Mis Compras</h2>
-        <p className="loading">Cargando compras...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="account-purchases">
-        <h2>Mis Compras</h2>
-        <p className="error">{error}</p>
-      </div>
-    );
-  }
-
-  if (orders.length === 0) {
-    return (
-      <div className="account-purchases">
-        <h2>Mis Compras</h2>
-        <p className="empty">No tienes compras aún</p>
-      </div>
-    );
-  }
-
-  // ============================
-  // OBTENER COLOR DE ESTADO
+  // FUNCIONES AUXILIARES
   // ============================
   function getStatusColor(status) {
-    const colors = {
-      recibido: "#ffa500",
-      preparando: "#4169e1",
-      en_camino: "#32cd32",
-      listo_retirar: "#9370db",
-      entregado: "#228b22",
-      cancelado: "#ff0000",
-    };
-    return colors[status] || "#999";
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return "#FFC107"; // Amarillo
+      case "processing":
+      case "preparing":
+        return "#FF9800"; // Naranja
+      case "shipped":
+        return "#2196F3"; // Azul
+      case "delivered":
+        return "#4CAF50"; // Verde
+      default:
+        return "#757575"; // Gris oscuro
+    }
   }
 
-  // ============================
-  // OBTENER ICONO DE ESTADO
-  // ============================
-  function getStatusIcon(status) {
-    const icons = {
-      recibido: "📦",
-      preparando: "⚙️",
-      en_camino: "🚚",
-      listo_retirar: "🏪",
-      entregado: "✅",
-      cancelado: "❌",
+  function getStatusLabel(status) {
+    const labels = {
+      pending: "Pendiente",
+      processing: "Preparando",
+      preparing: "Preparando",
+      shipped: "Enviado",
+      delivered: "Entregado",
     };
-    return icons[status] || "📦";
+    return labels[status?.toLowerCase()] || status;
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("es-AR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+    }).format(amount || 0);
+  }
+
+  if (loading) {
+    return (
+      <div className="purchases-container">
+        <div className="purchases-card">
+          <p className="loading">Cargando órdenes...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="account-purchases">
-      <h2>Mis Compras</h2>
+    <div className="purchases-container">
+      <div className="purchases-card">
+        <h1>Mis Compras</h1>
 
-      <div className="orders-list">
-        {orders.map((order) => (
-          <div key={order._id} className="order-card">
-            {/* ENCABEZADO */}
-            <div className="order-header">
-              <div>
-                <h3>Pedido #{order.code}</h3>
-                <p className="order-date">
-                  {new Date(order.createdAt).toLocaleDateString("es-AR", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
+        {error && <div className="purchases-error">{error}</div>}
 
-              <div className="order-status">
-                <span
-                  className="status-badge"
-                  style={{ backgroundColor: getStatusColor(order.status) }}
-                >
-                  {getStatusIcon(order.status)} {order.status.replace("_", " ")}
-                </span>
-              </div>
-            </div>
-
-            {/* ITEMS */}
-            <div className="order-items">
-              <h4>Productos</h4>
-              {order.items.map((item, idx) => (
-                <div key={idx} className="item-row">
-                  {item.image && (
-                    <img src={item.image} alt={item.name} className="item-image" />
-                  )}
-                  <div className="item-details">
-                    <p className="item-name">{item.name}</p>
-                    <p className="item-quantity">Cantidad: {item.quantity}</p>
-                  </div>
-                  <p className="item-price">${item.price.toLocaleString("es-AR")}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* TOTALES */}
-            <div className="order-totals">
-              <div className="total-row">
-                <span>Subtotal:</span>
-                <span>${order.totals.subtotal.toLocaleString("es-AR")}</span>
-              </div>
-              {order.totals.shipping > 0 && (
-                <div className="total-row">
-                  <span>Envío:</span>
-                  <span>${order.totals.shipping.toLocaleString("es-AR")}</span>
-                </div>
-              )}
-              {order.totals.discount > 0 && (
-                <div className="total-row">
-                  <span>Descuento:</span>
-                  <span>-${order.totals.discount.toLocaleString("es-AR")}</span>
-                </div>
-              )}
-              <div className="total-row total">
-                <span>Total:</span>
-                <span>${order.totals.total.toLocaleString("es-AR")}</span>
-              </div>
-            </div>
-
-            {/* ENVÍO */}
-            <div className="order-shipping">
-              <h4>Envío</h4>
-              <p>
-                <strong>Método:</strong>{" "}
-                {order.shipping.method === "home" ? "Envío a domicilio" : "Retiro en punto"}
-              </p>
-              {order.shipping.address && (
-                <p>
-                  <strong>Dirección:</strong> {order.shipping.address}
-                </p>
-              )}
-              {order.shipping.pickPoint && (
-                <p>
-                  <strong>Punto de retiro:</strong> {order.shipping.pickPoint}
-                </p>
-              )}
-              {order.shipping.tracking && (
-                <p>
-                  <strong>Código de seguimiento:</strong> {order.shipping.tracking}
-                </p>
-              )}
-            </div>
-
-            {/* PAGO */}
-            <div className="order-payment">
-              <h4>Pago</h4>
-              <p>
-                <strong>Estado:</strong>{" "}
-                <span
-                  className={`payment-status ${
-                    order.pagoEstado === "recibido" ? "paid" : "pending"
-                  }`}
-                >
-                  {order.pagoEstado === "recibido" ? "✅ Recibido" : "⏳ Pendiente"}
-                </span>
-              </p>
-            </div>
-
-            {/* COMENTARIOS */}
-            {order.comentarios && (
-              <div className="order-comments">
-                <h4>Comentarios</h4>
-                <p>{order.comentarios}</p>
-              </div>
-            )}
+        {orders.length === 0 ? (
+          <div className="purchases-empty">
+            <p>No tienes órdenes aún</p>
           </div>
-        ))}
+        ) : (
+          <div className="orders-list">
+            {orders.map((order) => (
+              <div key={order._id} className="order-item">
+                {/* ENCABEZADO DE LA ORDEN */}
+                <div className="order-header">
+                  <div className="order-info">
+                    <h3>Orden #{order.orderNumber || order._id.slice(-8).toUpperCase()}</h3>
+                    <p className="order-date">{formatDate(order.createdAt)}</p>
+                  </div>
+
+                  <div className="order-status">
+                    <span
+                      className="status-badge"
+                      style={{ backgroundColor: getStatusColor(order.status) }}
+                    >
+                      {getStatusLabel(order.status)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* ITEMS DE LA ORDEN */}
+                <div className="order-items">
+                  <h4>Productos:</h4>
+                  {order.items && order.items.length > 0 ? (
+                    <div className="items-list">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="item-row">
+                          <div className="item-details">
+                            <p className="item-name">{item.productName || "Producto"}</p>
+                            <p className="item-meta">
+                              Cantidad: {item.quantity} | Talla: {item.size || "N/A"}
+                            </p>
+                          </div>
+                          <div className="item-price">
+                            {formatCurrency(item.price * item.quantity)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-items">Sin detalles de items</p>
+                  )}
+                </div>
+
+                {/* RESUMEN DE COSTOS */}
+                <div className="order-summary">
+                  <div className="summary-row">
+                    <span>Subtotal:</span>
+                    <span>{formatCurrency(order.totals?.subtotal)}</span>
+                  </div>
+
+                  {order.totals?.shipping > 0 && (
+                    <div className="summary-row">
+                      <span>Envío:</span>
+                      <span>{formatCurrency(order.totals.shipping)}</span>
+                    </div>
+                  )}
+
+                  {order.totals?.discount > 0 && (
+                    <div className="summary-row discount">
+                      <span>Descuento:</span>
+                      <span>-{formatCurrency(order.totals.discount)}</span>
+                    </div>
+                  )}
+
+                  <div className="summary-row total">
+                    <span>Total:</span>
+                    <span>{formatCurrency(order.totals?.total)}</span>
+                  </div>
+                </div>
+
+                {/* INFORMACIÓN DE ENVÍO */}
+                {order.shipping && (
+                  <div className="order-shipping">
+                    <h4>📦 Información de Envío</h4>
+                    <p className="shipping-method">
+                      {order.shipping.method === "home" && "🏠 Envío a domicilio"}
+                      {order.shipping.method === "pickup" && "📍 Retiro en sucursal"}
+                      {order.shipping.method !== "home" && order.shipping.method !== "pickup" && order.shipping.method}
+                    </p>
+                    {order.shipping.tracking && (
+                      <p className="tracking">
+                        📦 Número de seguimiento: <code>{order.shipping.tracking}</code>
+                      </p>
+                    )}
+                    {order.shipping.address && (
+                      <p className="delivery-address">
+                        📍 Dirección: {order.shipping.address}
+                      </p>
+                    )}
+                    {order.shipping.pickPoint && (
+                      <p className="delivery-address">
+                        📍 Punto de retiro: {order.shipping.pickPoint}
+                      </p>
+                    )}
+                    {order.shipping.eta && (
+                      <p className="delivery-date">
+                        📅 Entrega estimada: {formatDate(order.shipping.eta)}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

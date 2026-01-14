@@ -16,8 +16,8 @@ import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js"; // ⭐ NUEVO
 import supportRoutes from "./routes/supportRoutes.js"; // ⭐ NUEVO
+import userRoutes from "./routes/userRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -47,14 +47,14 @@ app.use("/api/admin", adminAuthRoutes);
 app.use("/api/auth", authRoutes);
 
 // ============================
-// RUTAS DE USUARIOS
-// ============================
-app.use("/api/users", userRoutes); // ⭐ NUEVO
-
-// ============================
 // RUTA DE SOPORTE (NUEVA)
 // ============================
 app.use("/api/support", supportRoutes); // ⭐ NUEVO
+
+// ============================
+// RUTA DE USUARIOS (NUEVA)
+// ============================
+app.use("/api/users", userRoutes); // ⭐ NUEVO
 
 // ============================
 // RUTAS EXISTENTES

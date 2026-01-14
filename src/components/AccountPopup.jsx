@@ -7,9 +7,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function AccountPopup(props) {
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
 
   const { user, logout, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   function togglePassword() {
     setShowPassword(!showPassword);
@@ -29,7 +29,7 @@ export default function AccountPopup(props) {
 
   function handleLoginClick() {
     props.onClose();
-    window.location.href = "/mi-cuenta";
+    navigate("/mi-cuenta");
   }
 
   function handleLogoutClick() {
@@ -38,13 +38,8 @@ export default function AccountPopup(props) {
   }
 
   function handleAdminClick() {
-    navigate("/admin");
-  }
-
-  function handleMyAccountClick() {
     props.onClose();
-    navigate("/mi-cuenta")
-    window.location.href = "/mi-cuenta";
+    navigate("/admin");
   }
 
   return (
@@ -61,7 +56,14 @@ export default function AccountPopup(props) {
         </button>
 
         {/* Foto de perfil */}
-        <img src={avatar} alt="Foto de perfil" className="popup__avatar" />
+        <img
+          src={user?.avatar || avatar}
+          alt="Foto de perfil"
+          className="popup__avatar"
+          onError={(e) => {
+            e.target.src = avatar;
+          }}
+        />
 
         {/* ============================
             SI EL USUARIO NO ESTÁ LOGUEADO
@@ -141,7 +143,10 @@ export default function AccountPopup(props) {
               {/* BOTÓN MI CUENTA */}
               <button
                 className="popup__btn login"
-                onClick={handleMyAccountClick}
+                onClick={() => {
+                  props.onClose();
+                  navigate("/mi-cuenta/perfil");
+                }}
               >
                 Mi Cuenta
               </button>
