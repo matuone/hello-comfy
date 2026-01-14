@@ -22,6 +22,11 @@ export const createPreference = async (req, res) => {
       });
     }
 
+    // DEBUG: Verificar variables de entorno
+    console.log("🔍 Variables de entorno:");
+    console.log("  FRONTEND_URL:", process.env.FRONTEND_URL);
+    console.log("  API_URL:", process.env.API_URL);
+
     // Validar items
     if (!items || items.length === 0) {
       console.error("❌ Items vacíos o no proporcionados");
@@ -72,7 +77,7 @@ export const createPreference = async (req, res) => {
       notification_url: `${process.env.API_URL || "http://localhost:5000"}/api/mercadopago/webhook`,
       external_reference: `order_${Date.now()}`,
       metadata: metadata,
-      auto_return: "approved",
+      // auto_return: "approved", // ❌ No funciona con localhost - solo para producción
     };
 
     console.log("🔄 Enviando preferencia a Mercado Pago:", JSON.stringify(preference, null, 2));
