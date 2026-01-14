@@ -14,24 +14,58 @@ export function CartProvider({ children }) {
   const [promoCodeError, setPromoCodeError] = useState("");
 
   // ============================
-  // LOCALSTORAGE
+  // LOCALSTORAGE - Cargar al iniciar
   // ============================
   useEffect(() => {
-    const saved = localStorage.getItem("hc_cart");
-    console.log("🛒 CartContext: Loading from localStorage:", saved);
-    if (saved) {
+    const savedCart = localStorage.getItem("hc_cart");
+    const savedPromo = localStorage.getItem("hc_promo");
+    
+    if (savedCart) {
       try {
-        setItems(JSON.parse(saved));
+        const parsedCart = JSON.parse(savedCart);
+        setItems(parsedCart);
       } catch (err) {
-        console.error("Error parsing cart from localStorage:", err);
+        console.error("Error al cargar carrito desde localStorage:", err);
+        localStorage.removeItem("hc_cart");
+      }
+    }
+
+    if (savedPromo) {
+      try {
+        const parsedPromo = JSON.parse(savedPromo);
+        setPromoCode(parsedPromo.code || "");
+        setPromoCodeData(parsedPromo.data || null);
+      } catch (err) {
+        console.error("Error al cargar promo desde localStorage:", err);
+        localStorage.removeItem("hc_promo");
       }
     }
   }, []);
 
+  // ============================
+  // LOCALSTORAGE - Guardar cuando cambia el carrito
+  // ============================
   useEffect(() => {
-    console.log("🛒 CartContext: Saving to localStorage:", items);
-    localStorage.setItem("hc_cart", JSON.stringify(items));
+    if (items.length > 0) {
+      localStorage.setItem("hc_cart", JSON.stringify(items));
+    } else {
+      localStorage.removeItem("hc_cart");
+    }
   }, [items]);
+
+  // ============================
+  // LOCALSTORAGE - Guardar código promocional
+  // ============================
+  useEffect(() => {
+    if (promoCode || promoCodeData) {
+      localStorage.setItem("hc_promo", JSON.stringify({
+        code: promoCode,
+        data: promoCodeData,
+      }));
+    } else {
+      localStorage.removeItem("hc_promo");
+    }
+  }, [promoCode, promoCodeData]);
 
   // ============================
   // FETCH REGLAS DE DESCUENTO
@@ -100,7 +134,14 @@ export function CartProvider({ children }) {
     setItems((prev) => prev.filter((item) => item.key !== key));
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    setPromoCode("");
+    setPromoCodeData(null);
+    setPromoCodeError("");
+    localStorage.removeItem("hc_cart");
+    localStorage.removeItem("hc_promo");
+  };
 
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
