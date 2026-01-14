@@ -4,6 +4,7 @@ import {
   createPreference,
   webhookMercadoPago,
   getPaymentStatus,
+  processPayment,
 } from "../controllers/mercadopagoController.js";
 
 const router = express.Router();
@@ -25,5 +26,11 @@ router.post("/webhook", webhookMercadoPago);
  * Obtiene el estado de un pago
  */
 router.get("/payment/:id", getPaymentStatus);
+
+/**
+ * POST /api/mercadopago/process-payment
+ * Procesa un pago confirmado y crea la orden en BD
+ */
+router.post("/process-payment", processPayment);
 
 export default router;

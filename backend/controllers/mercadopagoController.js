@@ -1,5 +1,10 @@
 // backend/controllers/mercadopagoController.js
 import axios from "axios";
+import {
+  crearOrdenDesdePago,
+  actualizarEstadoPago,
+  obtenerOrdenPorCodigo,
+} from "../services/orderService.js";
 
 /**
  * POST /api/mercadopago/create-preference
@@ -88,11 +93,10 @@ export const webhookMercadoPago = async (req, res) => {
     // Verificar que sea una notificación de Mercado Pago válida
     if (type === "payment") {
       console.log("✅ Notificación de pago recibida:", data.id);
-      // Aquí iría la lógica para actualizar el estado de la orden
 
-      // Ejemplo: obtener detalles del pago
       const paymentId = data.id;
 
+      // Obtener detalles del pago
       const paymentDetails = await axios.get(
         `https://api.mercadopago.com/v1/payments/${paymentId}`,
         {
@@ -102,16 +106,27 @@ export const webhookMercadoPago = async (req, res) => {
         }
       );
 
-      console.log("Detalles del pago:", paymentDetails.data.status);
+      const paymentData = paymentDetails.data;
+      const externalReference = paymentData.external_reference;
 
-      // Actualizar orden según el estado del pago
-      // (Esto se conectaría a tu modelo de Order en la DB)
+      console.log("📊 Detalles del pago:", {
+        id: paymentData.id,
+        status: paymentData.status,
+        reference: externalReference,
+        amount: paymentData.transaction_amount,
+      });
+
+      // Actualizar estado de pago en BD
+      if (externalReference) {
+        await actualizarEstadoPago(externalReference, paymentData.status);
+      }
     }
 
     res.sendStatus(200);
   } catch (error) {
-    console.error("Error procesando webhook Mercado Pago:", error);
-    res.status(500).json({ error: "Error procesando webhook" });
+    console.error("❌ Error procesando webhook Mercado Pago:", error);
+    // Responder 200 igual para que Mercado Pago no reintente
+    res.sendStatus(200);
   }
 };
 
@@ -144,6 +159,76 @@ export const getPaymentStatus = async (req, res) => {
     console.error("Error obteniendo estado del pago:", error);
     res.status(500).json({
       error: "Error al obtener estado del pago",
+    });
+  }
+};
+
+/**
+ * POST /api/mercadopago/process-payment
+ * Procesa un pago confirmado y crea la orden en BD
+ * Se ejecuta desde el frontend después de redirigir desde Mercado Pago
+ */
+export const processPayment = async (req, res) => {
+  try {
+    const { paymentId, pendingOrderData } = req.body;
+
+    if (!paymentId) {
+      return res.status(400).json({ error: "paymentId requerido" });
+    }
+
+    // Obtener detalles del pago de Mercado Pago
+    const paymentResponse = await axios.get(
+      `https://api.mercadopago.com/v1/payments/${paymentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+        },
+      }
+    );
+
+    const paymentData = paymentResponse.data;
+
+    console.log("💳 Procesando pago confirmado:", {
+      id: paymentData.id,
+      status: paymentData.status,
+      amount: paymentData.transaction_amount,
+    });
+
+    // Verificar que el pago fue aprobado o está pendiente
+    if (!["approved", "pending"].includes(paymentData.status)) {
+      return res.status(400).json({
+        error: "El pago no fue aprobado",
+        status: paymentData.status,
+      });
+    }
+
+    // Crear orden en BD
+    let order = null;
+    if (pendingOrderData) {
+      order = await crearOrdenDesdePago(paymentData, pendingOrderData);
+    } else {
+      // Si no hay datos de orden pendiente, solo actualizar estado
+      const externalReference = paymentData.external_reference;
+      if (externalReference) {
+        order = await actualizarEstadoPago(externalReference, paymentData.status);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "Pago procesado correctamente",
+      order: order ? {
+        code: order.code,
+        email: order.customer.email,
+        status: order.pagoEstado,
+        total: order.totals.total,
+      } : null,
+    });
+  } catch (error) {
+    console.error("❌ Error procesando pago:", error);
+    res.status(500).json({
+      error: "Error al procesar el pago",
+      message: error.message,
     });
   }
 };

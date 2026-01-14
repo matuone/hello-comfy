@@ -76,13 +76,32 @@ export function cargarScriptMercadoPago() {
 }
 
 /**
- * Inicializa Mercado Pago Checkout (MPv2)
- * @param {String} publicKey - Public Key de Mercado Pago
+ * Procesa un pago confirmado desde Mercado Pago
+ * @param {String} paymentId - ID del pago
+ * @param {Object} pendingOrderData - Datos de la orden pendiente
+ * @returns {Promise<Object>} Respuesta del servidor
  */
-export function inicializarMercadoPago(publicKey) {
-  if (window.MercadoPago) {
-    const mp = new window.MercadoPago(publicKey);
-    return mp;
+export async function procesarPagoConfirmado(paymentId, pendingOrderData) {
+  try {
+    const response = await fetch(`${API_URL}/api/mercadopago/process-payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        paymentId,
+        pendingOrderData,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error procesando pago");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en procesarPagoConfirmado:", error);
+    throw error;
   }
-  return null;
 }

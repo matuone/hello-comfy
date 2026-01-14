@@ -21,18 +21,47 @@ API_URL=http://localhost:5000       # O tu URL de API de producción
 3. Crea una nueva aplicación
 4. Obtén tu **Access Token** y **Public Key** desde el dashboard
 
-## Flujo de integración
+## Flujo de integración completo
 
-### Frontend
+### 1. Frontend - Crear preferencia
+- Usuario selecciona producto en ProductDetail o agrega al carrito
+- Elige "Comprar con Mercado Pago"
+- Se llama a `crearPreferenciaMercadoPago()` que envía datos al backend
+- Se guarda la orden pendiente en localStorage
 
-- **ProductDetail.jsx**: Botón "Comprar con Mercado Pago" que crea una preferencia directamente desde el producto
-- **CheckoutStep4.jsx**: Opción para pagar con Mercado Pago durante el checkout
-- **Páginas de resultado**: `/payment/success`, `/payment/failure`, `/payment/pending`
+### 2. Backend - Crear preferencia
+- POST `/api/mercadopago/create-preference` recibe los datos
+- Se construye la preferencia con los items, cliente y URLs de retorno
+- Se envía a la API de Mercado Pago
+- Se retorna `init_point` (URL de Mercado Pago)
 
-### Backend
+### 3. Redireccionamiento
+- Usuario es redirigido a `init_point` de Mercado Pago
+- Completa el pago
 
-- **mercadopagoController.js**: Endpoints para crear preferencias y manejar webhooks
-- **mercadopagoRoutes.js**: Rutas de Mercado Pago
+### 4. Retorno - Páginas de resultado
+- Mercado Pago redirige a `/payment/success`, `/payment/failure` o `/payment/pending`
+- PaymentSuccess.jsx:
+  - Obtiene `payment_id` de los query params
+  - Recupera la orden pendiente del localStorage
+  - Llama a `procesarPagoConfirmado()` en el backend
+  - Se crea la orden en BD
+  - Se muestra el código de orden al usuario
+
+### 5. Backend - Procesar pago
+- POST `/api/mercadopago/process-payment` recibe:
+  - `paymentId`: ID del pago de Mercado Pago
+  - `pendingOrderData`: Datos de la orden guardada
+- Se obtienen detalles del pago desde la API de Mercado Pago
+- Se valida que el pago sea aprobado o esté pendiente
+- Se crea la orden en BD usando `crearOrdenDesdePago()`
+- Se retorna el código de orden
+
+### 6. Webhook - Notificaciones
+- Mercado Pago envía notificaciones de cambios de estado
+- POST `/api/mercadopago/webhook` recibe la notificación
+- Se extrae el `payment_id` y se obtienen detalles del pago
+- Se actualiza el estado en BD usando `actualizarEstadoPago()`
 
 ## Endpoints
 
@@ -75,46 +104,97 @@ Crea una preferencia de pago en Mercado Pago.
 ```
 
 ### POST /api/mercadopago/webhook
-Webhook para recibir notificaciones de pago. Mercado Pago enviará notificaciones automáticamente cuando el estado de un pago cambie.
+Webhook para recibir notificaciones de pago automáticamente desde Mercado Pago.
+
+**Parámetros:**
+- `type=payment` - Tipo de notificación
+- `data.id` - ID del pago
 
 ### GET /api/mercadopago/payment/:id
 Obtiene el estado actual de un pago específico.
 
-## Flujo de compra
+### POST /api/mercadopago/process-payment
+Procesa un pago confirmado y crea la orden en BD.
 
-1. **Usuario selecciona producto** → Ingresa al ProductDetail o agregado al carrito
-2. **Elige "Comprar con Mercado Pago"** → Se crea una preferencia en el backend
-3. **Es redirigido a Mercado Pago** → Usuario completa el pago
-4. **Mercado Pago lo redirige de vuelta** → A `/payment/success`, `/payment/failure` o `/payment/pending`
-5. **Orden se crea en BD** → Con los datos del pago confirmado (próxima implementación)
+**Request:**
+```json
+{
+  "paymentId": "123456789",
+  "pendingOrderData": {
+    "formData": {
+      "email": "cliente@example.com",
+      "name": "Juan Pérez",
+      "shippingMethod": "home",
+      "address": "..."
+    },
+    "items": [...],
+    "totalPrice": 25000
+  }
+}
+```
 
-## Estado actual (Post-Apagón)
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Pago procesado correctamente",
+  "order": {
+    "code": "ORD-1705246800000-ABC123XYZ",
+    "email": "cliente@example.com",
+    "status": "recibido",
+    "total": 25000
+  }
+}
+```
+
+## Servicios backend
+
+### orderService.js
+- `crearOrdenDesdePago()` - Crea orden en BD desde datos de pago
+- `actualizarEstadoPago()` - Actualiza estado de pago de orden existente
+- `obtenerOrdenPorCodigo()` - Obtiene orden por código
+- `obtenerOrdenesPorEmail()` - Obtiene órdenes de un cliente
+
+## Estado actual
 
 ✅ **Completado:**
-- Servicio de Mercado Pago en frontend (`mercadopagoService.js`)
-- Integración en ProductDetail
-- Integración en CheckoutStep4
-- Controlador backend (`mercadopagoController.js`)
-- Rutas backend (`mercadopagoRoutes.js`)
+- Servicio de Mercado Pago en frontend
+- Integración en ProductDetail y CheckoutStep4
+- Controlador backend con webhook mejorado
+- Rutas de API
 - Páginas de resultado de pago (success, failure, pending)
-- Estilos para botones y páginas de pago
+- Servicio de órdenes (`orderService.js`)
+- Endpoint para procesar pagos confirmados
+- Creación automática de órdenes en BD
+- Actualizaciones de estado vía webhook
 
-⏳ **Pendiente:**
-- Conectar webhook para actualizar órdenes automáticamente
-- Validación y creación de orden en BD cuando se confirma el pago
-- Integración con modelo de Order
-- Testing en ambiente de sandbox
+⏳ **Próximas mejoras:**
+- Envío de email de confirmación
+- Integración con Facturante para generar facturas automáticamente
+- Webhook en tiempo real (actualizar en vivo sin recargar)
+- Retries automáticos para fallos de pago
+- Dashboard de pagos en admin panel
 
 ## Testing
 
-Para probar en sandbox (no usa dinero real):
+### En Sandbox (sin dinero real)
+1. Usa tarjetas de prueba de Mercado Pago:
+   - **Aprobada**: 4111 1111 1111 1111
+   - **Rechazada**: 4000 0000 0000 0002
+   - **Pendiente**: 4000 0000 0000 0010
 
-1. En `.env` del backend, asegúrate de usar las credenciales de **sandbox**
-2. Usa tarjetas de prueba de Mercado Pago (disponibles en su documentación)
-3. Verifica los logs en la consola del backend para las notificaciones del webhook
+2. Cualquier CCV y fecha futura
+
+3. En `.env` usa credenciales de **sandbox**
+
+### En Producción
+1. Usa credenciales de **producción**
+2. Configura webhook en dashboard de Mercado Pago
+3. URL: `https://tu-dominio.com/api/mercadopago/webhook`
 
 ## Documentación oficial
 
 - [Mercado Pago Docs](https://www.mercadopago.com.ar/developers/es/reference)
 - [Integración de Checkout](https://www.mercadopago.com.ar/developers/es/guides/checkout-api/introduction)
 - [Webhooks](https://www.mercadopago.com.ar/developers/es/guides/webhooks/intro)
+- [Tarjetas de prueba](https://www.mercadopago.com.ar/developers/es/guides/resources/localization/test-cards)

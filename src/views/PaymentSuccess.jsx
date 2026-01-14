@@ -2,11 +2,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { procesarPagoConfirmado } from "../services/mercadopagoService";
 
 export default function PaymentSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [processingOrder, setProcessingOrder] = useState(true);
+  const [orderCode, setOrderCode] = useState(null);
 
   useEffect(() => {
     const processPayment = async () => {
@@ -22,24 +24,39 @@ export default function PaymentSuccess() {
         });
 
         // Recuperar datos de la orden pendiente del localStorage
-        const pendingOrder = localStorage.getItem("pendingOrder");
-        if (pendingOrder) {
-          const orderData = JSON.parse(pendingOrder);
-          
-          // Aquí iría la lógica para crear la orden en el backend
-          // con los datos del pago confirmado
-          console.log("Orden a procesar:", orderData);
+        const pendingOrderStr = localStorage.getItem("pendingOrder");
+        let pendingOrderData = null;
 
-          // Limpiar localStorage
-          localStorage.removeItem("pendingOrder");
+        if (pendingOrderStr) {
+          try {
+            pendingOrderData = JSON.parse(pendingOrderStr);
+          } catch (err) {
+            console.error("Error parsing pending order:", err);
+          }
         }
 
+        // Procesar el pago en el backend
+        if (paymentId && pendingOrderData) {
+          const response = await procesarPagoConfirmado(paymentId, pendingOrderData);
+          
+          if (response.success && response.order) {
+            setOrderCode(response.order.code);
+            toast.success(`✅ ¡Pago procesado! Orden: ${response.order.code}`);
+          }
+        }
+
+        // Limpiar localStorage
+        localStorage.removeItem("pendingOrder");
+
         setProcessingOrder(false);
-        toast.success("¡Pago procesado correctamente!");
 
         // Redirigir al detalle de la orden después de 3 segundos
         setTimeout(() => {
-          navigate("/");
+          if (orderCode) {
+            navigate("/");
+          } else {
+            navigate("/");
+          }
         }, 3000);
       } catch (error) {
         console.error("Error procesando pago:", error);
@@ -49,7 +66,7 @@ export default function PaymentSuccess() {
     };
 
     processPayment();
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, orderCode]);
 
   return (
     <div className="payment-result-container">
@@ -59,7 +76,14 @@ export default function PaymentSuccess() {
         <p>Tu pago ha sido procesado correctamente.</p>
         {processingOrder && <p className="processing-text">Creando orden...</p>}
         {!processingOrder && (
-          <p className="redirect-text">Serás redirigido al inicio en unos momentos.</p>
+          <>
+            {orderCode && (
+              <p className="processing-text">
+                Orden creada: <strong>{orderCode}</strong>
+              </p>
+            )}
+            <p className="redirect-text">Serás redirigido al inicio en unos momentos.</p>
+          </>
         )}
       </div>
     </div>
