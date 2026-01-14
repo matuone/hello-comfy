@@ -381,6 +381,20 @@ export default function ProductDetail() {
             </div>
           </div>
 
+          {/* BOTONES */}
+          <div className="pd-actions">
+            {selectedSize &&
+              (producto.stockColorId?.talles?.[selectedSize] ?? 0) > 0 && (
+                <button className="pd-btn-buy" onClick={handleBuyNow}>
+                  Comprar ahora
+                </button>
+              )}
+
+            <button className="pd-btn-cart" onClick={handleAddToCart}>
+              Agregar al carrito
+            </button>
+          </div>
+
           {/* GUÍA DE TALLES */}
           {producto.sizeGuide !== "none" && (
             <div className="pd-size-guide">
@@ -502,20 +516,6 @@ export default function ProductDetail() {
                 (Próximamente opiniones reales)
               </span>
             </div>
-          </div>
-
-          {/* BOTONES */}
-          <div className="pd-actions">
-            {selectedSize &&
-              (producto.stockColorId?.talles?.[selectedSize] ?? 0) > 0 && (
-                <button className="pd-btn-buy" onClick={handleBuyNow}>
-                  Comprar ahora
-                </button>
-              )}
-
-            <button className="pd-btn-cart" onClick={handleAddToCart}>
-              Agregar al carrito
-            </button>
           </div>
         </div>
       </div>
