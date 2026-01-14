@@ -5,18 +5,8 @@ import { toast } from "react-hot-toast";
 export default function Step4({ formData, items, totalPrice, back }) {
   const [loadingPayment, setLoadingPayment] = useState(false);
 
-  const handleConfirm = async () => {
-    console.log("Orden lista para enviar al backend:", {
-      formData,
-      items,
-      totalPrice,
-    });
-
-    alert("Orden creada (simulación). Próximo paso: backend real.");
-  };
-
-  // ⭐ NUEVO — Comprar con Mercado Pago desde checkout
-  const handleMercadoPagoCheckout = async () => {
+  // ⭐ NUEVO — Pagar con Mercado Pago desde checkout (COMPRA REAL)
+  const handlePagar = async () => {
     if (!formData.paymentMethod) {
       toast.error("Seleccioná un método de pago");
       return;
@@ -50,7 +40,7 @@ export default function Step4({ formData, items, totalPrice, back }) {
       });
 
       if (preferencia?.init_point) {
-        // Guardar datos de la orden en localStorage antes de redirigir
+        // Guardar datos completos de la orden en localStorage antes de redirigir a Mercado Pago
         localStorage.setItem("pendingOrder", JSON.stringify({
           formData,
           items,
@@ -63,7 +53,7 @@ export default function Step4({ formData, items, totalPrice, back }) {
       }
     } catch (error) {
       console.error("Error en Mercado Pago:", error);
-      toast.error("Error al procesar el pago con Mercado Pago");
+      toast.error("Error al procesar el pago");
     } finally {
       setLoadingPayment(false);
     }
@@ -147,17 +137,13 @@ export default function Step4({ formData, items, totalPrice, back }) {
           Volver
         </button>
 
-        {/* ⭐ NUEVO — Botón de Mercado Pago */}
+        {/* ⭐ NUEVO — Botón de Pago (Mercado Pago) */}
         <button
           className="checkout-btn-mercadopago"
-          onClick={handleMercadoPagoCheckout}
+          onClick={handlePagar}
           disabled={loadingPayment}
         >
-          {loadingPayment ? "Procesando..." : "Pagar con Mercado Pago"}
-        </button>
-
-        <button className="checkout-btn" onClick={handleConfirm}>
-          Confirmar compra
+          {loadingPayment ? "Procesando..." : "Pagar"}
         </button>
       </div>
     </div>
