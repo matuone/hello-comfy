@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import User from "../models/User.js";
+import cloudinary from "../config/cloudinary.js";
 
 // ===============================
 // REGISTRO DE USUARIO
@@ -191,5 +192,50 @@ export async function updateUserProfile(req, res) {
   } catch (err) {
     console.error("Error al actualizar perfil:", err);
     res.status(500).json({ error: "Error al actualizar el perfil" });
+  }
+}
+
+// ===============================
+// ACTUALIZAR AVATAR DEL USUARIO
+// ===============================
+export async function updateUserAvatar(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Validar que el usuario que hace la solicitud es el mismo
+    if (req.user.id !== id) {
+      return res.status(403).json({ error: "No tienes permiso para actualizar este avatar" });
+    }
+
+    // Validar que hay archivo
+    if (!req.file) {
+      return res.status(400).json({ error: "No se envió ninguna imagen" });
+    }
+
+    // Buscar el usuario
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Convertir buffer a base64 y subir a Cloudinary
+    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+    const result = await cloudinary.uploader.upload(base64, {
+      folder: "hello-comfy/avatars",
+      resource_type: "auto",
+    });
+
+    // Actualizar avatar del usuario
+    user.avatar = result.secure_url;
+    await user.save();
+
+    // Respuesta
+    res.json({
+      success: true,
+      avatar: user.avatar,
+    });
+  } catch (err) {
+    console.error("Error al actualizar avatar:", err);
+    res.status(500).json({ error: "Error al actualizar el avatar" });
   }
 }
