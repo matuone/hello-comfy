@@ -20,7 +20,6 @@ import "../styles/productdetail.css";
 // ⭐ NUEVO
 import { useShippingCalculator } from "../hooks/useShippingCalculator";
 import ShippingOptions from "../components/ShippingOptions";
-import { crearPreferenciaMercadoPago, redirigirAMercadoPago } from "../services/mercadopagoService";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -47,9 +46,6 @@ export default function ProductDetail() {
     error: shippingError,
     calcular: calcularEnvio,
   } = useShippingCalculator();
-
-  // ⭐ NUEVO — Estados para Mercado Pago
-  const [loadingMercadoPago, setLoadingMercadoPago] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -212,62 +208,6 @@ export default function ProductDetail() {
         dimensions: producto.dimensions,
       },
     ]);
-  };
-
-  // ⭐ NUEVO — Comprar con Mercado Pago
-  const handleComprarConMercadoPago = async () => {
-    if (!selectedSize) {
-      toast.error("Seleccioná un talle disponible para continuar con la compra");
-      return;
-    }
-
-    if (stockForSelectedSize <= 0) {
-      toast.error("No hay stock disponible para este talle");
-      return;
-    }
-
-    setLoadingMercadoPago(true);
-
-    try {
-      const precio = producto.discount ? 
-        (producto.price * (100 - producto.discount)) / 100 :
-        producto.price;
-
-      const preferencia = await crearPreferenciaMercadoPago({
-        items: [
-          {
-            title: producto.name,
-            quantity: quantity,
-            unit_price: precio,
-            picture_url: producto.images?.[0],
-            description: `Talle: ${selectedSize}, Color: ${producto.stockColorId?.color}`,
-          },
-        ],
-        totalPrice: precio * quantity,
-        customerData: {
-          email: localStorage.getItem("userEmail") || "",
-          name: localStorage.getItem("userName") || "",
-          phone: localStorage.getItem("userPhone") || "",
-        },
-        metadata: {
-          productId: producto._id,
-          size: selectedSize,
-          color: producto.stockColorId?.color,
-          quantity: quantity,
-        },
-      });
-
-      if (preferencia?.init_point) {
-        redirigirAMercadoPago(preferencia.init_point);
-      } else {
-        toast.error("Error al crear la preferencia de pago");
-      }
-    } catch (error) {
-      console.error("Error en Mercado Pago:", error);
-      toast.error("Error al procesar el pago con Mercado Pago");
-    } finally {
-      setLoadingMercadoPago(false);
-    }
   };
 
   return (
@@ -461,16 +401,7 @@ export default function ProductDetail() {
             </button>
 
             {/* ⭐ NUEVO — Botón de Mercado Pago */}
-            {selectedSize &&
-              (producto.stockColorId?.talles?.[selectedSize] ?? 0) > 0 && (
-                <button
-                  className="pd-btn-mercadopago"
-                  onClick={handleComprarConMercadoPago}
-                  disabled={loadingMercadoPago}
-                >
-                  {loadingMercadoPago ? "Cargando..." : "Comprar con Mercado Pago"}
-                </button>
-              )}
+            {/* ELIMINADO - No necesario */}
           </div>
 
           {/* GUÍA DE TALLES */}

@@ -171,7 +171,7 @@ export default function Cart() {
   }
 
   const handleCheckout = () => {
-    console.log("Checkout iniciado (próximamente integrado con backend)");
+    navigate("/checkout");
   };
 
   // ============================
