@@ -18,12 +18,18 @@ export function CartProvider({ children }) {
   // ============================
   useEffect(() => {
     const saved = localStorage.getItem("hc_cart");
+    console.log("🛒 CartContext: Loading from localStorage:", saved);
     if (saved) {
-      setItems(JSON.parse(saved));
+      try {
+        setItems(JSON.parse(saved));
+      } catch (err) {
+        console.error("Error parsing cart from localStorage:", err);
+      }
     }
   }, []);
 
   useEffect(() => {
+    console.log("🛒 CartContext: Saving to localStorage:", items);
     localStorage.setItem("hc_cart", JSON.stringify(items));
   }, [items]);
 

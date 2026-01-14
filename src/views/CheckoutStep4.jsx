@@ -1,5 +1,11 @@
+import { useState } from "react";
+import { crearPreferenciaMercadoPago, redirigirAMercadoPago } from "../services/mercadopagoService";
+import { toast } from "react-hot-toast";
+
 export default function Step4({ formData, items, totalPrice, back }) {
-  const handleConfirm = () => {
+  const [loadingPayment, setLoadingPayment] = useState(false);
+
+  const handleConfirm = async () => {
     console.log("Orden lista para enviar al backend:", {
       formData,
       items,
@@ -7,6 +13,60 @@ export default function Step4({ formData, items, totalPrice, back }) {
     });
 
     alert("Orden creada (simulación). Próximo paso: backend real.");
+  };
+
+  // ⭐ NUEVO — Comprar con Mercado Pago desde checkout
+  const handleMercadoPagoCheckout = async () => {
+    if (!formData.paymentMethod) {
+      toast.error("Seleccioná un método de pago");
+      return;
+    }
+
+    setLoadingPayment(true);
+
+    try {
+      const preferencia = await crearPreferenciaMercadoPago({
+        items: items.map((item) => ({
+          title: item.name,
+          quantity: item.quantity,
+          unit_price: item.price,
+          picture_url: item.image,
+          description: `Talle: ${item.size}, Color: ${item.color}`,
+        })),
+        totalPrice: totalPrice,
+        customerData: {
+          email: formData.email,
+          name: formData.name,
+          phone: formData.phone,
+        },
+        metadata: {
+          orderType: "checkout",
+          shippingMethod: formData.shippingMethod,
+          shippingAddress: formData.address,
+          shippingPickPoint: formData.pickPoint,
+          province: formData.province,
+          postalCode: formData.postalCode,
+        },
+      });
+
+      if (preferencia?.init_point) {
+        // Guardar datos de la orden en localStorage antes de redirigir
+        localStorage.setItem("pendingOrder", JSON.stringify({
+          formData,
+          items,
+          totalPrice,
+          createdAt: new Date().toISOString(),
+        }));
+        redirigirAMercadoPago(preferencia.init_point);
+      } else {
+        toast.error("Error al crear la preferencia de pago");
+      }
+    } catch (error) {
+      console.error("Error en Mercado Pago:", error);
+      toast.error("Error al procesar el pago con Mercado Pago");
+    } finally {
+      setLoadingPayment(false);
+    }
   };
 
   const shippingLabel =
@@ -86,6 +146,16 @@ export default function Step4({ formData, items, totalPrice, back }) {
         <button className="checkout-btn-secondary" onClick={back}>
           Volver
         </button>
+
+        {/* ⭐ NUEVO — Botón de Mercado Pago */}
+        <button
+          className="checkout-btn-mercadopago"
+          onClick={handleMercadoPagoCheckout}
+          disabled={loadingPayment}
+        >
+          {loadingPayment ? "Procesando..." : "Pagar con Mercado Pago"}
+        </button>
+
         <button className="checkout-btn" onClick={handleConfirm}>
           Confirmar compra
         </button>

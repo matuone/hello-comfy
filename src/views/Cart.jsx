@@ -18,6 +18,8 @@ export default function Cart() {
     updateQuantity,
   } = useCart();
 
+  console.log("🛒 Cart component rendered with items:", items);
+
   // ============================
   // REGLAS DE DESCUENTO DEL ADMIN
   // ============================

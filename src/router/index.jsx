@@ -27,6 +27,11 @@ import Checkout from "../views/Checkout";
 import CheckoutSuccess from "../views/CheckoutSuccess";
 import CheckoutError from "../views/CheckoutError";
 
+// ⭐ NUEVO: Mercado Pago Payment Results
+import PaymentSuccess from "../views/PaymentSuccess";
+import PaymentFailure from "../views/PaymentFailure";
+import PaymentPending from "../views/PaymentPending";
+
 // Order Tracking
 import OrderTracking from "../views/OrderTracking";
 
@@ -96,6 +101,11 @@ export default function AppRouter() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
         <Route path="/checkout/error" element={<CheckoutError />} />
+
+        {/* ⭐ NUEVO: Rutas de pago Mercado Pago */}
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/failure" element={<PaymentFailure />} />
+        <Route path="/payment/pending" element={<PaymentPending />} />
 
         <Route path="/seguimiento" element={<OrderTracking />} />
         <Route path="/orden/:code" element={<OrderDetails />} />

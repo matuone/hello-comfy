@@ -11,6 +11,7 @@ import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext"; // ⭐ IMPORTANTE
 
 import "./styles/index.css";
+import "./styles/payment.css"; // ⭐ Estilos de Mercado Pago
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

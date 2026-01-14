@@ -19,6 +19,7 @@ import authRoutes from "./routes/authRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js"; // ⭐ NUEVO
 import userRoutes from "./routes/userRoutes.js"; // ⭐ NUEVO
 import customerRoutes from "./routes/customerRoutes.js"; // ⭐ NUEVO
+import mercadopagoRoutes from "./routes/mercadopagoRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -69,6 +70,11 @@ app.use("/api/stock", stockRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/discounts", discountRoutes);
 app.use("/api/promocodes", promoCodeRoutes);
+
+// ============================
+// RUTAS DE MERCADO PAGO (⭐ NUEVO)
+// ============================
+app.use("/api/mercadopago", mercadopagoRoutes);
 
 // ============================
 // RUTAS DE ADMIN (FACTURACIÓN, ESTADOS, ETC.)
