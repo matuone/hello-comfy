@@ -1,8 +1,10 @@
 // src/views/ModoCheckout.jsx
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { consultarEstadoPago } from "../services/modoService";
+import { toast } from "react-hot-toast";
 import "../styles/payment.css";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function ModoCheckout() {
   const [searchParams] = useSearchParams();
@@ -17,13 +19,56 @@ export default function ModoCheckout() {
 
   const handleSimularPago = async (status) => {
     setLoading(true);
-    // Simular procesamiento
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    if (status === "success") {
-      navigate(`/payment/success?method=modo&reference=${reference}`);
-    } else {
-      navigate(`/payment/failure?method=modo&reference=${reference}`);
+    try {
+      // Simular procesamiento
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      if (status === "success") {
+        // Recuperar datos de la orden pendiente
+        const pendingOrderStr = localStorage.getItem("pendingOrder");
+        
+        if (pendingOrderStr) {
+          const pendingOrderData = JSON.parse(pendingOrderStr);
+          
+          // Crear la orden en el backend simulando un pago exitoso
+          const response = await fetch(`${API_URL}/modo/confirm-payment`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              reference: reference,
+              status: "approved",
+              pendingOrderData: pendingOrderData
+            }),
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            toast.success("¡Pago confirmado!");
+          }
+        }
+        
+        // Limpiar checkout del localStorage
+        localStorage.removeItem("checkoutStep");
+        localStorage.removeItem("checkoutFormData");
+        localStorage.removeItem("pendingOrder");
+        
+        navigate(`/checkout/success`);
+      } else {
+        // Limpiar checkout del localStorage
+        localStorage.removeItem("checkoutStep");
+        localStorage.removeItem("checkoutFormData");
+        localStorage.removeItem("pendingOrder");
+        
+        navigate(`/payment/failure?method=modo&reference=${reference}`);
+      }
+    } catch (error) {
+      console.error("Error simulando pago:", error);
+      toast.error("Error al procesar el pago");
+      setLoading(false);
     }
   };
 

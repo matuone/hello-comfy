@@ -1,7 +1,15 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/checkoutsuccess.css";
 
 export default function CheckoutSuccess() {
+  useEffect(() => {
+    // Limpiar checkout del localStorage al llegar a la página de éxito
+    localStorage.removeItem("checkoutStep");
+    localStorage.removeItem("checkoutFormData");
+    localStorage.removeItem("pendingOrder");
+  }, []);
+
   return (
     <div className="success-container">
       <div className="success-card">

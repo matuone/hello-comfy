@@ -4,7 +4,7 @@ import { createGocuotasCheckout } from "../services/gocuotasService";
 import { crearIntencionPagoModo } from "../services/modoService";
 import { toast } from "react-hot-toast";
 
-export default function Step4({ formData, items, totalPrice, back }) {
+export default function Step4({ formData, items, totalPrice, back, clearCheckout }) {
   const [loadingPayment, setLoadingPayment] = useState(false);
 
   // ⭐ Pagar con Modo
@@ -122,69 +122,6 @@ export default function Step4({ formData, items, totalPrice, back }) {
     } catch (error) {
       console.error("Error en Go Cuotas:", error);
       toast.error("Error al procesar el pago");
-    } finally {
-      setLoadingPayment(false);
-    }
-  };
-
-  // ⭐ Pagar con Modo
-  const handlePagarModo = async () => {
-    if (!formData.email) {
-      toast.error("Email requerido");
-      return;
-    }
-
-    setLoadingPayment(true);
-
-    try {
-      const itemsValidos = items.map((item) => ({
-        productId: item.id,
-        title: item.name || "Producto",
-        description: `Talle: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}`,
-        picture_url: item.image || "",
-        quantity: parseInt(item.quantity) || 1,
-        unit_price: parseFloat(item.price) || 0,
-        size: item.size,
-        color: item.color
-      }));
-
-      const resultado = await crearIntencionPagoModo({
-        items: itemsValidos,
-        totalPrice: parseFloat(totalPrice) || 0,
-        customerData: {
-          email: formData.email,
-          name: formData.name || "Cliente",
-          phone: formData.phone || "",
-          address: formData.address || "",
-          city: formData.city || "",
-          postalCode: formData.postalCode || "",
-          province: formData.province || "",
-          dni: formData.dni || ""
-        },
-        metadata: {
-          orderType: "checkout",
-          shippingMethod: formData.shippingMethod,
-        },
-      });
-
-      if (resultado?.paymentIntent) {
-        localStorage.setItem("pendingOrder", JSON.stringify({
-          formData,
-          items,
-          totalPrice,
-          paymentMethod: "modo",
-          orderCode: resultado.orderCode,
-          createdAt: new Date().toISOString(),
-        }));
-
-        // Redirigir a página de checkout de Modo
-        window.location.href = resultado.paymentIntent.checkout_url;
-      } else {
-        toast.error("Error al crear el pago con Modo");
-      }
-    } catch (error) {
-      console.error("Error en Modo:", error);
-      toast.error("Error al procesar el pago con Modo");
     } finally {
       setLoadingPayment(false);
     }

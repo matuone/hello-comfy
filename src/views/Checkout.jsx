@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 
 import Step1 from "./CheckoutStep1";
@@ -12,20 +12,36 @@ import "../styles/checkout.css";
 export default function Checkout() {
   const { items, totalPrice } = useCart();
 
-  const [step, setStep] = useState(1);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    postalCode: "",
-    province: "",
-    shippingMethod: "",
-    pickPoint: "",       // ⭐ agregado para Pick Up Point
-    paymentMethod: "",
-    notes: "",
+  // Recuperar estado desde localStorage o usar valores por defecto
+  const [step, setStep] = useState(() => {
+    const saved = localStorage.getItem("checkoutStep");
+    return saved ? parseInt(saved) : 1;
   });
+
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem("checkoutFormData");
+    return saved ? JSON.parse(saved) : {
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      postalCode: "",
+      province: "",
+      shippingMethod: "",
+      pickPoint: "",
+      paymentMethod: "",
+      notes: "",
+    };
+  });
+
+  // Guardar estado en localStorage cada vez que cambie
+  useEffect(() => {
+    localStorage.setItem("checkoutStep", step.toString());
+  }, [step]);
+
+  useEffect(() => {
+    localStorage.setItem("checkoutFormData", JSON.stringify(formData));
+  }, [formData]);
 
   const updateField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -33,6 +49,25 @@ export default function Checkout() {
 
   const next = () => setStep((s) => s + 1);
   const back = () => setStep((s) => s - 1);
+
+  // Función para limpiar el checkout (llamar después de pago exitoso)
+  const clearCheckout = () => {
+    localStorage.removeItem("checkoutStep");
+    localStorage.removeItem("checkoutFormData");
+    setStep(1);
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      postalCode: "",
+      province: "",
+      shippingMethod: "",
+      pickPoint: "",
+      paymentMethod: "",
+      notes: "",
+    });
+  };
 
   return (
     <div className="checkout-container">
@@ -73,6 +108,7 @@ export default function Checkout() {
           items={items}
           totalPrice={totalPrice}
           back={back}
+          clearCheckout={clearCheckout}
         />
       )}
     </div>

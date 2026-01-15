@@ -39,38 +39,7 @@ export const createPaymentIntent = async (req, res) => {
 
     // Calcular total
     const total = parseFloat(totalPrice) + parseFloat(shippingCost);
-    const externalReference = `order_${Date.now()}`;
-
-    // Crear orden en la base de datos
-    const orderData = {
-      codigo: externalReference,
-      paymentMethod: "modo",
-      paymentStatus: "pending",
-      items: items.map(item => ({
-        productId: item.productId,
-        productName: item.title,
-        quantity: item.quantity,
-        price: item.unit_price,
-        size: item.size || "Único",
-        color: item.color || "Default"
-      })),
-      subtotal: parseFloat(totalPrice),
-      shippingCost: parseFloat(shippingCost),
-      total: total,
-      customer: {
-        name: customerData.name,
-        email: customerData.email,
-        phone: customerData.phone,
-        address: customerData.address,
-        city: customerData.city,
-        postalCode: customerData.postalCode,
-        province: customerData.province
-      },
-      metadata: metadata
-    };
-
-    const order = await crearOrdenDesdePago(orderData);
-    console.log("📦 Orden creada en BD:", order.codigo);
+    const externalReference = `modo_test_${Date.now()}`;
 
     // URLs de callback
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -135,9 +104,7 @@ export const createPaymentIntent = async (req, res) => {
 
     res.json({
       success: true,
-      paymentIntent: testResponse, // En producción: response.data
-      orderId: order._id,
-      orderCode: order.codigo
+      paymentIntent: testResponse // En producción: response.data
     });
 
   } catch (error) {
@@ -145,6 +112,58 @@ export const createPaymentIntent = async (req, res) => {
     res.status(500).json({
       error: "Error al crear intención de pago",
       details: error.message,
+    });
+  }
+};
+
+/**
+ * POST /api/modo/confirm-payment
+ * Confirmar un pago de Modo Test y crear la orden
+ */
+export const confirmPayment = async (req, res) => {
+  try {
+    const { reference, status, pendingOrderData } = req.body;
+
+    console.log("✅ Confirmando pago de Modo Test:", reference);
+
+    if (status === "approved") {
+      // Crear datos de pago simulados
+      const paymentData = {
+        id: reference,
+        status: "approved",
+        transaction_amount: pendingOrderData.totalPrice + (pendingOrderData.shippingCost || 0),
+        payer: {
+          email: pendingOrderData.formData.email,
+          name: pendingOrderData.formData.name
+        },
+        payment_method_id: "modo",
+        payment_type_id: "digital_wallet"
+      };
+
+      // Crear orden en la base de datos
+      const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
+      
+      console.log("📦 Orden creada exitosamente:", order.code);
+
+      return res.json({
+        success: true,
+        order: {
+          code: order.code,
+          _id: order._id
+        }
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: "Pago no aprobado"
+      });
+    }
+  } catch (error) {
+    console.error("❌ Error confirmando pago de Modo:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al confirmar pago",
+      details: error.message
     });
   }
 };
@@ -236,6 +255,7 @@ export const getPaymentStatus = async (req, res) => {
 
 export default {
   createPaymentIntent,
+  confirmPayment,
   handleWebhook,
   getPaymentStatus
 };

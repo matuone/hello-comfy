@@ -47,6 +47,8 @@ export default function PaymentSuccess() {
 
         // Limpiar localStorage
         localStorage.removeItem("pendingOrder");
+        localStorage.removeItem("checkoutStep");
+        localStorage.removeItem("checkoutFormData");
 
         setProcessingOrder(false);
 
