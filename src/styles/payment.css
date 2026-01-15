@@ -44,6 +44,36 @@
 }
 
 /* ============================
+   BOTONES MODO
+============================ */
+
+.checkout-btn-modo {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #6F2DA8 0%, #9D4EDD 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  flex: 1;
+  margin: 0 8px;
+}
+
+.checkout-btn-modo:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(111, 45, 168, 0.3);
+}
+
+.checkout-btn-modo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================
    PÁGINAS DE RESULTADO DE PAGO
 ============================ */
 

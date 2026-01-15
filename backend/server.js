@@ -25,6 +25,7 @@ import subcategoryRoutes from "./routes/subcategoryRoutes.js"; // ⭐ NUEVO
 import siteConfigRoutes from "./routes/siteConfigRoutes.js"; // ⭐ NUEVO
 import sizeTableRoutes from "./routes/sizeTableRoutes.js"; // ⭐ NUEVO
 import promoBannerRoutes from "./routes/promoBannerRoutes.js"; // ⭐ NUEVO
+import modoRoutes from "./routes/modoRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -87,6 +88,11 @@ app.use("/api/mercadopago", mercadopagoRoutes);
 // RUTAS DE GO CUOTAS (⭐ NUEVO)
 // ============================
 app.use("/api/gocuotas", gocuotasRoutes);
+
+// ============================
+// RUTAS DE MODO (⭐ NUEVO)
+// ============================
+app.use("/api/modo", modoRoutes);
 
 // ============================
 // RUTAS DE ADMIN (FACTURACIÓN, ESTADOS, ETC.)

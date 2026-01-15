@@ -32,6 +32,9 @@ import PaymentSuccess from "../views/PaymentSuccess";
 import PaymentFailure from "../views/PaymentFailure";
 import PaymentPending from "../views/PaymentPending";
 
+// ⭐ NUEVO: Modo Checkout
+import ModoCheckout from "../views/ModoCheckout";
+
 // Order Tracking
 import OrderTracking from "../views/OrderTracking";
 
@@ -108,6 +111,9 @@ export default function AppRouter() {
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/failure" element={<PaymentFailure />} />
         <Route path="/payment/pending" element={<PaymentPending />} />
+
+        {/* ⭐ NUEVO: Ruta de checkout Modo */}
+        <Route path="/payment/modo-checkout" element={<ModoCheckout />} />
 
         <Route path="/seguimiento" element={<OrderTracking />} />
         <Route path="/orden/:code" element={<OrderDetails />} />

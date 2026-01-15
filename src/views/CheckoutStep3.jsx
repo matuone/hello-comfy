@@ -38,6 +38,17 @@ export default function Step3({ formData, updateField, next, back }) {
           />
           Financiar en cuotas (Go Cuotas)
         </label>
+
+        {/* ⭐ Modo */}
+        <label>
+          <input
+            type="radio"
+            name="payment"
+            checked={formData.paymentMethod === "modo"}
+            onChange={() => updateField("paymentMethod", "modo")}
+          />
+          Pagar con MODO
+        </label>
       </div>
 
       <div className="checkout-nav">
