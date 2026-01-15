@@ -10,8 +10,12 @@ export async function enviarEmailConfirmacionOrden(order) {
     // Validar que tenemos el password configurado
     if (!process.env.GMAIL_APP_PASSWORD) {
       console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email");
+      console.warn("⚠️ Email del cliente que debería recibir:", order.customer?.email);
       return false;
     }
+
+    console.log("📧 Intentando enviar email a:", order.customer?.email);
+    console.log("📧 Código de orden:", order.code);
 
     // Configurar transporte (mismo que supportController)
     const transporter = nodemailer.createTransport({
@@ -29,7 +33,11 @@ export async function enviarEmailConfirmacionOrden(order) {
         <tr>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
             <strong>${item.name}</strong><br>
-            <small style="color: #888;">Cantidad: ${item.quantity}</small>
+            <small style="color: #888;">
+              Cantidad: ${item.quantity}
+              ${item.size ? `<br>Talle: ${item.size}` : ''}
+              ${item.color ? `<br>Color: ${item.color}` : ''}
+            </small>
           </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">
             $${item.price.toFixed(2)}
@@ -44,6 +52,14 @@ export async function enviarEmailConfirmacionOrden(order) {
       order.shipping?.method === "pickup"
         ? `<strong>Retiro en Pick Up Point</strong><br>${order.shipping?.pickPoint || ""}`
         : `<strong>Envío a domicilio</strong><br>${order.shipping?.address || ""}`;
+
+    // Mapeo de métodos de pago
+    const paymentMethodLabels = {
+      mercadopago: "Mercado Pago",
+      gocuotas: "GoCuotas",
+      modo: "Modo",
+    };
+    const paymentMethodLabel = paymentMethodLabels[order.paymentMethod] || order.paymentMethod || "No especificado";
 
     // HTML del email
     const emailHtml = `
@@ -142,6 +158,23 @@ export async function enviarEmailConfirmacionOrden(order) {
             </p>
           </div>
 
+          <!-- Medio de pago -->
+          <h2 style="
+            color: #333;
+            font-size: 20px;
+            margin: 0 0 12px 0;
+          ">Medio de pago</h2>
+          <div style="
+            background: #f8f8f8;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+          ">
+            <p style="margin: 0; color: #555;">
+              <strong>${paymentMethodLabel}</strong>
+            </p>
+          </div>
+
           <!-- Información adicional -->
           <div style="
             background: #fff7fb;
@@ -202,7 +235,10 @@ export async function enviarEmailConfirmacionOrden(order) {
     console.log(`✅ Email de confirmación enviado a: ${order.customer?.email}`);
     return true;
   } catch (error) {
-    console.error("❌ Error enviando email de confirmación:", error);
+    console.error("❌ Error enviando email de confirmación:", error.message);
+    console.error("❌ Error completo:", error);
+    console.error("❌ Email destinatario:", order.customer?.email);
+    console.error("❌ Código de orden:", order.code);
     // No lanzamos el error para que no falle la creación de la orden
     return false;
   }

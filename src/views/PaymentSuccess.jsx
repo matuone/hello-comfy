@@ -32,13 +32,19 @@ export default function PaymentSuccess() {
         if (pendingOrderStr) {
           try {
             pendingOrderData = JSON.parse(pendingOrderStr);
+            console.log("✅ PendingOrderData recuperado del localStorage");
           } catch (err) {
             console.error("Error parsing pending order:", err);
           }
+        } else {
+          console.warn("⚠️ No hay pendingOrder en localStorage");
         }
 
         // Procesar el pago en el backend
-        if (paymentId && pendingOrderData) {
+        if (paymentId) {
+          console.log("💳 Procesando pago con paymentId:", paymentId);
+          console.log("📋 PendingOrderData disponible:", !!pendingOrderData);
+          
           const response = await procesarPagoConfirmado(paymentId, pendingOrderData);
 
           if (response.success && response.order) {

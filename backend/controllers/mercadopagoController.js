@@ -205,6 +205,13 @@ export const processPayment = async (req, res) => {
       return res.status(400).json({ error: "paymentId requerido" });
     }
 
+    console.log("💳 Procesando pago confirmado con paymentId:", paymentId);
+    console.log("📋 PendingOrderData recibido:", !!pendingOrderData);
+    if (pendingOrderData) {
+      console.log("   - Email:", pendingOrderData.formData?.email);
+      console.log("   - Items:", pendingOrderData.items?.length || 0);
+    }
+
     // Obtener detalles del pago de Mercado Pago
     const paymentResponse = await axios.get(
       `https://api.mercadopago.com/v1/payments/${paymentId}`,
@@ -234,14 +241,21 @@ export const processPayment = async (req, res) => {
     // Crear orden en BD
     let order = null;
     if (pendingOrderData) {
+      console.log("✅ Creando orden con pendingOrderData");
       order = await crearOrdenDesdePago(paymentData, pendingOrderData);
     } else {
+      console.warn("⚠️ No hay pendingOrderData, intentando actualizar estado de pago existente");
       // Si no hay datos de orden pendiente, solo actualizar estado
       const externalReference = paymentData.external_reference;
       if (externalReference) {
+        console.log("🔄 Actualizando estado de pago para referencia:", externalReference);
         order = await actualizarEstadoPago(externalReference, paymentData.status);
+      } else {
+        console.error("❌ No hay external_reference y no hay pendingOrderData");
       }
     }
+
+    console.log("📦 Orden procesada:", order ? order.code : "NO CREADA");
 
     res.json({
       success: true,

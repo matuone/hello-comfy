@@ -81,7 +81,7 @@ export function CartProvider({ children }) {
   // AGREGAR AL CARRITO (respeta cantidad)
   // ============================
   const addToCart = (product, options = {}) => {
-    const { size, quantity = 1 } = options;
+    const { size, color, quantity = 1 } = options;
 
     const key = `${product._id}-${size || "nosize"}`;
 
@@ -108,6 +108,7 @@ export function CartProvider({ children }) {
           discount: product.discount || 0,
           image: product.images?.[0] || "",
           size: size || null,
+          color: color || null,
           quantity, // ⭐ respeta la cantidad real
         },
       ];

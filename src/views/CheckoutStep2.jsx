@@ -4,6 +4,7 @@ export default function Step2({ formData, updateField, next, back }) {
     (formData.address.trim().length > 3 &&
       formData.postalCode.trim().length >= 4 &&
       formData.province.trim().length > 2 &&
+      (formData.localidad || "").trim().length > 2 &&
       formData.shippingMethod === "home");
 
   return (
@@ -42,6 +43,16 @@ export default function Step2({ formData, updateField, next, back }) {
               placeholder="Ej: Buenos Aires"
               value={formData.province}
               onChange={(e) => updateField("province", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Localidad</label>
+            <input
+              type="text"
+              placeholder="Ej: La Plata"
+              value={formData.localidad || ""}
+              onChange={(e) => updateField("localidad", e.target.value)}
             />
           </div>
         </>

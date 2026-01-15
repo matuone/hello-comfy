@@ -213,7 +213,7 @@ export default function Products() {
     const chosenSize = selectedSizes[product._id] || fallbackSize;
     const quantity = quantities[product._id] || 1;
 
-    addToCart(product, { size: chosenSize, quantity });
+    addToCart(product, { size: chosenSize, color: product.stockColorId?.color, quantity });
   };
 
   const handleBuyNow = (event, product) => {

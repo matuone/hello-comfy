@@ -77,6 +77,12 @@
   color: #555;
 }
 
+.cart-item-color {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 2px;
+}
+
 .cart-item-promo {
   font-size: 0.85rem;
   color: #d94f7a;

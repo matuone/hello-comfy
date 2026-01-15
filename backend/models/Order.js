@@ -33,6 +33,13 @@ const OrderSchema = new mongoose.Schema(
       default: "pendiente",
     },
 
+    // ⭐ Medio de pago
+    paymentMethod: {
+      type: String,
+      enum: ["mercadopago", "gocuotas", "modo"],
+      default: "mercadopago",
+    },
+
     // ⭐ Estado del envío
     envioEstado: {
       type: String,
@@ -69,6 +76,8 @@ const OrderSchema = new mongoose.Schema(
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
         image: { type: String },
+        size: { type: String },
+        color: { type: String },
       },
     ],
 

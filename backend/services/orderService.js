@@ -43,6 +43,17 @@ async function generarCodigoOrden() {
  */
 export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
   try {
+    console.log("🔄 Iniciando crearOrdenDesdePago");
+    console.log("📋 PaymentData:", {
+      id: paymentData.id,
+      status: paymentData.status,
+      email: paymentData.payer?.email,
+    });
+    console.log("📋 PendingOrderData:", {
+      email: pendingOrderData?.formData?.email,
+      itemsCount: pendingOrderData?.items?.length,
+    });
+
     // Generar código único de orden secuencial
     const code = await generarCodigoOrden();
 
@@ -55,6 +66,7 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       },
       status: "recibido",
       pagoEstado: paymentData.status === "approved" ? "recibido" : "pendiente",
+      paymentMethod: pendingOrderData.formData?.paymentMethod || "mercadopago",
       envioEstado: "pendiente",
       shipping: {
         method: pendingOrderData.formData?.shippingMethod || "home",
@@ -67,6 +79,8 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         quantity: item.quantity,
         price: item.price,
         image: item.image,
+        size: item.size || null,
+        color: item.color || null,
       })),
       totals: {
         subtotal: pendingOrderData.totalPrice,
@@ -91,14 +105,16 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     const order = new Order(orderData);
     await order.save();
 
-    console.log("✅ Orden creada desde Mercado Pago:", {
+    console.log("✅ Orden creada exitosamente:", {
       code: order.code,
       email: order.customer.email,
       paymentId: paymentData.id,
     });
 
     // Enviar email de confirmación al cliente
-    await enviarEmailConfirmacionOrden(order);
+    console.log("📧 Iniciando envío de email a:", order.customer.email);
+    const emailSent = await enviarEmailConfirmacionOrden(order);
+    console.log("📧 Email enviado:", emailSent ? "SÍ ✅" : "NO ❌");
 
     return order;
   } catch (error) {

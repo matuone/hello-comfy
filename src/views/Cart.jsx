@@ -299,6 +299,10 @@ export default function Cart() {
                     <p className="cart-item-size">Talle: {item.size}</p>
                   )}
 
+                  {item.color && (
+                    <p className="cart-item-color">Color: {item.color}</p>
+                  )}
+
                   {rule?.type === "3x2" && (
                     <p className="cart-item-promo">Promo 3x2 aplicada</p>
                   )}
