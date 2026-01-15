@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import { crearPreferenciaMercadoPago, redirigirAMercadoPago } from "../services/mercadopagoService";
 import { createGocuotasCheckout } from "../services/gocuotasService";
 import { crearIntencionPagoModo } from "../services/modoService";
@@ -7,6 +8,7 @@ import { toast } from "react-hot-toast";
 
 export default function Step4({ formData, items, totalPrice, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
+  const { clearCart } = useCart();
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [proofFile, setProofFile] = useState(null);
 
@@ -219,10 +221,41 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
         toast.success("Comprobante enviado. Procesando orden...");
 
-        // Simular creación de orden (similar a Modo)
-        setTimeout(() => {
-          navigate("/checkout-success");
-        }, 1500);
+        // Crear orden en el backend con datos de transferencia
+        try {
+          const response = await fetch("http://localhost:5000/api/orders/create-transfer", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              formData,
+              items,
+              totalPrice: finalPrice,
+              paymentProof: proofBase64,
+              paymentProofName: proofFile.name,
+            }),
+          });
+
+          if (response.ok) {
+            const orderData = await response.json();
+            localStorage.setItem("lastOrderCode", orderData.order.code);
+            clearCart();
+            localStorage.removeItem("checkoutStep");
+            localStorage.removeItem("checkoutFormData");
+            localStorage.removeItem("pendingOrder");
+            
+            // Redirigir a success
+            setTimeout(() => {
+              navigate("/checkout/success");
+            }, 1000);
+          } else {
+            toast.error("Error al crear la orden");
+          }
+        } catch (error) {
+          console.error("Error creando orden:", error);
+          toast.error("Error al procesar la transferencia");
+        }
       };
       reader.readAsDataURL(proofFile);
     } catch (error) {
@@ -243,6 +276,8 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
       setProofFile(file);
     }
   };
+
+  const shippingLabel =
     formData.shippingMethod === "pickup"
       ? "Retiro en Pick Up Point"
       : "Envío a domicilio";
@@ -330,10 +365,16 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
             accept="image/*,.pdf"
             onChange={handleFileChange}
             style={{
-              padding: "8px",
-              border: "1px solid #ddd",
-              borderRadius: "6px",
+              padding: "12px",
+              border: "2px solid #d94f7a",
+              borderRadius: "8px",
               width: "100%",
+              background: "#fff7fb",
+              color: "#666",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
             }}
           />
           {proofFile && (
@@ -385,8 +426,26 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
             onClick={handleTransfer}
             disabled={!proofFile || loadingPayment}
             style={{
-              opacity: proofFile && !loadingPayment ? 1 : 0.5,
-              cursor: proofFile && !loadingPayment ? "pointer" : "default",
+              padding: "12px 24px",
+              background: proofFile && !loadingPayment ? "#d94f7a" : "#e0e0e0",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "1rem",
+              fontWeight: "600",
+              cursor: proofFile && !loadingPayment ? "pointer" : "not-allowed",
+              opacity: 1,
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (proofFile && !loadingPayment) {
+                e.target.style.background = "#c93b63";
+                e.target.style.transform = "translateY(-2px)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "#d94f7a";
+              e.target.style.transform = "translateY(0)";
             }}
           >
             {loadingPayment ? "Procesando..." : "Confirmar transferencia"}

@@ -3,6 +3,7 @@ const router = express.Router();
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import { crearOrdenDesdePago } from "../services/orderService.js";
 
 /* ============================================================
    ⭐ RUTA PRIVADA — Mis órdenes (usuario autenticado)
@@ -118,6 +119,59 @@ router.get("/orders/private/:id", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Error obteniendo pedido privado:", err);
     res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
+   POST /api/orders/create-transfer
+   Crear orden por transferencia bancaria
+============================================================ */
+router.post("/orders/create-transfer", async (req, res) => {
+  try {
+    const { formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
+
+    if (!formData || !items) {
+      return res.status(400).json({ error: "Datos incompletos" });
+    }
+
+    // Crear datos simulados de pago para crearOrdenDesdePago
+    const paymentData = {
+      id: `transfer_${Date.now()}`,
+      status: "pending", // Para transferencias es pending hasta que admin confirme
+      transaction_amount: totalPrice,
+      payer: {
+        email: formData.email,
+        name: formData.name,
+      },
+    };
+
+    const pendingOrderData = {
+      formData,
+      items,
+      totalPrice,
+      paymentProof,
+      paymentProofName,
+    };
+
+    // Crear orden usando el servicio existente
+    const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
+
+    res.json({
+      success: true,
+      message: "Orden creada exitosamente",
+      order: {
+        code: order.code,
+        email: order.customer.email,
+        status: order.pagoEstado,
+        total: order.totals.total,
+      },
+    });
+  } catch (error) {
+    console.error("Error creando orden por transferencia:", error);
+    res.status(500).json({
+      error: "Error al crear la orden",
+      message: error.message,
+    });
   }
 });
 

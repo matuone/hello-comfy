@@ -243,3 +243,182 @@ export async function enviarEmailConfirmacionOrden(order) {
     return false;
   }
 }
+
+/**
+ * Enviar email al admin notificando nueva orden
+ * @param {Object} order - Objeto de orden creada
+ */
+export async function enviarEmailAlAdmin(order) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email al admin");
+      return false;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    // Generar lista de productos
+    const productosHtml = order.items
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.name}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toLocaleString("es-AR")}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">$${(item.price * item.quantity).toLocaleString("es-AR")}</td>
+        </tr>
+      `
+      )
+      .join("");
+
+    const shippingInfo =
+      order.shipping?.method === "pickup"
+        ? `<strong>Punto de retiro:</strong> ${order.shipping?.pickPoint || ""}`
+        : `<strong>Dirección:</strong> ${order.shipping?.address || ""}`;
+
+    const paymentMethodLabels = {
+      mercadopago: "Mercado Pago",
+      gocuotas: "GoCuotas",
+      modo: "Modo",
+      transfer: "Transferencia Bancaria",
+    };
+    const paymentMethodLabel = paymentMethodLabels[order.paymentMethod] || order.paymentMethod || "No especificado";
+
+    const emailHtml = `
+      <div style="
+        font-family: 'Arial', sans-serif;
+        max-width: 700px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      ">
+        <!-- Header -->
+        <div style="
+          background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%);
+          padding: 32px 24px;
+          text-align: center;
+        ">
+          <h1 style="
+            color: white;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+          ">Recibiste una compra 🎉</h1>
+          <p style="
+            color: rgba(255,255,255,0.95);
+            margin: 8px 0 0 0;
+            font-size: 16px;
+          ">De ${order.customer?.name}</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 32px 24px;">
+          <!-- Número de orden -->
+          <div style="
+            background: #f8f8f8;
+            border: 2px solid #d94f7a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+          ">
+            <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">Orden Nro:</p>
+            <p style="margin: 0; color: #d94f7a; font-size: 32px; font-weight: 800;">#${order.code}</p>
+          </div>
+
+          <!-- Información de Contacto -->
+          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Información de Contacto</h2>
+          <div style="background: #f8f8f8; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <p style="margin: 0 0 8px 0; color: #555;"><strong>Email:</strong> ${order.customer?.email}</p>
+            <p style="margin: 0 0 8px 0; color: #555;"><strong>Nombre completo:</strong> ${order.customer?.name}</p>
+            <p style="margin: 0 0 8px 0; color: #555;"><strong>DNI:</strong> Sin información</p>
+            <p style="margin: 0; color: #555;"><strong>Teléfono:</strong> Sin información</p>
+          </div>
+
+          <!-- Información de Envío -->
+          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Información de Envío</h2>
+          <div style="background: #f8f8f8; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <p style="margin: 0; color: #555;">${shippingInfo}</p>
+          </div>
+
+          <!-- Productos -->
+          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Productos</h2>
+          <table style="
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            border: 1px solid #eee;
+          ">
+            <thead>
+              <tr style="background: #f8f8f8;">
+                <th style="padding: 12px; text-align: left; border-bottom: 1px solid #eee;">Producto</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 1px solid #eee;">Cantidad</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 1px solid #eee;">Precio</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 1px solid #eee;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productosHtml}
+            </tbody>
+            <tfoot>
+              <tr style="background: #f8f8f8; font-weight: 700;">
+                <td colspan="3" style="padding: 16px; text-align: right;">Total</td>
+                <td style="padding: 16px; text-align: right; color: #d94f7a; font-size: 18px;">
+                  $${order.totals?.total?.toLocaleString("es-AR") || "0"}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <!-- Método de Pago -->
+          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Método de Pago</h2>
+          <div style="background: #f8f8f8; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <p style="margin: 0; color: #555;"><strong>${paymentMethodLabel}</strong></p>
+          </div>
+
+          <!-- Estado -->
+          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Estado de la transacción</h2>
+          <div style="background: #e8f5e9; padding: 16px; border-radius: 8px;">
+            <p style="margin: 0; color: #2e7d32;">
+              <strong>✓ Pago ${order.pagoEstado === 'recibido' ? 'recibido' : 'pendiente'}</strong>
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="
+          background: #f8f8f8;
+          padding: 24px;
+          text-align: center;
+          border-top: 1px solid #eee;
+        ">
+          <p style="color: #999; font-size: 12px; margin: 0;">
+            Este es un email automático de Hello Comfy. No responder a este correo.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: '"Hello Comfy 🧸" <hellocomfyind@gmail.com>',
+      to: "hellocomfyind@gmail.com",
+      subject: `🎉 Nueva compra - Orden #${order.code} - ${order.customer?.name}`,
+      html: emailHtml,
+    });
+
+    console.log(`✅ Email al admin enviado para orden: ${order.code}`);
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando email al admin:", error.message);
+    // No lanzamos el error para que no falle la creación de la orden
+    return false;
+  }
+}

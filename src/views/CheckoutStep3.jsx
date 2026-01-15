@@ -40,13 +40,24 @@ export default function Step3({ formData, updateField, next, back }) {
                 onClick={() => setExpandTransfer(!expandTransfer)}
                 style={{
                   marginLeft: "24px",
-                  marginTop: "8px",
-                  padding: "8px 12px",
-                  background: "#f0f0f0",
-                  border: "1px solid #ddd",
-                  borderRadius: "6px",
+                  marginTop: "12px",
+                  padding: "10px 16px",
+                  background: "#fff7fb",
+                  color: "#d94f7a",
+                  border: "2px solid #d94f7a",
+                  borderRadius: "8px",
                   cursor: "pointer",
                   fontSize: "0.9rem",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "#d94f7a";
+                  e.target.style.color = "white";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "#fff7fb";
+                  e.target.style.color = "#d94f7a";
                 }}
               >
                 {expandTransfer ? "▼ Ocultar datos" : "▶ Ver datos bancarios"}

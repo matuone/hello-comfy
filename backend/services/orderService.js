@@ -1,6 +1,6 @@
 // backend/services/orderService.js
 import Order from "../models/Order.js";
-import { enviarEmailConfirmacionOrden } from "./emailService.js";
+import { enviarEmailConfirmacionOrden, enviarEmailAlAdmin } from "./emailService.js";
 
 /**
  * Generar el siguiente código de orden secuencial
@@ -117,6 +117,11 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     console.log("📧 Iniciando envío de email a:", order.customer.email);
     const emailSent = await enviarEmailConfirmacionOrden(order);
     console.log("📧 Email enviado:", emailSent ? "SÍ ✅" : "NO ❌");
+
+    // Enviar email al admin
+    console.log("📧 Iniciando envío de email al admin");
+    const adminEmailSent = await enviarEmailAlAdmin(order);
+    console.log("📧 Email al admin enviado:", adminEmailSent ? "SÍ ✅" : "NO ❌");
 
     return order;
   } catch (error) {
