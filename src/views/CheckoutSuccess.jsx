@@ -1,13 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/checkoutsuccess.css";
 
 export default function CheckoutSuccess() {
+  const [orderCode, setOrderCode] = useState(null);
+
   useEffect(() => {
+    // Obtener código de orden desde localStorage
+    const lastOrder = localStorage.getItem("lastOrderCode");
+    if (lastOrder) {
+      setOrderCode(lastOrder);
+    }
+
     // Limpiar checkout del localStorage al llegar a la página de éxito
     localStorage.removeItem("checkoutStep");
     localStorage.removeItem("checkoutFormData");
     localStorage.removeItem("pendingOrder");
+    localStorage.removeItem("lastOrderCode");
   }, []);
 
   return (
@@ -16,6 +25,13 @@ export default function CheckoutSuccess() {
         <div className="success-icon">✓</div>
 
         <h1 className="success-title">¡Gracias por tu compra!</h1>
+        
+        {orderCode && (
+          <p className="order-number">
+            Orden: <strong>#{orderCode}</strong>
+          </p>
+        )}
+        
         <p className="success-subtitle">
           Tu pedido fue recibido y está siendo procesado.
         </p>

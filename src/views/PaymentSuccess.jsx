@@ -41,6 +41,7 @@ export default function PaymentSuccess() {
 
           if (response.success && response.order) {
             setOrderCode(response.order.code);
+            localStorage.setItem("lastOrderCode", response.order.code);
             toast.success(`✅ ¡Pago procesado! Orden: ${response.order.code}`);
           }
         }

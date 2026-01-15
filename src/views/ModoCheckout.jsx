@@ -48,6 +48,11 @@ export default function ModoCheckout() {
           
           if (data.success) {
             toast.success("¡Pago confirmado!");
+            
+            // Guardar código de orden temporalmente
+            if (data.order?.code) {
+              localStorage.setItem("lastOrderCode", data.order.code);
+            }
           }
         }
         
