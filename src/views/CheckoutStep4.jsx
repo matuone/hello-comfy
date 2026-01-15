@@ -318,13 +318,15 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
   const paymentLabel =
     formData.paymentMethod === "transfer"
       ? "Transferencia bancaria (10% OFF)"
-      : formData.paymentMethod === "mercadopago"
-        ? "Mercado Pago"
-        : formData.paymentMethod === "gocuotas"
-          ? "Go Cuotas - Financiación"
-          : formData.paymentMethod === "modo"
-            ? "Modo - Pago digital"
-            : "Método de pago";
+      : formData.paymentMethod === "cuentadni"
+        ? "Cuenta DNI"
+        : formData.paymentMethod === "mercadopago"
+          ? "Mercado Pago"
+          : formData.paymentMethod === "gocuotas"
+            ? "Go Cuotas - Financiación"
+            : formData.paymentMethod === "modo"
+              ? "Modo - Pago digital"
+              : "Método de pago";
 
   return (
     <div className="checkout-step">

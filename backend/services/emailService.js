@@ -58,6 +58,8 @@ export async function enviarEmailConfirmacionOrden(order) {
       mercadopago: "Mercado Pago",
       gocuotas: "GoCuotas",
       modo: "Modo",
+      transfer: "Transferencia Bancaria",
+      cuentadni: "Cuenta DNI",
     };
     const paymentMethodLabel = paymentMethodLabels[order.paymentMethod] || order.paymentMethod || "No especificado";
 
@@ -425,8 +427,8 @@ export async function enviarEmailAlAdmin(order) {
           </div>
 
           <!-- Comprobante (si existe) -->
-          ${order.paymentMethod === 'transfer' && order.paymentProof ? `
-          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Comprobante de Transferencia</h2>
+          ${(order.paymentMethod === 'transfer' || order.paymentMethod === 'cuentadni') && order.paymentProof ? `
+          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Comprobante de ${order.paymentMethod === 'transfer' ? 'Transferencia' : 'Cuenta DNI'}</h2>
           <div style="background: #f0f7ff; padding: 16px; border-radius: 8px; border-left: 4px solid #2196F3; margin-bottom: 24px;">
             <p style="margin: 0 0 8px 0; color: #555;">
               <strong>Archivo:</strong> ${order.paymentProofName || 'comprobante.jpg'}
@@ -460,9 +462,9 @@ export async function enviarEmailAlAdmin(order) {
       </div>
     `;
 
-    // Preparar adjuntos si hay comprobante de transferencia
+    // Preparar adjuntos si hay comprobante de transferencia o Cuenta DNI
     const attachments = [];
-    if (order.paymentMethod === 'transfer' && order.paymentProof) {
+    if ((order.paymentMethod === 'transfer' || order.paymentMethod === 'cuentadni') && order.paymentProof) {
       try {
         // Validar que paymentProof sea una string válida
         if (typeof order.paymentProof !== 'string') {

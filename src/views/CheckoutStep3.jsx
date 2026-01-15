@@ -168,7 +168,6 @@ export default function Step3({ formData, updateField, next, back }) {
                     onMouseLeave={(e) => {
                       e.target.style.transform = "scale(1)";
                     }}
-                    }}
                   />
                   <p style={{ fontSize: "0.85rem", color: "#666", margin: "12px 0 0 0" }}>
                     <em>
