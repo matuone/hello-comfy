@@ -195,6 +195,27 @@ export async function enviarEmailConfirmacionOrden(order) {
             </p>
           </div>
 
+          <!-- Aviso para transferencia sin comprobante -->
+          ${
+            order.paymentMethod === 'transfer' && !order.paymentProof
+              ? `
+          <div style="
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+          ">
+            <h3 style="margin: 0 0 8px 0; color: #856404; font-size: 16px;">⚠️ Comprobante de Transferencia</h3>
+            <p style="margin: 0; color: #856404; line-height: 1.6;">
+              No recibimos adjunto el comprobante de transferencia. 
+              <strong>Por favor, envíalo por WhatsApp</strong> para acelerar la verificación de tu pago.
+            </p>
+          </div>
+              `
+              : ''
+          }
+
           <!-- Datos del cliente -->
           <p style="color: #888; font-size: 14px; margin: 0;">
             <strong>Email:</strong> ${order.customer?.email}<br>

@@ -196,78 +196,103 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
   // ⭐ Manejar transferencia bancaria
   const handleTransfer = async () => {
+    // Si no hay comprobante, mostrar un aviso pero permitir continuar
     if (!proofFile) {
-      toast.error("Por favor adjunta el comprobante de transferencia");
-      return;
+      const confirmed = window.confirm(
+        "⚠️ Por favor adjunta el comprobante para poder confirmar tu compra.\n\n" +
+        "Si en este momento no puedes hacerlo, puedes enviarlo por WhatsApp después de realizar la compra.\n\n" +
+        "¿Deseas continuar sin adjuntar comprobante?"
+      );
+      
+      // Si el usuario cancela, no hacer nada
+      if (!confirmed) {
+        return;
+      }
     }
 
     setLoadingPayment(true);
 
     try {
-      // Guardar el comprobante en base64
-      const reader = new FileReader();
-      reader.onload = async () => {
-        let proofBase64 = reader.result;
-        
-        // Si tiene el prefijo de data URL, extraerlo (data:image/jpeg;base64,XXXX...)
-        if (proofBase64.includes(',')) {
-          proofBase64 = proofBase64.split(',')[1];
-        }
+      let proofBase64 = null;
+      
+      // Si hay archivo, convertirlo a base64
+      if (proofFile) {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          let base64 = reader.result;
+          
+          // Si tiene el prefijo de data URL, extraerlo (data:image/jpeg;base64,XXXX...)
+          if (base64.includes(',')) {
+            base64 = base64.split(',')[1];
+          }
+          proofBase64 = base64;
+          
+          // Proceder con la creación de orden
+          await crearOrden(proofBase64);
+        };
+        reader.readAsDataURL(proofFile);
+      } else {
+        // Sin archivo, crear orden sin comprobante
+        await crearOrden(null);
+      }
+    } catch (error) {
+      console.error("Error en transferencia:", error);
+      toast.error("Error al procesar la transferencia");
+      setLoadingPayment(false);
+    }
+  };
 
-        // Guardar orden con comprobante
-        localStorage.setItem("pendingOrder", JSON.stringify({
+  const crearOrden = async (proofBase64) => {
+    try {
+      // Guardar orden con o sin comprobante
+      localStorage.setItem("pendingOrder", JSON.stringify({
+        formData,
+        items,
+        totalPrice: finalPrice,
+        paymentProof: proofBase64,
+        paymentProofName: proofFile?.name || null,
+        createdAt: new Date().toISOString(),
+      }));
+
+      toast.success("Procesando orden...");
+
+      // Crear orden en el backend con datos de transferencia
+      const response = await fetch("http://localhost:5000/api/orders/create-transfer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           formData,
           items,
           totalPrice: finalPrice,
           paymentProof: proofBase64,
-          paymentProofName: proofFile.name,
-          createdAt: new Date().toISOString(),
-        }));
+          paymentProofName: proofFile?.name || null,
+        }),
+      });
 
-        toast.success("Comprobante enviado. Procesando orden...");
-
-        // Crear orden en el backend con datos de transferencia
-        try {
-          const response = await fetch("http://localhost:5000/api/orders/create-transfer", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              formData,
-              items,
-              totalPrice: finalPrice,
-              paymentProof: proofBase64,
-              paymentProofName: proofFile.name,
-            }),
-          });
-
-          if (response.ok) {
-            const orderData = await response.json();
-            localStorage.setItem("lastOrderCode", orderData.order.code);
-            clearCart();
-            localStorage.removeItem("checkoutStep");
-            localStorage.removeItem("checkoutFormData");
-            localStorage.removeItem("pendingOrder");
-            
-            // Redirigir a success
-            setTimeout(() => {
-              navigate("/checkout/success");
-            }, 1000);
-          } else {
-            toast.error("Error al crear la orden");
-          }
-        } catch (error) {
-          console.error("Error creando orden:", error);
-          toast.error("Error al procesar la transferencia");
-        }
-      };
-      reader.readAsDataURL(proofFile);
+      if (response.ok) {
+        const orderData = await response.json();
+        localStorage.setItem("lastOrderCode", orderData.order.code);
+        clearCart();
+        localStorage.removeItem("checkoutStep");
+        localStorage.removeItem("checkoutFormData");
+        localStorage.removeItem("pendingOrder");
+        
+        // Redirigir a success
+        setTimeout(() => {
+          navigate("/checkout/success");
+        }, 1000);
+      } else {
+        toast.error("Error al crear la orden");
+        setLoadingPayment(false);
+      }
     } catch (error) {
-      console.error("Error en transferencia:", error);
+      console.error("Error creando orden:", error);
       toast.error("Error al procesar la transferencia");
-    } finally {
       setLoadingPayment(false);
+    }
+  };
     }
   };
 
@@ -429,10 +454,10 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
           <button
             className="checkout-btn-transfer"
             onClick={handleTransfer}
-            disabled={!proofFile || loadingPayment}
+            disabled={loadingPayment}
             style={{
               padding: "12px 24px",
-              background: proofFile && !loadingPayment ? "#d94f7a" : "#e0e0e0",
+              background: !loadingPayment ? "#d94f7a" : "#e0e0e0",
               color: "white",
               border: "none",
               borderRadius: "8px",
