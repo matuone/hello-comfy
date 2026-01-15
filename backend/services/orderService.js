@@ -1,5 +1,6 @@
 // backend/services/orderService.js
 import Order from "../models/Order.js";
+import { enviarEmailConfirmacionOrden } from "./emailService.js";
 
 /**
  * Generar el siguiente código de orden secuencial
@@ -95,6 +96,9 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       email: order.customer.email,
       paymentId: paymentData.id,
     });
+
+    // Enviar email de confirmación al cliente
+    await enviarEmailConfirmacionOrden(order);
 
     return order;
   } catch (error) {
