@@ -73,7 +73,7 @@ export default function ConfirmProofModal({ isOpen, onConfirm, onCancel }) {
             margin: "0 0 24px 0",
           }}
         >
-          Por favor adjunta el comprobante para poder confirmar tu compra.
+          Por favor adjuntá el comprobante para poder confirmar tu compra.
         </p>
 
         {/* Texto secundario */}
@@ -94,7 +94,7 @@ export default function ConfirmProofModal({ isOpen, onConfirm, onCancel }) {
               margin: "0",
             }}
           >
-            Si en este momento no puedes hacerlo, puedes enviarlo por{" "}
+            Si en este momento no podés hacerlo, podés enviarlo por{" "}
             <strong>WhatsApp después</strong> de realizar la compra.
           </p>
         </div>

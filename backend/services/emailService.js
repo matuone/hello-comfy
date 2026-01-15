@@ -207,7 +207,7 @@ export async function enviarEmailConfirmacionOrden(order) {
             <h3 style="margin: 0 0 8px 0; color: #856404; font-size: 16px;">⚠️ Comprobante de Transferencia</h3>
             <p style="margin: 0; color: #856404; line-height: 1.6;">
               No recibimos adjunto el comprobante de transferencia. 
-              <strong>Por favor, envíalo por WhatsApp</strong> para acelerar la verificación de tu pago.
+              <strong>Por favor, envialo por WhatsApp</strong> para acelerar la verificación de tu pago.
             </p>
           </div>
               `
