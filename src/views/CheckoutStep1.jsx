@@ -40,13 +40,16 @@ export default function Step1({ formData, updateField, next }) {
       </div>
 
       <div className="form-group">
-        <label>Teléfono</label>
+        <label>Teléfono (WhatsApp)</label>
         <input
           type="text"
-          placeholder="Ej: 11 2345 6789"
+          placeholder="Ej: +54 9 11 2345 6789"
           value={formData.phone}
           onChange={(e) => updateField("phone", e.target.value)}
         />
+        <small style={{ color: '#888', fontSize: '0.85rem', marginTop: '4px', display: 'block' }}>
+          Formato: +54 9 [código de área] [número]
+        </small>
       </div>
 
       <button
