@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import BabyTeesTable from "../components/sizeTables/BabyTeesTable";
 import CropTopsTable from "../components/sizeTables/CropTopsTable";
 import RemerasTable from "../components/sizeTables/RemerasTable";
+import ImageModal from "../components/ImageModal";
 
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -31,6 +32,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -222,6 +224,8 @@ export default function ProductDetail() {
               src={selectedImage}
               alt={producto.name}
               className="pd-main-img"
+              onClick={() => setIsImageModalOpen(true)}
+              style={{ cursor: "pointer" }}
             />
 
             <button
@@ -596,6 +600,14 @@ export default function ProductDetail() {
           )}
         </div>
       </section>
+
+      {/* Image Modal */}
+      <ImageModal
+        imageUrl={selectedImage}
+        productName={producto.name}
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+      />
     </div>
   );
 }
