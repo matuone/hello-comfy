@@ -46,6 +46,12 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     // Generar código único de orden secuencial
     const code = await generarCodigoOrden();
 
+    console.log("🔍 Datos para crear orden:", {
+      paymentEmail: paymentData.payer?.email,
+      formDataEmail: pendingOrderData.formData?.email,
+      finalEmail: paymentData.payer?.email || pendingOrderData.formData?.email
+    });
+
     // Preparar datos de la orden
     const orderData = {
       code,
