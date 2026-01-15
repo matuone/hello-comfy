@@ -54,9 +54,10 @@ export default function CheckoutSuccess() {
         <h1 className="success-title">¡Muchas gracias por tu compra!</h1>
         
         {orderCode && (
-          <p className="order-number">
-            Tu número de orden es: <strong>#{orderCode}</strong>
-          </p>
+          <div className="order-number">
+            <p className="order-label">Tu número de orden es:</p>
+            <p className="order-code">#{orderCode}</p>
+          </div>
         )}
         
         <p className="success-subtitle">
