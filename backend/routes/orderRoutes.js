@@ -17,8 +17,13 @@ router.get("/orders/my-orders", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Buscar órdenes por email del usuario
-    const orders = await Order.find({ "customer.email": user.email }).sort({
+    // Buscar órdenes por userId O por email del usuario (para órdenes previas)
+    const orders = await Order.find({ 
+      $or: [
+        { userId: user._id },
+        { "customer.email": user.email.toLowerCase() }
+      ]
+    }).sort({
       createdAt: -1,
     });
 
@@ -128,12 +133,13 @@ router.get("/orders/private/:id", authMiddleware, async (req, res) => {
 ============================================================ */
 router.post("/orders/create-transfer", async (req, res) => {
   try {
-    const { formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
+    const { userId, formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
 
     const paymentMethod = formData?.paymentMethod || "transfer";
     console.log("📝 create-payment request recibido");
     console.log("📋 Payment Method:", paymentMethod);
     console.log("📋 FormData email:", formData?.email);
+    console.log("📋 UserId:", userId || "invitado");
     console.log("📋 Items count:", items?.length);
     console.log("📋 PaymentProof length:", paymentProof?.length || 0);
 
@@ -157,6 +163,7 @@ router.post("/orders/create-transfer", async (req, res) => {
     };
 
     const pendingOrderData = {
+      userId: userId || null,
       formData,
       items,
       totalPrice,

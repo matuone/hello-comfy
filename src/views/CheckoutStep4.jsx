@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { crearPreferenciaMercadoPago, redirigirAMercadoPago } from "../services/mercadopagoService";
 import { createGocuotasCheckout } from "../services/gocuotasService";
 import { crearIntencionPagoModo } from "../services/modoService";
@@ -10,6 +11,7 @@ import ConfirmProofModal from "../components/ConfirmProofModal";
 export default function Step4({ formData, items, totalPrice, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
   const { clearCart } = useCart();
+  const { user } = useAuth();
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [proofFile, setProofFile] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -60,6 +62,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
       if (paymentIntent?.paymentIntent?.checkout_url) {
         localStorage.setItem("pendingOrder", JSON.stringify({
+          userId: user?.id || null,
           formData,
           items,
           totalPrice,
@@ -121,6 +124,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
       if (checkout?.url_init) {
         localStorage.setItem("pendingOrder", JSON.stringify({
+          userId: user?.id || null,
           formData,
           items,
           totalPrice,
@@ -179,6 +183,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
       if (preferencia?.init_point) {
         localStorage.setItem("pendingOrder", JSON.stringify({
+          userId: user?.id || null,
           formData,
           items,
           totalPrice,
@@ -201,6 +206,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
     try {
       // Guardar orden con o sin comprobante
       localStorage.setItem("pendingOrder", JSON.stringify({
+        userId: user?.id || null,
         formData,
         items,
         totalPrice: finalPrice,
@@ -218,6 +224,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          userId: user?.id || null,
           formData,
           items,
           totalPrice: finalPrice,

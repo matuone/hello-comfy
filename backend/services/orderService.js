@@ -60,6 +60,7 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     // Preparar datos de la orden
     const orderData = {
       code,
+      userId: pendingOrderData.userId || null, // Vincular usuario si está autenticado
       customer: {
         email: paymentData.payer?.email || pendingOrderData.formData?.email,
         name: paymentData.payer?.name || pendingOrderData.formData?.name,

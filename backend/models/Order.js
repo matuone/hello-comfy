@@ -8,6 +8,13 @@ const OrderSchema = new mongoose.Schema(
       unique: true,
     },
 
+    // ⭐ Usuario vinculado (si la compra fue con cuenta o se creó cuenta después)
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
     customer: {
       email: { type: String, required: true },
       name: { type: String },

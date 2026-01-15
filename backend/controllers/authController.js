@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import User from "../models/User.js";
+import Order from "../models/Order.js";
 import cloudinary from "../config/cloudinary.js";
 
 // ===============================
@@ -66,6 +67,26 @@ export async function registerUser(req, res) {
       },
       method: "email",
     });
+
+    // Vincular órdenes previas del mismo email a esta cuenta
+    try {
+      const result = await Order.updateMany(
+        { 
+          "customer.email": newUser.email.toLowerCase(),
+          userId: null // Solo vincular órdenes que aún no tienen usuario
+        },
+        { 
+          $set: { userId: newUser._id }
+        }
+      );
+      
+      if (result.modifiedCount > 0) {
+        console.log(`✅ Vinculadas ${result.modifiedCount} órdenes previas al usuario ${newUser.email}`);
+      }
+    } catch (linkError) {
+      console.error("⚠️ Error vinculando órdenes previas (no crítico):", linkError);
+      // No fallar el registro si falla la vinculación
+    }
 
     // Generar token
     const token = jwt.sign(
