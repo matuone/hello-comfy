@@ -1,4 +1,10 @@
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 export default function Step1({ formData, updateField, next }) {
+  const { user } = useContext(AuthContext);
+  const isLoggedIn = !!user;
+
   const isValid =
     formData.name.trim().length > 2 &&
     (formData.dni || "").trim().length >= 7 &&
@@ -30,13 +36,24 @@ export default function Step1({ formData, updateField, next }) {
       </div>
 
       <div className="form-group">
-        <label>Email</label>
+        <label>Email {isLoggedIn && "(Desde tu cuenta)"}</label>
         <input
           type="email"
           placeholder="tuemail@ejemplo.com"
           value={formData.email}
           onChange={(e) => updateField("email", e.target.value)}
+          disabled={isLoggedIn}
+          style={{
+            backgroundColor: isLoggedIn ? "#f5f5f5" : "white",
+            cursor: isLoggedIn ? "not-allowed" : "text",
+            opacity: isLoggedIn ? 0.7 : 1,
+          }}
         />
+        {isLoggedIn && (
+          <small style={{ color: '#888', fontSize: '0.85rem', marginTop: '4px', display: 'block' }}>
+            No puedes cambiar el email de tu cuenta durante el checkout
+          </small>
+        )}
       </div>
 
       <div className="form-group">

@@ -16,7 +16,6 @@ export default function AccountPurchases() {
 
     async function fetchOrders() {
       try {
-        console.log("🔍 Solicitando órdenes del usuario...");
         const res = await fetch("/api/orders/my-orders", {
           method: "GET",
           headers: {
@@ -25,7 +24,6 @@ export default function AccountPurchases() {
         });
 
         const data = await res.json();
-        console.log("📦 Respuesta del servidor:", data);
 
         if (!res.ok) {
           setError(data.error || "Error al cargar las órdenes");
@@ -33,7 +31,6 @@ export default function AccountPurchases() {
           return;
         }
 
-        console.log("✅ Órdenes cargadas:", data.orders?.length || 0);
         setOrders(data.orders || []);
         setLoading(false);
       } catch (err) {

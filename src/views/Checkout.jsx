@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useCart } from "../context/CartContext";
+import { AuthContext } from "../context/AuthContext";
 
 import Step1 from "./CheckoutStep1";
 import Step2 from "./CheckoutStep2";
@@ -11,6 +12,7 @@ import "../styles/checkout.css";
 
 export default function Checkout() {
   const { items, totalPrice } = useCart();
+  const { user } = useContext(AuthContext);
 
   // Recuperar estado desde localStorage o usar valores por defecto
   const [step, setStep] = useState(() => {
@@ -34,6 +36,13 @@ export default function Checkout() {
       notes: "",
     };
   });
+
+  // Pre-cargar email del usuario logueado
+  useEffect(() => {
+    if (user && !formData.email) {
+      setFormData((prev) => ({ ...prev, email: user.email }));
+    }
+  }, [user]);
 
   // Guardar estado en localStorage cada vez que cambie
   useEffect(() => {
