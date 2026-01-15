@@ -22,6 +22,7 @@ export default function Checkout() {
     const saved = localStorage.getItem("checkoutFormData");
     return saved ? JSON.parse(saved) : {
       name: "",
+      dni: "",
       email: "",
       phone: "",
       address: "",
@@ -57,6 +58,7 @@ export default function Checkout() {
     setStep(1);
     setFormData({
       name: "",
+      dni: "",
       email: "",
       phone: "",
       address: "",
