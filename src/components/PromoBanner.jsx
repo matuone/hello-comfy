@@ -6,10 +6,45 @@ import banner3 from "../assets/banner3.png";
 import "../styles/promobanner.css";
 import MarketingMessage from "./MarketingMessage";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export default function PromoBanner(props) {
-  const IMGS = useMemo(function () {
+  const [bannerData, setBannerData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Imágenes por defecto (fallback)
+  const defaultIMGS = useMemo(function () {
     return [banner1, banner2, banner3];
   }, []);
+
+  // Cargar configuración del banner desde el backend
+  useEffect(() => {
+    fetch(`${API_URL}/promo-banner`)
+      .then(res => res.json())
+      .then(data => {
+        setBannerData(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error cargando banner:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  // Usar imágenes del backend o fallback a las por defecto
+  const IMGS = useMemo(function () {
+    if (bannerData && bannerData.images && bannerData.images.length > 0) {
+      return bannerData.images.map(img => img.url);
+    }
+    return defaultIMGS;
+  }, [bannerData, defaultIMGS]);
+
+  const objectPositions = useMemo(function () {
+    if (bannerData && bannerData.images && bannerData.images.length > 0) {
+      return bannerData.images.map(img => img.objectPosition || 'center center');
+    }
+    return props.objectPositions || ["center 35%", "center top", "center 35%"];
+  }, [bannerData, props.objectPositions]);
 
   const [i, setI] = useState(0);
   const timerRef = useRef(null);
@@ -30,11 +65,14 @@ export default function PromoBanner(props) {
 
   // AUTOPLAY
   useEffect(function () {
-    if (!props.autoplay) return;
+    const shouldAutoplay = bannerData?.autoplay !== undefined ? bannerData.autoplay : props.autoplay;
+    const autoplayInterval = bannerData?.interval || props.interval || 5000;
+
+    if (!shouldAutoplay) return;
 
     function start() {
       clearInterval(timerRef.current);
-      timerRef.current = setInterval(next, props.interval || 5000);
+      timerRef.current = setInterval(next, autoplayInterval);
     }
 
     start();
@@ -52,7 +90,7 @@ export default function PromoBanner(props) {
       clearInterval(timerRef.current);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [props.autoplay, props.interval]);
+  }, [bannerData, props.autoplay, props.interval]);
 
   // TECLAS ← →
   useEffect(function () {
@@ -90,11 +128,14 @@ export default function PromoBanner(props) {
     };
   }, []);
 
-  // 🔥 NUEVO: mensaje editable desde admin
+  // 🔥 Mensaje editable desde admin
   var savedMessage = localStorage.getItem("promoMessage");
-  var finalMessage = savedMessage
-    ? savedMessage
-    : "Aprovechá hoy 3x2 en remeras 🧸";
+  var backendMessage = bannerData?.message;
+  var finalMessage = backendMessage || savedMessage || "Aprovechá hoy 3x2 en remeras 🧸";
+
+  if (loading) {
+    return null; // O un skeleton loader
+  }
 
   return (
     <section
@@ -110,7 +151,7 @@ export default function PromoBanner(props) {
       {/* Slides */}
       {IMGS.map(function (src, idx) {
         var active = idx === i;
-        var objPos = props.objectPositions?.[idx] || "center";
+        var objPos = objectPositions[idx] || "center center";
 
         return (
           <img

@@ -60,7 +60,6 @@ export default function Layout() {
           <PromoBanner
             fullBleed
             height="clamp(520px, 72vw, 880px)"
-            objectPositions={["center 35%", "center top", "center 35%"]}
             autoplay
             interval={5000}
           />

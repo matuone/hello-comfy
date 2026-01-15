@@ -24,6 +24,7 @@ import gocuotasRoutes from "./routes/gocuotasRoutes.js"; // ⭐ NUEVO
 import subcategoryRoutes from "./routes/subcategoryRoutes.js"; // ⭐ NUEVO
 import siteConfigRoutes from "./routes/siteConfigRoutes.js"; // ⭐ NUEVO
 import sizeTableRoutes from "./routes/sizeTableRoutes.js"; // ⭐ NUEVO
+import promoBannerRoutes from "./routes/promoBannerRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -96,6 +97,14 @@ app.use("/api", adminOrderRoutes);
 // RUTAS DE CONFIGURACIÓN DEL SITIO (⭐ NUEVO)
 // ============================
 app.use("/api/config", siteConfigRoutes);
+
+// ============================
+// RUTAS DE PROMO BANNER (⭐ NUEVO)
+// ============================
+app.use("/api/promo-banner", (req, res, next) => {
+  console.log(`📍 Petición a promo-banner: ${req.method} ${req.url}`);
+  next();
+}, promoBannerRoutes);
 
 // ============================
 // RUTAS DE PEDIDOS (checkout, crear orden, etc.)
