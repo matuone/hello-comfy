@@ -15,7 +15,7 @@ export default function AdminProductDetail() {
   const [producto, setProducto] = useState({
     nombre: "",
     categoria: "Indumentaria",
-    subcategoria: "Remeras",
+    subcategoria: "",
     precio: "",
     stockColorId: "",
     imagenes: [],
@@ -25,6 +25,11 @@ export default function AdminProductDetail() {
   });
 
   const [colores, setColores] = useState([]);
+  const [subcats, setSubcats] = useState({
+    Indumentaria: ["Remeras", "Buzos", "Pijamas", "Shorts", "Totes", "Outlet"],
+    "Cute items": ["Vasos"],
+    Merch: ["Artistas nacionales", "Artistas internacionales"],
+  });
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [errorImagen, setErrorImagen] = useState("");
   const [dragIndex, setDragIndex] = useState(null);
@@ -46,6 +51,20 @@ export default function AdminProductDetail() {
   }, []);
 
   // ============================
+  // CARGAR SUBCATEGORÍAS DINÁMICAS
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products/filters/data")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.groupedSubcategories) {
+          setSubcats((prev) => ({ ...prev, ...data.groupedSubcategories }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // ============================
   // CARGAR PRODUCTO (EDICIÓN)
   // ============================
   useEffect(() => {
@@ -54,21 +73,27 @@ export default function AdminProductDetail() {
     fetch(`http://localhost:5000/api/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        const categoriasValidas = ["Indumentaria", "Cute Items", "Merch"];
+        const categoriasValidas = ["Indumentaria", "Cute items", "Cute Items", "Merch"];
         let categoriaNormalizada = (data.category || "").trim();
 
         if (!categoriasValidas.includes(categoriaNormalizada)) {
           const lower = categoriaNormalizada.toLowerCase();
           if (lower === "indumentaria") categoriaNormalizada = "Indumentaria";
-          else if (lower === "cute items") categoriaNormalizada = "Cute Items";
+          else if (lower === "cute items") categoriaNormalizada = "Cute items";
           else if (lower === "merch") categoriaNormalizada = "Merch";
           else categoriaNormalizada = "Indumentaria";
         }
 
+        // Ajustar subcategoría a las opciones disponibles
+        const opcionesSub = (subcats[categoriaNormalizada] || subcats["Cute items"]) || [];
+        const subNormalizada = opcionesSub.includes(data.subcategory)
+          ? data.subcategory
+          : opcionesSub[0] || "";
+
         setProducto({
           nombre: data.name,
           categoria: categoriaNormalizada,
-          subcategoria: data.subcategory || "",
+          subcategoria: subNormalizada,
           precio: data.price,
           stockColorId: data.stockColorId?._id || "",
           imagenes: data.images || [],
@@ -76,9 +101,9 @@ export default function AdminProductDetail() {
           cardDescription: data.cardDescription || "", // ⭐ NUEVO
           sizeGuide: data.sizeGuide || "remeras",
         });
-      })
+        })
       .catch((err) => console.error("Error cargando producto:", err));
-  }, [esEdicion, id]);
+      }, [esEdicion, id, subcats]);
 
   // ============================
   // VALIDACIÓN
@@ -117,10 +142,8 @@ export default function AdminProductDetail() {
     setErrores((prev) => ({ ...prev, [campo]: "" }));
 
     if (campo === "categoria") {
-      let sub = "";
-      if (valor === "Indumentaria") sub = "Remeras";
-      else if (valor === "Cute Items") sub = "Vasos";
-      else if (valor === "Merch") sub = "Artistas nacionales";
+      const opciones = subcats[valor] || [];
+      const sub = opciones[0] || "";
 
       setProducto((prev) => ({
         ...prev,
@@ -433,7 +456,7 @@ export default function AdminProductDetail() {
             onChange={(e) => actualizarCampo("categoria", e.target.value)}
           >
             <option>Indumentaria</option>
-            <option>Cute Items</option>
+            <option>Cute items</option>
             <option>Merch</option>
           </select>
           {errores.categoria && (
@@ -447,23 +470,9 @@ export default function AdminProductDetail() {
             value={producto.subcategoria}
             onChange={(e) => actualizarCampo("subcategoria", e.target.value)}
           >
-            {producto.categoria === "Indumentaria" && (
-              <>
-                <option>Remeras</option>
-                <option>Buzos</option>
-                <option>Pijamas</option>
-                <option>Shorts</option>
-                <option>Totes</option>
-                <option>Outlet</option>
-              </>
-            )}
-            {producto.categoria === "Cute Items" && <option>Vasos</option>}
-            {producto.categoria === "Merch" && (
-              <>
-                <option>Artistas nacionales</option>
-                <option>Artistas internacionales</option>
-              </>
-            )}
+            {(subcats[producto.categoria] || []).map((sub) => (
+              <option key={sub}>{sub}</option>
+            ))}
           </select>
           {errores.subcategoria && (
             <p className="input-error-text">{errores.subcategoria}</p>
