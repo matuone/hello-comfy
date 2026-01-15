@@ -306,6 +306,22 @@ export default function AdminMarketing() {
           rows={3}
         />
 
+        {/* Vista previa del mensaje */}
+        <div style={{ marginTop: '15px' }}>
+          <h3 style={{ marginBottom: '10px', fontSize: '16px', color: '#555' }}>Vista previa del mensaje</h3>
+          <div className="marketing-preview-box">{message}</div>
+        </div>
+
+        {/* Mensaje del osito */}
+        <label className="marketing-label" style={{ marginTop: "20px" }}>
+          Mensaje del osito flotante
+        </label>
+        <input
+          className="marketing-textarea"
+          value={bearMessage}
+          onChange={(e) => setBearMessage(e.target.value)}
+        />
+
         {/* Autoplay y velocidad */}
         <div style={{ marginTop: '20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -329,16 +345,6 @@ export default function AdminMarketing() {
             />
           </label>
         </div>
-
-        {/* Mensaje del osito */}
-        <label className="marketing-label" style={{ marginTop: "20px" }}>
-          Mensaje del osito flotante
-        </label>
-        <input
-          className="marketing-textarea"
-          value={bearMessage}
-          onChange={(e) => setBearMessage(e.target.value)}
-        />
 
         <div className="marketing-actions">
           <button 
@@ -544,12 +550,6 @@ export default function AdminMarketing() {
             </div>
           )}
         </div>
-      </div>
-
-      {/* Vista previa del mensaje */}
-      <div className="marketing-preview">
-        <h3>Vista previa del mensaje</h3>
-        <div className="marketing-preview-box">{message}</div>
       </div>
 
       {/* Modales */}
