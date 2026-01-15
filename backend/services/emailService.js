@@ -384,6 +384,19 @@ export async function enviarEmailAlAdmin(order) {
             <p style="margin: 0; color: #555;"><strong>${paymentMethodLabel}</strong></p>
           </div>
 
+          <!-- Comprobante (si existe) -->
+          ${order.paymentMethod === 'transfer' && order.paymentProof ? `
+          <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Comprobante de Transferencia</h2>
+          <div style="background: #f0f7ff; padding: 16px; border-radius: 8px; border-left: 4px solid #2196F3; margin-bottom: 24px;">
+            <p style="margin: 0 0 8px 0; color: #555;">
+              <strong>Archivo:</strong> ${order.paymentProofName || 'comprobante.jpg'}
+            </p>
+            <p style="margin: 0; color: #555;">
+              Adjunto al final de este email.
+            </p>
+          </div>
+          ` : ''}
+
           <!-- Estado -->
           <h2 style="color: #333; font-size: 18px; margin: 0 0 12px 0;">Estado de la transacción</h2>
           <div style="background: #e8f5e9; padding: 16px; border-radius: 8px;">
@@ -407,11 +420,31 @@ export async function enviarEmailAlAdmin(order) {
       </div>
     `;
 
+    // Preparar adjuntos si hay comprobante de transferencia
+    const attachments = [];
+    if (order.paymentMethod === 'transfer' && order.paymentProof) {
+      try {
+        // Extraer el tipo de archivo del nombre o asumir jpg
+        const fileName = order.paymentProofName || 'comprobante.jpg';
+        const mimeType = order.paymentProofName?.includes('.pdf') ? 'application/pdf' : 'image/jpeg';
+        
+        // El paymentProof está en formato base64
+        attachments.push({
+          filename: fileName,
+          content: Buffer.from(order.paymentProof, 'base64'),
+          contentType: mimeType,
+        });
+      } catch (attachError) {
+        console.warn("⚠️ No se pudo adjuntar el comprobante:", attachError.message);
+      }
+    }
+
     await transporter.sendMail({
       from: '"Hello Comfy 🧸" <hellocomfyind@gmail.com>',
       to: "hellocomfyind@gmail.com",
       subject: `🎉 Nueva compra - Orden #${order.code} - ${order.customer?.name}`,
       html: emailHtml,
+      attachments: attachments,
     });
 
     console.log(`✅ Email al admin enviado para orden: ${order.code}`);
