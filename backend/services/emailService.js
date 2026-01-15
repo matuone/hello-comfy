@@ -289,7 +289,11 @@ export async function enviarEmailAlAdmin(order) {
       .map(
         (item) => `
         <tr>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.name}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #eee;">
+            <strong>${item.name}</strong>
+            ${item.size ? `<br><small style="color: #666;">Talle: ${item.size}</small>` : ''}
+            ${item.color ? `<br><small style="color: #666;">Color: ${item.color}</small>` : ''}
+          </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toLocaleString("es-AR")}</td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">$${(item.price * item.quantity).toLocaleString("es-AR")}</td>
