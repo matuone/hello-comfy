@@ -1,7 +1,7 @@
 export default function Step1({ formData, updateField, next }) {
   const isValid =
     formData.name.trim().length > 2 &&
-    formData.dni.trim().length >= 7 &&
+    (formData.dni || "").trim().length >= 7 &&
     formData.email.trim().length > 5 &&
     formData.phone.trim().length > 5;
 
@@ -24,7 +24,7 @@ export default function Step1({ formData, updateField, next }) {
         <input
           type="text"
           placeholder="Ej: 12345678"
-          value={formData.dni}
+          value={formData.dni || ""}
           onChange={(e) => updateField("dni", e.target.value)}
         />
       </div>
