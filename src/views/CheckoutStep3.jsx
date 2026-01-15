@@ -5,6 +5,7 @@ export default function Step3({ formData, updateField, next, back }) {
   const isValid = formData.paymentMethod !== "";
   const [expandTransfer, setExpandTransfer] = useState(false);
   const [expandCuentaDNI, setExpandCuentaDNI] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const bankInfo = {
     banco: "Banco Santander",
@@ -152,11 +153,21 @@ export default function Step3({ formData, updateField, next, back }) {
                   <img
                     src={qrCuentaDNI}
                     alt="QR Cuenta DNI"
+                    onClick={() => setShowQRModal(true)}
                     style={{
                       maxWidth: "250px",
                       height: "auto",
                       borderRadius: "8px",
                       marginBottom: "12px",
+                      cursor: "pointer",
+                      transition: "transform 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = "scale(1.05)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = "scale(1)";
+                    }}
                     }}
                   />
                   <p style={{ fontSize: "0.85rem", color: "#666", margin: "12px 0 0 0" }}>
@@ -228,6 +239,81 @@ export default function Step3({ formData, updateField, next, back }) {
           Siguiente
         </button>
       </div>
+
+      {/* Modal para ampliar QR */}
+      {showQRModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            cursor: "pointer",
+          }}
+          onClick={() => setShowQRModal(false)}
+        >
+          <div
+            style={{
+              position: "relative",
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "12px",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={qrCuentaDNI}
+              alt="QR Cuenta DNI Ampliado"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "80vh",
+                borderRadius: "8px",
+              }}
+            />
+            <button
+              onClick={() => setShowQRModal(false)}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                background: "#d94f7a",
+                color: "white",
+                border: "none",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                fontSize: "24px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "#c93b63";
+                e.target.style.transform = "scale(1.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "#d94f7a";
+                e.target.style.transform = "scale(1)";
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
