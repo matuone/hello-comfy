@@ -220,3 +220,43 @@
   font-weight: 600;
   color: #555;
 }
+
+.productcard__sizes--selectable {
+  gap: 6px;
+}
+
+.productcard__size-pill--button {
+  border: 1px solid #e5e5e5;
+  background: #f7f7f7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.productcard__size-pill--button.is-selected {
+  border-color: #d94f7a;
+  color: #c63f6a;
+  background: #ffe4ee;
+}
+
+.productcard__qty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.productcard__qty-label {
+  font-size: 13px;
+  color: #555;
+  font-weight: 700;
+}
+
+.productcard__qty input {
+  width: 68px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-weight: 600;
+}

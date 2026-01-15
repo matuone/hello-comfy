@@ -3,9 +3,11 @@ import "../styles/productgrid.css"; // CSS aislado
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "../components/OpinionsPopup";
+import { useCart } from "../context/CartContext";
 
 export default function Products() {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const [allProducts, setAllProducts] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -14,6 +16,9 @@ export default function Products() {
   const [selectedGroup, setSelectedGroup] = useState("Todos");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [sortBy, setSortBy] = useState("none");
+
+  const [selectedSizes, setSelectedSizes] = useState({});
+  const [quantities, setQuantities] = useState({});
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -183,6 +188,37 @@ export default function Products() {
     if (sortBy === "price_desc") return "Precio más alto";
     if (sortBy === "sold_desc") return "Más vendidos";
     return "Destacados";
+  };
+
+  const getAvailableSizes = (product) => {
+    if (!product?.stockColorId?.talles) return [];
+    return Object.entries(product.stockColorId.talles).filter(([, qty]) => qty > 0);
+  };
+
+  const handleSelectSize = (productId, size) => {
+    setSelectedSizes((prev) => ({ ...prev, [productId]: size }));
+  };
+
+  const handleQuantityChange = (productId, value) => {
+    const parsed = parseInt(value, 10);
+    const safeQty = Number.isNaN(parsed) ? 1 : Math.max(1, parsed);
+    setQuantities((prev) => ({ ...prev, [productId]: safeQty }));
+  };
+
+  const handleAddToCart = (event, product) => {
+    event.stopPropagation();
+
+    const availableSizes = getAvailableSizes(product);
+    const fallbackSize = availableSizes[0]?.[0] || null;
+    const chosenSize = selectedSizes[product._id] || fallbackSize;
+    const quantity = quantities[product._id] || 1;
+
+    addToCart(product, { size: chosenSize, quantity });
+  };
+
+  const handleBuyNow = (event, product) => {
+    handleAddToCart(event, product);
+    navigate("/checkout");
   };
 
   return (
@@ -373,19 +409,6 @@ export default function Products() {
                   </div>
                 )}
 
-                {/* ⭐ TALLES DISPONIBLES */}
-                {p.stockColorId?.talles && (
-                  <div className="productcard__sizes">
-                    {Object.entries(p.stockColorId.talles)
-                      .filter(([t, qty]) => qty > 0)
-                      .map(([t]) => (
-                        <span key={t} className="productcard__size-pill">
-                          {t}
-                        </span>
-                      ))}
-                  </div>
-                )}
-
                 <h3 className="productcard__name">{p.name}</h3>
 
                 <p className="productcard__price">
@@ -396,6 +419,44 @@ export default function Products() {
                 <p className="productcard__desc">
                   {p.cardDescription || p.description || "Producto destacado"}
                 </p>
+
+                {/* ⭐ TALLES DISPONIBLES */}
+                {p.stockColorId?.talles && (
+                  <div
+                    className="productcard__sizes productcard__sizes--selectable"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {(() => {
+                      const availableSizes = getAvailableSizes(p);
+                      const selected = selectedSizes[p._id] || availableSizes[0]?.[0];
+
+                      return availableSizes.map(([t]) => (
+                        <button
+                          key={t}
+                          type="button"
+                          className={`productcard__size-pill productcard__size-pill--button ${selected === t ? "is-selected" : ""}`}
+                          onClick={() => handleSelectSize(p._id, t)}
+                        >
+                          {t}
+                        </button>
+                      ));
+                    })()}
+                  </div>
+                )}
+
+                <div
+                  className="productcard__qty"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="productcard__qty-label">Cant.</span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantities[p._id] || 1}
+                    onChange={(e) => handleQuantityChange(p._id, e.target.value)}
+                    aria-label="Cantidad"
+                  />
+                </div>
               </div>
 
               {/* ESTRELLAS ALINEADAS */}
@@ -413,10 +474,15 @@ export default function Products() {
                 className="productcard__buttons"
                 onClick={(e) => e.stopPropagation()}
               >
-                <button className="productcard__btn-buy">Comprar</button>
+                <button
+                  className="productcard__btn-buy"
+                  onClick={(e) => handleBuyNow(e, p)}
+                >
+                  Comprar
+                </button>
                 <button
                   className="productcard__btn-cart"
-                  onClick={() => console.log("Agregar al carrito", p._id)}
+                  onClick={(e) => handleAddToCart(e, p)}
                 >
                   Agregar al carrito
                 </button>
