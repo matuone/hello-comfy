@@ -139,6 +139,29 @@
   cursor: pointer;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-save-order {
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-save-order:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
 .btn-primary {
   background: #d94f7a;
   color: #fff;
@@ -222,6 +245,12 @@
   border-radius: 12px;
   padding: 25px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: move;
+  transition: box-shadow 0.2s ease;
+}
+
+.sizetable-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .sizetable-card-header {
@@ -231,6 +260,38 @@
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 2px solid #f0f0f0;
+}
+
+.sizetable-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.order-number {
+  background: #d94f7a;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #999;
+  font-size: 1.2rem;
+  user-select: none;
+  padding: 0 5px;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .sizetable-card-header h3 {

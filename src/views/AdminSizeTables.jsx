@@ -134,6 +134,30 @@ export default function AdminSizeTables() {
     }
   };
 
+  const handleReorder = async (newOrderIds) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      await fetch("http://localhost:5000/api/sizetables/reorder/all", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ order: newOrderIds }),
+      });
+      await fetchTables();
+      toast.success("Orden guardado correctamente");
+    } catch (error) {
+      console.error("Error al reordenar:", error);
+      toast.error("Error al guardar el orden");
+    }
+  };
+
+  const handleSaveOrder = async () => {
+    const currentOrder = tables.map((t) => t._id);
+    await handleReorder(currentOrder);
+  };
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -196,12 +220,20 @@ export default function AdminSizeTables() {
     <div className="admin-sizetables">
       <div className="admin-sizetables-header">
         <h1>Tablas de Talles</h1>
-        <button
-          className="btn-primary"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? "Cancelar" : "+ Nueva Tabla"}
-        </button>
+        <div className="header-buttons">
+          <button
+            className="btn-save-order"
+            onClick={handleSaveOrder}
+          >
+            💾 Guardar orden
+          </button>
+          <button
+            className="btn-primary"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? "Cancelar" : "+ Nueva Tabla"}
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -360,13 +392,36 @@ export default function AdminSizeTables() {
         {tables.length === 0 ? (
           <p className="empty-state">No hay tablas de talles creadas</p>
         ) : (
-          tables.map((table) => (
-            <div key={table._id} className="sizetable-card">
+          tables.map((table, idx) => (
+            <div
+              key={table._id}
+              className="sizetable-card"
+              draggable
+              onDragStart={(e) =>
+                e.dataTransfer.setData("text/plain", JSON.stringify({ id: table._id }))
+              }
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const data = JSON.parse(e.dataTransfer.getData("text/plain") || "{}");
+                const current = [...tables];
+                const fromIdx = current.findIndex((x) => x._id === data.id);
+                const toIdx = idx;
+                if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+                const [moved] = current.splice(fromIdx, 1);
+                current.splice(toIdx, 0, moved);
+                handleReorder(current.map((x) => x._id));
+              }}
+            >
               <div className="sizetable-card-header">
-                <h3>
-                  {table.displayName}
-                  {!table.active && <span className="badge-inactive">Inactiva</span>}
-                </h3>
+                <div className="sizetable-header-left">
+                  <span className="order-number">{idx + 1}</span>
+                  <span className="drag-handle" aria-hidden>⋮⋮</span>
+                  <h3>
+                    {table.displayName}
+                    {!table.active && <span className="badge-inactive">Inactiva</span>}
+                  </h3>
+                </div>
                 <div className="sizetable-actions">
                   <button
                     onClick={() => handleEdit(table)}

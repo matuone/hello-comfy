@@ -29,6 +29,7 @@ const sizeTables = [
     ],
     note: "* Las medidas pueden variar +/- 1 a 2cm",
     active: true,
+    order: 1,
   },
   {
     name: "crop-tops",
@@ -50,6 +51,7 @@ const sizeTables = [
     ],
     note: "* Las medidas pueden variar +/- 1 a 2cm",
     active: true,
+    order: 2,
   },
   {
     name: "remeras",
@@ -92,6 +94,7 @@ const sizeTables = [
     ],
     note: "* Las medidas pueden variar +/- 1 a 2cm",
     active: true,
+    order: 3,
   },
 ];
 

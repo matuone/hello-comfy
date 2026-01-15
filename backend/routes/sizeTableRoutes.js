@@ -12,7 +12,7 @@ const router = express.Router();
 // Obtener todas las tablas de talles (público)
 router.get("/", async (req, res) => {
   try {
-    const tables = await SizeTable.find({ active: true }).sort({ displayName: 1 });
+    const tables = await SizeTable.find({ active: true }).sort({ order: 1, displayName: 1 });
     res.json(tables);
   } catch (error) {
     console.error("Error al obtener tablas de talles:", error);
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
 // Obtener todas las tablas (incluyendo inactivas) - Admin
 router.get("/all", verifyAdmin, async (req, res) => {
   try {
-    const tables = await SizeTable.find().sort({ displayName: 1 });
+    const tables = await SizeTable.find().sort({ order: 1, displayName: 1 });
     res.json(tables);
   } catch (error) {
     console.error("Error al obtener tablas:", error);
@@ -114,6 +114,29 @@ router.put("/:id", verifyAdmin, async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar tabla:", error);
     res.status(500).json({ error: "Error al actualizar tabla" });
+  }
+});
+
+// Reordenar tablas de talles - Admin
+router.put("/reorder/all", verifyAdmin, async (req, res) => {
+  try {
+    const { order } = req.body;
+
+    if (!Array.isArray(order)) {
+      return res.status(400).json({ error: "Order debe ser un array de IDs" });
+    }
+
+    // Actualizar el order de cada tabla
+    const updates = order.map((id, index) =>
+      SizeTable.findByIdAndUpdate(id, { order: index + 1 })
+    );
+
+    await Promise.all(updates);
+
+    res.json({ message: "Orden actualizado" });
+  } catch (error) {
+    console.error("Error al reordenar tablas:", error);
+    res.status(500).json({ error: "Error al reordenar tablas" });
   }
 });
 
