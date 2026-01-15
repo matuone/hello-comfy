@@ -29,6 +29,10 @@ export default function AdminMarketing() {
   // Estado para modales
   const [notification, setNotification] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  
+  // Estado para drag & drop de imágenes
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   // Cargar mensajes guardados y configuración del banner
   useEffect(() => {
@@ -275,6 +279,68 @@ export default function AdminMarketing() {
     return `${pos.x}% ${pos.y}%`;
   }
 
+  // Drag & drop handlers
+  function handleDragStart(index) {
+    setDraggedIndex(index);
+  }
+
+  function handleDragOver(e, index) {
+    e.preventDefault();
+    setDragOverIndex(index);
+  }
+
+  function handleDragLeave() {
+    setDragOverIndex(null);
+  }
+
+  async function handleDrop(e, dropIndex) {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    // Reordenar array localmente
+    const newImages = [...bannerImages];
+    const [draggedItem] = newImages.splice(draggedIndex, 1);
+    newImages.splice(dropIndex, 0, draggedItem);
+    
+    setBannerImages(newImages);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+
+    // Actualizar orden en el backend
+    try {
+      const token = localStorage.getItem('adminToken');
+      const imageIds = newImages.map(img => img._id);
+      
+      const response = await fetch(`${API_URL}/promo-banner/images/reorder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ imageIds })
+      });
+
+      if (!response.ok) throw new Error('Error al reordenar');
+      
+      setNotification({ mensaje: "Orden actualizado correctamente", tipo: "success" });
+    } catch (error) {
+      console.error('Error reordenando:', error);
+      setNotification({ mensaje: "Error al actualizar el orden", tipo: "error" });
+      // Recargar para restaurar orden original
+      loadBannerConfig();
+    }
+  }
+
+  function handleDragEnd() {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  }
+
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handlePreviewMouseMove);
@@ -486,6 +552,11 @@ export default function AdminMarketing() {
         {/* Lista de imágenes actuales */}
         <div>
           <h4 style={{ marginBottom: '10px' }}>Imágenes actuales ({bannerImages.length})</h4>
+          {bannerImages.length > 0 && (
+            <p style={{ fontSize: '13px', color: '#666', marginBottom: '10px', fontStyle: 'italic' }}>
+              💡 Arrastra las imágenes para cambiar el orden
+            </p>
+          )}
           
           {bannerImages.length === 0 ? (
             <p style={{ color: '#999', fontStyle: 'italic' }}>No hay imágenes. El banner usará las imágenes por defecto.</p>
@@ -494,15 +565,36 @@ export default function AdminMarketing() {
               {bannerImages.map((img, index) => (
                 <div
                   key={img._id}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
                   style={{
                     display: 'flex',
                     gap: '15px',
                     padding: '15px',
-                    border: '1px solid #e0e0e0',
+                    border: dragOverIndex === index ? '2px solid #667eea' : '1px solid #e0e0e0',
                     borderRadius: '8px',
-                    backgroundColor: '#fafafa'
+                    backgroundColor: draggedIndex === index ? '#f0f0f0' : '#fafafa',
+                    opacity: draggedIndex === index ? 0.5 : 1,
+                    cursor: 'grab',
+                    transition: 'all 0.2s',
+                    transform: dragOverIndex === index ? 'scale(1.02)' : 'scale(1)'
                   }}
                 >
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    fontSize: '20px',
+                    color: '#999',
+                    cursor: 'grab',
+                    userSelect: 'none'
+                  }}>
+                    ⋮⋮
+                  </div>
+
                   <img
                     src={img.url}
                     alt={`Banner ${index + 1}`}
@@ -511,7 +603,8 @@ export default function AdminMarketing() {
                       height: '80px',
                       objectFit: 'cover',
                       objectPosition: img.objectPosition || 'center center',
-                      borderRadius: '4px'
+                      borderRadius: '4px',
+                      pointerEvents: 'none'
                     }}
                   />
 
