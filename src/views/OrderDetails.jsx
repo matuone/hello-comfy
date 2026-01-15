@@ -75,7 +75,7 @@ export default function OrderDetails() {
     <div className="od-container">
       <div className="od-card">
         <h1 className="od-title">Detalle del pedido</h1>
-        <p className="od-code">Código: {order.code}</p>
+        <p className="od-code">Orden: {order.code}</p>
 
         <OrderTimeline status={order.status} />
 

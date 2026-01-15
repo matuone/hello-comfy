@@ -2,6 +2,39 @@
 import Order from "../models/Order.js";
 
 /**
+ * Generar el siguiente código de orden secuencial
+ * @returns {Promise<String>} Código de orden (ej: "01", "02", "10", "100")
+ */
+async function generarCodigoOrden() {
+  try {
+    // Obtener la última orden creada
+    const lastOrder = await Order.findOne().sort({ createdAt: -1 });
+    
+    if (!lastOrder || !lastOrder.code) {
+      // Primera orden
+      return "01";
+    }
+
+    // Extraer el número de la última orden
+    const lastNumber = parseInt(lastOrder.code, 10);
+    
+    if (isNaN(lastNumber)) {
+      // Si el código anterior no era numérico, empezar desde 01
+      const count = await Order.countDocuments();
+      return String(count + 1).padStart(2, '0');
+    }
+
+    // Incrementar y formatear con mínimo 2 dígitos
+    const nextNumber = lastNumber + 1;
+    return String(nextNumber).padStart(2, '0');
+  } catch (error) {
+    console.error("Error generando código de orden:", error);
+    // Fallback: usar timestamp
+    return `ORD-${Date.now()}`;
+  }
+}
+
+/**
  * Crear una orden desde un pago confirmado de Mercado Pago
  * @param {Object} paymentData - Datos del pago de Mercado Pago
  * @param {Object} pendingOrderData - Datos de la orden pendiente (del localStorage del cliente)
@@ -9,8 +42,8 @@ import Order from "../models/Order.js";
  */
 export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
   try {
-    // Generar código único de orden
-    const code = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    // Generar código único de orden secuencial
+    const code = await generarCodigoOrden();
 
     // Preparar datos de la orden
     const orderData = {

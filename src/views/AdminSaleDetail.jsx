@@ -162,7 +162,7 @@ export default function AdminSaleDetail() {
 
   return (
     <div className="admin-section">
-      <h2 className="admin-section-title">Venta {venta.code}</h2>
+      <h2 className="admin-section-title">Orden: {venta.code}</h2>
       <p className="admin-section-text">Detalle completo de la venta.</p>
 
       {/* ============================

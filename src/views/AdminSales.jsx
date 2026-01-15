@@ -347,7 +347,7 @@ export default function AdminSales() {
 
                   <td>
                     <Link to={`/admin/sales/${venta._id}`} className="venta-link">
-                      #{venta.code}
+                      Orden: {venta.code}
                     </Link>
                   </td>
 
