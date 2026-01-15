@@ -139,6 +139,15 @@
   color: #333;
   margin: 0;
   cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.maintenance-label--active {
+  color: #16a34a;
+}
+
+.maintenance-label--paused {
+  color: #ea580c;
 }
 
 .maintenance-toggle {
@@ -156,15 +165,19 @@
   display: inline-block;
   width: 44px;
   height: 24px;
-  background: #ccc;
+  background: #ea580c;
   border-radius: 12px;
   cursor: pointer;
   transition: background 0.3s ease;
   flex-shrink: 0;
 }
 
+.toggle-switch--paused {
+  background: #ea580c;
+}
+
 .maintenance-toggle:checked ~ .toggle-switch {
-  background: #4ade80;
+  background: #16a34a;
 }
 
 .toggle-switch::after {

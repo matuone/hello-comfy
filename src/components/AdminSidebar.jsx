@@ -184,18 +184,21 @@ export default function AdminSidebar() {
       ============================ */}
       <div className="admin-sidebar-actions">
         <div className="admin-sidebar-toggle-maintenance">
-          <label htmlFor="maintenance-toggle" className="maintenance-label">
-            {isMaintenanceMode ? "🟢 Web Activa" : "🔴 Web Pausada"}
+          <label 
+            htmlFor="maintenance-toggle" 
+            className={`maintenance-label ${isMaintenanceMode ? "maintenance-label--paused" : "maintenance-label--active"}`}
+          >
+            {isMaintenanceMode ? "🔴 Web Pausada" : "🟢 Web Activa"}
           </label>
           <label className="toggle-switch-container">
             <input
               id="maintenance-toggle"
               type="checkbox"
-              checked={isMaintenanceMode}
-              onChange={(e) => toggleMaintenanceMode(e.target.checked)}
+              checked={!isMaintenanceMode}
+              onChange={(e) => toggleMaintenanceMode(!e.target.checked)}
               className="maintenance-toggle"
             />
-            <span className="toggle-switch"></span>
+            <span className={`toggle-switch ${isMaintenanceMode ? "toggle-switch--paused" : ""}`}></span>
           </label>
         </div>
 

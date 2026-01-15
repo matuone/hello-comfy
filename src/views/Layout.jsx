@@ -1,6 +1,7 @@
 // src/views/Layout.jsx
 import { Outlet, useLocation } from "react-router-dom";
 import { useMaintenance } from "../context/MaintenanceContext";
+import { useAuth } from "../context/AuthContext";
 import AnnouncementBar from "../components/AnnouncementBar";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -12,11 +13,13 @@ import "../styles/layout.css";
 export default function Layout() {
   const location = useLocation();
   const { isMaintenanceMode } = useMaintenance();
+  const { user } = useAuth();
 
   const esAdmin = location.pathname.startsWith("/admin");
+  const isAdminUser = user?.isAdmin;
   
   // Si está en modo mantenimiento y no es admin, mostrar página de mantenimiento
-  if (isMaintenanceMode && !esAdmin) {
+  if (isMaintenanceMode && !isAdminUser) {
     return <Maintenance />;
   }
 
