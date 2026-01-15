@@ -1,16 +1,25 @@
 // src/views/Layout.jsx
 import { Outlet, useLocation } from "react-router-dom";
+import { useMaintenance } from "../context/MaintenanceContext";
 import AnnouncementBar from "../components/AnnouncementBar";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PromoBanner from "../components/PromoBanner";
 import FloatingBear from "../components/FloatingBear"; // ← AGREGADO
+import Maintenance from "./Maintenance";
 import "../styles/layout.css";
 
 export default function Layout() {
   const location = useLocation();
+  const { isMaintenanceMode } = useMaintenance();
 
   const esAdmin = location.pathname.startsWith("/admin");
+  
+  // Si está en modo mantenimiento y no es admin, mostrar página de mantenimiento
+  if (isMaintenanceMode && !esAdmin) {
+    return <Maintenance />;
+  }
+
   const showPromoBanner = !esAdmin && location.pathname === "/";
   const isFullWidth =
     !esAdmin &&

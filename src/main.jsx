@@ -9,47 +9,50 @@ import { ShopProvider } from "./context/ShopContext";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext"; // ⭐ IMPORTANTE
+import { MaintenanceProvider } from "./context/MaintenanceContext"; // ⭐ NUEVO
 
 import "./styles/index.css";
 import "./styles/payment.css"; // ⭐ Estilos de Mercado Pago
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <CartProvider>
-      <ShopProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <WishlistProvider>
-              <AppRouter />
+    <MaintenanceProvider>
+      <CartProvider>
+        <ShopProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <WishlistProvider>
+                <AppRouter />
 
-              {/* ⭐ TOASTER GLOBAL */}
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  style: {
-                    fontFamily:
-                      "Poppins, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-                    borderRadius: "10px",
-                  },
-                  success: {
+                {/* ⭐ TOASTER GLOBAL */}
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
                     style: {
-                      background: "#d1fae5",
-                      color: "#065f46",
+                      fontFamily:
+                        "Poppins, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+                      borderRadius: "10px",
                     },
-                  },
-                  error: {
-                    style: {
-                      background: "#fee2e2",
-                      color: "#991b1b",
+                    success: {
+                      style: {
+                        background: "#d1fae5",
+                        color: "#065f46",
+                      },
                     },
-                  },
-                }}
-              />
-              {/* ⭐ Fin Toaster */}
-            </WishlistProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </ShopProvider>
-    </CartProvider>
+                    error: {
+                      style: {
+                        background: "#fee2e2",
+                        color: "#991b1b",
+                      },
+                    },
+                  }}
+                />
+                {/* ⭐ Fin Toaster */}
+              </WishlistProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </ShopProvider>
+      </CartProvider>
+    </MaintenanceProvider>
   </React.StrictMode>
 );

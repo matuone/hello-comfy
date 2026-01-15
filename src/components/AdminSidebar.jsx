@@ -1,9 +1,11 @@
 // src/components/AdminSidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useMaintenance } from "../context/MaintenanceContext";
 
 export default function AdminSidebar() {
   const { logout } = useAuth();
+  const { isMaintenanceMode, toggleMaintenanceMode } = useMaintenance();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -181,6 +183,22 @@ export default function AdminSidebar() {
           BOTONES DE ACCIÓN
       ============================ */}
       <div className="admin-sidebar-actions">
+        <div className="admin-sidebar-toggle-maintenance">
+          <label htmlFor="maintenance-toggle" className="maintenance-label">
+            {isMaintenanceMode ? "🟢 Web Activa" : "🔴 Web Pausada"}
+          </label>
+          <label className="toggle-switch-container">
+            <input
+              id="maintenance-toggle"
+              type="checkbox"
+              checked={isMaintenanceMode}
+              onChange={(e) => toggleMaintenanceMode(e.target.checked)}
+              className="maintenance-toggle"
+            />
+            <span className="toggle-switch"></span>
+          </label>
+        </div>
+
         <button
           className="admin-sidebar-action-btn home-btn"
           onClick={handleHome}

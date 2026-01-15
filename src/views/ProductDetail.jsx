@@ -16,8 +16,6 @@ import "swiper/css/pagination";
 import { toast } from "react-hot-toast";
 
 import "../styles/productdetail.css";
-import "../styles/newin.css";
-import "../styles/productgrid.css";
 
 // ⭐ NUEVO
 import { useShippingCalculator } from "../hooks/useShippingCalculator";
@@ -38,10 +36,6 @@ export default function ProductDetail() {
 
   const [similares, setSimilares] = useState([]);
   const [loadingSimilares, setLoadingSimilares] = useState(true);
-
-  // Estados para cartas de productos similares
-  const [selectedSizesSim, setSelectedSizesSim] = useState({});
-  const [simQuantities, setSimQuantities] = useState({});
 
   // ⭐ NUEVO — Estados de envío REAL
   const [postalCode, setPostalCode] = useState("");
@@ -214,38 +208,6 @@ export default function ProductDetail() {
         dimensions: producto.dimensions,
       },
     ]);
-  };
-
-  // Helpers para sección de productos similares
-  const getAvailableSizesSim = (product) => {
-    if (!product?.stockColorId?.talles) return [];
-    return Object.entries(product.stockColorId.talles).filter(([, qty]) => qty > 0);
-  };
-
-  const handleSelectSizeSim = (productId, size) => {
-    setSelectedSizesSim((prev) => ({ ...prev, [productId]: size }));
-  };
-
-  const handleQuantityChangeSim = (productId, value) => {
-    const parsed = parseInt(value, 10);
-    const safeQty = Number.isNaN(parsed) ? 1 : Math.max(1, parsed);
-    setSimQuantities((prev) => ({ ...prev, [productId]: safeQty }));
-  };
-
-  const handleAddToCartSim = (event, product) => {
-    event.stopPropagation();
-
-    const availableSizes = getAvailableSizesSim(product);
-    const fallbackSize = availableSizes[0]?.[0] || null;
-    const chosenSize = selectedSizesSim[product._id] || fallbackSize;
-    const qty = simQuantities[product._id] || 1;
-
-    addToCart(product, { size: chosenSize, quantity: qty });
-  };
-
-  const handleBuyNowSim = (event, product) => {
-    handleAddToCartSim(event, product);
-    navigate("/checkout");
   };
 
   return (
@@ -580,138 +542,50 @@ export default function ProductDetail() {
             <Swiper
               modules={[Pagination]}
               pagination={{ clickable: true }}
-              slidesPerView={1.2}
-              spaceBetween={14}
+              slidesPerView={5}
+              spaceBetween={20}
               speed={400}
-              breakpoints={{
-                480: { slidesPerView: 2.1, spaceBetween: 16 },
-                768: { slidesPerView: 3.1, spaceBetween: 18 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 22 },
-              }}
             >
               {similares.map((p) => (
                 <SwiperSlide key={p._id}>
-                  <div
-                    className="productcard__item"
-                    onClick={() => navigate(`/products/${p._id}`)}
-                  >
+                  <div className="newin__item">
                     <img
                       src={p.images?.[0] || "https://via.placeholder.com/300"}
                       alt={p.name}
-                      className="productcard__image"
+                      className="newin__image"
+                      onClick={() => navigate(`/products/${p._id}`)}
                     />
-
-                    {p.featured && (
-                      <span className="productcard__badge">Destacado</span>
-                    )}
-
-                    <div className="productcard__top">
-                      {p.stockColorId?.talles && (
-                        <div className="productcard__stock">
-                          {Object.entries(p.stockColorId.talles).every(
-                            ([, qty]) => qty === 0
-                          ) ? (
-                            <span className="productcard__nostock">Sin stock</span>
-                          ) : Object.values(p.stockColorId.talles).some(
-                            (qty) => qty > 0 && qty <= 3
-                          ) ? (
-                            <span className="productcard__lowstock">
-                              ¡Pocas unidades!
-                            </span>
-                          ) : (
-                            <span className="productcard__instock">Stock disponible</span>
-                          )}
-                        </div>
-                      )}
-
-                      <h3 className="productcard__name">{p.name}</h3>
-
-                      <p className="productcard__price">
-                        ${p.price?.toLocaleString("es-AR")}
-                      </p>
-
-                      <p className="productcard__desc">
-                        {p.cardDescription || p.description || "Nuevo producto disponible"}
-                      </p>
-
-                      {p.stockColorId?.talles && (
-                        <div
-                          className="productcard__sizes productcard__sizes--selectable"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {(() => {
-                            const availableSizes = getAvailableSizesSim(p);
-                            const selected =
-                              selectedSizesSim[p._id] || availableSizes[0]?.[0];
-
-                            return availableSizes.map(([t]) => (
-                              <button
-                                key={t}
-                                type="button"
-                                className={`productcard__size-pill productcard__size-pill--button ${
-                                  selected === t ? "is-selected" : ""
-                                }`}
-                                onClick={() => handleSelectSizeSim(p._id, t)}
-                              >
-                                {t}
-                              </button>
-                            ));
-                          })()}
-                        </div>
-                      )}
-
-                      <div
-                        className="productcard__qty"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <span className="productcard__qty-label">Cant.</span>
-                        <input
-                          type="number"
-                          min="1"
-                          value={simQuantities[p._id] || 1}
-                          onChange={(e) =>
-                            handleQuantityChangeSim(p._id, e.target.value)
-                          }
-                          aria-label="Cantidad"
-                        />
-                      </div>
-                    </div>
-
-                    <div
-                      className="productcard__stars"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // En PD no mostramos popup de opiniones, sólo la estética
-                      }}
+                    <h3
+                      className="newin__name"
+                      onClick={() => navigate(`/products/${p._id}`)}
                     >
+                      {p.name}
+                    </h3>
+                    <p className="newin__price">
+                      ${p.price?.toLocaleString("es-AR")}
+                    </p>
+                    <p className="newin__desc">
+                      {p.cardDescription || p.description || "Nuevo producto disponible"}
+                    </p>
+                    {p.sizes?.length > 0 && (
+                      <div className="newin__sizes">
+                        {p.sizes.map((talle) => (
+                          <span key={talle} className="newin__size-pill">
+                            {talle}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="newin__stars">
                       {"★".repeat(4)}☆
                     </div>
-
-                    <div
-                      className="productcard__buttons"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        className="productcard__btn-buy"
-                        onClick={(e) => handleBuyNowSim(e, p)}
-                      >
-                        Comprar
-                      </button>
-                      <button
-                        className="productcard__btn-cart"
-                        onClick={(e) => handleAddToCartSim(e, p)}
-                      >
-                        Agregar al carrito
-                      </button>
+                    <div className="newin__buttons">
+                      <button className="newin__btn-buy">Comprar</button>
+                      <button className="newin__btn-cart">Agregar al carrito</button>
                     </div>
-
                     <button
-                      className="productcard__btn-viewmore"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/products/${p._id}`);
-                      }}
+                      className="newin__btn-viewmore"
+                      onClick={() => navigate(`/products/${p._id}`)}
                     >
                       Ver más
                     </button>
