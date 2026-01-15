@@ -26,6 +26,7 @@ import siteConfigRoutes from "./routes/siteConfigRoutes.js"; // ⭐ NUEVO
 import sizeTableRoutes from "./routes/sizeTableRoutes.js"; // ⭐ NUEVO
 import promoBannerRoutes from "./routes/promoBannerRoutes.js"; // ⭐ NUEVO
 import modoRoutes from "./routes/modoRoutes.js"; // ⭐ NUEVO
+import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -94,6 +95,11 @@ app.use("/api/gocuotas", gocuotasRoutes);
 // RUTAS DE MODO (⭐ NUEVO)
 // ============================
 app.use("/api/modo", modoRoutes);
+
+// ============================
+// RUTAS DE AFIP (⭐ NUEVO)
+// ============================
+app.use("/api", afipRoutes);
 
 // ============================
 // RUTAS DE ADMIN (FACTURACIÓN, ESTADOS, ETC.)

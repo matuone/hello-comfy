@@ -71,15 +71,15 @@ export async function registerUser(req, res) {
     // Vincular órdenes previas del mismo email a esta cuenta
     try {
       const result = await Order.updateMany(
-        { 
+        {
           "customer.email": newUser.email.toLowerCase(),
           userId: null // Solo vincular órdenes que aún no tienen usuario
         },
-        { 
+        {
           $set: { userId: newUser._id }
         }
       );
-      
+
       if (result.modifiedCount > 0) {
         console.log(`✅ Vinculadas ${result.modifiedCount} órdenes previas al usuario ${newUser.email}`);
       }

@@ -18,7 +18,7 @@ router.get("/orders/my-orders", authMiddleware, async (req, res) => {
     }
 
     // Buscar órdenes por userId O por email del usuario (para órdenes previas)
-    const orders = await Order.find({ 
+    const orders = await Order.find({
       $or: [
         { userId: user._id },
         { "customer.email": user.email.toLowerCase() }

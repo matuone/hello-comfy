@@ -54,8 +54,23 @@ const OrderSchema = new mongoose.Schema(
       default: "pendiente",
     },
 
-    // ⭐ Número de factura (para Facturante)
+    // ⭐ Número de factura (formato: B-0001-00000123)
     facturaNumero: {
+      type: String,
+    },
+
+    // ⭐ CAE de AFIP
+    facturaCae: {
+      type: String,
+    },
+
+    // ⭐ Vencimiento del CAE
+    facturaVencimientoCAE: {
+      type: String,
+    },
+
+    // ⭐ Fecha de emisión de factura
+    facturaFecha: {
       type: String,
     },
 
