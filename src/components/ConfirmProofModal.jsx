@@ -3,7 +3,7 @@ export default function ConfirmProofModal({ isOpen, onConfirm, onCancel, payment
 
   const isCuentaDNI = paymentMethod === "cuentadni";
   const title = isCuentaDNI ? "Comprobante de Cuenta DNI" : "Comprobante de Transferencia";
-  const mainText = isCuentaDNI 
+  const mainText = isCuentaDNI
     ? "Por favor adjuntá el comprobante de Cuenta DNI para poder confirmar tu compra."
     : "Por favor adjuntá el comprobante para poder confirmar tu compra.";
   const secondaryText = isCuentaDNI

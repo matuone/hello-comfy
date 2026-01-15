@@ -98,7 +98,7 @@ export default function Step3({ formData, updateField, next, back }) {
               checked={formData.paymentMethod === "cuentadni"}
               onChange={() => updateField("paymentMethod", "cuentadni")}
             />
-            <span style={{ color: "#d94f7a", fontWeight: 600 }}>
+            <span style={{ color: "#00a86b", fontWeight: 600 }}>
               Cuenta DNI
             </span>
           </label>
@@ -113,9 +113,9 @@ export default function Step3({ formData, updateField, next, back }) {
                   marginLeft: "24px",
                   marginTop: "12px",
                   padding: "10px 16px",
-                  background: "#fff7fb",
-                  color: "#d94f7a",
-                  border: "2px solid #d94f7a",
+                  background: "#e8f5f0",
+                  color: "#00a86b",
+                  border: "2px solid #00a86b",
                   borderRadius: "8px",
                   cursor: "pointer",
                   fontSize: "0.9rem",
@@ -123,12 +123,12 @@ export default function Step3({ formData, updateField, next, back }) {
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = "#d94f7a";
+                  e.target.style.background = "#00a86b";
                   e.target.style.color = "white";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = "#fff7fb";
-                  e.target.style.color = "#d94f7a";
+                  e.target.style.background = "#e8f5f0";
+                  e.target.style.color = "#00a86b";
                 }}
               >
                 {expandCuentaDNI ? "▼ Ocultar QR" : "▶ Ver código QR"}
@@ -178,7 +178,9 @@ export default function Step3({ formData, updateField, next, back }) {
             checked={formData.paymentMethod === "mercadopago"}
             onChange={() => updateField("paymentMethod", "mercadopago")}
           />
-          Tarjeta de débito / crédito (Mercado Pago)
+          <span style={{ color: "#00a6d6", fontWeight: 600 }}>
+            Tarjeta de débito / crédito (Mercado Pago)
+          </span>
         </label>
 
         {/* ⭐ Go Cuotas */}
@@ -189,7 +191,9 @@ export default function Step3({ formData, updateField, next, back }) {
             checked={formData.paymentMethod === "gocuotas"}
             onChange={() => updateField("paymentMethod", "gocuotas")}
           />
-          Financiar en cuotas (Go Cuotas)
+          <span style={{ color: "#d94f7a", fontWeight: 600 }}>
+            Financiar en cuotas (Go Cuotas)
+          </span>
         </label>
 
         {/* ⭐ Modo */}
@@ -200,7 +204,9 @@ export default function Step3({ formData, updateField, next, back }) {
             checked={formData.paymentMethod === "modo"}
             onChange={() => updateField("paymentMethod", "modo")}
           />
-          Pagar con MODO
+          <span style={{ color: "#20b042", fontWeight: 600 }}>
+            Pagar con MODO
+          </span>
         </label>
       </div>
 

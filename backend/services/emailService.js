@@ -212,7 +212,7 @@ export async function enviarEmailConfirmacionOrden(order) {
           </div>
               `
         : order.paymentMethod === 'cuentadni' && !order.paymentProof
-        ? `
+          ? `
           <div style="
             background: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -227,7 +227,7 @@ export async function enviarEmailConfirmacionOrden(order) {
             </p>
           </div>
               `
-        : ''
+          : ''
       }
 
           <!-- Datos del cliente -->
