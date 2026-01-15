@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AFIP Certificates (NEVER COMMIT THESE!)
+backend/config/afip-*.key
+backend/config/afip-*.crt
+backend/config/afip-*.csr
+backend/config/afip-ta/

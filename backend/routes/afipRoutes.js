@@ -1,11 +1,11 @@
 // backend/routes/afipRoutes.js
 import express from 'express';
 const router = express.Router();
-import { 
-  generarFacturaB, 
+import {
+  generarFacturaB,
   generarFacturaA,
   verificarEstadoServicio,
-  consultarContribuyente 
+  consultarContribuyente
 } from '../services/afipService.js';
 import Order from '../models/Order.js';
 import adminMiddleware from '../middleware/adminMiddleware.js';
@@ -49,9 +49,9 @@ router.post('/afip/generar-factura/:orderId', adminMiddleware, async (req, res) 
 
     // Verificar si ya tiene factura
     if (order.facturaNumero) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Esta orden ya tiene factura generada',
-        facturaNumero: order.facturaNumero 
+        facturaNumero: order.facturaNumero
       });
     }
 
@@ -72,7 +72,7 @@ router.post('/afip/generar-factura/:orderId', adminMiddleware, async (req, res) 
     order.facturaCae = factura.cae;
     order.facturaVencimientoCAE = factura.vencimientoCAE;
     order.facturaFecha = factura.fecha;
-    
+
     await order.save();
 
     console.log(`✅ Factura ${order.facturaNumero} generada para orden ${order.code}`);
@@ -110,7 +110,7 @@ router.get('/afip/consultar-contribuyente/:cuit', adminMiddleware, async (req, r
   try {
     const { cuit } = req.params;
     const taxpayer = await consultarContribuyente(parseInt(cuit));
-    
+
     res.json({
       success: true,
       contribuyente: taxpayer
