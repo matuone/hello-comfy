@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import BabyTeesTable from "../components/sizeTables/BabyTeesTable";
 import CropTopsTable from "../components/sizeTables/CropTopsTable";
 import RemerasTable from "../components/sizeTables/RemerasTable";
+import GorrasTable from "../components/sizeTables/GorrasTable";
 import ImageModal from "../components/ImageModal";
 
 import { useCart } from "../context/CartContext";
@@ -17,6 +18,7 @@ import "swiper/css/pagination";
 import { toast } from "react-hot-toast";
 
 import "../styles/productdetail.css";
+import "../styles/newin.css";
 
 // ⭐ NUEVO
 import { useShippingCalculator } from "../hooks/useShippingCalculator";
@@ -413,9 +415,10 @@ export default function ProductDetail() {
             <div className="pd-size-guide">
               <h3>Guía de talles</h3>
 
-              {producto.sizeGuide === "babytees" && <BabyTeesTable />}
-              {producto.sizeGuide === "croptops" && <CropTopsTable />}
+              {producto.sizeGuide === "baby-tees" && <BabyTeesTable />}
+              {producto.sizeGuide === "crop-tops" && <CropTopsTable />}
               {producto.sizeGuide === "remeras" && <RemerasTable />}
+              {producto.sizeGuide === "Gorras" && <GorrasTable />}
             </div>
           )}
 
@@ -546,50 +549,87 @@ export default function ProductDetail() {
             <Swiper
               modules={[Pagination]}
               pagination={{ clickable: true }}
-              slidesPerView={5}
-              spaceBetween={20}
+              slidesPerView={1.2}
+              spaceBetween={14}
               speed={400}
+              breakpoints={{
+                480: { slidesPerView: 2.1, spaceBetween: 16 },
+                768: { slidesPerView: 3.1, spaceBetween: 18 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+              }}
             >
               {similares.map((p) => (
                 <SwiperSlide key={p._id}>
-                  <div className="newin__item">
+                  <div className="productcard__item" onClick={() => navigate(`/products/${p._id}`)}>
                     <img
                       src={p.images?.[0] || "https://via.placeholder.com/300"}
                       alt={p.name}
-                      className="newin__image"
-                      onClick={() => navigate(`/products/${p._id}`)}
+                      className="productcard__image"
                     />
-                    <h3
-                      className="newin__name"
-                      onClick={() => navigate(`/products/${p._id}`)}
-                    >
-                      {p.name}
-                    </h3>
-                    <p className="newin__price">
-                      ${p.price?.toLocaleString("es-AR")}
-                    </p>
-                    <p className="newin__desc">
-                      {p.cardDescription || p.description || "Nuevo producto disponible"}
-                    </p>
-                    {p.sizes?.length > 0 && (
-                      <div className="newin__sizes">
-                        {p.sizes.map((talle) => (
-                          <span key={talle} className="newin__size-pill">
-                            {talle}
-                          </span>
-                        ))}
-                      </div>
+
+                    {p.featured && (
+                      <span className="productcard__badge">Destacado</span>
                     )}
-                    <div className="newin__stars">
-                      {"★".repeat(4)}☆
+
+                    <div className="productcard__top">
+                      {p.stockColorId?.talles && (
+                        <div className="productcard__stock">
+                          {Object.entries(p.stockColorId.talles).every(
+                            ([, qty]) => qty === 0
+                          ) ? (
+                            <span className="productcard__nostock">Sin stock</span>
+                          ) : Object.values(p.stockColorId.talles).some(
+                            (qty) => qty > 0 && qty <= 3
+                          ) ? (
+                            <span className="productcard__lowstock">
+                              ¡Pocas unidades!
+                            </span>
+                          ) : (
+                            <span className="productcard__instock">Stock disponible</span>
+                          )}
+                        </div>
+                      )}
+
+                      <h3 className="productcard__name">{p.name}</h3>
+
+                      <p className="productcard__price">
+                        ${p.price?.toLocaleString("es-AR")}
+                      </p>
+
+                      <p className="productcard__desc">
+                        {p.cardDescription || p.description || "Producto disponible"}
+                      </p>
+
+                      {p.sizes?.length > 0 && (
+                        <div className="productcard__sizes">
+                          {p.sizes.map((talle) => (
+                            <span key={talle} className="productcard__size-pill">
+                              {talle}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="newin__buttons">
-                      <button className="newin__btn-buy">Comprar</button>
-                      <button className="newin__btn-cart">Agregar al carrito</button>
+
+                    <div className="productcard__stars">
+                      {"★".repeat(5)}
                     </div>
+
+                    <div className="productcard__buttons" onClick={(e) => e.stopPropagation()}>
+                      <button className="productcard__btn-buy">
+                        Comprar
+                      </button>
+                      <button className="productcard__btn-cart">
+                        Agregar al carrito
+                      </button>
+                    </div>
+
                     <button
-                      className="newin__btn-viewmore"
-                      onClick={() => navigate(`/products/${p._id}`)}
+                      className="productcard__btn-viewmore"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/products/${p._id}`);
+                      }}
                     >
                       Ver más
                     </button>

@@ -53,6 +53,7 @@
   margin-bottom: 6px;
   color: var(--hc-text);
   cursor: pointer;
+  text-align: center;
 
   /* ⭐ Altura homogénea */
   line-height: 1.3;
@@ -76,6 +77,7 @@
   color: #d94f7a;
   margin-bottom: 10px;
   min-height: 24px;
+  text-align: center;
 }
 
 /* ============================
@@ -86,6 +88,7 @@
   color: #555;
   line-height: 1.5;
   margin-bottom: 12px;
+  text-align: center;
 
   /* ⭐ Altura homogénea exacta */
   min-height: 4.5em;
@@ -170,6 +173,7 @@
 ============================ */
 .productcard__stock {
   margin-bottom: 6px;
+  text-align: center;
 }
 
 .productcard__instock {

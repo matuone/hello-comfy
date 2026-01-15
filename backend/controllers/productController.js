@@ -305,9 +305,9 @@ export const getCategoriesAndSubcategories = async (req, res) => {
     subsManual.forEach((sub) => {
       const cat = sub.category;
       if (!grouped[cat]) grouped[cat] = [];
-      const normSub = normalize(sub.name);
-      if (!grouped[cat].includes(normSub)) {
-        grouped[cat].push(normSub);
+      // Usar el nombre tal cual está guardado, sin normalizar
+      if (!grouped[cat].includes(sub.name)) {
+        grouped[cat].push(sub.name);
       }
     });
 
