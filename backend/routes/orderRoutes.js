@@ -16,10 +16,15 @@ router.get("/orders/my-orders", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
+    console.log("🔍 Buscando órdenes para usuario:", user.email);
+
     // Buscar órdenes por email del usuario
     const orders = await Order.find({ "customer.email": user.email }).sort({
       createdAt: -1,
     });
+
+    console.log("📦 Órdenes encontradas:", orders.length);
+    console.log("Emails en órdenes:", orders.map(o => o.customer?.email));
 
     res.json({
       orders: orders.map((order) => ({
