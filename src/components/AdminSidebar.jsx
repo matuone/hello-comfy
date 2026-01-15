@@ -177,6 +177,21 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* ============================
+            TABLAS DE TALLES
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/sizetables"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Agregar tabla de talle
+          </NavLink>
+        </li>
+
       </ul>
 
       {/* ============================

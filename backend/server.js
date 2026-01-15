@@ -23,6 +23,7 @@ import mercadopagoRoutes from "./routes/mercadopagoRoutes.js"; // ⭐ NUEVO
 import gocuotasRoutes from "./routes/gocuotasRoutes.js"; // ⭐ NUEVO
 import subcategoryRoutes from "./routes/subcategoryRoutes.js"; // ⭐ NUEVO
 import siteConfigRoutes from "./routes/siteConfigRoutes.js"; // ⭐ NUEVO
+import sizeTableRoutes from "./routes/sizeTableRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -74,6 +75,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/discounts", discountRoutes);
 app.use("/api/promocodes", promoCodeRoutes);
 app.use("/api/subcategories", subcategoryRoutes);
+app.use("/api/sizetables", sizeTableRoutes);
 
 // ============================
 // RUTAS DE MERCADO PAGO (⭐ NUEVO)

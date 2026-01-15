@@ -56,6 +56,7 @@ import AdminSubcategories from "../views/AdminSubcategories";
 // Nuevos imports admin
 import AdminDiscounts from "../views/AdminDiscounts";
 import AdminPromoCodes from "../views/AdminPromoCodes";
+import AdminSizeTables from "../views/AdminSizeTables";
 
 // Protección admin
 import AdminRoute from "./AdminRoute";
@@ -142,6 +143,7 @@ export default function AppRouter() {
         <Route path="/admin/discounts" element={<AdminDiscounts />} />
         <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
         <Route path="/admin/subcategories" element={<AdminSubcategories />} />
+        <Route path="/admin/sizetables" element={<AdminSizeTables />} />
       </Route>
 
       {/* Área de cliente */}

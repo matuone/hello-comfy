@@ -30,8 +30,21 @@ export default function AdminProductDetail() {
   const [dragIndex, setDragIndex] = useState(null);
   const [errores, setErrores] = useState({});
   const [noti, setNoti] = useState(null);
+  const [sizeTables, setSizeTables] = useState([]);
 
   const loadingGlobal = subiendoImagen;
+
+  // ============================
+  // CARGAR TABLAS DE TALLES
+  // ============================
+  useEffect(() => {
+    fetch("http://localhost:5000/api/sizetables")
+      .then((res) => res.json())
+      .then((data) => {
+        setSizeTables(data);
+      })
+      .catch((err) => console.error("Error cargando tablas de talles:", err));
+  }, []);
 
   // ============================
   // CARGAR COLORES (StockColor)
@@ -526,9 +539,11 @@ export default function AdminProductDetail() {
             onChange={(e) => actualizarCampo("sizeGuide", e.target.value)}
           >
             <option value="none">Sin tabla</option>
-            <option value="babytees">Baby Tees</option>
-            <option value="croptops">Crop Tops</option>
-            <option value="remeras">Remeras</option>
+            {sizeTables.map((table) => (
+              <option key={table._id} value={table.name}>
+                {table.displayName}
+              </option>
+            ))}
           </select>
         </div>
 
