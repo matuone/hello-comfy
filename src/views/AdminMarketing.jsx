@@ -12,6 +12,13 @@ export default function AdminMarketing() {
   const [message, setMessage] = useState("");
   const [bearMessage, setBearMessage] = useState("");
   
+  // Estado para home copy
+  const [homeTitle, setHomeTitle] = useState("");
+  const [homeDescription, setHomeDescription] = useState("");
+  const [isEditingHome, setIsEditingHome] = useState(false);
+  const [originalHomeTitle, setOriginalHomeTitle] = useState("");
+  const [originalHomeDescription, setOriginalHomeDescription] = useState("");
+  
   // Estado para gestión de imágenes del banner
   const [bannerImages, setBannerImages] = useState([]);
   const [newImage, setNewImage] = useState(null);
@@ -44,6 +51,9 @@ export default function AdminMarketing() {
 
     // Cargar configuración del banner desde el backend
     loadBannerConfig();
+    
+    // Cargar home copy
+    loadHomeCopy();
   }, []);
 
   async function loadBannerConfig() {
@@ -62,28 +72,31 @@ export default function AdminMarketing() {
     }
   }
 
-  async function loadBannerConfig() {
+  async function loadHomeCopy() {
     try {
-      const response = await fetch(`${API_URL}/promo-banner`);
+      const response = await fetch(`${API_URL}/site-config/home-copy`);
       const data = await response.json();
       
       if (data) {
-        setBannerImages(data.images || []);
-        if (data.message) setMessage(data.message);
-        setAutoplay(data.autoplay !== undefined ? data.autoplay : true);
-        setInterval(data.interval || 5000);
+        const title = data.title || "Bienvenid@ a Hello-Comfy";
+        const description = data.description || "";
+        setHomeTitle(title);
+        setHomeDescription(description);
+        setOriginalHomeTitle(title);
+        setOriginalHomeDescription(description);
       }
     } catch (error) {
-      console.error('Error cargando configuración del banner:', error);
+      console.error('Error cargando home copy:', error);
     }
   }
 
   async function guardar() {
     setLoading(true);
     try {
-      // Actualizar configuración del banner en el backend
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/promo-banner`, {
+      
+      // Actualizar configuración del banner
+      const bannerResponse = await fetch(`${API_URL}/promo-banner`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -92,15 +105,30 @@ export default function AdminMarketing() {
         body: JSON.stringify({ message, autoplay, interval })
       });
 
-      if (!response.ok) throw new Error('Error al actualizar');
+      if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
+
+      // Actualizar home copy
+      const homeCopyResponse = await fetch(`${API_URL}/site-config/home-copy`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: homeTitle, description: homeDescription })
+      });
+
+      if (!homeCopyResponse.ok) throw new Error('Error al actualizar home copy');
 
       localStorage.setItem("promoMessage", message);
       localStorage.setItem("bearMessage", bearMessage);
 
       // 🔥 Notificar al osito que el mensaje cambió
       window.dispatchEvent(new Event("bearMessageUpdated"));
+      
+      // Notificar al home que el copy cambió
+      window.dispatchEvent(new Event("homeCopyUpdated"));
 
-      setNotification({ mensaje: "Mensajes actualizados correctamente", tipo: "success" });
+      setNotification({ mensaje: "Cambios guardados correctamente", tipo: "success" });
     } catch (error) {
       console.error('Error guardando:', error);
       setNotification({ mensaje: "Error al guardar los cambios", tipo: "error" });
@@ -279,6 +307,49 @@ export default function AdminMarketing() {
     return `${pos.x}% ${pos.y}%`;
   }
 
+  // Funciones para edición de Home Copy
+  function handleEditHome() {
+    setIsEditingHome(true);
+  }
+
+  async function handleSaveHome() {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/site-config/home-copy`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: homeTitle, description: homeDescription })
+      });
+
+      if (!response.ok) throw new Error('Error al actualizar home copy');
+
+      // Actualizar valores originales
+      setOriginalHomeTitle(homeTitle);
+      setOriginalHomeDescription(homeDescription);
+      setIsEditingHome(false);
+      
+      // Notificar al home que el copy cambió
+      window.dispatchEvent(new Event("homeCopyUpdated"));
+
+      setNotification({ mensaje: "Sección de bienvenida actualizada", tipo: "success" });
+    } catch (error) {
+      console.error('Error guardando home copy:', error);
+      setNotification({ mensaje: "Error al guardar la sección de bienvenida", tipo: "error" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleCancelHome() {
+    setHomeTitle(originalHomeTitle);
+    setHomeDescription(originalHomeDescription);
+    setIsEditingHome(false);
+  }
+
   // Drag & drop handlers
   function handleDragStart(index) {
     setDraggedIndex(index);
@@ -427,6 +498,108 @@ export default function AdminMarketing() {
         </div>
       </div>
 
+      {/* Configuración de Home Copy */}
+      <div className="marketing-box" style={{ marginTop: '30px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h3 style={{ margin: 0, color: '#333' }}>Sección de Bienvenida (Home)</h3>
+          {!isEditingHome && (
+            <button
+              onClick={handleEditHome}
+              style={{
+                padding: '8px 20px',
+                background: '#d94f7a',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#c6456d'}
+              onMouseOut={(e) => e.target.style.background = '#d94f7a'}
+            >
+              ✏️ Editar
+            </button>
+          )}
+        </div>
+        
+        <label className="marketing-label">Título principal</label>
+        <input
+          className="marketing-textarea"
+          value={homeTitle}
+          onChange={(e) => setHomeTitle(e.target.value)}
+          placeholder="Bienvenid@ a Hello-Comfy"
+          disabled={!isEditingHome}
+          style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed' }}
+        />
+
+        <label className="marketing-label" style={{ marginTop: '20px' }}>Descripción</label>
+        <textarea
+          className="marketing-textarea"
+          value={homeDescription}
+          onChange={(e) => setHomeDescription(e.target.value)}
+          rows={4}
+          placeholder="Descripción de bienvenida..."
+          disabled={!isEditingHome}
+          style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed' }}
+        />
+
+        {isEditingHome && (
+          <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+            <button
+              onClick={handleSaveHome}
+              disabled={loading}
+              style={{
+                padding: '10px 25px',
+                background: '#d94f7a',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                transition: 'all 0.2s',
+                opacity: loading ? 0.6 : 1
+              }}
+              onMouseOver={(e) => !loading && (e.target.style.background = '#c6456d')}
+              onMouseOut={(e) => !loading && (e.target.style.background = '#d94f7a')}
+            >
+              {loading ? '⏳ Guardando...' : '✔️ Guardar cambios'}
+            </button>
+
+            <button
+              onClick={handleCancelHome}
+              disabled={loading}
+              style={{
+                padding: '10px 25px',
+                background: '#f7f7f7',
+                color: '#555',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                transition: 'all 0.2s',
+                opacity: loading ? 0.6 : 1
+              }}
+              onMouseOver={(e) => !loading && (e.target.style.background = '#ececec')}
+              onMouseOut={(e) => !loading && (e.target.style.background = '#f7f7f7')}
+            >
+              ❌ Cancelar
+            </button>
+          </div>
+        )}
+
+        <div style={{ marginTop: '15px' }}>
+          <h3 style={{ marginBottom: '10px', fontSize: '16px', color: '#555' }}>Vista previa</h3>
+          <div style={{ padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#fafafa' }}>
+            <h1 style={{ margin: '0 0 15px 0', fontSize: '24px', color: '#333' }}>{homeTitle}</h1>
+            <p style={{ margin: 0, fontSize: '14px', color: '#666', lineHeight: '1.6' }}>{homeDescription}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Gestión de imágenes del banner */}
       <div className="marketing-box" style={{ marginTop: '30px' }}>
         <h3 style={{ marginBottom: '15px', color: '#333' }}>Imágenes del Banner</h3>
@@ -524,7 +697,7 @@ export default function AdminMarketing() {
             style={{ 
               marginTop: '10px',
               padding: '12px 30px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: '#d94f7a',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -536,11 +709,13 @@ export default function AdminMarketing() {
             }}
             onMouseOver={(e) => {
               if (!loading && newImage) {
+                e.target.style.background = '#c6456d';
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+                e.target.style.boxShadow = '0 4px 12px rgba(217, 79, 122, 0.3)';
               }
             }}
             onMouseOut={(e) => {
+              e.target.style.background = '#d94f7a';
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = 'none';
             }}

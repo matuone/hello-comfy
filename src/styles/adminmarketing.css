@@ -133,7 +133,7 @@
 .file-input-label {
   display: inline-block;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #d94f7a;
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -145,10 +145,12 @@
 }
 
 .file-input-label:hover {
+  background: #c6456d;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(217, 79, 122, 0.3);
 }
 
 .file-input-label:active {
+  background: #b33d62;
   transform: translateY(0);
 }
