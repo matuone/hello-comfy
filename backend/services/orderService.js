@@ -67,6 +67,8 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       status: "recibido",
       pagoEstado: paymentData.status === "approved" ? "recibido" : "pendiente",
       paymentMethod: pendingOrderData.formData?.paymentMethod || "mercadopago",
+      paymentProof: pendingOrderData.paymentProof || null,
+      paymentProofName: pendingOrderData.paymentProofName || null,
       envioEstado: "pendiente",
       shipping: {
         method: pendingOrderData.formData?.shippingMethod || "home",

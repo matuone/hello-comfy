@@ -1,5 +1,17 @@
+import { useState } from "react";
+
 export default function Step3({ formData, updateField, next, back }) {
   const isValid = formData.paymentMethod !== "";
+  const [expandTransfer, setExpandTransfer] = useState(false);
+
+  const bankInfo = {
+    banco: "Banco Santander",
+    cuenta: "CAJA DE AHORRO EN PESOS 000-642556/6",
+    cbu: "0720000788000064255668",
+    alias: "GRANO.PLAYA.PRISMA",
+    titular: "CASTELLS ZWEIFEL NICOLE CAROLINA",
+    cuit: "CUIT 27391049802",
+  };
 
   return (
     <div className="checkout-step">
@@ -7,15 +19,63 @@ export default function Step3({ formData, updateField, next, back }) {
 
       <div className="payment-options">
         {/* ⭐ Transferencia */}
-        <label>
-          <input
-            type="radio"
-            name="payment"
-            checked={formData.paymentMethod === "transfer"}
-            onChange={() => updateField("paymentMethod", "transfer")}
-          />
-          Transferencia bancaria (10% OFF)
-        </label>
+        <div className="payment-option-group">
+          <label>
+            <input
+              type="radio"
+              name="payment"
+              checked={formData.paymentMethod === "transfer"}
+              onChange={() => updateField("paymentMethod", "transfer")}
+            />
+            <span style={{ color: "#d94f7a", fontWeight: 600 }}>
+              Transferencia bancaria (10% OFF)
+            </span>
+          </label>
+          
+          {formData.paymentMethod === "transfer" && (
+            <>
+              <button
+                type="button"
+                className="payment-expand-btn"
+                onClick={() => setExpandTransfer(!expandTransfer)}
+                style={{
+                  marginLeft: "24px",
+                  marginTop: "8px",
+                  padding: "8px 12px",
+                  background: "#f0f0f0",
+                  border: "1px solid #ddd",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                }}
+              >
+                {expandTransfer ? "▼ Ocultar datos" : "▶ Ver datos bancarios"}
+              </button>
+
+              {expandTransfer && (
+                <div
+                  style={{
+                    marginLeft: "24px",
+                    marginTop: "12px",
+                    padding: "12px",
+                    background: "#f9f9f9",
+                    border: "1px solid #eee",
+                    borderRadius: "6px",
+                    fontSize: "0.9rem",
+                    lineHeight: "1.8",
+                  }}
+                >
+                  <p><strong>{bankInfo.banco}</strong></p>
+                  <p>Cuenta: {bankInfo.cuenta}</p>
+                  <p>CBU: {bankInfo.cbu}</p>
+                  <p>Alias: <strong>{bankInfo.alias}</strong></p>
+                  <p>Titular: {bankInfo.titular}</p>
+                  <p>{bankInfo.cuit}</p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {/* ⭐ Tarjeta de crédito/débito con Mercado Pago */}
         <label>

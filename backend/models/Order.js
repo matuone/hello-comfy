@@ -88,9 +88,13 @@ const OrderSchema = new mongoose.Schema(
       total: { type: Number, required: true },
     },
 
-    // ⭐ Comentarios del cliente
-    comentarios: {
-      type: String,
+    // ⭐ Comprobante de pago (para transferencias)
+    paymentProof: {
+      type: String, // Base64 del archivo
+    },
+
+    paymentProofName: {
+      type: String, // Nombre del archivo
     },
 
     date: {

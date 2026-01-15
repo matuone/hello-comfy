@@ -1,11 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { crearPreferenciaMercadoPago, redirigirAMercadoPago } from "../services/mercadopagoService";
 import { createGocuotasCheckout } from "../services/gocuotasService";
 import { crearIntencionPagoModo } from "../services/modoService";
 import { toast } from "react-hot-toast";
 
-export default function Step4({ formData, items, totalPrice, back, clearCheckout }) {
+export default function Step4({ formData, items, totalPrice, back, clearCheckout, updateField }) {
+  const navigate = useNavigate();
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [proofFile, setProofFile] = useState(null);
+
+  // Calcular descuento por transferencia
+  const discount = formData.paymentMethod === "transfer" ? totalPrice * 0.1 : 0;
+  const finalPrice = totalPrice - discount;
 
   // ⭐ Pagar con Modo
   const handlePagarModo = async () => {
@@ -185,7 +192,57 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
     }
   };
 
-  const shippingLabel =
+  // ⭐ Manejar transferencia bancaria
+  const handleTransfer = async () => {
+    if (!proofFile) {
+      toast.error("Por favor adjunta el comprobante de transferencia");
+      return;
+    }
+
+    setLoadingPayment(true);
+
+    try {
+      // Guardar el comprobante en base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const proofBase64 = reader.result;
+
+        // Guardar orden con comprobante
+        localStorage.setItem("pendingOrder", JSON.stringify({
+          formData,
+          items,
+          totalPrice: finalPrice,
+          paymentProof: proofBase64,
+          paymentProofName: proofFile.name,
+          createdAt: new Date().toISOString(),
+        }));
+
+        toast.success("Comprobante enviado. Procesando orden...");
+
+        // Simular creación de orden (similar a Modo)
+        setTimeout(() => {
+          navigate("/checkout-success");
+        }, 1500);
+      };
+      reader.readAsDataURL(proofFile);
+    } catch (error) {
+      console.error("Error en transferencia:", error);
+      toast.error("Error al procesar la transferencia");
+    } finally {
+      setLoadingPayment(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB
+        toast.error("El archivo no puede exceder 5MB");
+        return;
+      }
+      setProofFile(file);
+    }
+  };
     formData.shippingMethod === "pickup"
       ? "Retiro en Pick Up Point"
       : "Envío a domicilio";
@@ -244,10 +301,48 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         ))}
 
         <h3>Total</h3>
-        <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
-          ${totalPrice.toLocaleString("es-AR")}
-        </p>
+        <div>
+          <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
+            ${totalPrice.toLocaleString("es-AR")}
+          </p>
+          {discount > 0 && (
+            <p style={{ color: "#d94f7a", fontWeight: 600, marginTop: "8px" }}>
+              -10% descuento: -${discount.toLocaleString("es-AR")}
+            </p>
+          )}
+          {discount > 0 && (
+            <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#d94f7a", marginTop: "8px" }}>
+              Total a pagar: ${finalPrice.toLocaleString("es-AR")}
+            </p>
+          )}
+        </div>
       </div>
+
+      {/* ⭐ SECCIÓN DE TRANSFERENCIA */}
+      {formData.paymentMethod === "transfer" && (
+        <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
+          <h3 style={{ color: "#d94f7a" }}>Comprobante de transferencia</h3>
+          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
+            Adjunta tu comprobante de transferencia para procesar tu pedido
+          </p>
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            onChange={handleFileChange}
+            style={{
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "6px",
+              width: "100%",
+            }}
+          />
+          {proofFile && (
+            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
+              ✓ {proofFile.name}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="checkout-nav">
         <button className="checkout-btn-secondary" onClick={back}>
@@ -287,9 +382,14 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         {formData.paymentMethod === "transfer" && (
           <button
             className="checkout-btn-transfer"
-            disabled={true}
+            onClick={handleTransfer}
+            disabled={!proofFile || loadingPayment}
+            style={{
+              opacity: proofFile && !loadingPayment ? 1 : 0.5,
+              cursor: proofFile && !loadingPayment ? "pointer" : "default",
+            }}
           >
-            Confirmar transferencia
+            {loadingPayment ? "Procesando..." : "Confirmar transferencia"}
           </button>
         )}
 

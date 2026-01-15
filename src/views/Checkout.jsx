@@ -34,6 +34,8 @@ export default function Checkout() {
       shippingMethod: "",
       pickPoint: "",
       paymentMethod: "",
+      paymentProof: "",
+      paymentProofName: "",
       notes: "",
     };
   });
@@ -78,6 +80,8 @@ export default function Checkout() {
       shippingMethod: "",
       pickPoint: "",
       paymentMethod: "",
+      paymentProof: "",
+      paymentProofName: "",
       notes: "",
     });
   };
