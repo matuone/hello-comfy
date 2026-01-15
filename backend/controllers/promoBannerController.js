@@ -5,7 +5,7 @@ import cloudinary from '../config/cloudinary.js';
 export const getBanner = async (req, res) => {
   try {
     let banner = await PromoBanner.findOne({ active: true });
-    
+
     if (!banner) {
       // Crear banner por defecto si no existe
       banner = new PromoBanner({
@@ -31,7 +31,7 @@ export const updateBanner = async (req, res) => {
     const { message, autoplay, interval } = req.body;
 
     let banner = await PromoBanner.findOne({ active: true });
-    
+
     if (!banner) {
       banner = new PromoBanner({
         message,
@@ -63,14 +63,14 @@ export const addImage = async (req, res) => {
     const { objectPosition } = req.body;
 
     let banner = await PromoBanner.findOne({ active: true });
-    
+
     if (!banner) {
       banner = new PromoBanner({ active: true });
     }
 
     // Subir imagen a Cloudinary usando buffer (memoryStorage)
     const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-    
+
     const result = await cloudinary.uploader.upload(base64, {
       folder: 'promo-banners',
       // Sin transformaciones - la imagen completa se sube para que object-position funcione
@@ -84,7 +84,7 @@ export const addImage = async (req, res) => {
     });
 
     await banner.save();
-    
+
     res.json({ message: 'Imagen agregada', banner });
   } catch (error) {
     console.error('Error al agregar imagen:', error);
@@ -98,13 +98,13 @@ export const deleteImage = async (req, res) => {
     const { imageId } = req.params;
 
     let banner = await PromoBanner.findOne({ active: true });
-    
+
     if (!banner) {
       return res.status(404).json({ message: 'Banner no encontrado' });
     }
 
     const image = banner.images.id(imageId);
-    
+
     if (!image) {
       return res.status(404).json({ message: 'Imagen no encontrada' });
     }
@@ -133,13 +133,13 @@ export const updateImagePosition = async (req, res) => {
     const { objectPosition } = req.body;
 
     let banner = await PromoBanner.findOne({ active: true });
-    
+
     if (!banner) {
       return res.status(404).json({ message: 'Banner no encontrado' });
     }
 
     const image = banner.images.id(imageId);
-    
+
     if (!image) {
       return res.status(404).json({ message: 'Imagen no encontrada' });
     }
@@ -160,13 +160,13 @@ export const reorderImages = async (req, res) => {
     const { imageIds } = req.body;
 
     let banner = await PromoBanner.findOne({ active: true });
-    
+
     if (!banner) {
       return res.status(404).json({ message: 'Banner no encontrado' });
     }
 
     // Reordenar las imágenes según el array de IDs
-    const reorderedImages = imageIds.map(id => 
+    const reorderedImages = imageIds.map(id =>
       banner.images.find(img => img._id.toString() === id)
     ).filter(Boolean);
 

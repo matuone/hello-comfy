@@ -17,7 +17,7 @@ export default function Layout() {
 
   const esAdmin = location.pathname.startsWith("/admin");
   const isAdminUser = user?.isAdmin;
-  
+
   // Si está en modo mantenimiento y no es admin, mostrar página de mantenimiento
   if (isMaintenanceMode && !isAdminUser) {
     return <Maintenance />;

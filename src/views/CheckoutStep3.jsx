@@ -31,7 +31,7 @@ export default function Step3({ formData, updateField, next, back }) {
               Transferencia bancaria (10% OFF)
             </span>
           </label>
-          
+
           {formData.paymentMethod === "transfer" && (
             <>
               <button

@@ -17,7 +17,7 @@ export const createPaymentIntent = async (req, res) => {
     // Validar que tenemos las credenciales de test
     const MODO_STORE_ID = process.env.MODO_STORE_ID || "TEST_STORE_ID";
     const MODO_API_KEY = process.env.MODO_API_KEY || "TEST_API_KEY";
-    
+
     console.log("🟢 Creando intención de pago con Modo (Modo Test)");
     console.log("  Store ID:", MODO_STORE_ID);
 
@@ -74,7 +74,7 @@ export const createPaymentIntent = async (req, res) => {
 
     // En modo test, simulamos una respuesta de Modo
     // Cuando tengas credenciales reales, descomenta el código real
-    
+
     // MODO TEST - Simular respuesta
     const testResponse = {
       id: `modo_test_${Date.now()}`,
@@ -142,7 +142,7 @@ export const confirmPayment = async (req, res) => {
 
       // Crear orden en la base de datos
       const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
-      
+
       console.log("📦 Orden creada exitosamente:", order.code);
 
       return res.json({

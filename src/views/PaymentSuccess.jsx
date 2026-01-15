@@ -44,7 +44,7 @@ export default function PaymentSuccess() {
         if (paymentId) {
           console.log("💳 Procesando pago con paymentId:", paymentId);
           console.log("📋 PendingOrderData disponible:", !!pendingOrderData);
-          
+
           const response = await procesarPagoConfirmado(paymentId, pendingOrderData);
 
           if (response.success && response.order) {

@@ -49,7 +49,7 @@ export async function crearIntencionPagoModo({
 export async function consultarEstadoPago(paymentId) {
   try {
     const response = await fetch(`${API_URL}/modo/payment/${paymentId}`);
-    
+
     if (!response.ok) {
       throw new Error("Error al consultar estado del pago");
     }

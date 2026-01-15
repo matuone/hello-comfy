@@ -10,7 +10,7 @@ async function generarCodigoOrden() {
   try {
     // Obtener la última orden creada
     const lastOrder = await Order.findOne().sort({ createdAt: -1 });
-    
+
     if (!lastOrder || !lastOrder.code) {
       // Primera orden
       return "01";
@@ -18,7 +18,7 @@ async function generarCodigoOrden() {
 
     // Extraer el número de la última orden
     const lastNumber = parseInt(lastOrder.code, 10);
-    
+
     if (isNaN(lastNumber)) {
       // Si el código anterior no era numérico, empezar desde 01
       const count = await Order.countDocuments();

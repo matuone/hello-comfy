@@ -21,18 +21,18 @@ export default function ModoCheckout() {
 
   const handleSimularPago = async (status) => {
     setLoading(true);
-    
+
     try {
       // Simular procesamiento
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       if (status === "success") {
         // Recuperar datos de la orden pendiente
         const pendingOrderStr = localStorage.getItem("pendingOrder");
-        
+
         if (pendingOrderStr) {
           const pendingOrderData = JSON.parse(pendingOrderStr);
-          
+
           // Crear la orden en el backend simulando un pago exitoso
           const response = await fetch(`${API_URL}/modo/confirm-payment`, {
             method: "POST",
@@ -45,34 +45,34 @@ export default function ModoCheckout() {
               pendingOrderData: pendingOrderData
             }),
           });
-          
+
           const data = await response.json();
-          
+
           if (data.success) {
             toast.success("¡Pago confirmado!");
-            
+
             // Guardar código de orden temporalmente
             if (data.order?.code) {
               localStorage.setItem("lastOrderCode", data.order.code);
             }
           }
         }
-        
+
         // Limpiar carrito
         clearCart();
-        
+
         // Limpiar checkout del localStorage
         localStorage.removeItem("checkoutStep");
         localStorage.removeItem("checkoutFormData");
         localStorage.removeItem("pendingOrder");
-        
+
         navigate(`/checkout/success`);
       } else {
         // Limpiar checkout del localStorage
         localStorage.removeItem("checkoutStep");
         localStorage.removeItem("checkoutFormData");
         localStorage.removeItem("pendingOrder");
-        
+
         navigate(`/payment/failure?method=modo&reference=${reference}`);
       }
     } catch (error) {

@@ -184,11 +184,10 @@ export async function enviarEmailConfirmacionOrden(order) {
             margin-bottom: 24px;
           ">
             <p style="margin: 0 0 8px 0; color: #555; line-height: 1.6;">
-              ${
-                order.shipping?.method === "pickup"
-                  ? "Te avisaremos por email y WhatsApp cuando tu pedido esté listo para retirar."
-                  : "Te notificaremos cuando tu pedido salga en camino."
-              }
+              ${order.shipping?.method === "pickup"
+        ? "Te avisaremos por email y WhatsApp cuando tu pedido esté listo para retirar."
+        : "Te notificaremos cuando tu pedido salga en camino."
+      }
             </p>
             <p style="margin: 0; color: #555; line-height: 1.6;">
               Podés hacer seguimiento de tu pedido en nuestra web.
@@ -196,9 +195,8 @@ export async function enviarEmailConfirmacionOrden(order) {
           </div>
 
           <!-- Aviso para transferencia sin comprobante -->
-          ${
-            order.paymentMethod === 'transfer' && !order.paymentProof
-              ? `
+          ${order.paymentMethod === 'transfer' && !order.paymentProof
+        ? `
           <div style="
             background: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -213,8 +211,8 @@ export async function enviarEmailConfirmacionOrden(order) {
             </p>
           </div>
               `
-              : ''
-          }
+        : ''
+      }
 
           <!-- Datos del cliente -->
           <p style="color: #888; font-size: 14px; margin: 0;">
@@ -455,19 +453,19 @@ export async function enviarEmailAlAdmin(order) {
         } else {
           // Limpiar base64: remover data URI prefix y espacios/saltos de línea
           let cleanBase64 = order.paymentProof.trim();
-          
+
           // Si tiene el prefijo de data URI, extraerlo
           if (cleanBase64.includes(',')) {
             cleanBase64 = cleanBase64.split(',')[1];
           }
-          
+
           // Remover caracteres whitespace
           cleanBase64 = cleanBase64.replace(/\s/g, '');
-          
+
           // Extraer el tipo de archivo del nombre o asumir jpg
           const fileName = order.paymentProofName || 'comprobante.jpg';
           const mimeType = order.paymentProofName?.includes('.pdf') ? 'application/pdf' : 'image/jpeg';
-          
+
           // Validar que sea base64 válido (opcional pero ayuda a debugging)
           if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleanBase64)) {
             console.warn("⚠️ Base64 inválido para comprobante");

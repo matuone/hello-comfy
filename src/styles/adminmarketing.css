@@ -129,6 +129,7 @@
   margin: 0 !important;
   /* ← esto elimina el margen heredado */
 }
+
 /* File Input Label */
 .file-input-label {
   display: inline-block;

@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/maintenance", async (req, res) => {
   try {
     let config = await SiteConfig.findOne({ key: "maintenanceMode" });
-    
+
     if (!config) {
       config = await SiteConfig.create({
         key: "maintenanceMode",
@@ -52,7 +52,7 @@ router.put("/maintenance", verifyAdmin, async (req, res) => {
 router.get("/home-copy", async (req, res) => {
   try {
     let config = await SiteConfig.findOne({ key: "homeCopy" });
-    
+
     if (!config) {
       config = await SiteConfig.create({
         key: "homeCopy",

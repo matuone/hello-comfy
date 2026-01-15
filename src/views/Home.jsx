@@ -30,7 +30,7 @@ export default function Home() {
     try {
       const response = await fetch(`${API_URL}/site-config/home-copy`);
       const data = await response.json();
-      
+
       if (data) {
         setHomeTitle(data.title || "Bienvenid@ a Hello-Comfy");
         setHomeDescription(data.description || "");

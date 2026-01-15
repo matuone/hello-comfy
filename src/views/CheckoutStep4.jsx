@@ -196,65 +196,8 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
     }
   };
 
-  // ⭐ Manejar transferencia bancaria
-  const handleTransfer = async () => {
-    // Si no hay comprobante, mostrar modal
-    if (!proofFile) {
-      setShowConfirmModal(true);
-      return;
-    }
-
-    setLoadingPayment(true);
-
-    try {
-      let proofBase64 = null;
-      
-      // Si hay archivo, convertirlo a base64
-      if (proofFile) {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          let base64 = reader.result;
-          
-          // Si tiene el prefijo de data URL, extraerlo (data:image/jpeg;base64,XXXX...)
-          if (base64.includes(',')) {
-            base64 = base64.split(',')[1];
-          }
-          proofBase64 = base64;
-          
-          // Proceder con la creación de orden
-          await crearOrden(proofBase64);
-        };
-        reader.readAsDataURL(proofFile);
-      } else {
-        // Sin archivo, crear orden sin comprobante
-        await crearOrden(null);
-      }
-    } catch (error) {
-      console.error("Error en transferencia:", error);
-      toast.error("Error al procesar la transferencia");
-      setLoadingPayment(false);
-    }
-  };
-
-  const handleConfirmNoProof = async () => {
-    setShowConfirmModal(false);
-    setLoadingPayment(true);
-    
-    try {
-      // Crear orden sin comprobante
-      await crearOrden(null);
-    } catch (error) {
-      console.error("Error al crear orden sin comprobante:", error);
-      toast.error("Error al procesar la transferencia");
-      setLoadingPayment(false);
-    }
-  };
-
-  const handleCancelModal = () => {
-    setShowConfirmModal(false);
-  };
-
-
+  // ⭐ Crear orden en el backend
+  const crearOrden = async (proofBase64) => {
     try {
       // Guardar orden con o sin comprobante
       localStorage.setItem("pendingOrder", JSON.stringify({
@@ -290,7 +233,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         localStorage.removeItem("checkoutStep");
         localStorage.removeItem("checkoutFormData");
         localStorage.removeItem("pendingOrder");
-        
+
         // Redirigir a success
         setTimeout(() => {
           navigate("/checkout/success");
@@ -306,208 +249,258 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB
-        toast.error("El archivo no puede exceder 5MB");
-        return;
+  // ⭐ Manejar transferencia bancaria
+  const handleTransfer = () => {
+    // Si no hay comprobante, mostrar modal
+    if (!proofFile) {
+      setShowConfirmModal(true);
+      return;
+    }
+
+    setLoadingPayment(true);
+
+    // Si hay archivo, convertirlo a base64 y crear orden
+    const reader = new FileReader();
+    reader.onload = () => {
+      let base64 = reader.result;
+
+      // Si tiene el prefijo de data URL, extraerlo (data:image/jpeg;base64,XXXX...)
+      if (base64.includes(',')) {
+        base64 = base64.split(',')[1];
       }
-      setProofFile(file);
+
+      // Proceder con la creación de orden
+      crearOrden(base64);
+    };
+    reader.onerror = () => {
+      console.error("Error leyendo archivo");
+      toast.error("Error al procesar el archivo");
+      setLoadingPayment(false);
+    };
+    reader.readAsDataURL(proofFile);
+  };
+
+
+  const handleConfirmNoProof = async () => {
+    setShowConfirmModal(false);
+    setLoadingPayment(true);
+
+    try {
+      // Crear orden sin comprobante
+      await crearOrden(null);
+    } catch (error) {
+      console.error("Error al crear orden sin comprobante:", error);
+      toast.error("Error al procesar la transferencia");
+      setLoadingPayment(false);
     }
   };
 
-  const shippingLabel =
-    formData.shippingMethod === "pickup"
-      ? "Retiro en Pick Up Point"
-      : "Envío a domicilio";
+  const handleCancelModal = () => {
+    setShowConfirmModal(false);
+  };
 
-  const paymentLabel =
-    formData.paymentMethod === "transfer"
-      ? "Transferencia bancaria (10% OFF)"
-      : formData.paymentMethod === "mercadopago"
-        ? "Mercado Pago"
-        : formData.paymentMethod === "gocuotas"
-          ? "Go Cuotas - Financiación"
-          : formData.paymentMethod === "modo"
-            ? "Modo - Pago digital"
-            : "Método de pago";
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) { // 5MB
+      toast.error("El archivo no puede exceder 5MB");
+      return;
+    }
+    setProofFile(file);
+  }
+};
 
-  return (
-    <div className="checkout-step">
-      <h2>Revisión final</h2>
+const shippingLabel =
+  formData.shippingMethod === "pickup"
+    ? "Retiro en Pick Up Point"
+    : "Envío a domicilio";
 
-      <div className="review-box">
-        <h3>Datos del cliente</h3>
-        <p><strong>Nombre:</strong> {formData.name}</p>
-        <p><strong>Email:</strong> {formData.email}</p>
-        <p><strong>Teléfono:</strong> {formData.phone}</p>
+const paymentLabel =
+  formData.paymentMethod === "transfer"
+    ? "Transferencia bancaria (10% OFF)"
+    : formData.paymentMethod === "mercadopago"
+      ? "Mercado Pago"
+      : formData.paymentMethod === "gocuotas"
+        ? "Go Cuotas - Financiación"
+        : formData.paymentMethod === "modo"
+          ? "Modo - Pago digital"
+          : "Método de pago";
 
-        <h3>Envío</h3>
-        <p><strong>Método:</strong> {shippingLabel}</p>
+return (
+  <div className="checkout-step">
+    <h2>Revisión final</h2>
 
-        {formData.shippingMethod === "home" && (
-          <>
-            <p><strong>Dirección:</strong> {formData.address}</p>
-            <p><strong>Código postal:</strong> {formData.postalCode}</p>
-            <p><strong>Provincia:</strong> {formData.province}</p>
-          </>
-        )}
+    <div className="review-box">
+      <h3>Datos del cliente</h3>
+      <p><strong>Nombre:</strong> {formData.name}</p>
+      <p><strong>Email:</strong> {formData.email}</p>
+      <p><strong>Teléfono:</strong> {formData.phone}</p>
 
-        {formData.shippingMethod === "pickup" && (
-          <p>
-            <strong>Punto de retiro:</strong>{" "}
-            {formData.pickPoint === "aquelarre"
-              ? "Aquelarre — CABA"
-              : formData.pickPoint === "temperley"
-                ? "Temperley — ZS-GBA"
-                : "No seleccionado"}
-          </p>
-        )}
+      <h3>Envío</h3>
+      <p><strong>Método:</strong> {shippingLabel}</p>
 
-        <h3>Pago</h3>
-        <p>{paymentLabel}</p>
-
-        <h3>Productos</h3>
-        {items.map((item) => (
-          <p key={item.key}>
-            {item.name} x{item.quantity}
-          </p>
-        ))}
-
-        <h3>Total</h3>
-        <div>
-          <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
-            ${totalPrice.toLocaleString("es-AR")}
-          </p>
-          {discount > 0 && (
-            <p style={{ color: "#d94f7a", fontWeight: 600, marginTop: "8px" }}>
-              -10% descuento: -${discount.toLocaleString("es-AR")}
-            </p>
-          )}
-          {discount > 0 && (
-            <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#d94f7a", marginTop: "8px" }}>
-              Total a pagar: ${finalPrice.toLocaleString("es-AR")}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* ⭐ SECCIÓN DE TRANSFERENCIA */}
-      {formData.paymentMethod === "transfer" && (
-        <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
-          <h3 style={{ color: "#d94f7a" }}>Comprobante de transferencia</h3>
-          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
-            Adjunta tu comprobante de transferencia para procesar tu pedido
-          </p>
-          <input
-            type="file"
-            accept="image/*,.pdf"
-            onChange={handleFileChange}
-            style={{
-              padding: "12px",
-              border: "2px solid #d94f7a",
-              borderRadius: "8px",
-              width: "100%",
-              background: "#fff7fb",
-              color: "#666",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease",
-            }}
-          />
-          {proofFile && (
-            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
-              ✓ {proofFile.name}
-            </p>
-          )}
-        </div>
+      {formData.shippingMethod === "home" && (
+        <>
+          <p><strong>Dirección:</strong> {formData.address}</p>
+          <p><strong>Código postal:</strong> {formData.postalCode}</p>
+          <p><strong>Provincia:</strong> {formData.province}</p>
+        </>
       )}
 
-      <div className="checkout-nav">
-        <button className="checkout-btn-secondary" onClick={back}>
-          Volver
-        </button>
+      {formData.shippingMethod === "pickup" && (
+        <p>
+          <strong>Punto de retiro:</strong>{" "}
+          {formData.pickPoint === "aquelarre"
+            ? "Aquelarre — CABA"
+            : formData.pickPoint === "temperley"
+              ? "Temperley — ZS-GBA"
+              : "No seleccionado"}
+        </p>
+      )}
 
-        {formData.paymentMethod === "mercadopago" && (
-          <button
-            className="checkout-btn-mercadopago"
-            onClick={handlePagar}
-            disabled={loadingPayment}
-          >
-            {loadingPayment ? "Procesando..." : "Pagar con Mercado Pago"}
-          </button>
+      <h3>Pago</h3>
+      <p>{paymentLabel}</p>
+
+      <h3>Productos</h3>
+      {items.map((item) => (
+        <p key={item.key}>
+          {item.name} x{item.quantity}
+        </p>
+      ))}
+
+      <h3>Total</h3>
+      <div>
+        <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
+          ${totalPrice.toLocaleString("es-AR")}
+        </p>
+        {discount > 0 && (
+          <p style={{ color: "#d94f7a", fontWeight: 600, marginTop: "8px" }}>
+            -10% descuento: -${discount.toLocaleString("es-AR")}
+          </p>
         )}
-
-        {formData.paymentMethod === "gocuotas" && (
-          <button
-            className="checkout-btn-gocuotas"
-            onClick={handlePagarGoCuotas}
-            disabled={loadingPayment}
-          >
-            {loadingPayment ? "Procesando..." : "Financiar con Go Cuotas"}
-          </button>
-        )}
-
-        {formData.paymentMethod === "modo" && (
-          <button
-            className="checkout-btn-modo"
-            onClick={handlePagarModo}
-            disabled={loadingPayment}
-          >
-            {loadingPayment ? "Procesando..." : "Pagar con Modo"}
-          </button>
-        )}
-
-        {formData.paymentMethod === "transfer" && (
-          <button
-            className="checkout-btn-transfer"
-            onClick={handleTransfer}
-            disabled={loadingPayment}
-            style={{
-              padding: "12px 24px",
-              background: !loadingPayment ? "#d94f7a" : "#e0e0e0",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "1rem",
-              fontWeight: "600",
-              cursor: proofFile && !loadingPayment ? "pointer" : "not-allowed",
-              opacity: 1,
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              if (proofFile && !loadingPayment) {
-                e.target.style.background = "#c93b63";
-                e.target.style.transform = "translateY(-2px)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = "#d94f7a";
-              e.target.style.transform = "translateY(0)";
-            }}
-          >
-            {loadingPayment ? "Procesando..." : "Confirmar transferencia"}
-          </button>
-        )}
-
-        {!formData.paymentMethod && (
-          <button
-            className="checkout-btn-disabled"
-            disabled={true}
-          >
-            Seleccioná un método de pago
-          </button>
+        {discount > 0 && (
+          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#d94f7a", marginTop: "8px" }}>
+            Total a pagar: ${finalPrice.toLocaleString("es-AR")}
+          </p>
         )}
       </div>
-
-      {/* Modal para confirmar compra sin comprobante */}
-      <ConfirmProofModal
-        isOpen={showConfirmModal}
-        onConfirm={handleConfirmNoProof}
-        onCancel={handleCancelModal}
-      />
     </div>
-  );
+
+    {/* ⭐ SECCIÓN DE TRANSFERENCIA */}
+    {formData.paymentMethod === "transfer" && (
+      <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
+        <h3 style={{ color: "#d94f7a" }}>Comprobante de transferencia</h3>
+        <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
+          Adjunta tu comprobante de transferencia para procesar tu pedido
+        </p>
+        <input
+          type="file"
+          accept="image/*,.pdf"
+          onChange={handleFileChange}
+          style={{
+            padding: "12px",
+            border: "2px solid #d94f7a",
+            borderRadius: "8px",
+            width: "100%",
+            background: "#fff7fb",
+            color: "#666",
+            cursor: "pointer",
+            fontSize: "0.9rem",
+            fontWeight: "500",
+            transition: "all 0.3s ease",
+          }}
+        />
+        {proofFile && (
+          <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
+            ✓ {proofFile.name}
+          </p>
+        )}
+      </div>
+    )}
+
+    <div className="checkout-nav">
+      <button className="checkout-btn-secondary" onClick={back}>
+        Volver
+      </button>
+
+      {formData.paymentMethod === "mercadopago" && (
+        <button
+          className="checkout-btn-mercadopago"
+          onClick={handlePagar}
+          disabled={loadingPayment}
+        >
+          {loadingPayment ? "Procesando..." : "Pagar con Mercado Pago"}
+        </button>
+      )}
+
+      {formData.paymentMethod === "gocuotas" && (
+        <button
+          className="checkout-btn-gocuotas"
+          onClick={handlePagarGoCuotas}
+          disabled={loadingPayment}
+        >
+          {loadingPayment ? "Procesando..." : "Financiar con Go Cuotas"}
+        </button>
+      )}
+
+      {formData.paymentMethod === "modo" && (
+        <button
+          className="checkout-btn-modo"
+          onClick={handlePagarModo}
+          disabled={loadingPayment}
+        >
+          {loadingPayment ? "Procesando..." : "Pagar con Modo"}
+        </button>
+      )}
+
+      {formData.paymentMethod === "transfer" && (
+        <button
+          className="checkout-btn-transfer"
+          onClick={handleTransfer}
+          disabled={loadingPayment}
+          style={{
+            padding: "12px 24px",
+            background: !loadingPayment ? "#d94f7a" : "#e0e0e0",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "1rem",
+            fontWeight: "600",
+            cursor: proofFile && !loadingPayment ? "pointer" : "not-allowed",
+            opacity: 1,
+            transition: "all 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            if (proofFile && !loadingPayment) {
+              e.target.style.background = "#c93b63";
+              e.target.style.transform = "translateY(-2px)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = "#d94f7a";
+            e.target.style.transform = "translateY(0)";
+          }}
+        >
+          {loadingPayment ? "Procesando..." : "Confirmar transferencia"}
+        </button>
+      )}
+
+      {!formData.paymentMethod && (
+        <button
+          className="checkout-btn-disabled"
+          disabled={true}
+        >
+          Seleccioná un método de pago
+        </button>
+      )}
+    </div>
+
+    {/* Modal para confirmar compra sin comprobante */}
+    <ConfirmProofModal
+      isOpen={showConfirmModal}
+      onConfirm={handleConfirmNoProof}
+      onCancel={handleCancelModal}
+    />
+  </div>
+);
 }

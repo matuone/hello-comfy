@@ -11,14 +11,14 @@ export default function AdminMarketing() {
 
   const [message, setMessage] = useState("");
   const [bearMessage, setBearMessage] = useState("");
-  
+
   // Estado para home copy
   const [homeTitle, setHomeTitle] = useState("");
   const [homeDescription, setHomeDescription] = useState("");
   const [isEditingHome, setIsEditingHome] = useState(false);
   const [originalHomeTitle, setOriginalHomeTitle] = useState("");
   const [originalHomeDescription, setOriginalHomeDescription] = useState("");
-  
+
   // Estado para gestión de imágenes del banner
   const [bannerImages, setBannerImages] = useState([]);
   const [newImage, setNewImage] = useState(null);
@@ -26,17 +26,17 @@ export default function AdminMarketing() {
   const [loading, setLoading] = useState(false);
   const [autoplay, setAutoplay] = useState(true);
   const [interval, setInterval] = useState(5000);
-  
+
   // Estado para preview de imagen
   const [imagePreview, setImagePreview] = useState(null);
   const [previewPosition, setPreviewPosition] = useState({ x: 50, y: 50 });
   const [isDragging, setIsDragging] = useState(false);
   const previewRef = useRef(null);
-  
+
   // Estado para modales
   const [notification, setNotification] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  
+
   // Estado para drag & drop de imágenes
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -51,7 +51,7 @@ export default function AdminMarketing() {
 
     // Cargar configuración del banner desde el backend
     loadBannerConfig();
-    
+
     // Cargar home copy
     loadHomeCopy();
   }, []);
@@ -60,7 +60,7 @@ export default function AdminMarketing() {
     try {
       const response = await fetch(`${API_URL}/promo-banner`);
       const data = await response.json();
-      
+
       if (data) {
         setBannerImages(data.images || []);
         if (data.message) setMessage(data.message);
@@ -76,7 +76,7 @@ export default function AdminMarketing() {
     try {
       const response = await fetch(`${API_URL}/site-config/home-copy`);
       const data = await response.json();
-      
+
       if (data) {
         const title = data.title || "Bienvenid@ a Hello-Comfy";
         const description = data.description || "";
@@ -94,7 +94,7 @@ export default function AdminMarketing() {
     setLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      
+
       // Actualizar configuración del banner
       const bannerResponse = await fetch(`${API_URL}/promo-banner`, {
         method: 'PUT',
@@ -124,7 +124,7 @@ export default function AdminMarketing() {
 
       // 🔥 Notificar al osito que el mensaje cambió
       window.dispatchEvent(new Event("bearMessageUpdated"));
-      
+
       // Notificar al home que el copy cambió
       window.dispatchEvent(new Event("homeCopyUpdated"));
 
@@ -178,16 +178,16 @@ export default function AdminMarketing() {
       const data = await response.json();
       console.log('✅ Respuesta del backend:', data);
       console.log('📷 Imágenes recibidas:', data.banner.images);
-      
+
       setBannerImages(data.banner.images);
       setNewImage(null);
       setImagePreview(null);
       setPreviewPosition({ x: 50, y: 50 });
       setNewImagePosition("center");
-      
+
       // Limpiar el input
       document.getElementById('imageInput').value = '';
-      
+
       setNotification({ mensaje: "Imagen agregada correctamente", tipo: "success" });
     } catch (error) {
       console.error('Error subiendo imagen:', error);
@@ -221,7 +221,7 @@ export default function AdminMarketing() {
 
       const data = await response.json();
       setBannerImages(data.banner.images);
-      
+
       setNotification({ mensaje: "Imagen eliminada correctamente", tipo: "success" });
     } catch (error) {
       console.error('Error eliminando imagen:', error);
@@ -248,7 +248,7 @@ export default function AdminMarketing() {
 
       const data = await response.json();
       setBannerImages(data.banner.images);
-      
+
       setNotification({ mensaje: "Posición actualizada", tipo: "success" });
     } catch (error) {
       console.error('Error actualizando posición:', error);
@@ -292,11 +292,11 @@ export default function AdminMarketing() {
 
   function updatePreviewPosition(e) {
     if (!previewRef.current) return;
-    
+
     const rect = previewRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
+
     setPreviewPosition({
       x: Math.max(0, Math.min(100, x)),
       y: Math.max(0, Math.min(100, y))
@@ -331,7 +331,7 @@ export default function AdminMarketing() {
       setOriginalHomeTitle(homeTitle);
       setOriginalHomeDescription(homeDescription);
       setIsEditingHome(false);
-      
+
       // Notificar al home que el copy cambió
       window.dispatchEvent(new Event("homeCopyUpdated"));
 
@@ -366,7 +366,7 @@ export default function AdminMarketing() {
 
   async function handleDrop(e, dropIndex) {
     e.preventDefault();
-    
+
     if (draggedIndex === null || draggedIndex === dropIndex) {
       setDraggedIndex(null);
       setDragOverIndex(null);
@@ -377,7 +377,7 @@ export default function AdminMarketing() {
     const newImages = [...bannerImages];
     const [draggedItem] = newImages.splice(draggedIndex, 1);
     newImages.splice(dropIndex, 0, draggedItem);
-    
+
     setBannerImages(newImages);
     setDraggedIndex(null);
     setDragOverIndex(null);
@@ -386,7 +386,7 @@ export default function AdminMarketing() {
     try {
       const token = localStorage.getItem('adminToken');
       const imageIds = newImages.map(img => img._id);
-      
+
       const response = await fetch(`${API_URL}/promo-banner/images/reorder`, {
         method: 'PUT',
         headers: {
@@ -397,7 +397,7 @@ export default function AdminMarketing() {
       });
 
       if (!response.ok) throw new Error('Error al reordenar');
-      
+
       setNotification({ mensaje: "Orden actualizado correctamente", tipo: "success" });
     } catch (error) {
       console.error('Error reordenando:', error);
@@ -433,7 +433,7 @@ export default function AdminMarketing() {
       {/* Configuración general del banner */}
       <div className="marketing-box">
         <h3 style={{ marginBottom: '15px', color: '#333' }}>Configuración del Banner</h3>
-        
+
         {/* Mensaje del banner */}
         <label className="marketing-label">Mensaje del banner</label>
         <textarea
@@ -484,8 +484,8 @@ export default function AdminMarketing() {
         </div>
 
         <div className="marketing-actions">
-          <button 
-            className="btn-guardar" 
+          <button
+            className="btn-guardar"
             onClick={guardar}
             disabled={loading}
           >
@@ -523,7 +523,7 @@ export default function AdminMarketing() {
             </button>
           )}
         </div>
-        
+
         <label className="marketing-label">Título principal</label>
         <input
           className="marketing-textarea"
@@ -607,7 +607,7 @@ export default function AdminMarketing() {
         {/* Agregar nueva imagen */}
         <div style={{ marginBottom: '20px', padding: '15px', border: '1px dashed #ccc', borderRadius: '8px' }}>
           <label className="marketing-label">Agregar nueva imagen</label>
-          
+
           <div style={{ marginBottom: '15px' }}>
             <label htmlFor="imageInput" className="file-input-label">
               📁 Seleccionar imagen
@@ -644,7 +644,7 @@ export default function AdminMarketing() {
                   background: '#f3f3f3'
                 }}
               >
-                <div 
+                <div
                   ref={previewRef}
                   className="image-preview-container"
                   onMouseDown={handlePreviewMouseDown}
@@ -694,7 +694,7 @@ export default function AdminMarketing() {
           <button
             onClick={handleImageUpload}
             disabled={loading || !newImage}
-            style={{ 
+            style={{
               marginTop: '10px',
               padding: '12px 30px',
               background: '#d94f7a',
@@ -732,7 +732,7 @@ export default function AdminMarketing() {
               💡 Arrastra las imágenes para cambiar el orden
             </p>
           )}
-          
+
           {bannerImages.length === 0 ? (
             <p style={{ color: '#999', fontStyle: 'italic' }}>No hay imágenes. El banner usará las imágenes por defecto.</p>
           ) : (
@@ -759,8 +759,8 @@ export default function AdminMarketing() {
                     transform: dragOverIndex === index ? 'scale(1.02)' : 'scale(1)'
                   }}
                 >
-                  <div style={{ 
-                    display: 'flex', 
+                  <div style={{
+                    display: 'flex',
                     alignItems: 'center',
                     fontSize: '20px',
                     color: '#999',
