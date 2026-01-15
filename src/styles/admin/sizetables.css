@@ -25,18 +25,25 @@
   padding: 30px;
   margin-bottom: 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.sizetable-form-card * {
+  text-align: left;
 }
 
 .sizetable-form-card h2 {
   margin-top: 0;
   margin-bottom: 20px;
   color: #333;
+  text-align: left;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  text-align: left;
 }
 
 .form-group {
@@ -345,16 +352,22 @@
   background: #fecaca;
 }
 
+.sizetable-preview {
+  text-align: left !important;
+}
+
 .sizetable-preview table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 15px;
+  margin-left: 0 !important;
+  margin-right: auto !important;
 }
 
 .sizetable-preview th,
 .sizetable-preview td {
   padding: 12px;
-  text-align: left;
+  text-align: left !important;
   border-bottom: 1px solid #eee;
 }
 
