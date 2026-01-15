@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 import "../styles/admin/sizetables.css";
 
 export default function AdminSizeTables() {
@@ -7,6 +8,8 @@ export default function AdminSizeTables() {
   const [loading, setLoading] = useState(true);
   const [editingTable, setEditingTable] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [tableToDelete, setTableToDelete] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -113,11 +116,14 @@ export default function AdminSizeTables() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("¿Estás seguro de eliminar esta tabla de talles?")) return;
+    setTableToDelete(id);
+    setShowConfirm(true);
+  };
 
+  const confirmDelete = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await fetch(`http://localhost:5000/api/sizetables/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/sizetables/${tableToDelete}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -131,7 +137,15 @@ export default function AdminSizeTables() {
     } catch (error) {
       console.error("Error:", error);
       toast.error("Error al eliminar la tabla");
+    } finally {
+      setShowConfirm(false);
+      setTableToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
+    setTableToDelete(null);
   };
 
   const handleReorder = async (newOrderIds) => {
@@ -465,6 +479,15 @@ export default function AdminSizeTables() {
           ))
         )}
       </div>
+
+      {showConfirm && (
+        <ConfirmModal
+          titulo="Eliminar Tabla de Talles"
+          mensaje="¿Estás seguro de que querés eliminar esta tabla de talles? Esta acción no se puede deshacer."
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
     </div>
   );
 }
