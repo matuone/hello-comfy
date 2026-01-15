@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useCart } from "../context/CartContext";
 import "../styles/payment.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -11,6 +12,7 @@ export default function ModoCheckout() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const reference = searchParams.get("id");
+  const { clearCart } = useCart();
 
   useEffect(() => {
     // En producción, aquí se mostraría el QR o se abriría la app de Modo
@@ -55,6 +57,9 @@ export default function ModoCheckout() {
             }
           }
         }
+        
+        // Limpiar carrito
+        clearCart();
         
         // Limpiar checkout del localStorage
         localStorage.removeItem("checkoutStep");

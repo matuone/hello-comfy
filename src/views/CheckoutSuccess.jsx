@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import "../styles/checkoutsuccess.css";
 
 export default function CheckoutSuccess() {
   const [orderCode, setOrderCode] = useState(null);
+  const { clearCart } = useCart();
 
   useEffect(() => {
     // Obtener código de orden desde localStorage
@@ -12,12 +14,15 @@ export default function CheckoutSuccess() {
       setOrderCode(lastOrder);
     }
 
+    // Limpiar carrito
+    clearCart();
+
     // Limpiar checkout del localStorage al llegar a la página de éxito
     localStorage.removeItem("checkoutStep");
     localStorage.removeItem("checkoutFormData");
     localStorage.removeItem("pendingOrder");
     localStorage.removeItem("lastOrderCode");
-  }, []);
+  }, [clearCart]);
 
   return (
     <div className="success-container">

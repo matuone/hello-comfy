@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useCart } from "../context/CartContext";
 import { procesarPagoConfirmado } from "../services/mercadopagoService";
 
 export default function PaymentSuccess() {
@@ -9,6 +10,7 @@ export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const [processingOrder, setProcessingOrder] = useState(true);
   const [orderCode, setOrderCode] = useState(null);
+  const { clearCart } = useCart();
 
   useEffect(() => {
     const processPayment = async () => {
@@ -45,6 +47,9 @@ export default function PaymentSuccess() {
             toast.success(`✅ ¡Pago procesado! Orden: ${response.order.code}`);
           }
         }
+
+        // Limpiar carrito
+        clearCart();
 
         // Limpiar localStorage
         localStorage.removeItem("pendingOrder");
