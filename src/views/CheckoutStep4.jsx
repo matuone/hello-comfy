@@ -293,8 +293,6 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
       setLoadingPayment(false);
     }
   };
-    }
-  };
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
