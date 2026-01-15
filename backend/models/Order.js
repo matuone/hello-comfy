@@ -36,7 +36,7 @@ const OrderSchema = new mongoose.Schema(
     // ⭐ Medio de pago
     paymentMethod: {
       type: String,
-      enum: ["mercadopago", "gocuotas", "modo"],
+      enum: ["mercadopago", "gocuotas", "modo", "transfer"],
       default: "mercadopago",
     },
 

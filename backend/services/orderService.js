@@ -120,8 +120,12 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
 
     // Enviar email al admin
     console.log("📧 Iniciando envío de email al admin");
-    const adminEmailSent = await enviarEmailAlAdmin(order);
-    console.log("📧 Email al admin enviado:", adminEmailSent ? "SÍ ✅" : "NO ❌");
+    try {
+      const adminEmailSent = await enviarEmailAlAdmin(order);
+      console.log("📧 Email al admin enviado:", adminEmailSent ? "SÍ ✅" : "NO ❌");
+    } catch (adminEmailError) {
+      console.error("❌ Error enviando email al admin (no falla la orden):", adminEmailError.message);
+    }
 
     return order;
   } catch (error) {

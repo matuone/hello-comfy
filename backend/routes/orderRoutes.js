@@ -130,8 +130,17 @@ router.post("/orders/create-transfer", async (req, res) => {
   try {
     const { formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
 
-    if (!formData || !items) {
+    console.log("📝 create-transfer request recibido");
+    console.log("📋 FormData email:", formData?.email);
+    console.log("📋 Items count:", items?.length);
+    console.log("📋 PaymentProof length:", paymentProof?.length || 0);
+
+    if (!formData || !items || !totalPrice) {
       return res.status(400).json({ error: "Datos incompletos" });
+    }
+
+    if (!formData.email || !formData.name) {
+      return res.status(400).json({ error: "Email y nombre requeridos" });
     }
 
     // Crear datos simulados de pago para crearOrdenDesdePago
@@ -149,12 +158,14 @@ router.post("/orders/create-transfer", async (req, res) => {
       formData,
       items,
       totalPrice,
-      paymentProof,
-      paymentProofName,
+      paymentProof: paymentProof || null,
+      paymentProofName: paymentProofName || null,
     };
 
+    console.log("📝 Iniciando crearOrdenDesdePago");
     // Crear orden usando el servicio existente
     const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
+    console.log("✅ Orden creada:", order.code);
 
     res.json({
       success: true,

@@ -424,28 +424,40 @@ export async function enviarEmailAlAdmin(order) {
     const attachments = [];
     if (order.paymentMethod === 'transfer' && order.paymentProof) {
       try {
-        // Extraer el tipo de archivo del nombre o asumir jpg
-        const fileName = order.paymentProofName || 'comprobante.jpg';
-        const mimeType = order.paymentProofName?.includes('.pdf') ? 'application/pdf' : 'image/jpeg';
-        
-        // El paymentProof está en formato base64
-        attachments.push({
-          filename: fileName,
-          content: Buffer.from(order.paymentProof, 'base64'),
-          contentType: mimeType,
-        });
+        // Validar que paymentProof sea una string válida
+        if (typeof order.paymentProof !== 'string') {
+          console.warn("⚠️ paymentProof no es una string válida");
+        } else {
+          // Extraer el tipo de archivo del nombre o asumir jpg
+          const fileName = order.paymentProofName || 'comprobante.jpg';
+          const mimeType = order.paymentProofName?.includes('.pdf') ? 'application/pdf' : 'image/jpeg';
+          
+          // El paymentProof está en formato base64
+          const buffer = Buffer.from(order.paymentProof, 'base64');
+          attachments.push({
+            filename: fileName,
+            content: buffer,
+            contentType: mimeType,
+          });
+        }
       } catch (attachError) {
         console.warn("⚠️ No se pudo adjuntar el comprobante:", attachError.message);
       }
     }
 
-    await transporter.sendMail({
+    const mailOptions = {
       from: '"Hello Comfy 🧸" <hellocomfyind@gmail.com>',
       to: "hellocomfyind@gmail.com",
       subject: `🎉 Nueva compra - Orden #${order.code} - ${order.customer?.name}`,
       html: emailHtml,
-      attachments: attachments,
-    });
+    };
+
+    // Agregar attachments solo si hay
+    if (attachments.length > 0) {
+      mailOptions.attachments = attachments;
+    }
+
+    await transporter.sendMail(mailOptions);
 
     console.log(`✅ Email al admin enviado para orden: ${order.code}`);
     return true;
