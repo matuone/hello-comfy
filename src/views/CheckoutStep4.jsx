@@ -5,12 +5,14 @@ import { crearPreferenciaMercadoPago, redirigirAMercadoPago } from "../services/
 import { createGocuotasCheckout } from "../services/gocuotasService";
 import { crearIntencionPagoModo } from "../services/modoService";
 import { toast } from "react-hot-toast";
+import ConfirmProofModal from "../components/ConfirmProofModal";
 
 export default function Step4({ formData, items, totalPrice, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [proofFile, setProofFile] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Calcular descuento por transferencia
   const discount = formData.paymentMethod === "transfer" ? totalPrice * 0.1 : 0;
@@ -196,18 +198,10 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
   // ⭐ Manejar transferencia bancaria
   const handleTransfer = async () => {
-    // Si no hay comprobante, mostrar un aviso pero permitir continuar
+    // Si no hay comprobante, mostrar modal
     if (!proofFile) {
-      const confirmed = window.confirm(
-        "⚠️ Por favor adjunta el comprobante para poder confirmar tu compra.\n\n" +
-        "Si en este momento no puedes hacerlo, puedes enviarlo por WhatsApp después de realizar la compra.\n\n" +
-        "¿Deseas continuar sin adjuntar comprobante?"
-      );
-      
-      // Si el usuario cancela, no hacer nada
-      if (!confirmed) {
-        return;
-      }
+      setShowConfirmModal(true);
+      return;
     }
 
     setLoadingPayment(true);
@@ -242,7 +236,25 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
     }
   };
 
-  const crearOrden = async (proofBase64) => {
+  const handleConfirmNoProof = async () => {
+    setShowConfirmModal(false);
+    setLoadingPayment(true);
+    
+    try {
+      // Crear orden sin comprobante
+      await crearOrden(null);
+    } catch (error) {
+      console.error("Error al crear orden sin comprobante:", error);
+      toast.error("Error al procesar la transferencia");
+      setLoadingPayment(false);
+    }
+  };
+
+  const handleCancelModal = () => {
+    setShowConfirmModal(false);
+  };
+
+
     try {
       // Guardar orden con o sin comprobante
       localStorage.setItem("pendingOrder", JSON.stringify({
@@ -489,6 +501,13 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
           </button>
         )}
       </div>
+
+      {/* Modal para confirmar compra sin comprobante */}
+      <ConfirmProofModal
+        isOpen={showConfirmModal}
+        onConfirm={handleConfirmNoProof}
+        onCancel={handleCancelModal}
+      />
     </div>
   );
 }
