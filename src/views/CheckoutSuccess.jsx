@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "../styles/checkoutsuccess.css";
@@ -7,8 +7,13 @@ export default function CheckoutSuccess() {
   const [orderCode, setOrderCode] = useState(null);
   const [customerName, setCustomerName] = useState("");
   const { clearCart } = useCart();
+  const hasCleared = useRef(false);
 
   useEffect(() => {
+    // Solo ejecutar una vez
+    if (hasCleared.current) return;
+    hasCleared.current = true;
+
     // Obtener código de orden desde localStorage
     const lastOrder = localStorage.getItem("lastOrderCode");
     if (lastOrder) {
