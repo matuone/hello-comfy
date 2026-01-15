@@ -5,6 +5,7 @@ import "../styles/checkoutsuccess.css";
 
 export default function CheckoutSuccess() {
   const [orderCode, setOrderCode] = useState(null);
+  const [customerName, setCustomerName] = useState("");
   const { clearCart } = useCart();
 
   useEffect(() => {
@@ -12,6 +13,18 @@ export default function CheckoutSuccess() {
     const lastOrder = localStorage.getItem("lastOrderCode");
     if (lastOrder) {
       setOrderCode(lastOrder);
+    }
+
+    // Obtener nombre del cliente desde pendingOrder antes de limpiarlo
+    const pendingOrder = localStorage.getItem("pendingOrder");
+    if (pendingOrder) {
+      try {
+        const orderData = JSON.parse(pendingOrder);
+        const name = orderData?.formData?.name || "";
+        setCustomerName(name);
+      } catch (err) {
+        console.error("Error parsing pendingOrder:", err);
+      }
     }
 
     // Limpiar carrito
@@ -29,11 +42,15 @@ export default function CheckoutSuccess() {
       <div className="success-card">
         <div className="success-icon">✓</div>
 
-        <h1 className="success-title">¡Gracias por tu compra!</h1>
+        {customerName && (
+          <h2 className="customer-name">{customerName}</h2>
+        )}
+
+        <h1 className="success-title">¡Muchas gracias por tu compra!</h1>
         
         {orderCode && (
           <p className="order-number">
-            Orden: <strong>#{orderCode}</strong>
+            Tu número de orden es: <strong>#{orderCode}</strong>
           </p>
         )}
         
