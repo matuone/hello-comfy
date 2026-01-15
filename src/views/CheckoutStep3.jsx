@@ -1,4 +1,5 @@
 import { useState } from "react";
+import qrCuentaDNI from "../assets/qrcuentaDNI.jpeg";
 
 export default function Step3({ formData, updateField, next, back }) {
   const isValid = formData.paymentMethod !== "";
@@ -149,7 +150,7 @@ export default function Step3({ formData, updateField, next, back }) {
                     <strong>Escanea el código QR para poder realizar el pago</strong>
                   </p>
                   <img
-                    src="/assets/qrcuentaDNI.jpeg"
+                    src={qrCuentaDNI}
                     alt="QR Cuenta DNI"
                     style={{
                       maxWidth: "250px",
