@@ -7,6 +7,65 @@ import { toast } from "react-hot-toast";
 export default function Step4({ formData, items, totalPrice, back }) {
   const [loadingPayment, setLoadingPayment] = useState(false);
 
+  // ⭐ Pagar con Modo
+  const handlePagarModo = async () => {
+    if (!formData.email) {
+      toast.error("Email requerido");
+      return;
+    }
+
+    setLoadingPayment(true);
+
+    try {
+      const itemsValidos = items.map((item) => ({
+        title: item.name || "Producto",
+        description: `Talle: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}`,
+        quantity: parseInt(item.quantity) || 1,
+        unit_price: parseFloat(item.price) || 0,
+        picture_url: item.image || "",
+        productId: item.id,
+        size: item.size,
+        color: item.color
+      }));
+
+      const paymentIntent = await crearIntencionPagoModo({
+        items: itemsValidos,
+        totalPrice: parseFloat(totalPrice) || 0,
+        customerData: {
+          email: formData.email,
+          name: formData.name || "Cliente",
+          phone: formData.phone || "",
+          address: formData.address || "",
+          city: formData.city || "",
+          postalCode: formData.postalCode || "",
+          province: formData.province || "",
+        },
+        shippingCost: 0,
+        metadata: {
+          orderType: "checkout",
+          shippingMethod: formData.shippingMethod,
+        },
+      });
+
+      if (paymentIntent?.paymentIntent?.checkout_url) {
+        localStorage.setItem("pendingOrder", JSON.stringify({
+          formData,
+          items,
+          totalPrice,
+          createdAt: new Date().toISOString(),
+        }));
+        window.location.href = paymentIntent.paymentIntent.checkout_url;
+      } else {
+        toast.error("Error al crear la intención de pago con Modo");
+      }
+    } catch (error) {
+      console.error("Error en Modo:", error);
+      toast.error("Error al procesar el pago");
+    } finally {
+      setLoadingPayment(false);
+    }
+  };
+
   // ⭐ Pagar con Go Cuotas
   const handlePagarGoCuotas = async () => {
     if (!formData.email) {

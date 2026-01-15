@@ -14,7 +14,7 @@ export async function crearIntencionPagoModo({
   try {
     console.log("🟢 Creando intención de pago con Modo...");
 
-    const response = await fetch(`${API_URL}/api/modo/create-payment-intent`, {
+    const response = await fetch(`${API_URL}/modo/create-payment-intent`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export async function crearIntencionPagoModo({
  */
 export async function consultarEstadoPago(paymentId) {
   try {
-    const response = await fetch(`${API_URL}/api/modo/payment/${paymentId}`);
+    const response = await fetch(`${API_URL}/modo/payment/${paymentId}`);
     
     if (!response.ok) {
       throw new Error("Error al consultar estado del pago");
