@@ -207,7 +207,12 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
       // Guardar el comprobante en base64
       const reader = new FileReader();
       reader.onload = async () => {
-        const proofBase64 = reader.result;
+        let proofBase64 = reader.result;
+        
+        // Si tiene el prefijo de data URL, extraerlo (data:image/jpeg;base64,XXXX...)
+        if (proofBase64.includes(',')) {
+          proofBase64 = proofBase64.split(',')[1];
+        }
 
         // Guardar orden con comprobante
         localStorage.setItem("pendingOrder", JSON.stringify({

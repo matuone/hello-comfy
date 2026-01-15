@@ -428,17 +428,34 @@ export async function enviarEmailAlAdmin(order) {
         if (typeof order.paymentProof !== 'string') {
           console.warn("⚠️ paymentProof no es una string válida");
         } else {
+          // Limpiar base64: remover data URI prefix y espacios/saltos de línea
+          let cleanBase64 = order.paymentProof.trim();
+          
+          // Si tiene el prefijo de data URI, extraerlo
+          if (cleanBase64.includes(',')) {
+            cleanBase64 = cleanBase64.split(',')[1];
+          }
+          
+          // Remover caracteres whitespace
+          cleanBase64 = cleanBase64.replace(/\s/g, '');
+          
           // Extraer el tipo de archivo del nombre o asumir jpg
           const fileName = order.paymentProofName || 'comprobante.jpg';
           const mimeType = order.paymentProofName?.includes('.pdf') ? 'application/pdf' : 'image/jpeg';
           
-          // El paymentProof está en formato base64
-          const buffer = Buffer.from(order.paymentProof, 'base64');
-          attachments.push({
-            filename: fileName,
-            content: buffer,
-            contentType: mimeType,
-          });
+          // Validar que sea base64 válido (opcional pero ayuda a debugging)
+          if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleanBase64)) {
+            console.warn("⚠️ Base64 inválido para comprobante");
+          } else {
+            // El paymentProof está en formato base64, convertir a buffer
+            const buffer = Buffer.from(cleanBase64, 'base64');
+            attachments.push({
+              filename: fileName,
+              content: buffer,
+              contentType: mimeType,
+            });
+            console.log("✅ Comprobante adjuntado:", fileName, "(" + buffer.length + " bytes)");
+          }
         }
       } catch (attachError) {
         console.warn("⚠️ No se pudo adjuntar el comprobante:", attachError.message);
