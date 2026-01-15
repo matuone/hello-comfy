@@ -1,11 +1,73 @@
 import { useState } from "react";
 import { crearPreferenciaMercadoPago, redirigirAMercadoPago } from "../services/mercadopagoService";
+import { createGocuotasCheckout } from "../services/gocuotasService";
 import { toast } from "react-hot-toast";
 
 export default function Step4({ formData, items, totalPrice, back }) {
   const [loadingPayment, setLoadingPayment] = useState(false);
 
-  // ⭐ NUEVO — Pagar con Mercado Pago desde checkout (COMPRA REAL)
+  // ⭐ Pagar con Go Cuotas
+  const handlePagarGoCuotas = async () => {
+    if (!formData.email) {
+      toast.error("Email requerido");
+      return;
+    }
+
+    if (!formData.phone) {
+      toast.error("Teléfono requerido");
+      return;
+    }
+
+    setLoadingPayment(true);
+
+    try {
+      const itemsValidos = items.map((item) => ({
+        title: item.name || "Producto",
+        quantity: parseInt(item.quantity) || 1,
+        unit_price: parseFloat(item.price) || 0,
+        picture_url: item.image || "",
+        description: `Talle: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}`,
+      }));
+
+      const dniMatch = formData.phone.match(/\d{7,8}/);
+      const dni = dniMatch ? dniMatch[0] : "0000000";
+
+      const checkout = await createGocuotasCheckout({
+        items: itemsValidos,
+        totalPrice: parseFloat(totalPrice) || 0,
+        customerData: {
+          email: formData.email,
+          name: formData.name || "Cliente",
+          phone: formData.phone || "",
+          dni: dni,
+          postalCode: formData.postalCode || "",
+        },
+        metadata: {
+          orderType: "checkout",
+          shippingMethod: formData.shippingMethod,
+        },
+      });
+
+      if (checkout?.url_init) {
+        localStorage.setItem("pendingOrder", JSON.stringify({
+          formData,
+          items,
+          totalPrice,
+          createdAt: new Date().toISOString(),
+        }));
+        window.location.href = checkout.url_init;
+      } else {
+        toast.error("Error al crear el checkout de Go Cuotas");
+      }
+    } catch (error) {
+      console.error("Error en Go Cuotas:", error);
+      toast.error("Error al procesar el pago");
+    } finally {
+      setLoadingPayment(false);
+    }
+  };
+
+  // ⭐ Pagar con Mercado Pago
   const handlePagar = async () => {
     if (!formData.paymentMethod) {
       toast.error("Seleccioná un método de pago");
@@ -20,21 +82,14 @@ export default function Step4({ formData, items, totalPrice, back }) {
     setLoadingPayment(true);
 
     try {
-      // Validar y mapear items correctamente
-      const itemsValidos = items.map((item) => {
-        if (!item.price || item.price <= 0) {
-          console.warn("⚠️ Item con precio inválido:", item);
-        }
-        return {
-          title: item.name || "Producto",
-          quantity: parseInt(item.quantity) || 1,
-          unit_price: parseFloat(item.price) || 0,
-          picture_url: item.image || "",
-          description: `Talle: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}`,
-        };
-      });
-
-      console.log("📦 Items para enviar:", itemsValidos);
+      const itemsValidos = items.map((item) => ({
+        title: item.name || "Producto",
+        description: item.description || "",
+        picture_url: item.image || "",
+        quantity: parseInt(item.quantity) || 1,
+        unit_price: parseFloat(item.price) || 0,
+        currency_id: "ARS",
+      }));
 
       const preferencia = await crearPreferenciaMercadoPago({
         items: itemsValidos,
@@ -48,15 +103,10 @@ export default function Step4({ formData, items, totalPrice, back }) {
         metadata: {
           orderType: "checkout",
           shippingMethod: formData.shippingMethod,
-          shippingAddress: formData.address,
-          shippingPickPoint: formData.pickPoint,
-          province: formData.province,
-          postalCode: formData.postalCode,
         },
       });
 
       if (preferencia?.init_point) {
-        // Guardar datos completos de la orden en localStorage antes de redirigir a Mercado Pago
         localStorage.setItem("pendingOrder", JSON.stringify({
           formData,
           items,
@@ -83,24 +133,22 @@ export default function Step4({ formData, items, totalPrice, back }) {
   const paymentLabel =
     formData.paymentMethod === "transfer"
       ? "Transferencia bancaria (10% OFF)"
-      : "Tarjeta de débito / crédito";
+      : formData.paymentMethod === "mercadopago"
+        ? "Mercado Pago"
+        : formData.paymentMethod === "gocuotas"
+          ? "Go Cuotas - Financiación"
+          : "Método de pago";
 
   return (
     <div className="checkout-step">
       <h2>Revisión final</h2>
 
       <div className="review-box">
-        {/* ============================
-            DATOS DEL CLIENTE
-        ============================ */}
         <h3>Datos del cliente</h3>
         <p><strong>Nombre:</strong> {formData.name}</p>
         <p><strong>Email:</strong> {formData.email}</p>
         <p><strong>Teléfono:</strong> {formData.phone}</p>
 
-        {/* ============================
-            ENVÍO
-        ============================ */}
         <h3>Envío</h3>
         <p><strong>Método:</strong> {shippingLabel}</p>
 
@@ -123,15 +171,9 @@ export default function Step4({ formData, items, totalPrice, back }) {
           </p>
         )}
 
-        {/* ============================
-            PAGO
-        ============================ */}
         <h3>Pago</h3>
         <p>{paymentLabel}</p>
 
-        {/* ============================
-            PRODUCTOS
-        ============================ */}
         <h3>Productos</h3>
         {items.map((item) => (
           <p key={item.key}>
@@ -139,9 +181,6 @@ export default function Step4({ formData, items, totalPrice, back }) {
           </p>
         ))}
 
-        {/* ============================
-            TOTAL
-        ============================ */}
         <h3>Total</h3>
         <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
           ${totalPrice.toLocaleString("es-AR")}
@@ -153,14 +192,43 @@ export default function Step4({ formData, items, totalPrice, back }) {
           Volver
         </button>
 
-        {/* ⭐ NUEVO — Botón de Pago (Mercado Pago) */}
-        <button
-          className="checkout-btn-mercadopago"
-          onClick={handlePagar}
-          disabled={loadingPayment}
-        >
-          {loadingPayment ? "Procesando..." : "Pagar"}
-        </button>
+        {formData.paymentMethod === "mercadopago" && (
+          <button
+            className="checkout-btn-mercadopago"
+            onClick={handlePagar}
+            disabled={loadingPayment}
+          >
+            {loadingPayment ? "Procesando..." : "Pagar con Mercado Pago"}
+          </button>
+        )}
+
+        {formData.paymentMethod === "gocuotas" && (
+          <button
+            className="checkout-btn-gocuotas"
+            onClick={handlePagarGoCuotas}
+            disabled={loadingPayment}
+          >
+            {loadingPayment ? "Procesando..." : "Financiar con Go Cuotas"}
+          </button>
+        )}
+
+        {formData.paymentMethod === "transfer" && (
+          <button
+            className="checkout-btn-transfer"
+            disabled={true}
+          >
+            Confirmar transferencia
+          </button>
+        )}
+
+        {!formData.paymentMethod && (
+          <button
+            className="checkout-btn-disabled"
+            disabled={true}
+          >
+            Seleccioná un método de pago
+          </button>
+        )}
       </div>
     </div>
   );

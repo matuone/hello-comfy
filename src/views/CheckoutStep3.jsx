@@ -17,15 +17,26 @@ export default function Step3({ formData, updateField, next, back }) {
           Transferencia bancaria (10% OFF)
         </label>
 
-        {/* ⭐ Tarjeta */}
+        {/* ⭐ Tarjeta de crédito/débito con Mercado Pago */}
         <label>
           <input
             type="radio"
             name="payment"
-            checked={formData.paymentMethod === "card"}
-            onChange={() => updateField("paymentMethod", "card")}
+            checked={formData.paymentMethod === "mercadopago"}
+            onChange={() => updateField("paymentMethod", "mercadopago")}
           />
-          Tarjeta de débito / crédito
+          Tarjeta de débito / crédito (Mercado Pago)
+        </label>
+
+        {/* ⭐ Go Cuotas */}
+        <label>
+          <input
+            type="radio"
+            name="payment"
+            checked={formData.paymentMethod === "gocuotas"}
+            onChange={() => updateField("paymentMethod", "gocuotas")}
+          />
+          Financiar en cuotas (Go Cuotas)
         </label>
       </div>
 

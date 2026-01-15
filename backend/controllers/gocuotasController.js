@@ -1,0 +1,264 @@
+// backend/controllers/gocuotasController.js
+import axios from "axios";
+import {
+  crearOrdenDesdePago,
+  actualizarEstadoPago,
+  obtenerOrdenPorCodigo,
+} from "../services/orderService.js";
+
+// ============================
+// CONFIG
+// ============================
+const GOCUOTAS_BASE_URL = process.env.GOCUOTAS_BASE_URL || "https://sandbox.gocuotas.com/api_redirect/v1";
+
+// Si usas email/password se usará token; si usas API key no se usa token
+let GOCUOTAS_TOKEN = null;
+let TOKEN_EXPIRY = null;
+
+const getGocuotasToken = async () => {
+  // Si hay API key configurada, no usamos token
+  if (process.env.GOCUOTAS_API_KEY_SANDBOX) return null;
+
+  if (GOCUOTAS_TOKEN && TOKEN_EXPIRY && Date.now() < TOKEN_EXPIRY) return GOCUOTAS_TOKEN;
+
+  const email = process.env.GOCUOTAS_SANDBOX_EMAIL;
+  const password = process.env.GOCUOTAS_SANDBOX_PASSWORD;
+  if (!email || !password) {
+    throw new Error("Credenciales de Go Cuotas sandbox no configuradas");
+  }
+
+  const response = await axios.post(
+    `${GOCUOTAS_BASE_URL}/authentication`,
+    { email, password },
+    { headers: { "Content-Type": "application/json" } }
+  );
+
+  GOCUOTAS_TOKEN = response.data.token;
+  TOKEN_EXPIRY = Date.now() + 55 * 60 * 1000; // 55 minutos
+  return GOCUOTAS_TOKEN;
+};
+
+// ============================
+// POST /api/gocuotas/create-checkout
+// ============================
+export const createCheckout = async (req, res) => {
+  try {
+    const { items, totalPrice, customerData, shippingCost = 0, metadata = {} } = req.body;
+
+    const hasApiKey = !!process.env.GOCUOTAS_API_KEY_SANDBOX;
+    const hasUserPass = !!(process.env.GOCUOTAS_SANDBOX_EMAIL && process.env.GOCUOTAS_SANDBOX_PASSWORD);
+    if (!hasApiKey && !hasUserPass) {
+      return res.status(500).json({ error: "Go Cuotas Sandbox no está configurado" });
+    }
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ error: "Items requeridos" });
+    }
+    if (!customerData || !customerData.email) {
+      return res.status(400).json({ error: "Email del cliente requerido" });
+    }
+
+    const token = hasApiKey ? null : await getGocuotasToken();
+
+    const totalPriceInCents = Math.round((Number(totalPrice) || 0) * 100);
+    const gocuotasItems = items.map((item) => ({
+      title: item.title || item.name || "Producto",
+      unit_price_in_cents: Math.round((Number(item.unit_price ?? item.price ?? 0)) * 100),
+      quantity: parseInt(item.quantity) || 1,
+    }));
+
+    const phoneNumber = (customerData.phone || "").replace(/[^0-9]/g, "");
+    const areaCode = phoneNumber.substring(0, 2) || "11";
+    const telephoneNumber = phoneNumber.substring(2) || "0";
+
+    const orderReference = `order_${Date.now()}`;
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const successUrl = `${frontendUrl}/payment/success?method=gocuotas&reference=${orderReference}`;
+    const failureUrl = `${frontendUrl}/payment/cancel?method=gocuotas&reference=${orderReference}`;
+    const notificationUrl = `${process.env.API_URL || "http://localhost:5000"}/api/gocuotas/webhook`;
+
+    const checkoutData = {
+      amount_in_cents: totalPriceInCents,
+      order_reference_id: orderReference,
+      customer: {
+        email: customerData.email,
+        dni: customerData.dni || "0000000",
+        area_code: areaCode,
+        telephone_number: telephoneNumber,
+      },
+      items: gocuotasItems,
+      url_success: successUrl,
+      url_failure: failureUrl,
+      url_notification: notificationUrl,
+    };
+
+    const response = await axios.post(
+      `${GOCUOTAS_BASE_URL}/checkouts`,
+      checkoutData,
+      {
+        headers: {
+          Authorization: hasApiKey
+            ? `Bearer ${process.env.GOCUOTAS_API_KEY_SANDBOX}`
+            : `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    global.gocuotasOrders = global.gocuotasOrders || {};
+    global.gocuotasOrders[response.data.id] = {
+      orderReference,
+      customerData,
+      items,
+      totalPrice,
+      shippingCost,
+      metadata,
+      createdAt: new Date(),
+    };
+
+    res.json({
+      id: response.data.id,
+      url_init: response.data.url_init,
+      status: response.data.status,
+      orderReference,
+    });
+  } catch (err) {
+    const apiStatus = err.response?.status;
+    const apiData = err.response?.data;
+    console.error("❌ Error creando checkout Go Cuotas:", err.message, apiStatus, apiData);
+
+    res.status(apiStatus || 500).json({
+      error: "Error al crear checkout",
+      detail: apiData || err.message,
+    });
+  }
+};
+
+// ============================
+// GET /api/gocuotas/checkout/:id
+// ============================
+export const getCheckoutStatus = async (req, res) => {
+  try {
+    const hasApiKey = !!process.env.GOCUOTAS_API_KEY_SANDBOX;
+    const token = hasApiKey ? null : await getGocuotasToken();
+
+    const response = await axios.get(
+      `${GOCUOTAS_BASE_URL}/checkouts/${req.params.id}`,
+      {
+        headers: {
+          Authorization: hasApiKey
+            ? `Bearer ${process.env.GOCUOTAS_API_KEY_SANDBOX}`
+            : `Bearer ${token}`,
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error("❌ Error consultando checkout:", err.message);
+    res.status(500).json({ error: "Error al consultar checkout: " + err.message });
+  }
+};
+
+// ============================
+// POST /api/gocuotas/webhook
+// ============================
+export const webhookGocuotas = async (req, res) => {
+  try {
+    const { checkout_id, order_reference_id, status, amount_in_cents, installments } = req.body;
+
+    const orderData = global.gocuotasOrders?.[checkout_id];
+    if (!orderData) {
+      console.warn("⚠️ No se encontraron datos de la orden:", checkout_id);
+      return res.status(200).json({ received: true });
+    }
+
+    if (status === "approved") {
+      try {
+        const newOrder = await crearOrdenDesdePago({
+          paymentMethod: "gocuotas",
+          paymentId: checkout_id,
+          orderReference: order_reference_id,
+          customerData: orderData.customerData,
+          items: orderData.items,
+          totalPrice: orderData.totalPrice,
+          shippingCost: orderData.shippingCost,
+          status: "completed",
+          installments: installments || 1,
+          metadata: {
+            ...orderData.metadata,
+            gocuotasCheckoutId: checkout_id,
+            installments,
+          },
+        });
+        delete global.gocuotasOrders[checkout_id];
+        console.log("✅ Orden creada:", newOrder._id);
+      } catch (err) {
+        console.error("❌ Error creando orden:", err.message);
+      }
+    } else if (["rejected", "cancelled", "expired"].includes(status)) {
+      delete global.gocuotasOrders[checkout_id];
+    }
+
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error("❌ Error procesando webhook Go Cuotas:", err.message);
+    res.status(200).json({ received: true });
+  }
+};
+
+// ============================
+// POST /api/gocuotas/process-payment
+// ============================
+export const processPayment = async (req, res) => {
+  try {
+    const { checkoutId, orderReference } = req.body;
+    const hasApiKey = !!process.env.GOCUOTAS_API_KEY_SANDBOX;
+    const token = hasApiKey ? null : await getGocuotasToken();
+
+    const response = await axios.get(
+      `${GOCUOTAS_BASE_URL}/checkouts/${checkoutId}`,
+      {
+        headers: {
+          Authorization: hasApiKey
+            ? `Bearer ${process.env.GOCUOTAS_API_KEY_SANDBOX}`
+            : `Bearer ${token}`,
+        },
+      }
+    );
+
+    const checkoutStatus = response.data;
+    if (checkoutStatus.status !== "approved") {
+      return res.status(400).json({ error: "Pago no aprobado", status: checkoutStatus.status });
+    }
+
+    const orderData = global.gocuotasOrders?.[checkoutId];
+    if (!orderData) {
+      return res.status(400).json({ error: "No se encontraron datos de la orden" });
+    }
+
+    const newOrder = await crearOrdenDesdePago({
+      paymentMethod: "gocuotas",
+      paymentId: checkoutId,
+      orderReference,
+      customerData: orderData.customerData,
+      items: orderData.items,
+      totalPrice: orderData.totalPrice,
+      shippingCost: orderData.shippingCost,
+      status: "completed",
+      installments: checkoutStatus.installments || 1,
+      metadata: {
+        ...orderData.metadata,
+        gocuotasCheckoutId: checkoutId,
+        installments: checkoutStatus.installments,
+      },
+    });
+
+    delete global.gocuotasOrders[checkoutId];
+
+    res.json({ success: true, orderId: newOrder._id, message: "Pago procesado correctamente" });
+  } catch (err) {
+    console.error("❌ Error procesando pago:", err.message);
+    res.status(500).json({ error: "Error al procesar pago: " + err.message });
+  }
+};
