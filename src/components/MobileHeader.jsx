@@ -79,49 +79,36 @@ export default function MobileHeader() {
 
   const navAndClose = () => { setCatsOpen(false); close(); };
 
-  // ======= MISMAS CATEGORÍAS QUE EN DESKTOP =======
-  const COLS = [
-    {
-      title: ["REMERAS", "remeras"],
-      items: [
-        ["Estampadas", "estampadas"],
-        ["Bordadas", "bordadas"],
-        ["Crop tops", "crop-tops"],
-        ["Aterciopeladas", "aterciopeladas"],
-        ["XXL/3XL", "xxl-3xl"],
-        ["Baby tees", "baby-tees"],
-        ["Personalizado", "personalizado"],
-      ],
-    },
-    {
-      title: ["MERCH", "merch"],
-      items: [
-        ["Harry Styles", "harry-styles"],
-        ["Taylor Swift", "taylor-swift"],
-        ["Justin Bieber", "justin-bieber"],
-        ["Green Day", "green-day"],
-        ["Lana del Rey", "lana-del-rey"],
-        ["Oasis", "oasis"],
-        ["Arctic Monkeys", "arctic-monkeys"],
-        ["Miley Cyrus", "miley-cyrus"],
-        ["The Weeknd", "the-weeknd"],
-        ["Phoebe Bridgers", "phoebe-bridgers"],
-        ["Jonas Brothers", "jonas-brothers"],
-        ["Olivia Rodrigo", "olivia-rodrigo"],
-      ],
-    },
-    {
-      title: ["TOTEBAGS", "totebags"],
-      items: [
-        ["OUTLET", "outlet"],
-        ["Buzos", "buzos"],
-        ["Medias", "medias"],
-        ["SHORTS/PANTALONES", "shorts-pantalones"],
-        ["Pijamas", "pijamas"],
-        ["Personalizado", "personalizado"],
-      ],
-    },
-  ];
+  const FALLBACK = {
+    "Indumentaria": ["Remeras", "Buzos", "Pijamas", "Shorts", "Totes", "Outlet"],
+    "Cute items": ["Vasos"],
+    "Merch": ["Artistas nacionales", "Artistas internacionales"],
+  };
+
+  const catSlug = {
+    "Indumentaria": "indumentaria",
+    "Cute items": "cute-items",
+    "Merch": "merch",
+  };
+
+  const [grouped, setGrouped] = useState(FALLBACK);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products/filters/data")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.groupedSubcategories) {
+          setGrouped((prev) => ({ ...prev, ...data.groupedSubcategories }));
+        }
+      })
+      .catch(() => setGrouped(FALLBACK));
+  }, []);
+
+  const COLS = Object.keys(catSlug).map((cat) => ({
+    title: [cat.toUpperCase(), catSlug[cat]],
+    base: catSlug[cat],
+    items: (grouped[cat] || FALLBACK[cat]).map((sub) => [sub, sub]),
+  }));
 
   return (
     <>
@@ -189,10 +176,10 @@ export default function MobileHeader() {
             {/* GRID con mismo contenido que el mega menú de desktop */}
             <div className="mnav__submenu">
               <div className="mnav__cols">
-                {COLS.map(({ title, items }) => (
+                {COLS.map(({ title, base, items }) => (
                   <div className="mnav__col" key={title[1]}>
                     <NavLink
-                      to={`/categorias?cat=${encodeURIComponent(title[1])}`}
+                      to={`/${base}/${encodeURIComponent(items[0]?.[1] || "")}`}
                       className="mnav__parent"
                       onClick={navAndClose}
                     >
@@ -202,7 +189,7 @@ export default function MobileHeader() {
                     {items.map(([label, slug]) => (
                       <NavLink
                         key={slug}
-                        to={`/categorias?cat=${encodeURIComponent(slug)}`}
+                        to={`/${base}/${encodeURIComponent(slug)}`}
                         className="mnav__sublink"
                         onClick={navAndClose}
                       >

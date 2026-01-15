@@ -160,6 +160,21 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        {/* ============================
+            SUBCATEGORÍAS
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/subcategories"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Agregar subcategoría
+          </NavLink>
+        </li>
+
       </ul>
 
       {/* ============================

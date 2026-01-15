@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import Subcategory from "../models/Subcategory.js";
 
 // ============================
 // Helper → Normalizar strings
@@ -8,6 +9,8 @@ const normalize = (str) => {
   const clean = str.trim();
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
+
+const ALLOWED_CATEGORIES = ["Indumentaria", "Cute items", "Merch"];
 
 // ============================
 // Helper → extraer talles desde StockColor
@@ -277,14 +280,18 @@ export const deleteProduct = async (req, res) => {
 // ============================
 export const getCategoriesAndSubcategories = async (req, res) => {
   try {
-    const categorias = await Product.distinct("category");
+    const categoriasDeProductos = await Product.distinct("category");
+    const categorias = Array.from(new Set([...ALLOWED_CATEGORIES, ...categoriasDeProductos]));
 
     const grouped = {};
     categorias.forEach((cat) => {
       grouped[cat] = [];
     });
 
-    const productos = await Product.find();
+    const [productos, subsManual] = await Promise.all([
+      Product.find(),
+      Subcategory.find().sort({ category: 1, order: 1, name: 1 }),
+    ]);
 
     productos.forEach((p) => {
       if (p.category && p.subcategory) {
@@ -292,6 +299,15 @@ export const getCategoriesAndSubcategories = async (req, res) => {
         if (!grouped[p.category].includes(sub)) {
           grouped[p.category].push(sub);
         }
+      }
+    });
+
+    subsManual.forEach((sub) => {
+      const cat = sub.category;
+      if (!grouped[cat]) grouped[cat] = [];
+      const normSub = normalize(sub.name);
+      if (!grouped[cat].includes(normSub)) {
+        grouped[cat].push(normSub);
       }
     });
 

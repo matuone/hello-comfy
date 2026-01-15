@@ -361,3 +361,237 @@
 .admin-shell .admin-input:hover {
   background: #fff;
 }
+
+/* ============================
+   FORMULARIO SUBCATEGORÍAS
+============================ */
+.admin-form.admin-form--panel {
+  display: grid;
+  gap: 14px;
+  max-width: 520px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.admin-form .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-form label {
+  font-weight: 700;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.admin-form .admin-input {
+  width: 100%;
+}
+
+.admin-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.admin-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-btn-primary {
+  background: linear-gradient(135deg, #d94f7a, #e77aa0);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(217, 79, 122, 0.35);
+}
+
+.admin-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(217, 79, 122, 0.4);
+}
+
+.admin-btn-secondary {
+  background: #f5f5f7;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.admin-btn-secondary:hover:not(:disabled) {
+  background: #fff;
+}
+
+.admin-btn-ghost {
+  background: transparent;
+  color: #d94f7a;
+  border: 1px dashed #d94f7a66;
+}
+
+.admin-btn-ghost:hover:not(:disabled) {
+  background: #fff0f6;
+}
+
+.form-error {
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.form-success {
+  color: #1b5e20;
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.admin-subcats-grid {
+  margin-top: 18px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.admin-table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.admin-table-card {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.admin-table-card h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: #d94f7a;
+}
+
+.admin-table-card p {
+  margin: 0;
+  color: #444;
+  line-height: 1.4;
+}
+
+.admin-details {
+  margin-top: 14px;
+  font-size: 0.95rem;
+}
+
+.admin-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+.admin-details ul {
+  margin: 8px 0 0 16px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.admin-subcats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.admin-subcats-group {
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  padding: 10px 12px;
+}
+
+.admin-subcats-group-header {
+  font-weight: 800;
+  color: #d94f7a;
+  margin-bottom: 8px;
+}
+
+.admin-subcats-empty {
+  margin: 0;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.admin-subcats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fafafa;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.admin-subcats-row[draggable="true"] {
+  cursor: grab;
+}
+
+.admin-subcats-row[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.admin-subcats-info {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.pill--cat {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
+.pill--name {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.drag-handle {
+  font-size: 1.1rem;
+  color: #b0b0b0;
+  margin-right: 6px;
+  user-select: none;
+}
+
+.admin-subcats-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-form--inline {
+  margin-top: 16px;
+}

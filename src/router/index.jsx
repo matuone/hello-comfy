@@ -51,6 +51,7 @@ import AdminCustomerDetail from "../views/AdminCustomerDetail";
 import AdminCustomerEdit from "../views/AdminCustomerEdit";
 import AdminStats from "../views/AdminStats";
 import AdminMarketing from "../views/AdminMarketing";
+import AdminSubcategories from "../views/AdminSubcategories";
 
 // Nuevos imports admin
 import AdminDiscounts from "../views/AdminDiscounts";
@@ -140,6 +141,7 @@ export default function AppRouter() {
 
         <Route path="/admin/discounts" element={<AdminDiscounts />} />
         <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
+        <Route path="/admin/subcategories" element={<AdminSubcategories />} />
       </Route>
 
       {/* Área de cliente */}
