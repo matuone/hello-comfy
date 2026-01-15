@@ -124,13 +124,15 @@ router.get("/orders/private/:id", authMiddleware, async (req, res) => {
 
 /* ============================================================
    POST /api/orders/create-transfer
-   Crear orden por transferencia bancaria
+   Crear orden por transferencia bancaria o Cuenta DNI
 ============================================================ */
 router.post("/orders/create-transfer", async (req, res) => {
   try {
     const { formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
 
-    console.log("📝 create-transfer request recibido");
+    const paymentMethod = formData?.paymentMethod || "transfer";
+    console.log("📝 create-payment request recibido");
+    console.log("📋 Payment Method:", paymentMethod);
     console.log("📋 FormData email:", formData?.email);
     console.log("📋 Items count:", items?.length);
     console.log("📋 PaymentProof length:", paymentProof?.length || 0);
@@ -145,8 +147,8 @@ router.post("/orders/create-transfer", async (req, res) => {
 
     // Crear datos simulados de pago para crearOrdenDesdePago
     const paymentData = {
-      id: `transfer_${Date.now()}`,
-      status: "pending", // Para transferencias es pending hasta que admin confirme
+      id: `${paymentMethod}_${Date.now()}`,
+      status: "pending", // Para transferencias/cuentadni es pending hasta que admin confirme
       transaction_amount: totalPrice,
       payer: {
         email: formData.email,

@@ -1,5 +1,14 @@
-export default function ConfirmProofModal({ isOpen, onConfirm, onCancel }) {
+export default function ConfirmProofModal({ isOpen, onConfirm, onCancel, paymentMethod = "transfer" }) {
   if (!isOpen) return null;
+
+  const isCuentaDNI = paymentMethod === "cuentadni";
+  const title = isCuentaDNI ? "Comprobante de Cuenta DNI" : "Comprobante de Transferencia";
+  const mainText = isCuentaDNI 
+    ? "Por favor adjuntá el comprobante de Cuenta DNI para poder confirmar tu compra."
+    : "Por favor adjuntá el comprobante para poder confirmar tu compra.";
+  const secondaryText = isCuentaDNI
+    ? "Si en este momento no podés hacerlo, podés enviarlo por WhatsApp después de realizar la compra."
+    : "Si en este momento no podés hacerlo, podés enviarlo por WhatsApp después de realizar la compra.";
 
   return (
     <div
@@ -61,7 +70,7 @@ export default function ConfirmProofModal({ isOpen, onConfirm, onCancel }) {
             fontWeight: "700",
           }}
         >
-          Comprobante de Transferencia
+          {title}
         </h2>
 
         {/* Texto principal */}
@@ -73,7 +82,7 @@ export default function ConfirmProofModal({ isOpen, onConfirm, onCancel }) {
             margin: "0 0 24px 0",
           }}
         >
-          Por favor adjuntá el comprobante para poder confirmar tu compra.
+          {mainText}
         </p>
 
         {/* Texto secundario */}
@@ -94,8 +103,7 @@ export default function ConfirmProofModal({ isOpen, onConfirm, onCancel }) {
               margin: "0",
             }}
           >
-            Si en este momento no podés hacerlo, podés enviarlo por{" "}
-            <strong>WhatsApp después</strong> de realizar la compra.
+            {secondaryText}
           </p>
         </div>
 

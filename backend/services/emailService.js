@@ -211,6 +211,22 @@ export async function enviarEmailConfirmacionOrden(order) {
             </p>
           </div>
               `
+        : order.paymentMethod === 'cuentadni' && !order.paymentProof
+        ? `
+          <div style="
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+          ">
+            <h3 style="margin: 0 0 8px 0; color: #856404; font-size: 16px;">⚠️ Comprobante de Cuenta DNI</h3>
+            <p style="margin: 0; color: #856404; line-height: 1.6;">
+              No recibimos adjunto el comprobante de Cuenta DNI. 
+              <strong>Por favor, envialo por WhatsApp</strong> para acelerar la verificación de tu pago.
+            </p>
+          </div>
+              `
         : ''
       }
 
@@ -310,6 +326,7 @@ export async function enviarEmailAlAdmin(order) {
       gocuotas: "GoCuotas",
       modo: "Modo",
       transfer: "Transferencia Bancaria",
+      cuentadni: "Cuenta DNI",
     };
     const paymentMethodLabel = paymentMethodLabels[order.paymentMethod] || order.paymentMethod || "No especificado";
 

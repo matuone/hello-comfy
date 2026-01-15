@@ -301,206 +301,271 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
-  if (file) {
-    if (file.size > 5 * 1024 * 1024) { // 5MB
-      toast.error("El archivo no puede exceder 5MB");
-      return;
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB
+        toast.error("El archivo no puede exceder 5MB");
+        return;
+      }
+      setProofFile(file);
     }
-    setProofFile(file);
-  }
-};
+  };
 
-const shippingLabel =
-  formData.shippingMethod === "pickup"
-    ? "Retiro en Pick Up Point"
-    : "Envío a domicilio";
+  const shippingLabel =
+    formData.shippingMethod === "pickup"
+      ? "Retiro en Pick Up Point"
+      : "Envío a domicilio";
 
-const paymentLabel =
-  formData.paymentMethod === "transfer"
-    ? "Transferencia bancaria (10% OFF)"
-    : formData.paymentMethod === "mercadopago"
-      ? "Mercado Pago"
-      : formData.paymentMethod === "gocuotas"
-        ? "Go Cuotas - Financiación"
-        : formData.paymentMethod === "modo"
-          ? "Modo - Pago digital"
-          : "Método de pago";
+  const paymentLabel =
+    formData.paymentMethod === "transfer"
+      ? "Transferencia bancaria (10% OFF)"
+      : formData.paymentMethod === "mercadopago"
+        ? "Mercado Pago"
+        : formData.paymentMethod === "gocuotas"
+          ? "Go Cuotas - Financiación"
+          : formData.paymentMethod === "modo"
+            ? "Modo - Pago digital"
+            : "Método de pago";
 
-return (
-  <div className="checkout-step">
-    <h2>Revisión final</h2>
+  return (
+    <div className="checkout-step">
+      <h2>Revisión final</h2>
 
-    <div className="review-box">
-      <h3>Datos del cliente</h3>
-      <p><strong>Nombre:</strong> {formData.name}</p>
-      <p><strong>Email:</strong> {formData.email}</p>
-      <p><strong>Teléfono:</strong> {formData.phone}</p>
+      <div className="review-box">
+        <h3>Datos del cliente</h3>
+        <p><strong>Nombre:</strong> {formData.name}</p>
+        <p><strong>Email:</strong> {formData.email}</p>
+        <p><strong>Teléfono:</strong> {formData.phone}</p>
 
-      <h3>Envío</h3>
-      <p><strong>Método:</strong> {shippingLabel}</p>
+        <h3>Envío</h3>
+        <p><strong>Método:</strong> {shippingLabel}</p>
 
-      {formData.shippingMethod === "home" && (
-        <>
-          <p><strong>Dirección:</strong> {formData.address}</p>
-          <p><strong>Código postal:</strong> {formData.postalCode}</p>
-          <p><strong>Provincia:</strong> {formData.province}</p>
-        </>
-      )}
+        {formData.shippingMethod === "home" && (
+          <>
+            <p><strong>Dirección:</strong> {formData.address}</p>
+            <p><strong>Código postal:</strong> {formData.postalCode}</p>
+            <p><strong>Provincia:</strong> {formData.province}</p>
+          </>
+        )}
 
-      {formData.shippingMethod === "pickup" && (
-        <p>
-          <strong>Punto de retiro:</strong>{" "}
-          {formData.pickPoint === "aquelarre"
-            ? "Aquelarre — CABA"
-            : formData.pickPoint === "temperley"
-              ? "Temperley — ZS-GBA"
-              : "No seleccionado"}
-        </p>
-      )}
-
-      <h3>Pago</h3>
-      <p>{paymentLabel}</p>
-
-      <h3>Productos</h3>
-      {items.map((item) => (
-        <p key={item.key}>
-          {item.name} x{item.quantity}
-        </p>
-      ))}
-
-      <h3>Total</h3>
-      <div>
-        <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
-          ${totalPrice.toLocaleString("es-AR")}
-        </p>
-        {discount > 0 && (
-          <p style={{ color: "#d94f7a", fontWeight: 600, marginTop: "8px" }}>
-            -10% descuento: -${discount.toLocaleString("es-AR")}
+        {formData.shippingMethod === "pickup" && (
+          <p>
+            <strong>Punto de retiro:</strong>{" "}
+            {formData.pickPoint === "aquelarre"
+              ? "Aquelarre — CABA"
+              : formData.pickPoint === "temperley"
+                ? "Temperley — ZS-GBA"
+                : "No seleccionado"}
           </p>
         )}
-        {discount > 0 && (
-          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#d94f7a", marginTop: "8px" }}>
-            Total a pagar: ${finalPrice.toLocaleString("es-AR")}
+
+        <h3>Pago</h3>
+        <p>{paymentLabel}</p>
+
+        <h3>Productos</h3>
+        {items.map((item) => (
+          <p key={item.key}>
+            {item.name} x{item.quantity}
           </p>
-        )}
+        ))}
+
+        <h3>Total</h3>
+        <div>
+          <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
+            ${totalPrice.toLocaleString("es-AR")}
+          </p>
+          {discount > 0 && (
+            <p style={{ color: "#d94f7a", fontWeight: 600, marginTop: "8px" }}>
+              -10% descuento: -${discount.toLocaleString("es-AR")}
+            </p>
+          )}
+          {discount > 0 && (
+            <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#d94f7a", marginTop: "8px" }}>
+              Total a pagar: ${finalPrice.toLocaleString("es-AR")}
+            </p>
+          )}
+        </div>
       </div>
-    </div>
 
-    {/* ⭐ SECCIÓN DE TRANSFERENCIA */}
-    {formData.paymentMethod === "transfer" && (
-      <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
-        <h3 style={{ color: "#d94f7a" }}>Comprobante de transferencia</h3>
-        <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
-          Adjunta tu comprobante de transferencia para procesar tu pedido
-        </p>
-        <input
-          type="file"
-          accept="image/*,.pdf"
-          onChange={handleFileChange}
-          style={{
-            padding: "12px",
-            border: "2px solid #d94f7a",
-            borderRadius: "8px",
-            width: "100%",
-            background: "#fff7fb",
-            color: "#666",
-            cursor: "pointer",
-            fontSize: "0.9rem",
-            fontWeight: "500",
-            transition: "all 0.3s ease",
-          }}
-        />
-        {proofFile && (
-          <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
-            ✓ {proofFile.name}
-          </p>
-        )}
-      </div>
-    )}
-
-    <div className="checkout-nav">
-      <button className="checkout-btn-secondary" onClick={back}>
-        Volver
-      </button>
-
-      {formData.paymentMethod === "mercadopago" && (
-        <button
-          className="checkout-btn-mercadopago"
-          onClick={handlePagar}
-          disabled={loadingPayment}
-        >
-          {loadingPayment ? "Procesando..." : "Pagar con Mercado Pago"}
-        </button>
-      )}
-
-      {formData.paymentMethod === "gocuotas" && (
-        <button
-          className="checkout-btn-gocuotas"
-          onClick={handlePagarGoCuotas}
-          disabled={loadingPayment}
-        >
-          {loadingPayment ? "Procesando..." : "Financiar con Go Cuotas"}
-        </button>
-      )}
-
-      {formData.paymentMethod === "modo" && (
-        <button
-          className="checkout-btn-modo"
-          onClick={handlePagarModo}
-          disabled={loadingPayment}
-        >
-          {loadingPayment ? "Procesando..." : "Pagar con Modo"}
-        </button>
-      )}
-
+      {/* ⭐ SECCIÓN DE TRANSFERENCIA */}
       {formData.paymentMethod === "transfer" && (
-        <button
-          className="checkout-btn-transfer"
-          onClick={handleTransfer}
-          disabled={loadingPayment}
-          style={{
-            padding: "12px 24px",
-            background: !loadingPayment ? "#d94f7a" : "#e0e0e0",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "1rem",
-            fontWeight: "600",
-            cursor: proofFile && !loadingPayment ? "pointer" : "not-allowed",
-            opacity: 1,
-            transition: "all 0.3s ease",
-          }}
-          onMouseEnter={(e) => {
-            if (proofFile && !loadingPayment) {
-              e.target.style.background = "#c93b63";
-              e.target.style.transform = "translateY(-2px)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = "#d94f7a";
-            e.target.style.transform = "translateY(0)";
-          }}
-        >
-          {loadingPayment ? "Procesando..." : "Confirmar transferencia"}
-        </button>
+        <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
+          <h3 style={{ color: "#d94f7a" }}>Comprobante de transferencia</h3>
+          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
+            Adjunta tu comprobante de transferencia para procesar tu pedido
+          </p>
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            onChange={handleFileChange}
+            style={{
+              padding: "12px",
+              border: "2px solid #d94f7a",
+              borderRadius: "8px",
+              width: "100%",
+              background: "#fff7fb",
+              color: "#666",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+          />
+          {proofFile && (
+            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
+              ✓ {proofFile.name}
+            </p>
+          )}
+        </div>
       )}
 
-      {!formData.paymentMethod && (
-        <button
-          className="checkout-btn-disabled"
-          disabled={true}
-        >
-          Seleccioná un método de pago
-        </button>
+      {/* ⭐ SECCIÓN DE CUENTA DNI */}
+      {formData.paymentMethod === "cuentadni" && (
+        <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
+          <h3 style={{ color: "#d94f7a" }}>Comprobante de Cuenta DNI</h3>
+          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
+            Adjunta tu comprobante de pago Cuenta DNI para procesar tu pedido
+          </p>
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            onChange={handleFileChange}
+            style={{
+              padding: "12px",
+              border: "2px solid #d94f7a",
+              borderRadius: "8px",
+              width: "100%",
+              background: "#fff7fb",
+              color: "#666",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+          />
+          {proofFile && (
+            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
+              ✓ {proofFile.name}
+            </p>
+          )}
+        </div>
       )}
+
+      <div className="checkout-nav">
+        <button className="checkout-btn-secondary" onClick={back}>
+          Volver
+        </button>
+
+        {formData.paymentMethod === "mercadopago" && (
+          <button
+            className="checkout-btn-mercadopago"
+            onClick={handlePagar}
+            disabled={loadingPayment}
+          >
+            {loadingPayment ? "Procesando..." : "Pagar con Mercado Pago"}
+          </button>
+        )}
+
+        {formData.paymentMethod === "gocuotas" && (
+          <button
+            className="checkout-btn-gocuotas"
+            onClick={handlePagarGoCuotas}
+            disabled={loadingPayment}
+          >
+            {loadingPayment ? "Procesando..." : "Financiar con Go Cuotas"}
+          </button>
+        )}
+
+        {formData.paymentMethod === "modo" && (
+          <button
+            className="checkout-btn-modo"
+            onClick={handlePagarModo}
+            disabled={loadingPayment}
+          >
+            {loadingPayment ? "Procesando..." : "Pagar con Modo"}
+          </button>
+        )}
+
+        {formData.paymentMethod === "transfer" && (
+          <button
+            className="checkout-btn-transfer"
+            onClick={handleTransfer}
+            disabled={loadingPayment}
+            style={{
+              padding: "12px 24px",
+              background: !loadingPayment ? "#d94f7a" : "#e0e0e0",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "1rem",
+              fontWeight: "600",
+              cursor: !loadingPayment ? "pointer" : "not-allowed",
+              opacity: 1,
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!loadingPayment) {
+                e.target.style.background = "#c93b63";
+                e.target.style.transform = "translateY(-2px)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "#d94f7a";
+              e.target.style.transform = "translateY(0)";
+            }}
+          >
+            {loadingPayment ? "Procesando..." : "Confirmar compra"}
+          </button>
+        )}
+
+        {formData.paymentMethod === "cuentadni" && (
+          <button
+            className="checkout-btn-cuentadni"
+            onClick={handleTransfer}
+            disabled={loadingPayment}
+            style={{
+              padding: "12px 24px",
+              background: !loadingPayment ? "#d94f7a" : "#e0e0e0",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "1rem",
+              fontWeight: "600",
+              cursor: !loadingPayment ? "pointer" : "not-allowed",
+              opacity: 1,
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!loadingPayment) {
+                e.target.style.background = "#c93b63";
+                e.target.style.transform = "translateY(-2px)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "#d94f7a";
+              e.target.style.transform = "translateY(0)";
+            }}
+          >
+            {loadingPayment ? "Procesando..." : "Confirmar transferencia"}
+          </button>
+        )}
+
+        {!formData.paymentMethod && (
+          <button
+            className="checkout-btn-disabled"
+            disabled={true}
+          >
+            Seleccioná un método de pago
+          </button>
+        )}
+      </div>
+
+      {/* Modal para confirmar compra sin comprobante */}
+      <ConfirmProofModal
+        isOpen={showConfirmModal}
+        onConfirm={handleConfirmNoProof}
+        onCancel={handleCancelModal}
+        paymentMethod={formData.paymentMethod}
+      />
     </div>
-
-    {/* Modal para confirmar compra sin comprobante */}
-    <ConfirmProofModal
-      isOpen={showConfirmModal}
-      onConfirm={handleConfirmNoProof}
-      onCancel={handleCancelModal}
-    />
-  </div>
-);
+  );
 }

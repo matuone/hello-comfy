@@ -3,6 +3,7 @@ import { useState } from "react";
 export default function Step3({ formData, updateField, next, back }) {
   const isValid = formData.paymentMethod !== "";
   const [expandTransfer, setExpandTransfer] = useState(false);
+  const [expandCuentaDNI, setExpandCuentaDNI] = useState(false);
 
   const bankInfo = {
     banco: "Banco Santander",
@@ -82,6 +83,87 @@ export default function Step3({ formData, updateField, next, back }) {
                   <p>Alias: <strong>{bankInfo.alias}</strong></p>
                   <p>Titular: {bankInfo.titular}</p>
                   <p>{bankInfo.cuit}</p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* ⭐ Cuenta DNI */}
+        <div className="payment-option-group">
+          <label>
+            <input
+              type="radio"
+              name="payment"
+              checked={formData.paymentMethod === "cuentadni"}
+              onChange={() => updateField("paymentMethod", "cuentadni")}
+            />
+            <span style={{ color: "#d94f7a", fontWeight: 600 }}>
+              Cuenta DNI
+            </span>
+          </label>
+
+          {formData.paymentMethod === "cuentadni" && (
+            <>
+              <button
+                type="button"
+                className="payment-expand-btn"
+                onClick={() => setExpandCuentaDNI(!expandCuentaDNI)}
+                style={{
+                  marginLeft: "24px",
+                  marginTop: "12px",
+                  padding: "10px 16px",
+                  background: "#fff7fb",
+                  color: "#d94f7a",
+                  border: "2px solid #d94f7a",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                  fontWeight: "600",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "#d94f7a";
+                  e.target.style.color = "white";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "#fff7fb";
+                  e.target.style.color = "#d94f7a";
+                }}
+              >
+                {expandCuentaDNI ? "▼ Ocultar QR" : "▶ Ver código QR"}
+              </button>
+
+              {expandCuentaDNI && (
+                <div
+                  style={{
+                    marginLeft: "24px",
+                    marginTop: "12px",
+                    padding: "16px",
+                    background: "#f9f9f9",
+                    border: "1px solid #eee",
+                    borderRadius: "6px",
+                  }}
+                >
+                  <p style={{ fontSize: "0.95rem", color: "#333", marginBottom: "12px" }}>
+                    <strong>Escanea el código QR para poder realizar el pago</strong>
+                  </p>
+                  <img
+                    src="/assets/qrcuentaDNI.jpeg"
+                    alt="QR Cuenta DNI"
+                    style={{
+                      maxWidth: "250px",
+                      height: "auto",
+                      borderRadius: "8px",
+                      marginBottom: "12px",
+                    }}
+                  />
+                  <p style={{ fontSize: "0.85rem", color: "#666", margin: "12px 0 0 0" }}>
+                    <em>
+                      ℹ️ Las promociones de Cuenta DNI son propias de su plataforma.
+                      Los reintegros se realizan de forma automática.
+                    </em>
+                  </p>
                 </div>
               )}
             </>
