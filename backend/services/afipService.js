@@ -101,7 +101,7 @@ export async function probarPuntosVenta() {
  * @param {Number} puntoVenta - Punto de venta a usar (opcional)
  * @returns {Promise<Object>} Factura generada
  */
-export async function generarFacturaB(orderData, puntoVenta = null) {
+export async function generarFacturaC(orderData, puntoVenta = null) {
   try {
     console.log('📄 Iniciando generación de factura C para orden:', orderData.code);
 
@@ -157,7 +157,7 @@ export async function generarFacturaB(orderData, puntoVenta = null) {
     return {
       numero: nextVoucherNumber,
       puntoVenta: ptoVta,
-      tipo: 'B',
+      tipo: 'C',
       cae: result.CAE,
       vencimientoCAE: result.CAEFchVto,
       fecha: new Date().toISOString(),

@@ -2,7 +2,7 @@
 import express from 'express';
 const router = express.Router();
 import {
-  generarFacturaB,
+  generarFacturaC,
   generarFacturaA,
   verificarEstadoServicio,
   consultarContribuyente,
@@ -106,7 +106,7 @@ router.post('/afip/generar-factura/:orderId', verifyAdmin, async (req, res) => {
       }
       factura = await generarFacturaA(order, cuitCliente);
     } else {
-      factura = await generarFacturaB(order);
+      factura = await generarFacturaC(order);
     }
 
     // Actualizar orden con datos de factura
@@ -183,7 +183,7 @@ router.post('/afip/test-factura', verifyAdmin, async (req, res) => {
       }
     };
 
-    const factura = await generarFacturaB(orderDataTest);
+    const factura = await generarFacturaC(orderDataTest);
 
     res.json({
       success: true,
