@@ -118,15 +118,16 @@ export async function generarFacturaPDF(order) {
       const totalsY = rowY + 12;
       const totalsW = 220;
       const totalsX = infoX + infoW - totalsW;
+      const totalsH = 110;
       doc.save();
-      doc.roundedRect(totalsX, totalsY, totalsW, 90, 10).fill(light);
-      doc.roundedRect(totalsX, totalsY, totalsW, 90, 10).stroke(accent);
+      doc.roundedRect(totalsX, totalsY, totalsW, totalsH, 10).fill(light);
+      doc.roundedRect(totalsX, totalsY, totalsW, totalsH, 10).stroke(accent);
       doc.font('Helvetica').fillColor(dark).fontSize(11);
       const t = order.totals || {};
       doc.text(`Subtotal: ${formatCurrency(t.subtotal)}`, totalsX + 12, totalsY + 12, { align: 'left' });
       doc.text(`Envío: ${formatCurrency(t.shipping)}`, totalsX + 12, totalsY + 30);
       doc.text(`Descuento: ${formatCurrency(t.discount)}`, totalsX + 12, totalsY + 48);
-      doc.font('Helvetica-Bold').fillColor(dark).text(`Total: ${formatCurrency(t.total)}`, totalsX + 12, totalsY + 68);
+      doc.font('Helvetica-Bold').fillColor(dark).text(`Total: ${formatCurrency(t.total)}`, totalsX + 12, totalsY + 70);
       doc.restore();
 
       // Nota al pie
