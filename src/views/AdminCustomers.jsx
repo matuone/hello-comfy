@@ -8,12 +8,12 @@ export default function AdminCustomers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar clientes de MongoDB
+  // Cargar clientes de MongoDB + compradores sin registrarse
   useEffect(() => {
     const fetchClientes = async () => {
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:5000/api/customers");
+        const res = await fetch("http://localhost:5000/api/customers/all-buyers");
         const data = await res.json();
         setClientes(Array.isArray(data) ? data : []);
         setError(null);

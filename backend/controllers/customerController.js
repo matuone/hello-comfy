@@ -1,4 +1,5 @@
 import Customer from "../models/Customer.js";
+import Order from "../models/Order.js";
 
 export const getAllCustomers = async (req, res) => {
   try {
@@ -23,6 +24,66 @@ export const getAllCustomers = async (req, res) => {
   } catch (err) {
     console.error("Error al obtener clientes:", err);
     res.status(500).json({ error: "Error al obtener clientes" });
+  }
+};
+
+export const getAllBuyers = async (req, res) => {
+  try {
+    const { search, estado } = req.query;
+
+    // 1. Obtener todos los clientes registrados
+    const filtros = {};
+    if (estado) {
+      filtros.estado = estado;
+    }
+    if (search) {
+      filtros.$or = [
+        { nombre: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { whatsapp: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const registrados = await Customer.find(filtros).sort({ createdAt: -1 });
+
+    // 2. Obtener emails únicos de órdenes
+    const orders = await Order.find({}, { 'customer.email': 1, 'customer.name': 1, date: 1, totals: 1 }).sort({ date: -1 });
+    const emailsEnOrdenes = new Set(orders.map(o => o.customer?.email).filter(Boolean));
+
+    // 3. Crear lista de compradores sin registrarse que no estén en Customer
+    const registradosEmails = new Set(registrados.map(c => c.email));
+    const compradoresSinRegistro = [];
+
+    orders.forEach(order => {
+      const email = order.customer?.email;
+      if (email && !registradosEmails.has(email)) {
+        const existing = compradoresSinRegistro.find(c => c.email === email);
+        if (!existing) {
+          compradoresSinRegistro.push({
+            _id: `guest-${email}`,
+            nombre: order.customer?.name || 'Sin nombre',
+            email: email,
+            whatsapp: null,
+            telefono: null,
+            estado: 'inactivo',
+            esComprador: true,
+            createdAt: order.date,
+          });
+        }
+      }
+    });
+
+    // 4. Combinar y ordenar
+    const todos = [...registrados, ...compradoresSinRegistro].sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0);
+      const dateB = new Date(b.createdAt || 0);
+      return dateB - dateA;
+    });
+
+    res.json(todos);
+  } catch (err) {
+    console.error("Error al obtener compradores:", err);
+    res.status(500).json({ error: "Error al obtener compradores" });
   }
 };
 

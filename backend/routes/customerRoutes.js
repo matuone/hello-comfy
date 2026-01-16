@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAllCustomers,
+  getAllBuyers,
   getCustomerById,
   createCustomer,
   updateCustomer,
@@ -9,6 +10,7 @@ import {
 
 const router = express.Router();
 
+router.get("/all-buyers", getAllBuyers);
 router.get("/", getAllCustomers);
 router.get("/:email", getCustomerById);
 router.post("/", createCustomer);
