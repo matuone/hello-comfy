@@ -1,0 +1,20 @@
+meta {
+  name: puntos venta
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:5000/api/afip/puntos-venta
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Njk4Mzg0MmViNWQ1ZjkyMTkxODgzMyIsImVtYWlsIjoiYWRtaW5AaGVsbG9jb21meS5jb20iLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3Njg1MjI2MzksImV4cCI6MTc2OTEyNzQzOX0.PLZXr8N5KVMDoWp2KmyBPOKJbUVhb0g9byPawpZwC9U
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

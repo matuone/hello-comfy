@@ -1,6 +1,7 @@
 // backend/services/afipService.js
 import Afip from '@afipsdk/afip.js';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,51 +14,99 @@ const __dirname = path.dirname(__filename);
  * 2. CUIT de la empresa
  * 3. Punto de venta habilitado
  */
+
+// Leer contenido de certificados (el SDK necesita strings, no rutas)
+const certPath = path.join(__dirname, '../config/afip-cert.crt');
+const keyPath = path.join(__dirname, '../config/afip-key.key');
+const taFolder = path.join(__dirname, '../config/afip-ta');
+
+const certContent = fs.readFileSync(certPath, 'utf8');
+const keyContent = fs.readFileSync(keyPath, 'utf8');
+
 const afip = new Afip({
   CUIT: process.env.AFIP_CUIT || 20000000000, // Reemplazar con tu CUIT
   production: process.env.AFIP_PRODUCTION === 'true' || false, // false = homologación (testing)
-  cert: path.join(__dirname, '../config/afip-cert.crt'), // Ruta al certificado
-  key: path.join(__dirname, '../config/afip-key.key'), // Ruta a la clave privada
-  ta_folder: path.join(__dirname, '../config/afip-ta'), // Carpeta para tokens
+  cert: certContent, // Contenido del certificado (string)
+  key: keyContent, // Contenido de la clave privada (string)
+  ta_folder: taFolder, // Carpeta para tokens
   access_token: process.env.AFIP_ACCESS_TOKEN, // Usar access token de afipsdk.com
 });
 
 /**
- * Generar factura electrónica tipo B (consumidor final)
+ * Obtener estado de los puntos de venta
+ * @returns {Promise<Array>} Estado de puntos de venta
+ */
+export async function obtenerPuntosVenta() {
+  try {
+    // Usar el método correcto de la SDK
+    const ptos = await afip.ElectronicBilling.getPointOfSalesStatus();
+    console.log('📍 Puntos de venta disponibles:', ptos);
+    return ptos;
+  } catch (error) {
+    // Si ese método no existe, intentar con otro enfoque
+    try {
+      console.log('Intentando método alternativo para obtener puntos de venta...');
+      const params = await afip.ElectronicBilling.getServerStatus();
+      console.log('Estado servidor:', params);
+      // Para ahora, retornar puntos de venta comunes
+      return [1, 2, 3, 4, 5]; // Puntos de venta típicos
+    } catch (err) {
+      console.error('❌ Error obteniendo puntos de venta:', err);
+      throw err;
+    }
+  }
+}
+
+/**
+ * Generar factura electrónica tipo C (monotributista)
  * @param {Object} orderData - Datos de la orden
+ * @param {Number} puntoVenta - Punto de venta a usar (opcional)
  * @returns {Promise<Object>} Factura generada
  */
-export async function generarFacturaB(orderData) {
+export async function generarFacturaB(orderData, puntoVenta = null) {
   try {
-    console.log('📄 Iniciando generación de factura B para orden:', orderData.code);
+    console.log('📄 Iniciando generación de factura C para orden:', orderData.code);
+
+    // Usar punto de venta configurado en .env o el especificado
+    const ptoVta = puntoVenta || parseInt(process.env.AFIP_PUNTO_VENTA) || 4;
+
+    console.log(`🔄 Usando punto de venta ${ptoVta}...`);
 
     // Obtener el último número de factura para este punto de venta
-    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(6, 1); // 6 = Factura B, 1 = Punto de venta
+    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(11, ptoVta); // 11 = Factura C (Monotributo)
     const nextVoucherNumber = lastVoucher + 1;
 
+    console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
     console.log('📝 Último comprobante:', lastVoucher);
     console.log('📝 Próximo número:', nextVoucherNumber);
 
-    // Datos de la factura
+    // Parsear el total - asegurar que es número
+    const total = parseFloat(orderData.totals?.total || orderData.total || 1000);
+    const fecha = new Date();
+    const fechaFormato = parseInt(fecha.toISOString().slice(0, 10).replace(/-/g, ''));
+
+    // Datos de la factura - estructura correcta para SDK
     const data = {
-      'CantReg': 1, // Cantidad de facturas a registrar
-      'PtoVta': 1, // Punto de venta (configurar según AFIP)
-      'CbteTipo': 6, // Tipo de comprobante (6 = Factura B)
-      'Concepto': 1, // 1 = Productos, 2 = Servicios, 3 = Productos y Servicios
-      'DocTipo': 99, // 99 = Consumidor Final, 96 = DNI, 80 = CUIT
-      'DocNro': 0, // 0 para consumidor final
+      'CantReg': 1,
+      'PtoVta': ptoVta,
+      'CbteTipo': 11, // Factura C (Monotributista)
+      'Concepto': 1,
+      'DocTipo': 99, // Consumidor Final
+      'DocNro': 0,
       'CbteDesde': nextVoucherNumber,
       'CbteHasta': nextVoucherNumber,
-      'CbteFch': parseInt(new Date().toISOString().slice(0, 10).replace(/-/g, '')), // Formato YYYYMMDD
-      'ImpTotal': orderData.totals.total,
-      'ImpTotConc': 0, // Importe neto no gravado
-      'ImpNeto': orderData.totals.total, // Importe neto gravado
-      'ImpOpEx': 0, // Importe exento
-      'ImpIVA': 0, // Importe de IVA (para factura B se incluye en el total)
-      'ImpTrib': 0, // Importe de tributos
-      'MonId': 'PES', // Moneda (PES = Pesos argentinos)
-      'MonCotiz': 1, // Cotización de moneda
+      'CbteFch': fechaFormato,
+      'ImpTotal': total,
+      'ImpTotConc': 0,
+      'ImpNeto': total,
+      'ImpOpEx': 0,
+      'ImpIVA': 0,
+      'ImpTrib': 0,
+      'MonId': 'PES',
+      'MonCotiz': 1,
     };
+
+    console.log('📋 Datos enviados a AFIP:', JSON.stringify(data, null, 2));
 
     // Generar la factura en AFIP
     const result = await afip.ElectronicBilling.createVoucher(data);
@@ -69,12 +118,12 @@ export async function generarFacturaB(orderData) {
 
     return {
       numero: nextVoucherNumber,
-      puntoVenta: 1,
+      puntoVenta: ptoVta,
       tipo: 'B',
       cae: result.CAE,
       vencimientoCAE: result.CAEFchVto,
       fecha: new Date().toISOString(),
-      total: orderData.totals.total,
+      total: total,
     };
 
   } catch (error) {

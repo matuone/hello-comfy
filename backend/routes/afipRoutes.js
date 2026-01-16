@@ -5,10 +5,33 @@ import {
   generarFacturaB,
   generarFacturaA,
   verificarEstadoServicio,
-  consultarContribuyente
+  consultarContribuyente,
+  obtenerPuntosVenta
 } from '../services/afipService.js';
 import Order from '../models/Order.js';
 import { verifyAdmin } from '../middleware/adminMiddleware.js';
+
+/**
+ * GET /api/afip/puntos-venta
+ * Obtener lista de puntos de venta habilitados
+ */
+router.get('/afip/puntos-venta', verifyAdmin, async (req, res) => {
+  try {
+    const ptos = await obtenerPuntosVenta();
+    res.json({
+      success: true,
+      puntosVenta: ptos,
+      message: 'Puntos de venta obtenidos exitosamente'
+    });
+  } catch (error) {
+    console.error('Error obteniendo puntos de venta:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Error al obtener puntos de venta'
+    });
+  }
+});
 
 /**
  * GET /api/afip/status
