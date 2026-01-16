@@ -2,6 +2,21 @@ import { useState, useEffect } from "react";
 import "../styles/admincustomers.css";
 import { Link } from "react-router-dom";
 
+// Función para formatear número de WhatsApp (sin caracteres especiales)
+function formatWhatsAppNumber(phone) {
+  if (!phone) return null;
+  // Elimina espacios, guiones, paréntesis, +
+  const clean = phone.replace(/\D/g, '');
+  // Si es Argentina y no empieza con 54, agrega el código de país
+  if (clean.length === 10) {
+    return `54${clean}`; // Argentina
+  }
+  if (clean.startsWith('9') && clean.length === 10) {
+    return `54${clean}`;
+  }
+  return clean;
+}
+
 export default function AdminCustomers() {
   const [busqueda, setBusqueda] = useState("");
   const [clientes, setClientes] = useState([]);
@@ -89,7 +104,20 @@ export default function AdminCustomers() {
               <tr key={c._id}>
                 <td>{c.nombre}</td>
                 <td>{c.email}</td>
-                <td>{c.whatsapp || "—"}</td>
+                <td>
+                  {c.whatsapp ? (
+                    <a
+                      href={`https://wa.me/${formatWhatsAppNumber(c.whatsapp)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="whatsapp-link"
+                    >
+                      {c.whatsapp}
+                    </a>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td>{c.telefono || "—"}</td>
                 <td>
                   <span className={`status-badge status-${c.estado}`}>

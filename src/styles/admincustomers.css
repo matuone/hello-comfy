@@ -284,3 +284,24 @@
     margin-left: 0;
   }
 }
+
+/* ============================
+   WHATSAPP LINK
+============================ */
+.whatsapp-link {
+  color: #25d366;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.whatsapp-link:hover {
+  color: #1da851;
+  border-bottom: 2px solid #25d366;
+  cursor: pointer;
+}
+
+.whatsapp-link:active {
+  transform: scale(0.98);
+}
