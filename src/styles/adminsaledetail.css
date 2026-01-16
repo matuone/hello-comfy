@@ -40,9 +40,52 @@
   border-bottom: none;
 }
 
-/* ============================
-   GRID PARA ORGANIZAR SECCIONES
-============================ */
+.detalle-actions button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.detalle-actions button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Botón Facturar - Estado Pendiente (Naranja) */
+.facturar-btn.pendiente {
+  background: #ff9800;
+  color: white;
+}
+
+.facturar-btn.pendiente:hover {
+  background: #f57c00;
+}
+
+.facturar-btn.pendiente:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Botón Facturar - Estado Facturado (Verde) */
+.facturar-btn.facturado {
+  background: #4caf50;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.facturar-btn.facturado:hover {
+  background: #45a049;
+}
+
+.facturar-btn:disabled {
+  opacity: 0.7;
+}
+
+/* Otros botones del detalle */
 .detalle-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -181,4 +224,66 @@
   gap: 6px;
   white-space: nowrap;
   opacity: 0.9;
+}
+
+/* ============================
+   FACTURACIÓN EN DETALLE – BOTONES
+============================ */
+.detalle-box .factura-btn {
+  margin-right: 10px;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.detalle-box .factura-btn.reenviar {
+  margin-right: 0;
+}
+
+/* ============================
+   NÚMERO DE FACTURA - BADGE ESTILIZADO
+============================ */
+.factura-numero {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  word-break: break-all;
+  transition: all 0.3s ease;
+}
+
+.factura-numero:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Badge compacto para vista previa */
+.factura-numero-compact {
+  display: block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 1.2px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  margin-top: 10px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.factura-numero-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  border-color: rgba(255, 255, 255, 0.3);
 }

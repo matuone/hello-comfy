@@ -1,0 +1,235 @@
+/* Factura Modal - Estilos personalizados */
+.factura-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.factura-modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 450px;
+  padding: 32px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.factura-modal-title {
+  margin: 0 0 16px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #d94f7a;
+  text-align: center;
+}
+
+.factura-modal-message {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 28px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Input para CUIT */
+.factura-modal-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.factura-modal-input:focus {
+  outline: none;
+  border-color: #ff9800;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+  background: #fafafa;
+}
+
+.factura-modal-input::placeholder {
+  color: #aaa;
+  letter-spacing: normal;
+}
+
+.factura-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.factura-modal-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.factura-modal-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.factura-modal-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.factura-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Botón Cancelar - Gris */
+.factura-modal-btn.cancel {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.factura-modal-btn.cancel:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+/* Botón Confirmar - Naranja (color de la marca) */
+.factura-modal-btn.confirm {
+  background: #ff9800;
+  color: white;
+  font-weight: 700;
+}
+
+.factura-modal-btn.confirm:hover:not(:disabled) {
+  background: #f57c00;
+}
+
+.factura-modal-btn.confirm:active:not(:disabled) {
+  background: #e65100;
+}
+
+/* Modal de Éxito - Estilos específicos */
+.modal-success-icon {
+  font-size: 3.5rem;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: scaleIn 0.4s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-factura-datos {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-left: 4px solid #ff9800;
+}
+
+.dato-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dato-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dato-valor {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  padding: 8px 0;
+  word-break: break-all;
+}
+
+/* Media queries para móvil */
+@media (max-width: 480px) {
+  .factura-modal-content {
+    width: 95%;
+    padding: 24px;
+  }
+
+  .factura-modal-title {
+    font-size: 1.2rem;
+  }
+
+  .factura-modal-message {
+    font-size: 0.95rem;
+  }
+
+  .factura-modal-actions {
+    flex-direction: column;
+  }
+
+  .factura-modal-btn {
+    width: 100%;
+  }
+
+  .modal-success-icon {
+    font-size: 2.5rem;
+  }
+
+  .modal-factura-datos {
+    padding: 16px;
+  }
+
+  .dato-valor {
+    font-size: 0.95rem;
+  }
+}

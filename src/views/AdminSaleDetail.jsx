@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import FacturaModal from "../components/FacturaModal";
 import "../styles/adminsaledetail.css";
+import "../styles/admin/facturamodal.css";
 
 export default function AdminSaleDetail() {
   const { id } = useParams();
@@ -10,6 +12,11 @@ export default function AdminSaleDetail() {
 
   const [isAppsOpen, setIsAppsOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+
+  // Estados para modales de facturación
+  const [modalFactura, setModalFactura] = useState(null);
+  const [cargandoFactura, setCargandoFactura] = useState(false);
+  const [modalExito, setModalExito] = useState(null);
 
   const appsRef = useRef(null);
   const moreRef = useRef(null);
@@ -43,29 +50,35 @@ export default function AdminSaleDetail() {
   // ============================
   // FACTURAR ESTA VENTA
   // ============================
-  async function facturarVenta() {
-    if (!window.confirm("¿Seguro que querés generar la factura en ARCA?")) return;
+  function abrirModalFactura() {
+    setModalFactura('confirmar');
+  }
 
+  async function confirmarFactura() {
+    setModalFactura('tipo');
+  }
+
+  async function seleccionarTipoFactura(tipoFactura) {
+    if (tipoFactura === 'A') {
+      setModalFactura('cuit');
+    } else {
+      await generarFactura('C', null);
+    }
+  }
+
+  async function confirmarCUIT(cuit) {
+    if (!cuit || cuit.length < 11) {
+      alert('CUIT inválido');
+      return;
+    }
+    await generarFactura('A', cuit);
+  }
+
+  async function generarFactura(tipoFactura, cuitCliente) {
+    setCargandoFactura(true);
     try {
-      const tipoFactura = window.confirm(
-        "¿Factura A (con CUIT)? Cancelar para Factura C (consumidor final)"
-      )
-        ? "A"
-        : "C";
-
-      const body = {
-        tipoFactura,
-      };
-
-      // Si es Factura A, solicitar CUIT
-      if (tipoFactura === "A") {
-        const cuitCliente = window.prompt("Ingresa el CUIT del cliente (ej: 20123456789)");
-        if (!cuitCliente || cuitCliente.length < 11) {
-          alert("CUIT inválido");
-          return;
-        }
-        body.cuitCliente = cuitCliente;
-      }
+      const body = { tipoFactura };
+      if (cuitCliente) body.cuitCliente = cuitCliente;
 
       const res = await fetch(
         `http://localhost:5000/api/afip/generar-factura/${id}`,
@@ -83,16 +96,26 @@ export default function AdminSaleDetail() {
 
       if (!res.ok) {
         alert("Error al generar factura: " + (data.error || data.message || "Desconocido"));
+        setModalFactura(null);
         return;
       }
 
-      alert(`Factura generada correctamente!\nNúmero: ${data.factura.facturaNumero}\nCAE: ${data.factura.facturaCae}`);
+      // Mostrar modal de éxito con datos de factura
+      setModalExito({
+        numero: data.factura?.numero || 'N/A',
+        cae: data.factura?.cae || 'N/A',
+        vencimiento: data.factura?.vencimientoCae || 'N/A'
+      });
 
       // Actualizar venta en pantalla
       setVenta(data.order || data.factura);
+      setModalFactura(null);
     } catch (err) {
       console.error("Error facturando:", err);
       alert("Error al generar la factura");
+      setModalFactura(null);
+    } finally {
+      setCargandoFactura(false);
     }
   }
 
@@ -188,8 +211,12 @@ export default function AdminSaleDetail() {
       <div className="detalle-actions">
 
         {/* Facturar esta venta */}
-        <button className="facturar-btn" onClick={facturarVenta}>
-          Facturar esta venta
+        <button
+          className={`facturar-btn ${venta.facturaNumero ? 'facturado' : 'pendiente'}`}
+          onClick={abrirModalFactura}
+          disabled={!!venta.facturaNumero}
+        >
+          {venta.facturaNumero ? '✅ Venta facturada' : '📄 Facturar esta venta'}
         </button>
 
         <div className="dropdown" ref={appsRef}>
@@ -340,6 +367,128 @@ export default function AdminSaleDetail() {
         )}
       </div>
 
+      {/* ============================
+          MODALES DE FACTURACIÓN
+      ============================ */}
+
+      {/* Modal 1: Confirmación inicial */}
+      <FacturaModal
+        isOpen={modalFactura === 'confirmar'}
+        title="Generar Factura en ARCA"
+        message="¿Estás seguro de que querés generar la factura en ARCA para esta venta?"
+        onConfirm={confirmarFactura}
+        onCancel={() => setModalFactura(null)}
+        loading={cargandoFactura}
+      />
+
+      {/* Modal 2: Seleccionar tipo de factura */}
+      {modalFactura === 'tipo' && (
+        <div className="factura-modal-overlay" onClick={() => setModalFactura(null)}>
+          <div className="factura-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="factura-modal-title">Tipo de Factura</h2>
+            <p className="factura-modal-message">¿Qué tipo de factura quieres generar?</p>
+            <div className="factura-modal-actions" style={{ flexDirection: 'column', gap: '12px' }}>
+              <button
+                className="factura-modal-btn confirm"
+                onClick={() => seleccionarTipoFactura('C')}
+                style={{ background: '#4caf50' }}
+              >
+                Factura C (Consumidor Final)
+              </button>
+              <button
+                className="factura-modal-btn confirm"
+                onClick={() => seleccionarTipoFactura('A')}
+                style={{ background: '#2196f3' }}
+              >
+                Factura A (Responsable Inscripto)
+              </button>
+              <button
+                className="factura-modal-btn cancel"
+                onClick={() => setModalFactura(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 3: Ingresar CUIT */}
+      {modalFactura === 'cuit' && (
+        <div className="factura-modal-overlay" onClick={() => setModalFactura(null)}>
+          <div className="factura-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="factura-modal-title">Factura A - CUIT del Cliente</h2>
+            <p className="factura-modal-message">Ingresa el CUIT del cliente (sin guiones)</p>
+            <input
+              type="text"
+              placeholder="Ej: 20123456789"
+              id="cuit-input"
+              className="factura-modal-input"
+              maxLength="11"
+              autoFocus
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  const cuit = document.getElementById('cuit-input').value;
+                  confirmarCUIT(cuit);
+                }
+              }}
+            />
+            <div className="factura-modal-actions">
+              <button
+                className="factura-modal-btn cancel"
+                onClick={() => setModalFactura(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="factura-modal-btn confirm"
+                onClick={() => {
+                  const cuit = document.getElementById('cuit-input').value;
+                  confirmarCUIT(cuit);
+                }}
+                disabled={cargandoFactura}
+              >
+                {cargandoFactura ? 'Procesando...' : 'Generar Factura'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================
+          MODAL DE ÉXITO
+      ============================ */}
+      {modalExito && (
+        <div className="factura-modal-overlay" onClick={() => setModalExito(null)}>
+          <div className="factura-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-success-icon">✅</div>
+            <h2 className="factura-modal-title">¡Factura Generada!</h2>
+
+            <div className="modal-factura-datos">
+              <div className="dato-item">
+                <span className="dato-label">Número de Factura:</span>
+                <span className="factura-numero">{modalExito.numero}</span>
+              </div>
+              <div className="dato-item">
+                <span className="dato-label">CAE (Código de Autorización):</span>
+                <span className="dato-valor">{modalExito.cae}</span>
+              </div>
+              <div className="dato-item">
+                <span className="dato-label">Vencimiento CAE:</span>
+                <span className="dato-valor">{modalExito.vencimiento}</span>
+              </div>
+            </div>
+
+            <button
+              className="factura-modal-btn confirm"
+              onClick={() => setModalExito(null)}
+              style={{ width: '100%' }}
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
