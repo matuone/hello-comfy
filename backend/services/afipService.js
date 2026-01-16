@@ -204,14 +204,24 @@ export async function verificarEstadoServicio() {
  * Generar factura tipo A (responsable inscripto)
  * @param {Object} orderData - Datos de la orden
  * @param {Number} cuitCliente - CUIT del cliente
+ * @param {Number} puntoVenta - Punto de venta a usar (opcional)
  * @returns {Promise<Object>} Factura generada
  */
-export async function generarFacturaA(orderData, cuitCliente) {
+export async function generarFacturaA(orderData, cuitCliente, puntoVenta = null) {
   try {
     console.log('📄 Iniciando generación de factura A para orden:', orderData.code);
 
-    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(1, 1); // 1 = Factura A
+    // Usar punto de venta configurado en .env o el especificado
+    const ptoVta = puntoVenta || parseInt(process.env.AFIP_PUNTO_VENTA) || 4;
+
+    console.log(`🔄 Usando punto de venta ${ptoVta}...`);
+
+    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(1, ptoVta); // 1 = Factura A
     const nextVoucherNumber = lastVoucher + 1;
+
+    console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
+    console.log('📝 Último comprobante:', lastVoucher);
+    console.log('📝 Próximo número:', nextVoucherNumber);
 
     // Calcular IVA (21%)
     const neto = orderData.totals.total / 1.21;
@@ -219,7 +229,7 @@ export async function generarFacturaA(orderData, cuitCliente) {
 
     const data = {
       'CantReg': 1,
-      'PtoVta': 1,
+      'PtoVta': ptoVta,
       'CbteTipo': 1, // 1 = Factura A
       'Concepto': 1,
       'DocTipo': 80, // 80 = CUIT
@@ -251,7 +261,7 @@ export async function generarFacturaA(orderData, cuitCliente) {
 
     return {
       numero: nextVoucherNumber,
-      puntoVenta: 1,
+      puntoVenta: ptoVta,
       tipo: 'A',
       cae: result.CAE,
       vencimientoCAE: result.CAEFchVto,

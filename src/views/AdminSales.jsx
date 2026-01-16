@@ -102,7 +102,7 @@ export default function AdminSales() {
       return;
     }
 
-    if (!window.confirm(`¿Facturar ${seleccionadas.length} venta(s) con Facturante?`)) {
+    if (!window.confirm(`¿Facturar ${seleccionadas.length} venta(s) con AFIP?`)) {
       return;
     }
 
@@ -149,7 +149,7 @@ export default function AdminSales() {
   // DESCARGAR FACTURA (placeholder)
   // ============================
   async function descargarFactura(id) {
-    alert("Descargar PDF todavía no está conectado a Facturante");
+    alert("Descargar PDF de factura - funcionalidad pendiente");
   }
 
   // ============================
@@ -305,8 +305,8 @@ export default function AdminSales() {
               <button onClick={() => ejecutarAccion("Marcar y notificar como enviadas")}>Marcar y notificar como enviadas</button>
               <button onClick={() => ejecutarAccion("Imprimir resumen del pedido")}>Imprimir resumen del pedido</button>
 
-              {/* ⭐ NUEVO: Facturación real */}
-              <button onClick={facturarSeleccionadas}>Facturar con Facturante</button>
+              {/* ⭐ Facturación con AFIP */}
+              <button onClick={facturarSeleccionadas}>Facturar con AFIP</button>
 
               <button onClick={() => ejecutarAccion("Registrar órdenes en Correo Argentino")}>Registrar órdenes en Correo Argentino</button>
               <button onClick={() => ejecutarAccion("Andreani - Descargar Etiquetas")}>Andreani - Descargar Etiquetas</button>

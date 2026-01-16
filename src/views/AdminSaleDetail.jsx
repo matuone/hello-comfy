@@ -83,7 +83,7 @@ export default function AdminSaleDetail() {
   // DESCARGAR PDF (placeholder)
   // ============================
   function descargarPDF() {
-    alert("Descargar PDF todavía no está conectado a Facturante");
+    alert("Descargar PDF de factura - funcionalidad pendiente");
   }
 
   // ============================

@@ -141,27 +141,7 @@ router.patch("/admin/orders/:id/status", verifyAdmin, async (req, res) => {
       date: new Date().toLocaleString("es-AR"),
     });
 
-    // ============================================================
-    // ⭐ Facturación (placeholder)
-    // ============================================================
-    if (facturar === true) {
-      try {
-        // const factura = await facturanteService.generarFactura(order);
-        const factura = { numero: "F0001-00012345" }; // simulación
 
-        order.facturaNumero = factura.numero;
-
-        order.timeline.push({
-          status: `Factura generada: ${factura.numero}`,
-          date: new Date().toLocaleString("es-AR"),
-        });
-      } catch (err) {
-        order.timeline.push({
-          status: `Error al facturar: ${err.message}`,
-          date: new Date().toLocaleString("es-AR"),
-        });
-      }
-    }
 
     await order.save();
 
@@ -200,26 +180,6 @@ router.patch("/admin/orders/status/batch", verifyAdmin, async (req, res) => {
         status: `Estado actualizado a: ${status}`,
         date: new Date().toLocaleString("es-AR"),
       });
-
-      // ⭐ Facturación opcional
-      if (facturar === true) {
-        try {
-          // const factura = await facturanteService.generarFactura(order);
-          const factura = { numero: "F0001-00012345" };
-
-          order.facturaNumero = factura.numero;
-
-          order.timeline.push({
-            status: `Factura generada: ${factura.numero}`,
-            date: new Date().toLocaleString("es-AR"),
-          });
-        } catch (err) {
-          order.timeline.push({
-            status: `Error al facturar: ${err.message}`,
-            date: new Date().toLocaleString("es-AR"),
-          });
-        }
-      }
 
       await order.save();
       resultados.push({ id, ok: true });
