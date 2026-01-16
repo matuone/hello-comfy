@@ -177,7 +177,32 @@ export default function AdminSales() {
   // DESCARGAR FACTURA (placeholder)
   // ============================
   async function descargarFactura(id) {
-    alert("Descargar PDF de factura - funcionalidad pendiente");
+    try {
+      const url = `http://localhost:5000/api/afip/factura-pdf/${id}`;
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'No se pudo descargar el PDF');
+      }
+      const [blob, disposition] = await Promise.all([
+        res.blob(),
+        Promise.resolve(res.headers.get('Content-Disposition')),
+      ]);
+      const link = document.createElement('a');
+      const filenameMatch = disposition && /filename="?([^";]+)"?/i.exec(disposition);
+      const filename = filenameMatch ? filenameMatch[1] : `Factura-${id}.pdf`;
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error(err);
+      alert('Error descargando PDF');
+    }
   }
 
   // ============================

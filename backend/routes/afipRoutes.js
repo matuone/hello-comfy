@@ -9,6 +9,7 @@ import {
   obtenerPuntosVenta,
   probarPuntosVenta
 } from '../services/afipService.js';
+import { generarFacturaPDF } from '../services/pdfService.js';
 import Order from '../models/Order.js';
 import { verifyAdmin } from '../middleware/adminMiddleware.js';
 
@@ -197,6 +198,34 @@ router.post('/afip/test-factura', verifyAdmin, async (req, res) => {
       error: error.message,
       message: 'Error generando factura de prueba'
     });
+  }
+});
+
+/**
+ * GET /api/afip/factura-pdf/:orderId
+ * Descargar PDF de la factura de una orden
+ */
+router.get('/afip/factura-pdf/:orderId', verifyAdmin, async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Orden no encontrada' });
+    }
+
+    if (!order.facturaNumero) {
+      return res.status(400).json({ success: false, error: 'La orden no tiene factura generada' });
+    }
+
+    const pdfBuffer = await generarFacturaPDF(order);
+
+    const filename = `Factura-${order.facturaNumero}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Error generando PDF:', error);
+    res.status(500).json({ success: false, error: error.message || 'Error al generar PDF' });
   }
 });
 
