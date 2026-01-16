@@ -508,6 +508,28 @@
   transition: 0.2s ease;
 }
 
+/* Botón de factura pendiente */
+.factura-pendiente-btn {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.factura-pendiente-btn:hover {
+  background: #f57c00;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+.factura-pendiente-btn:active {
+  transform: scale(0.98);
+}
+
 .factura-btn:hover {
   background: #125a9c;
 }

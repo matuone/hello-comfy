@@ -102,29 +102,57 @@ export default function AdminSales() {
       return;
     }
 
-    if (!window.confirm(`¿Facturar ${seleccionadas.length} venta(s) con AFIP?`)) {
+    const tipoFactura = window.confirm(
+      "¿Factura A (con CUIT)? Cancelar para Factura C (consumidor final)"
+    )
+      ? "A"
+      : "C";
+
+    if (!window.confirm(`¿Generar factura ${tipoFactura} en ARCA para ${seleccionadas.length} venta(s)?`)) {
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/admin/orders/status/batch", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ids: seleccionadas,
-          status: "facturado",
-          facturar: true,
-        }),
-      });
+      const body = {
+        tipoFactura,
+      };
 
-      const data = await res.json();
+      // Si es Factura A, solicitar CUIT
+      if (tipoFactura === "A") {
+        const cuitCliente = window.prompt("Ingresa el CUIT del cliente (ej: 20123456789)");
+        if (!cuitCliente || cuitCliente.length < 11) {
+          alert("CUIT inválido");
+          return;
+        }
+        body.cuitCliente = cuitCliente;
+      }
 
-      if (!res.ok) {
-        alert("Error al facturar: " + (data.error || "Desconocido"));
-        return;
+      // Generar facturas una por una (AFIP requiere una llamada por factura)
+      let exitosas = 0;
+      let errores = 0;
+
+      for (const id of seleccionadas) {
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/afip/generar-factura/${id}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(body),
+            }
+          );
+
+          if (res.ok) {
+            exitosas++;
+          } else {
+            errores++;
+          }
+        } catch (err) {
+          errores++;
+        }
       }
 
       setVentasData((prev) =>
@@ -135,13 +163,13 @@ export default function AdminSales() {
         )
       );
 
-      alert("Facturación masiva completada");
+      alert(`Facturación completada!\n✅ Exitosas: ${exitosas}\n❌ Errores: ${errores}`);
       setAccionesAbiertas(false);
       setSeleccionadas([]);
       setSelectAll(false);
     } catch (err) {
       console.error("Error facturando:", err);
-      alert("Error al facturar las ventas");
+      alert("Error al generar las facturas");
     }
   }
 
@@ -305,8 +333,8 @@ export default function AdminSales() {
               <button onClick={() => ejecutarAccion("Marcar y notificar como enviadas")}>Marcar y notificar como enviadas</button>
               <button onClick={() => ejecutarAccion("Imprimir resumen del pedido")}>Imprimir resumen del pedido</button>
 
-              {/* ⭐ Facturación con AFIP */}
-              <button onClick={facturarSeleccionadas}>Facturar con AFIP</button>
+              {/* ⭐ Facturación con AFIP/ARCA */}
+              <button onClick={facturarSeleccionadas}>Generar factura en ARCA</button>
 
               <button onClick={() => ejecutarAccion("Registrar órdenes en Correo Argentino")}>Registrar órdenes en Correo Argentino</button>
               <button onClick={() => ejecutarAccion("Andreani - Descargar Etiquetas")}>Andreani - Descargar Etiquetas</button>
@@ -429,7 +457,9 @@ export default function AdminSales() {
                         </button>
                       </div>
                     ) : (
-                      <span className="factura-status pendiente">Pendiente</span>
+                      <Link to={`/admin/sales/${venta._id}`}>
+                        <button className="factura-pendiente-btn">Generar factura</button>
+                      </Link>
                     )}
                   </td>
                 </tr>

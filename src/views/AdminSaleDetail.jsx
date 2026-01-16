@@ -44,38 +44,55 @@ export default function AdminSaleDetail() {
   // FACTURAR ESTA VENTA
   // ============================
   async function facturarVenta() {
-    if (!window.confirm("¿Seguro que querés facturar esta venta?")) return;
+    if (!window.confirm("¿Seguro que querés generar la factura en ARCA?")) return;
 
     try {
+      const tipoFactura = window.confirm(
+        "¿Factura A (con CUIT)? Cancelar para Factura C (consumidor final)"
+      )
+        ? "A"
+        : "C";
+
+      const body = {
+        tipoFactura,
+      };
+
+      // Si es Factura A, solicitar CUIT
+      if (tipoFactura === "A") {
+        const cuitCliente = window.prompt("Ingresa el CUIT del cliente (ej: 20123456789)");
+        if (!cuitCliente || cuitCliente.length < 11) {
+          alert("CUIT inválido");
+          return;
+        }
+        body.cuitCliente = cuitCliente;
+      }
+
       const res = await fetch(
-        `http://localhost:5000/api/admin/orders/${id}/status`,
+        `http://localhost:5000/api/afip/generar-factura/${id}`,
         {
-          method: "PATCH",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            status: "facturado",
-            facturar: true,
-          }),
+          body: JSON.stringify(body),
         }
       );
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert("Error al facturar: " + (data.error || "Desconocido"));
+        alert("Error al generar factura: " + (data.error || data.message || "Desconocido"));
         return;
       }
 
-      alert("Factura generada correctamente");
+      alert(`Factura generada correctamente!\nNúmero: ${data.factura.facturaNumero}\nCAE: ${data.factura.facturaCae}`);
 
       // Actualizar venta en pantalla
-      setVenta(data.order);
+      setVenta(data.order || data.factura);
     } catch (err) {
       console.error("Error facturando:", err);
-      alert("Error al facturar la venta");
+      alert("Error al generar la factura");
     }
   }
 
