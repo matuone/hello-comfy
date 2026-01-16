@@ -54,7 +54,6 @@ export default function ConfirmProofModal({ isOpen, onConfirm, onCancel, payment
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: "12px",
             }}
           >
             ⚠️

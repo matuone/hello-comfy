@@ -8,52 +8,72 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Configuración de AFIP
- * IMPORTANTE: Antes de usar en producción necesitás:
- * 1. Certificado digital de AFIP (.crt y .key)
- * 2. CUIT de la empresa
- * 3. Punto de venta habilitado
+ * Configuración de AFIP con certificado real
  */
 
-// Leer contenido de certificados (el SDK necesita strings, no rutas)
+// Leer contenido de certificados
 const certPath = path.join(__dirname, '../config/afip-cert.crt');
 const keyPath = path.join(__dirname, '../config/afip-key.key');
-const taFolder = path.join(__dirname, '../config/afip-ta');
 
-const certContent = fs.readFileSync(certPath, 'utf8');
-const keyContent = fs.readFileSync(keyPath, 'utf8');
+let certContent, keyContent;
+
+try {
+  certContent = fs.readFileSync(certPath, 'utf8');
+  keyContent = fs.readFileSync(keyPath, 'utf8');
+  console.log('✅ Certificados AFIP cargados correctamente');
+} catch (err) {
+  console.error('❌ Error cargando certificados:', err.message);
+  console.error('Ruta esperada para cert:', certPath);
+  console.error('Ruta esperada para key:', keyPath);
+  throw err;
+}
 
 const afip = new Afip({
-  CUIT: process.env.AFIP_CUIT || 20000000000, // Reemplazar con tu CUIT
-  production: process.env.AFIP_PRODUCTION === 'true' || false, // false = homologación (testing)
-  cert: certContent, // Contenido del certificado (string)
-  key: keyContent, // Contenido de la clave privada (string)
-  ta_folder: taFolder, // Carpeta para tokens
-  access_token: process.env.AFIP_ACCESS_TOKEN, // Usar access token de afipsdk.com
+  CUIT: parseInt(process.env.AFIP_CUIT) || 27391049802,
+  cert: certContent,
+  key: keyContent,
+  access_token: process.env.AFIP_ACCESS_TOKEN,
+  production: true,  // ✅ IMPORTANTE: Tu certificado es de producción
 });
 
 /**
- * Obtener estado de los puntos de venta
- * @returns {Promise<Array>} Estado de puntos de venta
+ * Obtener estado de los puntos de venta habilitados
+ * Usa FEParamGetPtosVenta
+ * @returns {Promise<Array>} Lista de puntos de venta habilitados
  */
 export async function obtenerPuntosVenta() {
   try {
-    // Usar el método correcto de la SDK
-    const ptos = await afip.ElectronicBilling.getPointOfSalesStatus();
-    console.log('📍 Puntos de venta disponibles:', ptos);
-    return ptos;
-  } catch (error) {
-    // Si ese método no existe, intentar con otro enfoque
+    console.log('📍 Obteniendo puntos de venta habilitados...');
+    
+    // Intentar obtener parámetros del servidor (incluye puntos de venta)
     try {
-      console.log('Intentando método alternativo para obtener puntos de venta...');
-      const params = await afip.ElectronicBilling.getServerStatus();
-      console.log('Estado servidor:', params);
-      // Para ahora, retornar puntos de venta comunes
-      return [1, 2, 3, 4, 5]; // Puntos de venta típicos
-    } catch (err) {
-      console.error('❌ Error obteniendo puntos de venta:', err);
-      throw err;
+      const response = await afip.ElectronicBilling.request('FEParamGetTiposDoc', {});
+      console.log('✅ Respuesta de parámetros:', response);
+      
+      // Intentar con FEParamGetPtosVenta
+      const ptos = await afip.ElectronicBilling.request('FEParamGetPtosVenta', {});
+      console.log('✅ Puntos de venta:', ptos);
+      return ptos;
+    } catch (error) {
+      // Si falla, intentar método alternativo
+      try {
+        console.log('Intentando método alternativo: getParameters');
+        const params = await afip.ElectronicBilling.getParameters();
+        console.log('✅ Parámetros del servidor:', params);
+        
+        if (params && params.PuntosVenta) {
+          return params.PuntosVenta;
+        }
+        return params;
+      } catch (e) {
+        console.warn('⚠️ No se pudo obtener puntos de venta reales');
+        throw error;
+      }
     }
+  } catch (error) {
+    console.error('❌ Error obteniendo puntos de venta:', error.message);
+    if (error.code) console.error('Código de error:', error.code);
+    throw error;
   }
 }
 

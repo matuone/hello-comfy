@@ -29,7 +29,7 @@ export default function PromoBanner(props) {
         console.error('Error cargando banner:', err);
         setLoading(false);
       });
-  }, []);
+  }, [API_URL]);
 
   // Usar imágenes del backend o fallback a las por defecto
   const IMGS = useMemo(function () {

@@ -114,10 +114,7 @@ app.use("/api/config", siteConfigRoutes);
 // ============================
 // RUTAS DE PROMO BANNER (⭐ NUEVO)
 // ============================
-app.use("/api/promo-banner", (req, res, next) => {
-  console.log(`📍 Petición a promo-banner: ${req.method} ${req.url}`);
-  next();
-}, promoBannerRoutes);
+app.use("/api/promo-banner", promoBannerRoutes);
 
 // ============================
 // RUTAS DE PEDIDOS (checkout, crear orden, etc.)
