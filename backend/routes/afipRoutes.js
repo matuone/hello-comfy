@@ -8,13 +8,13 @@ import {
   consultarContribuyente
 } from '../services/afipService.js';
 import Order from '../models/Order.js';
-import adminMiddleware from '../middleware/adminMiddleware.js';
+import { verifyAdmin } from '../middleware/adminMiddleware.js';
 
 /**
  * GET /api/afip/status
  * Verificar estado del servicio de AFIP
  */
-router.get('/afip/status', adminMiddleware, async (req, res) => {
+router.get('/afip/status', verifyAdmin, async (req, res) => {
   try {
     const status = await verificarEstadoServicio();
     res.json({
@@ -36,7 +36,7 @@ router.get('/afip/status', adminMiddleware, async (req, res) => {
  * POST /api/afip/generar-factura/:orderId
  * Generar factura para una orden específica
  */
-router.post('/afip/generar-factura/:orderId', adminMiddleware, async (req, res) => {
+router.post('/afip/generar-factura/:orderId', verifyAdmin, async (req, res) => {
   try {
     const { orderId } = req.params;
     const { tipoFactura, cuitCliente } = req.body; // 'A' o 'B'
@@ -106,7 +106,7 @@ router.post('/afip/generar-factura/:orderId', adminMiddleware, async (req, res) 
  * GET /api/afip/consultar-contribuyente/:cuit
  * Consultar datos de un contribuyente por CUIT
  */
-router.get('/afip/consultar-contribuyente/:cuit', adminMiddleware, async (req, res) => {
+router.get('/afip/consultar-contribuyente/:cuit', verifyAdmin, async (req, res) => {
   try {
     const { cuit } = req.params;
     const taxpayer = await consultarContribuyente(parseInt(cuit));
@@ -128,7 +128,7 @@ router.get('/afip/consultar-contribuyente/:cuit', adminMiddleware, async (req, r
  * POST /api/afip/test-factura
  * Generar factura de prueba (solo para testing)
  */
-router.post('/afip/test-factura', adminMiddleware, async (req, res) => {
+router.post('/afip/test-factura', verifyAdmin, async (req, res) => {
   try {
     const orderDataTest = {
       code: 'TEST-001',

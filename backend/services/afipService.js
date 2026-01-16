@@ -19,6 +19,7 @@ const afip = new Afip({
   cert: path.join(__dirname, '../config/afip-cert.crt'), // Ruta al certificado
   key: path.join(__dirname, '../config/afip-key.key'), // Ruta a la clave privada
   ta_folder: path.join(__dirname, '../config/afip-ta'), // Carpeta para tokens
+  access_token: process.env.AFIP_ACCESS_TOKEN, // Usar access token de afipsdk.com
 });
 
 /**
