@@ -80,7 +80,7 @@ export async function probarPuntosVenta() {
     }
 
     try {
-      const last = await afip.ElectronicBilling.getLastVoucher(11, pto);
+      const last = await afip.ElectronicBilling.getLastVoucher(pto, 11);
       resultados.push({ puntoVenta: pto, ok: true, lastVoucher: last });
     } catch (error) {
       resultados.push({
@@ -111,7 +111,7 @@ export async function generarFacturaC(orderData, puntoVenta = null) {
     console.log(`🔄 Usando punto de venta ${ptoVta}...`);
 
     // Obtener el último número de factura para este punto de venta
-    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(11, ptoVta); // 11 = Factura C (Monotributo)
+    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(ptoVta, 11); // 11 = Factura C (Monotributo)
     const nextVoucherNumber = lastVoucher + 1;
 
     console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
@@ -216,7 +216,7 @@ export async function generarFacturaA(orderData, cuitCliente, puntoVenta = null)
 
     console.log(`🔄 Usando punto de venta ${ptoVta}...`);
 
-    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(1, ptoVta); // 1 = Factura A
+    const lastVoucher = await afip.ElectronicBilling.getLastVoucher(ptoVta, 1); // 1 = Factura A
     const nextVoucherNumber = lastVoucher + 1;
 
     console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
