@@ -10,6 +10,7 @@ import {
   probarPuntosVenta
 } from '../services/afipService.js';
 import { generarFacturaPDF } from '../services/pdfService.js';
+import { enviarFacturaEmail } from '../services/emailService.js';
 import Order from '../models/Order.js';
 import { verifyAdmin } from '../middleware/adminMiddleware.js';
 
@@ -226,6 +227,44 @@ router.get('/afip/factura-pdf/:orderId', verifyAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error generando PDF:', error);
     res.status(500).json({ success: false, error: error.message || 'Error al generar PDF' });
+  }
+});
+
+/**
+ * POST /api/afip/reenviar-factura/:orderId
+ * Reenviar factura por email al cliente
+ */
+router.post('/afip/reenviar-factura/:orderId', verifyAdmin, async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Orden no encontrada' });
+    }
+
+    if (!order.facturaNumero) {
+      return res.status(400).json({ success: false, error: 'La orden no tiene factura generada' });
+    }
+
+    if (!order.customer?.email) {
+      return res.status(400).json({ success: false, error: 'El cliente no tiene email registrado' });
+    }
+
+    // Generar PDF de la factura
+    const pdfBuffer = await generarFacturaPDF(order);
+
+    // Enviar email con la factura
+    const emailEnviado = await enviarFacturaEmail(order, pdfBuffer);
+
+    if (!emailEnviado) {
+      return res.status(500).json({ success: false, error: 'Error al enviar el email' });
+    }
+
+    res.json({ success: true, message: 'Factura reenviada exitosamente' });
+  } catch (error) {
+    console.error('Error reenviando factura:', error);
+    res.status(500).json({ success: false, error: error.message || 'Error al reenviar factura' });
   }
 });
 

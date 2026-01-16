@@ -526,3 +526,108 @@ export async function enviarEmailAlAdmin(order) {
     return false;
   }
 }
+
+/**
+ * Enviar factura por email al cliente
+ * @param {Object} order - Objeto de orden con factura
+ * @param {Buffer} pdfBuffer - Buffer del PDF de la factura
+ */
+export async function enviarFacturaEmail(order, pdfBuffer) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email");
+      return false;
+    }
+
+    if (!order.customer?.email) {
+      console.warn("⚠️ Email del cliente no disponible");
+      return false;
+    }
+
+    console.log("📧 Intentando enviar factura a:", order.customer?.email);
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const emailHtml = `
+      <div style="
+        font-family: 'Arial', sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      ">
+        <!-- Header -->
+        <div style="
+          background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%);
+          padding: 32px 24px;
+          text-align: center;
+        ">
+          <h1 style="
+            color: white;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+          ">Tu Factura</h1>
+          <p style="
+            color: rgba(255,255,255,0.95);
+            margin: 8px 0 0 0;
+            font-size: 16px;
+          ">Adjuntamos tu factura</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 32px 24px;">
+          <p style="color: #333; font-size: 16px; margin: 0 0 16px 0;">
+            Hola <strong>${order.customer?.name || "Cliente"}</strong>,
+          </p>
+
+          <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
+            Adjuntamos tu factura para la orden #${order.code}. Si tienes alguna pregunta, no dudes en contactarnos.
+          </p>
+
+          <!-- Footer -->
+          <div style="
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+            color: #888;
+            font-size: 12px;
+          ">
+            <p style="margin: 0;">Hello Comfy 🧸</p>
+            <p style="margin: 8px 0 0 0;">© 2024 Hello Comfy. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: '"Hello Comfy 🧸" <hellocomfyind@gmail.com>',
+      to: order.customer.email,
+      subject: `Factura - Orden #${order.code}`,
+      html: emailHtml,
+      attachments: [
+        {
+          filename: `Factura-${order.facturaNumero}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    console.log(`✅ Factura enviada a: ${order.customer.email}`);
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando factura:", error.message);
+    return false;
+  }
+}

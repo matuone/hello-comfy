@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/adminsales.css";
+import ReenviarModal from "../components/ReenviarModal";
 
 export default function AdminSales() {
   const { token } = useAuth();
@@ -18,6 +19,10 @@ export default function AdminSales() {
   const [codigoSeguimiento, setCodigoSeguimiento] = useState("");
 
   const [expandedRows, setExpandedRows] = useState([]);
+
+  // Modal de reenvío de factura
+  const [modalReenvio, setModalReenvio] = useState(false);
+  const [reenvioLoading, setReenvioLoading] = useState(false);
 
   // ============================
   // DATOS DE VENTAS (BACKEND)
@@ -206,10 +211,45 @@ export default function AdminSales() {
   }
 
   // ============================
-  // REENVIAR FACTURA (placeholder)
+  // REENVIAR FACTURA
   // ============================
   async function reenviarFactura(id) {
-    alert("Reenviar factura todavía no está conectado al email");
+    setReenvioLoading(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/afip/reenviar-factura/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setModalReenvio({
+          tipo: 'error',
+          titulo: 'Error al reenviar',
+          mensaje: data.error || 'No se pudo reenviar la factura',
+        });
+        return;
+      }
+
+      setModalReenvio({
+        tipo: 'exito',
+        titulo: '¡Factura reenviada!',
+        mensaje: 'La factura ha sido enviada exitosamente al cliente',
+      });
+    } catch (err) {
+      console.error(err);
+      setModalReenvio({
+        tipo: 'error',
+        titulo: 'Error de conexión',
+        mensaje: 'No se pudo conectar con el servidor',
+      });
+    } finally {
+      setReenvioLoading(false);
+    }
   }
 
   // ============================
@@ -550,6 +590,12 @@ export default function AdminSales() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
+
+      {modalReenvio && (
+        <ReenviarModal
+          tipo={modalReenvio.tipo}
+          titulo={modalReenvio.titulo}
+          mensaje={modalReenvio.mensaje}
+          onClose={() => setModalReenvio(null)}
+        />
+      )}
