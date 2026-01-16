@@ -598,4 +598,6 @@ export default function AdminSales() {
           mensaje={modalReenvio.mensaje}
           onClose={() => setModalReenvio(null)}
         />
-      )}
+      )}    </div>
+  );
+}
