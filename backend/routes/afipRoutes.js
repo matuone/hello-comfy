@@ -6,7 +6,8 @@ import {
   generarFacturaA,
   verificarEstadoServicio,
   consultarContribuyente,
-  obtenerPuntosVenta
+  obtenerPuntosVenta,
+  probarPuntosVenta
 } from '../services/afipService.js';
 import Order from '../models/Order.js';
 import { verifyAdmin } from '../middleware/adminMiddleware.js';
@@ -29,6 +30,24 @@ router.get('/afip/puntos-venta', verifyAdmin, async (req, res) => {
       success: false,
       error: error.message,
       message: 'Error al obtener puntos de venta'
+    });
+  }
+});
+
+/**
+ * GET /api/afip/puntos-venta/test
+ * Probar todos los puntos de venta habilitados haciendo getLastVoucher
+ */
+router.get('/afip/puntos-venta/test', verifyAdmin, async (req, res) => {
+  try {
+    const resultados = await probarPuntosVenta();
+    res.json({ success: true, resultados });
+  } catch (error) {
+    console.error('Error probando puntos de venta:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Error al probar puntos de venta'
     });
   }
 });

@@ -44,37 +44,55 @@ const afip = new Afip({
 export async function obtenerPuntosVenta() {
   try {
     console.log('📍 Obteniendo puntos de venta habilitados...');
-    
-    // Intentar obtener parámetros del servidor (incluye puntos de venta)
-    try {
-      const response = await afip.ElectronicBilling.request('FEParamGetTiposDoc', {});
-      console.log('✅ Respuesta de parámetros:', response);
-      
-      // Intentar con FEParamGetPtosVenta
-      const ptos = await afip.ElectronicBilling.request('FEParamGetPtosVenta', {});
-      console.log('✅ Puntos de venta:', ptos);
-      return ptos;
-    } catch (error) {
-      // Si falla, intentar método alternativo
-      try {
-        console.log('Intentando método alternativo: getParameters');
-        const params = await afip.ElectronicBilling.getParameters();
-        console.log('✅ Parámetros del servidor:', params);
-        
-        if (params && params.PuntosVenta) {
-          return params.PuntosVenta;
-        }
-        return params;
-      } catch (e) {
-        console.warn('⚠️ No se pudo obtener puntos de venta reales');
-        throw error;
-      }
-    }
+
+    // SDK expone getSalesPoints para FEParamGetPtosVenta
+    const ptos = await afip.ElectronicBilling.getSalesPoints();
+    console.log('✅ Puntos de venta:', ptos);
+    return ptos;
   } catch (error) {
     console.error('❌ Error obteniendo puntos de venta:', error.message);
     if (error.code) console.error('Código de error:', error.code);
     throw error;
   }
+}
+
+/**
+ * Probar todos los puntos de venta habilitados llamando getLastVoucher
+ * Devuelve estado ok/error por cada punto de venta
+ */
+export async function probarPuntosVenta() {
+  const ptos = await obtenerPuntosVenta();
+
+  // Normalizar estructura a array de objetos con PtoVta numérico
+  const lista = Array.isArray(ptos)
+    ? ptos
+    : (ptos?.PuntosVenta || ptos?.PtoVta || ptos?.PtoVenta || []);
+
+  const arr = Array.isArray(lista) ? lista : [lista];
+
+  const resultados = [];
+
+  for (const p of arr) {
+    const pto = Number(p?.PtoVta ?? p?.PtoVenta ?? p?.Nro ?? p?.id ?? p?.ptoVta);
+    if (!Number.isFinite(pto)) {
+      resultados.push({ puntoVenta: p, ok: false, error: 'No se pudo leer PtoVta' });
+      continue;
+    }
+
+    try {
+      const last = await afip.ElectronicBilling.getLastVoucher(11, pto);
+      resultados.push({ puntoVenta: pto, ok: true, lastVoucher: last });
+    } catch (error) {
+      resultados.push({
+        puntoVenta: pto,
+        ok: false,
+        error: error.message,
+        code: error.code || null
+      });
+    }
+  }
+
+  return resultados;
 }
 
 /**
