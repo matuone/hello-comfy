@@ -199,8 +199,8 @@ export default function AdminSidebar() {
       ============================ */}
       <div className="admin-sidebar-actions">
         <div className="admin-sidebar-toggle-maintenance">
-          <label 
-            htmlFor="maintenance-toggle" 
+          <label
+            htmlFor="maintenance-toggle"
             className={`maintenance-label ${isMaintenanceMode ? "maintenance-label--paused" : "maintenance-label--active"}`}
           >
             {isMaintenanceMode ? "🔴 Web Pausada" : "🟢 Web Activa"}

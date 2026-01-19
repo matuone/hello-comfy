@@ -100,12 +100,12 @@ router.put("/:id", verifyAdmin, async (req, res) => {
 
     if (!table) {
 
-    // Eliminar el archivo JSX del componente
-    try {
-      await deleteSizeTableComponent(table.name);
-    } catch (error) {
-      console.error("Error eliminando componente JSX:", error);
-    }
+      // Eliminar el archivo JSX del componente
+      try {
+        await deleteSizeTableComponent(table.name);
+      } catch (error) {
+        console.error("Error eliminando componente JSX:", error);
+      }
 
       return res.status(404).json({ error: "Tabla no encontrada" });
     }

@@ -176,7 +176,7 @@
   background: #ea580c;
 }
 
-.maintenance-toggle:checked ~ .toggle-switch {
+.maintenance-toggle:checked~.toggle-switch {
   background: #16a34a;
 }
 
@@ -193,7 +193,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.maintenance-toggle:checked + .toggle-switch::after {
+.maintenance-toggle:checked+.toggle-switch::after {
   left: 22px;
 }
 
@@ -214,6 +214,7 @@
 .admin-shell .logout-btn:hover {
   background: #fecaca;
 }
+
 .admin-shell .admin-main {
   padding: 24px 28px;
   box-sizing: border-box;

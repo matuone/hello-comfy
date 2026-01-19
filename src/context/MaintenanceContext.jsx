@@ -9,10 +9,10 @@ export function MaintenanceProvider({ children }) {
   // Cargar estado desde el backend
   useEffect(() => {
     fetchMaintenanceStatus();
-    
+
     // Polling cada 30 segundos para mantener actualizado
     const interval = setInterval(fetchMaintenanceStatus, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -32,14 +32,14 @@ export function MaintenanceProvider({ children }) {
   const toggleMaintenanceMode = async (value) => {
     try {
       const token = localStorage.getItem("adminToken");
-      
+
       if (!token) {
         console.error("No hay token de admin");
         return;
       }
-      
+
       console.log("Actualizando modo mantenimiento a:", value);
-      
+
       const response = await fetch("http://localhost:5000/api/config/maintenance", {
         method: "PUT",
         headers: {

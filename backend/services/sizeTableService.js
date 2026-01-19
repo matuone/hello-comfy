@@ -11,7 +11,7 @@ const SIZETABLES_DIR = path.join(__dirname, "../../src/components/sizeTables");
 export async function generateSizeTableComponent(tableData) {
   try {
     const { name, displayName, sizes, measurements } = tableData;
-    
+
     // Convertir nombre a PascalCase para el componente
     const componentName = name
       .split("-")
@@ -33,14 +33,14 @@ export default function ${componentName}Table() {
         </thead>
         <tbody>
 ${measurements
-  .map((m) => {
-    const values = sizes.map((size) => {
-      const value = m.values instanceof Map ? m.values.get(size) : m.values[size];
-      return `<td>${value || "-"}</td>`;
-    }).join("");
-    return `          <tr><td>${m.name}</td>${values}</tr>`;
-  })
-  .join("\n")}
+        .map((m) => {
+          const values = sizes.map((size) => {
+            const value = m.values instanceof Map ? m.values.get(size) : m.values[size];
+            return `<td>${value || "-"}</td>`;
+          }).join("");
+          return `          <tr><td>${m.name}</td>${values}</tr>`;
+        })
+        .join("\n")}
         </tbody>
       </table>
     </div>
@@ -87,8 +87,8 @@ export async function deleteSizeTableComponent(name) {
 export async function updateSizeTableComponent(tableData) {
   try {
     // Primero eliminar el componente anterior si existe
-    await deleteSizeTableComponent(tableData.name).catch(() => {});
-    
+    await deleteSizeTableComponent(tableData.name).catch(() => { });
+
     // Luego crear el nuevo
     return await generateSizeTableComponent(tableData);
   } catch (error) {

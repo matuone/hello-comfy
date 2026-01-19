@@ -31,7 +31,7 @@ export default function ImageModal({ imageUrl, productName, isOpen, onClose }) {
   return (
     <div className="image-modal-backdrop" onClick={handleBackdropClick}>
       <div className="image-modal-content">
-        <button 
+        <button
           className="image-modal-close"
           onClick={onClose}
           title="Cerrar"
@@ -39,8 +39,8 @@ export default function ImageModal({ imageUrl, productName, isOpen, onClose }) {
         >
           ✕
         </button>
-        <img 
-          src={imageUrl} 
+        <img
+          src={imageUrl}
           alt={productName}
           className="image-modal-img"
         />

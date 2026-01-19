@@ -6,17 +6,17 @@ export default function Maintenance() {
     <div className="maintenance-container">
       <div className="maintenance-content">
         <div className="maintenance-image-wrapper">
-          <img 
-            src={maintenanceImg} 
-            alt="Osito en construcción" 
+          <img
+            src={maintenanceImg}
+            alt="Osito en construcción"
             className="maintenance-bear-img"
           />
         </div>
-        
+
         <div className="maintenance-message">
           <h1>Estamos trabajando para que tengas una mejor experiencia</h1>
           <p>En unos momentos volveremos.</p>
-          
+
           <div className="maintenance-dots">
             <span></span>
             <span></span>
