@@ -442,6 +442,16 @@ export default function AdminSales() {
                     <Link to={`/admin/sales/${venta._id}`} className="venta-link">
                       Orden: {venta.code}
                     </Link>
+                    {venta.isGift && (
+                      <span className="gift-indicator-inline">
+                        <span className="gift-icon" title={venta.giftMessage || "Es para regalo"}>🎁</span>
+                        {venta.giftMessage && (
+                          <div className="gift-message-bubble">
+                            {venta.giftMessage}
+                          </div>
+                        )}
+                      </span>
+                    )}
                   </td>
 
                   <td>{venta.date}</td>
@@ -527,6 +537,8 @@ export default function AdminSales() {
                       </Link>
                     )}
                   </td>
+
+
                 </tr>
 
                 {expandedRows.includes(venta._id) && (

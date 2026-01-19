@@ -287,3 +287,33 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
   border-color: rgba(255, 255, 255, 0.3);
 }
+
+/* ============================
+   REGALO
+============================ */
+.detalle-gift-box {
+  background: linear-gradient(135deg, #fff0f5 0%, #ffe8f0 100%);
+  border: 2px solid #d94f7a;
+}
+
+.detalle-gift-message {
+  margin-top: 12px;
+}
+
+.detalle-gift-message strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #d94f7a;
+  font-size: 0.95rem;
+}
+
+.detalle-gift-message-text {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #d94f7a;
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+}

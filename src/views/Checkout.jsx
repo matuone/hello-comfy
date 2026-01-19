@@ -37,6 +37,8 @@ export default function Checkout() {
       paymentProof: "",
       paymentProofName: "",
       notes: "",
+      isGift: false,
+      giftMessage: "",
     };
   });
 
@@ -83,6 +85,8 @@ export default function Checkout() {
       paymentProof: "",
       paymentProofName: "",
       notes: "",
+      isGift: false,
+      giftMessage: "",
     });
   };
 

@@ -12,49 +12,55 @@ async function crearOrdenTest() {
 
     // Generar código único para la orden
     const timestamp = Date.now();
-    const codigo = `TEST-FACTURA-${timestamp}`;
+    const codigo = `TEST-REGALO-${timestamp}`;
 
     // Crear orden de test
     const ordenTest = new Order({
       code: codigo,
       customer: {
-        name: 'Cliente Test Facturación',
-        email: 'test-factura@ejemplo.com'
+        name: 'María González',
+        email: 'maria.gonzalez@ejemplo.com'
       },
       items: [
         {
           productId: '507f1f77bcf86cd799439011',
-          name: 'Producto Test - Remera',
-          quantity: 2,
-          price: 500,
-          image: 'https://via.placeholder.com/300x300?text=Test+Product',
-          color: 'Blanco',
+          name: 'Sweater Comfy Rosa',
+          quantity: 1,
+          price: 8500,
+          image: 'https://via.placeholder.com/300x300?text=Sweater+Regalo',
+          color: 'Rosa',
           size: 'M'
         },
         {
           productId: '507f1f77bcf86cd799439012',
-          name: 'Producto Test - Pantalón',
+          name: 'Pijama Premium',
           quantity: 1,
-          price: 1200,
-          image: 'https://via.placeholder.com/300x300?text=Test+Product',
-          color: 'Negro',
+          price: 6200,
+          image: 'https://via.placeholder.com/300x300?text=Pijama',
+          color: 'Lila',
           size: 'M'
         }
       ],
       totals: {
-        subtotal: 2200,
-        shipping: 200,
+        subtotal: 14700,
+        shipping: 0,
         discount: 0,
-        total: 2400
+        total: 14700
       },
-      status: 'recibido', // Estado válido
+      status: 'recibido',
       pagoEstado: 'recibido',
       paymentMethod: 'mercadopago',
       envioEstado: 'pendiente',
       shipping: {
-        method: 'home', // Campo requerido
-        address: 'Calle Test 123, Buenos Aires'
+        method: 'pickup',
+        pickPoint: 'aquelarre',
+        eta: '2-3 días hábiles'
       },
+
+      // ⭐ CAMPOS DE REGALO
+      isGift: true,
+      giftMessage: '¡Feliz cumpleaños prima! Espero que te encanten. Te quiero mucho. ❤️',
+
       date: new Date().toISOString(),
 
       // Campos de factura vacíos (para llenar al facturar)
@@ -63,10 +69,9 @@ async function crearOrdenTest() {
       facturaVencimientoCAE: null,
       facturaFecha: null,
 
-      // Timeline
       timeline: [
         {
-          status: 'Orden creada para test de facturación',
+          status: 'Orden de regalo creada',
           date: new Date().toLocaleString('es-AR')
         },
         {
@@ -78,21 +83,18 @@ async function crearOrdenTest() {
 
     // Guardar en la BD
     const ordenGuardada = await ordenTest.save();
-    console.log('✅ Orden de test creada exitosamente');
+    console.log('✅ Orden de regalo creada exitosamente');
     console.log(`📋 Código: ${ordenGuardada.code}`);
     console.log(`🆔 ID: ${ordenGuardada._id}`);
     console.log(`💰 Total: $${ordenGuardada.totals.total}`);
     console.log(`📧 Cliente: ${ordenGuardada.customer.name}`);
+    console.log(`🎁 Es regalo: ${ordenGuardada.isGift ? 'SÍ' : 'NO'}`);
+    console.log(`💌 Mensaje: "${ordenGuardada.giftMessage}"`);
     console.log('');
-    console.log('Ahora podes:');
-    console.log(`1. Ir a Admin > Ventas y buscar la orden "${codigo}"`);
-    console.log('2. Click en la orden para abrir detalles');
-    console.log('3. Click en botón naranja "Generar factura"');
-    console.log('4. Elegir Factura C (consumidor final)');
-    console.log('');
-    console.log('O testear con Bruno:');
-    console.log(`POST http://localhost:5000/api/afip/generar-factura/${ordenGuardada._id}`);
-    console.log('Body: { "tipoFactura": "C" }');
+    console.log('Ahora podés:');
+    console.log(`1. Ir a Admin > Ventas y ver el ícono 🎁 en la orden`);
+    console.log('2. Hacer hover sobre el ícono para ver el mensaje');
+    console.log('3. Abrir el detalle de la orden para ver la sección de regalo completa');
     console.log('');
 
     process.exit(0);

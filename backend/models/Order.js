@@ -91,6 +91,17 @@ const OrderSchema = new mongoose.Schema(
       tracking: { type: String },
     },
 
+    // ⭐ Opción de regalo
+    isGift: {
+      type: Boolean,
+      default: false,
+    },
+
+    giftMessage: {
+      type: String,
+      default: "",
+    },
+
     items: [
       {
         productId: { type: String },

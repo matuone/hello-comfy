@@ -556,3 +556,60 @@
 .factura-btn.reenviar:hover {
   background: #7b1fa2;
 }
+
+/* ============================
+   REGALO INLINE
+============================ */
+.gift-indicator-inline {
+  display: inline-block;
+  position: relative;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.gift-indicator-inline .gift-icon {
+  font-size: 20px;
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.2s ease;
+  vertical-align: middle;
+}
+
+.gift-indicator-inline .gift-icon:hover {
+  transform: scale(1.2);
+}
+
+.gift-indicator-inline .gift-message-bubble {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: #fff;
+  border: 2px solid #d94f7a;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: #333;
+  white-space: normal;
+  max-width: 300px;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  line-height: 1.4;
+}
+
+.gift-indicator-inline .gift-message-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 20px;
+  border: 6px solid transparent;
+  border-bottom-color: #d94f7a;
+}
+
+.gift-indicator-inline:hover .gift-message-bubble {
+  opacity: 1;
+}

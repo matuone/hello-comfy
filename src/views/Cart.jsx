@@ -171,6 +171,12 @@ export default function Cart() {
   }
 
   const handleCheckout = () => {
+    // Guardar datos de regalo en localStorage para el checkout
+    const checkoutFormData = JSON.parse(localStorage.getItem("checkoutFormData") || "{}");
+    checkoutFormData.isGift = isGift;
+    checkoutFormData.giftMessage = giftMessage;
+    localStorage.setItem("checkoutFormData", JSON.stringify(checkoutFormData));
+
     navigate("/checkout");
   };
 
@@ -231,6 +237,12 @@ export default function Cart() {
   // PICK UP POINT
   // ============================
   const [pickPoint, setPickPoint] = useState("");
+
+  // ============================
+  // REGALO
+  // ============================
+  const [isGift, setIsGift] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
 
   if (totalItems === 0) {
     return (
@@ -480,6 +492,32 @@ export default function Cart() {
               <p className="cart-pickup-note">
                 Retiro sin costo. Te avisamos cuando esté listo.
               </p>
+            </div>
+
+            {/* ⭐ REGALO */}
+            <div className="cart-gift">
+              <div className="cart-gift-checkbox">
+                <input
+                  type="checkbox"
+                  id="isGift"
+                  checked={isGift}
+                  onChange={(e) => setIsGift(e.target.checked)}
+                />
+                <label htmlFor="isGift">¿Es para regalo?</label>
+                <span className="cart-gift-icon">🎁</span>
+              </div>
+
+              {isGift && (
+                <div className="cart-field">
+                  <textarea
+                    className="cart-input cart-gift-message"
+                    placeholder="Deja tu mensaje personalizado"
+                    value={giftMessage}
+                    onChange={(e) => setGiftMessage(e.target.value)}
+                    rows="3"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

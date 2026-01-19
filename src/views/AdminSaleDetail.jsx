@@ -392,6 +392,24 @@ export default function AdminSaleDetail() {
       </div>
 
       {/* ============================
+          REGALO
+      ============================ */}
+      {venta.isGift && (
+        <div className="detalle-box detalle-gift-box">
+          <h3 className="detalle-title">
+            🎁 Es para regalo
+          </h3>
+
+          {venta.giftMessage && (
+            <div className="detalle-gift-message">
+              <strong>Mensaje personalizado:</strong>
+              <p className="detalle-gift-message-text">{venta.giftMessage}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ============================
           MODALES DE FACTURACIÓN
       ============================ */}
 
