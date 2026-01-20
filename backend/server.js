@@ -27,12 +27,14 @@ import sizeTableRoutes from "./routes/sizeTableRoutes.js"; // ⭐ NUEVO
 import promoBannerRoutes from "./routes/promoBannerRoutes.js"; // ⭐ NUEVO
 import modoRoutes from "./routes/modoRoutes.js"; // ⭐ NUEVO
 import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
+import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CORREO ARG API
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
 // ============================
 import { cotizarAndreani } from "./services/shipping/andreani.js";
 import { cotizarCorreo } from "./services/shipping/correo.js";
+import { cotizarCorreoArgentino } from "./services/shipping/correoArgentinoApi.js";
 
 // ============================
 // INICIALIZAR EXPRESS
@@ -117,6 +119,11 @@ app.use("/api/config", siteConfigRoutes);
 app.use("/api/promo-banner", promoBannerRoutes);
 
 // ============================
+// RUTAS CORREO ARGENTINO API
+// ============================
+app.use("/api", correoArgentinoRoutes);
+
+// ============================
 // RUTAS DE PEDIDOS (checkout, crear orden, etc.)
 // ============================
 app.use("/api", orderRoutes);
@@ -124,23 +131,38 @@ app.use("/api", orderRoutes);
 // ============================
 // ENDPOINTS DE ENVÍO
 // ============================
-app.post("/api/shipping/andreani", async (req, res) => {
-  try {
-    const result = await cotizarAndreani(req.body);
-    res.json(result);
-  } catch (err) {
-    console.error("Error cotizando Andreani:", err);
-    res.status(500).json({ error: "Error cotizando Andreani" });
-  }
-});
+// COMENTADO: Andreani no configurado aún
+// app.post("/api/shipping/andreani", async (req, res) => {
+//   try {
+//     const result = await cotizarAndreani(req.body);
+//     res.json(result);
+//   } catch (err) {
+//     console.error("Error cotizando Andreani:", err);
+//     res.status(500).json({ error: "Error cotizando Andreani" });
+//   }
+// });
 
-app.post("/api/shipping/correo", (req, res) => {
+app.post("/api/shipping/correo", async (req, res) => {
   try {
-    const result = cotizarCorreo(req.body);
-    res.json(result);
+    // Intentar usar la API de Correo Argentino primero
+    const apiResult = await cotizarCorreoArgentino(req.body);
+
+    // Si la API no está configurada o falla, usar tarifas locales
+    if (apiResult.pendingCredentials || apiResult.apiError) {
+      const fallbackResult = cotizarCorreo(req.body);
+      res.json({ ...fallbackResult, source: "local" });
+    } else {
+      res.json({ ...apiResult, source: "api" });
+    }
   } catch (err) {
     console.error("Error cotizando Correo Argentino:", err);
-    res.status(500).json({ error: "Error cotizando Correo Argentino" });
+    // Fallback a tarifas locales en caso de error
+    try {
+      const fallbackResult = cotizarCorreo(req.body);
+      res.json({ ...fallbackResult, source: "local-fallback" });
+    } catch (fallbackErr) {
+      res.status(500).json({ error: "Error cotizando Correo Argentino" });
+    }
   }
 });
 

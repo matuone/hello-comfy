@@ -4,21 +4,9 @@ import "../styles/shippingoptions.css";
 export default function ShippingOptions({ result }) {
   if (!result) return null;
 
-  const { andreani, correo } = result;
+  const { correo } = result;
 
   const options = [
-    {
-      id: "andreani-home",
-      carrier: "Andreani",
-      type: "Domicilio",
-      data: andreani?.home,
-    },
-    {
-      id: "andreani-branch",
-      carrier: "Andreani",
-      type: "Sucursal",
-      data: andreani?.branch,
-    },
     {
       id: "correo-home",
       carrier: "Correo Argentino",
