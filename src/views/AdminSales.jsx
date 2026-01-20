@@ -179,6 +179,62 @@ export default function AdminSales() {
   }
 
   // ============================
+  // REGISTRAR EN CORREO ARGENTINO (MASIVO)
+  // ============================
+  async function registrarOrdenesCorreo() {
+    if (seleccionadas.length === 0) {
+      alert("No seleccionaste ninguna venta");
+      return;
+    }
+
+    if (!window.confirm(`Registrar ${seleccionadas.length} orden(es) en Correo Argentino?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/correo-argentino/import-batch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderIds: seleccionadas }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Error registrando en Correo Argentino:", data);
+        alert(data.error || "Error al registrar órdenes");
+        return;
+      }
+
+      // Actualizar lista local con tracking cuando corresponde
+      setVentasData((prev) =>
+        prev.map((v) => {
+          const match = (data.results || []).find((r) => r.orderId === v._id);
+          if (match) {
+            return {
+              ...v,
+              correoArgentinoTracking: match.tracking,
+              timeline: [
+                ...(v.timeline || []),
+                { status: "Registrado en Correo Argentino", date: new Date().toLocaleString("es-AR") },
+              ],
+            };
+          }
+          return v;
+        })
+      );
+
+      alert(`Registro finalizado\n✅ Exitosas: ${data.success}\n❌ Fallidas: ${data.failed}`);
+    } catch (err) {
+      console.error(err);
+      alert("Error al registrar órdenes en Correo Argentino");
+    }
+  }
+
+  // ============================
   // DESCARGAR FACTURA (placeholder)
   // ============================
   async function descargarFactura(id) {
@@ -382,6 +438,15 @@ export default function AdminSales() {
         </div>
 
         <div className="sales-toolbar-right" ref={accionesRef}>
+          {/* Botón Correo Argentino colocado a la izquierda del dropdown */}
+          <button
+            className="toolbar-action-btn"
+            onClick={registrarOrdenesCorreo}
+            disabled={seleccionadas.length === 0}
+            title={seleccionadas.length === 0 ? "Seleccioná órdenes primero" : "Registrar en Correo Argentino"}
+          >
+            Registrar en Correo Argentino
+          </button>
           <div className="dropdown">
             <button
               className="dropdown-btn"

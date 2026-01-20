@@ -37,6 +37,13 @@
   gap: 12px;
 }
 
+/* Alineación derecha (botón + dropdown) */
+.sales-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .select-all-label {
   font-size: 0.9rem;
   font-weight: 500;
@@ -68,6 +75,29 @@
 
 .dropdown-btn:hover {
   background: #c63f6a;
+}
+
+/* Botón de acción de Correo Argentino */
+.toolbar-action-btn {
+  background: #d94f7a;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.toolbar-action-btn:hover {
+  background: #c63f6a;
+}
+
+.toolbar-action-btn:disabled {
+  background: #ddd;
+  color: #777;
+  cursor: not-allowed;
 }
 
 .dropdown-menu {

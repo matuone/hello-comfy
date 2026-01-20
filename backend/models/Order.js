@@ -102,6 +102,15 @@ const OrderSchema = new mongoose.Schema(
       default: "",
     },
 
+    // ⭐ Tracking de Correo Argentino
+    correoArgentinoTracking: {
+      type: String,
+    },
+
+    correoArgentinoRegisteredAt: {
+      type: String,
+    },
+
     items: [
       {
         productId: { type: String },
