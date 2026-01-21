@@ -509,7 +509,7 @@ export default function AdminSales() {
                     </Link>
                     {venta.isGift && (
                       <span className="gift-indicator-inline">
-                        <span className="gift-icon" title={venta.giftMessage || "Es para regalo"}>🎁</span>
+                        <span className="gift-icon">🎁</span>
                         {venta.giftMessage && (
                           <div className="gift-message-bubble">
                             {venta.giftMessage}
