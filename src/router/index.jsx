@@ -1,3 +1,5 @@
+import ResetPassword from "../views/ResetPassword";
+<Route path="/reset-password/:token" element={<ResetPassword />} />
 // src/router/index.jsx
 import { Routes, Route } from "react-router-dom";
 

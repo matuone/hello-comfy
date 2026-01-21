@@ -1,3 +1,25 @@
+// Enviar email simple (para recuperación de contraseña, etc)
+export default async function sendEmail({ to, subject, html }) {
+  if (!process.env.GMAIL_APP_PASSWORD) {
+    console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email");
+    return false;
+  }
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "hellocomfyind@gmail.com",
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
+  const mailOptions = {
+    from: 'Hello Comfy 🧸 <hellocomfyind@gmail.com>',
+    to,
+    subject,
+    html,
+  };
+  await transporter.sendMail(mailOptions);
+  return true;
+}
 // backend/services/emailService.js
 import nodemailer from "nodemailer";
 

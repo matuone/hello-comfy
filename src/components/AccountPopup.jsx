@@ -1,9 +1,11 @@
 // src/components/AccountPopup.jsx
 import "../styles/accountpopup.css";
 import { useState } from "react";
+import ForgotPassword from "./ForgotPassword";
 import avatar from "../assets/avatar/avatar.png";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+
 
 export default function AccountPopup(props) {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,6 +13,7 @@ export default function AccountPopup(props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
 
   const { user, logout, isAdmin, loginAdmin, loginUser } = useAuth();
   const navigate = useNavigate();
@@ -174,9 +177,22 @@ export default function AccountPopup(props) {
               </Link>
             </p>
 
-            <a href="#" className="popup__link">
+            <a
+              href="#"
+              className="popup__link"
+              onClick={e => { e.preventDefault(); setShowForgot(true); }}
+            >
               ¿Olvidaste tu contraseña?
             </a>
+
+            {showForgot && (
+              <div className="modal-overlay" onClick={() => setShowForgot(false)}>
+                <div className="modal-content" onClick={e => e.stopPropagation()}>
+                  <button className="modal-close" onClick={() => setShowForgot(false)}>&times;</button>
+                  <ForgotPassword onSent={() => setShowForgot(false)} />
+                </div>
+              </div>
+            )}
           </>
         )}
 
