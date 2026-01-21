@@ -91,7 +91,7 @@ export default function MyAccount() {
           </button>
         </form>
 
-        <a href="/create-account" className="account-link">
+        <a href="/register" className="account-link">
           Crear cuenta nueva
         </a>
 
