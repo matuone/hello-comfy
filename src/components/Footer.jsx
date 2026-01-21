@@ -17,6 +17,7 @@ export default function Footer() {
       <div className="site-footer__inner">
         {/* Elfsight Instagram Feed */}
         <div className="elfsight-app-fc1e95e6-751c-428f-9cd7-de55cba26d02" data-elfsight-app-lazy></div>
+        <div className="footer-divider"></div>
         <p>© 2025 Hello-Comfy</p>
       </div>
     </footer>
