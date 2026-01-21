@@ -26,15 +26,16 @@
 }
 
 /* INPUTS */
+
 .register-form input {
   width: 100%;
-  max-width: 400px;
   padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid #ddd;
   background: #fafafa;
   font-size: 15px;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .register-form input::placeholder {
@@ -45,12 +46,10 @@
 .password-input-wrapper {
   position: relative;
   width: 100%;
-  max-width: 400px;
 }
 
 .password-input-wrapper input {
   width: 100%;
-  max-width: none;
   padding: 14px 16px;
   padding-right: 45px;
   box-sizing: border-box;
