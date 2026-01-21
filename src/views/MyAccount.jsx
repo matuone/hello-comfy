@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
+import ForgotPassword from "../components/ForgotPassword";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/myaccount.css";
+import "../styles/forgotpassword.css";
+
 
 export default function MyAccount() {
   const { loginAdmin, loginUser, user } = useAuth();
@@ -11,6 +14,7 @@ export default function MyAccount() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [showForgot, setShowForgot] = useState(false);
 
   // Si el usuario ya está logueado, redirigir al perfil
   useEffect(() => {
@@ -91,13 +95,25 @@ export default function MyAccount() {
           </button>
         </form>
 
-        <a href="/register" className="account-link">
-          Crear cuenta nueva
-        </a>
 
-        <a href="#" className="account-link small">
+        <a
+          href="#"
+          className="account-link small"
+          onClick={e => { e.preventDefault(); setShowForgot(true); }}
+        >
           ¿Olvidaste tu contraseña?
         </a>
+
+        {showForgot && (
+          <div className="modal-overlay" onClick={() => setShowForgot(false)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowForgot(false)}>&times;</button>
+              <ForgotPassword onSent={() => setShowForgot(false)} />
+            </div>
+          </div>
+        )}
+
+        {/* Enlace duplicado eliminado */}
       </div>
     </div>
   );
