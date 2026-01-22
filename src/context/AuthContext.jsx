@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
   // AUTO-LOGOUT POR INACTIVIDAD
   // ============================
   useEffect(() => {
-    if (!user) return;
+    if (!user || user.isAdmin) return; // Solo usuarios normales, no admins
 
     function resetTimer() {
       if (logoutTimer.current) clearTimeout(logoutTimer.current);
