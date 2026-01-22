@@ -22,8 +22,26 @@
   .navbar-mobile__top {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     width: 100%;
+    gap: 0.5rem;
+  }
+
+  .navbar-mobile__logo {
+    flex: 0 0 auto;
+    margin-right: 0.3rem;
+  }
+
+  .navbar-mobile__search {
+    flex: 1 1 0;
+    max-width: 160px;
+    min-width: 90px;
+    position: relative;
+    margin: 0 0.3rem 0 0;
+  }
+
+  .navbar-mobile__menu-btn {
+    flex: 0 0 auto;
+    margin-left: auto;
   }
 
   .navbar-mobile__logo img {
@@ -31,18 +49,21 @@
     height: 36px;
   }
 
+
   .navbar-mobile__search {
-    flex: 1;
+    flex: 0 0 140px;
+    max-width: 160px;
+    min-width: 90px;
     position: relative;
     margin: 0 0.5rem;
   }
 
   .navbar-mobile__search-input {
     width: 100%;
-    padding: 0.4rem 0.8rem;
+    padding: 0.35rem 0.7rem;
     border: 1px solid #ddd;
-    border-radius: 20px;
-    font-size: 1rem;
+    border-radius: 18px;
+    font-size: 0.97rem;
     outline: none;
     background: #fafafa;
     transition: border 0.2s;
