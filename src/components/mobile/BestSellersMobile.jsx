@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
-import ProductCardMobile from "../../components/mobile/ProductCardMobile";
+import ProductCardBestSellersMobile from "../../components/mobile/ProductCardBestSellersMobile";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 import "../../styles/mobile/bestsellers.mobile.css";
 
 export default function BestSellersMobile() {
   const [productos, setProductos] = useState([]);
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/products/bestsellers")
@@ -12,13 +16,28 @@ export default function BestSellersMobile() {
       .catch(() => setProductos([]));
   }, []);
 
+  const handleAddToCart = (product, size, quantity) => {
+    addToCart(product, { size, color: product.color, quantity });
+  };
+  const handleBuy = (product, size, quantity) => {
+    handleAddToCart(product, size, quantity);
+    navigate("/checkout");
+  };
+  const handleViewMore = (product) => {
+    navigate(`/products/${product._id}`);
+  };
 
   return (
     <div className="bestsellers-mobile-swiper bestsellers-mobile-scroll">
       <div className="bestsellers-mobile-track">
         {productos.map((product) => (
           <div className="bestsellers-mobile-slide" key={product._id}>
-            <ProductCardMobile product={product} />
+            <ProductCardBestSellersMobile
+              product={product}
+              onBuy={handleBuy}
+              onAddToCart={handleAddToCart}
+              onViewMore={handleViewMore}
+            />
           </div>
         ))}
       </div>
