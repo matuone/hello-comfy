@@ -4,6 +4,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 import CategoriesMenuMobile from "./CategoriesMenuMobile";
 import logoBear from "../../assets/logo.png";
 import "../../styles/mobile/navbar.css";
@@ -12,11 +13,14 @@ import "../../styles/mobile/navbar.css";
 export default function NavbarMobile() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { items } = useCart();
+  const count = items.reduce((total, item) => total + item.quantity, 0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     if (searchQuery.trim().length < 2) {
@@ -44,6 +48,9 @@ export default function NavbarMobile() {
     function handleClickOutside(e) {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
         setShowResults(false);
+      }
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -108,9 +115,20 @@ export default function NavbarMobile() {
           <button className="navbar-mobile__menu-btn" onClick={() => setMenuOpen((v) => !v)} aria-label="Abrir menú">
             <span className="navbar-mobile__menu-icon">☰</span>
           </button>
+          <Link to="/mi-cuenta" className="navbar-mobile__icon-btn" aria-label="Mi cuenta">
+            <span className="navbar-mobile__icon-user">
+              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="#e57373" strokeWidth="1.7"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#e57373" strokeWidth="1.7"/></svg>
+            </span>
+          </Link>
+          <Link to="/cart" className="navbar-mobile__icon-btn" aria-label="Carrito">
+            <span className="navbar-mobile__icon-cart">
+              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><path d="M6 7h12l-1 12H7L6 7Z" stroke="#e57373" strokeWidth="1.7"/><path d="M9 7a3 3 0 0 1 6 0" stroke="#e57373" strokeWidth="1.7"/></svg>
+              {count > 0 && <span className="navbar-mobile__cart-badge">{count}</span>}
+            </span>
+          </Link>
         </div>
         {menuOpen && (
-          <div className="navbar-mobile-menu">
+          <div className="navbar-mobile-menu" ref={menuRef}>
             <ul className="navbar-mobile__list">
               <li>
                 <Link to="/" className={pathname === "/" ? "active" : ""} onClick={() => setMenuOpen(false)}>

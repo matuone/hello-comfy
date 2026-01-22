@@ -1,3 +1,55 @@
+    .navbar-mobile__icon-btn {
+      background: none;
+      border: none;
+      padding: 0 0.18rem;
+      margin-left: 0.18rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      border-radius: 50%;
+      transition: background 0.15s;
+      height: 36px;
+      width: 36px;
+      justify-content: center;
+    }
+
+    .navbar-mobile__icon-btn:active,
+    .navbar-mobile__icon-btn:focus {
+      background: #ffeaea;
+    }
+
+    .navbar-mobile__icon-user svg,
+    .navbar-mobile__icon-cart svg {
+      display: block;
+      width: 26px;
+      height: 26px;
+    }
+
+    .navbar-mobile__icon-cart {
+      position: relative;
+    }
+
+    .navbar-mobile__cart-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #e57373;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 50%;
+      padding: 0.08em 0.45em;
+      min-width: 1.1em;
+      min-height: 1.1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.13);
+      z-index: 1;
+      line-height: 1;
+      pointer-events: none;
+    }
   /* Categorías y subcategorías en menú productos */
   .cat-mobile-block {
     margin-bottom: 0.7rem;
