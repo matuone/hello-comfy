@@ -1,4 +1,6 @@
 // src/views/Home.jsx
+import useResponsive from "../hooks/useResponsive";
+import HomeMobile from "./mobile/HomeMobile";
 import { useState, useEffect } from "react";
 import BestSellers from "../components/BestSellers";
 import NewIn from "../components/NewIn";
@@ -6,6 +8,7 @@ import NewIn from "../components/NewIn";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function Home() {
+  const { isMobile, isTablet } = useResponsive();
   const [homeTitle, setHomeTitle] = useState("Bienvenid@ a Hello-Comfy");
   const [homeDescription, setHomeDescription] = useState(
     "Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt aliquam accusantium porro, quidem nisi ad error quibusdam illum mollitia, magnam quasi animi, hic quis laudantium? Quisquam reprehenderit excepturi magni quasi?"
@@ -28,9 +31,15 @@ export default function Home() {
 
   async function loadHomeCopy() {
     try {
-      const response = await fetch(`${API_URL}/site-config/home-copy`);
-      const data = await response.json();
-
+      const response = await fetch(`${API_URL}/config/home-copy`);
+      const text = await response.text();
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch (jsonError) {
+        console.error('Respuesta no es JSON:', text);
+        return;
+      }
       if (data) {
         setHomeTitle(data.title || "Bienvenid@ a Hello-Comfy");
         setHomeDescription(data.description || "");
@@ -38,6 +47,10 @@ export default function Home() {
     } catch (error) {
       console.error('Error cargando home copy:', error);
     }
+  }
+
+  if (isMobile || isTablet) {
+    return <HomeMobile />;
   }
 
   return (

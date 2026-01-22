@@ -4,6 +4,8 @@ import { useMaintenance } from "../context/MaintenanceContext";
 import { useAuth } from "../context/AuthContext";
 import AnnouncementBar from "../components/AnnouncementBar";
 import Navbar from "../components/Navbar";
+import NavbarMobile from "../components/mobile/NavbarMobile";
+import useResponsive from "../hooks/useResponsive";
 import Footer from "../components/Footer";
 import PromoBanner from "../components/PromoBanner";
 import FloatingBear from "../components/FloatingBear"; // ← AGREGADO
@@ -31,16 +33,18 @@ export default function Layout() {
       location.pathname.startsWith("/products"));
 
 
+  const { isMobile, isTablet } = useResponsive();
+  const showMobileNav = (isMobile || isTablet) && !esAdmin;
+
   return (
     <div className="layout">
-
       {/* ============================
           HEADER STICKY (solo público)
       ============================ */}
       {!esAdmin && (
         <div className="header-sticky">
           <AnnouncementBar />
-          <Navbar />
+          {showMobileNav ? <NavbarMobile /> : <Navbar />}
         </div>
       )}
 

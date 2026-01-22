@@ -1,0 +1,14 @@
+/* navbar.css - Estilos para Navbar en mobile/tablet */
+
+@media (max-width: 900px) {
+  .navbar-mobile {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem 1rem;
+  }
+  .navbar-mobile-menu {
+    margin-top: 0.5rem;
+  }
+}

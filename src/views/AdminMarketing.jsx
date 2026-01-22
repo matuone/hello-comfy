@@ -74,7 +74,7 @@ export default function AdminMarketing() {
 
   async function loadHomeCopy() {
     try {
-      const response = await fetch(`${API_URL}/site-config/home-copy`);
+      const response = await fetch(`${API_URL}/config/home-copy`);
       const data = await response.json();
 
       if (data) {
@@ -108,7 +108,7 @@ export default function AdminMarketing() {
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
 
       // Actualizar home copy
-      const homeCopyResponse = await fetch(`${API_URL}/site-config/home-copy`, {
+      const homeCopyResponse = await fetch(`${API_URL}/config/home-copy`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -316,7 +316,7 @@ export default function AdminMarketing() {
     setLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/site-config/home-copy`, {
+      const response = await fetch(`${API_URL}/config/home-copy`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
