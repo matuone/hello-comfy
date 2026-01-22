@@ -1,8 +1,4 @@
 import { useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
 import ProductCardMobile from "../../components/mobile/ProductCardMobile";
 import "../../styles/mobile/bestsellers.mobile.css";
 
@@ -16,21 +12,16 @@ export default function BestSellersMobile() {
       .catch(() => setProductos([]));
   }, []);
 
+
   return (
-    <div className="bestsellers-mobile-swiper">
-      <Swiper
-        modules={[Pagination]}
-        pagination={{ clickable: true }}
-        slidesPerView={2}
-        spaceBetween={14}
-        speed={400}
-      >
+    <div className="bestsellers-mobile-swiper bestsellers-mobile-scroll">
+      <div className="bestsellers-mobile-track">
         {productos.map((product) => (
-          <SwiperSlide key={product._id}>
+          <div className="bestsellers-mobile-slide" key={product._id}>
             <ProductCardMobile product={product} />
-          </SwiperSlide>
+          </div>
         ))}
-      </Swiper>
+      </div>
     </div>
   );
 }
