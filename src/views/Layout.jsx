@@ -63,13 +63,18 @@ export default function Layout() {
         style={{}}
       >
         {showPromoBanner && (
-          <PromoBanner
-            fullBleed
-            height="clamp(520px, 72vw, 880px)"
-            autoplay
-            interval={5000}
-          />
+          showMobileNav ? (
+            <PromoBannerMobile />
+          ) : (
+            <PromoBanner
+              fullBleed
+              height="clamp(520px, 72vw, 880px)"
+              autoplay
+              interval={5000}
+            />
+          )
         )}
+import PromoBannerMobile from "../components/mobile/PromoBannerMobile";
 
         {/* ← EL OSITO VA ACÁ */}
         {!esAdmin && <FloatingBear />}
