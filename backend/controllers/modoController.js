@@ -23,7 +23,7 @@ export const createPaymentIntent = async (req, res) => {
 
     // Validar items
     if (!items || items.length === 0) {
-      console.error("❌ Items vacíos o no proporcionados");
+      console.error("Items vacíos o no proporcionados");
       return res.status(400).json({
         error: "Items requeridos",
       });
@@ -31,7 +31,7 @@ export const createPaymentIntent = async (req, res) => {
 
     // Validar customerData
     if (!customerData || !customerData.email) {
-      console.error("❌ Customer data incompleto:", customerData);
+      console.error("Customer data incompleto");
       return res.status(400).json({
         error: "Datos del cliente incompletos (email requerido)",
       });

@@ -92,7 +92,7 @@ export const getAllProducts = async (req, res) => {
 
     res.json({ products, total, hasMore });
   } catch (err) {
-    console.error("Error al obtener productos:", err);
+    console.error("Error al obtener productos");
     res.status(500).json({ error: "Error al obtener productos" });
   }
 };
@@ -114,7 +114,7 @@ export const getProductById = async (req, res) => {
 
     res.json(product);
   } catch (err) {
-    console.error("Error al obtener producto:", err);
+    console.error("Error al obtener producto");
     res.status(500).json({ error: "Error al obtener producto" });
   }
 };
@@ -137,7 +137,7 @@ export const getBestSellers = async (req, res) => {
 
     res.json(productos);
   } catch (err) {
-    console.error("Error al obtener best sellers:", err);
+    console.error("Error al obtener best sellers");
     res.status(500).json({ error: "Error al obtener best sellers" });
   }
 };
@@ -160,7 +160,7 @@ export const getNewProducts = async (req, res) => {
 
     res.json(productos);
   } catch (err) {
-    console.error("Error al obtener nuevos productos:", err);
+    console.error("Error al obtener nuevos productos");
     res.status(500).json({ error: "Error al obtener nuevos productos" });
   }
 };
@@ -184,7 +184,7 @@ export const getProductsBySubcategory = async (req, res) => {
 
     res.json(productos);
   } catch (err) {
-    console.error("Error al obtener productos por subcategoría:", err);
+    console.error("Error al obtener productos por subcategoría");
     res.status(500).json({ error: "Error al obtener productos" });
   }
 };
@@ -213,7 +213,7 @@ export const createProduct = async (req, res) => {
     await product.save();
     res.json(product);
   } catch (err) {
-    console.error("Error al crear producto:", err);
+    console.error("Error al crear producto");
     res.status(500).json({ error: "Error al crear producto" });
   }
 };
@@ -252,7 +252,7 @@ export const updateProduct = async (req, res) => {
 
     res.json(updated);
   } catch (err) {
-    console.error("Error al actualizar producto:", err);
+    console.error("Error al actualizar producto");
     res.status(500).json({ error: "Error al actualizar producto" });
   }
 };
@@ -270,7 +270,7 @@ export const deleteProduct = async (req, res) => {
 
     res.json({ message: "Producto eliminado" });
   } catch (err) {
-    console.error("Error al eliminar producto:", err);
+    console.error("Error al eliminar producto");
     res.status(500).json({ error: "Error al eliminar producto" });
   }
 };
@@ -316,7 +316,7 @@ export const getCategoriesAndSubcategories = async (req, res) => {
       groupedSubcategories: grouped,
     });
   } catch (err) {
-    console.error("Error al obtener categorías:", err);
+    console.error("Error al obtener categorías");
     res.status(500).json({ error: "Error al obtener categorías" });
   }
 };

@@ -16,7 +16,7 @@ export const createPreference = async (req, res) => {
 
     // Validar que tenemos la access token
     if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
-      console.error("❌ MERCADOPAGO_ACCESS_TOKEN no configurado");
+      console.error("MERCADOPAGO_ACCESS_TOKEN no configurado");
       return res.status(500).json({
         error: "MERCADOPAGO_ACCESS_TOKEN no configurado",
       });
@@ -29,7 +29,7 @@ export const createPreference = async (req, res) => {
 
     // Validar items
     if (!items || items.length === 0) {
-      console.error("❌ Items vacíos o no proporcionados");
+      console.error("Items vacíos o no proporcionados");
       return res.status(400).json({
         error: "Items requeridos",
       });
@@ -37,7 +37,7 @@ export const createPreference = async (req, res) => {
 
     // Validar customerData
     if (!customerData || !customerData.email) {
-      console.error("❌ Customer data incompleto:", customerData);
+      console.error("Customer data incompleto");
       return res.status(400).json({
         error: "Datos del cliente incompletos (email requerido)",
       });

@@ -21,7 +21,7 @@ export async function resetPassword(req, res) {
     await user.save();
     res.json({ message: "Contraseña actualizada correctamente" });
   } catch (err) {
-    console.error("Error en resetPassword:", err);
+    console.error("Error en resetPassword");
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }

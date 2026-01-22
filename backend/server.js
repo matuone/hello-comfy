@@ -44,6 +44,23 @@ import { cotizarCorreoArgentino } from "./services/shipping/correoArgentinoApi.j
 // ============================
 const app = express();
 
+// Deshabilitar métodos HTTP inseguros
+const disallowedMethods = ["TRACE", "TRACK"];
+app.use((req, res, next) => {
+  if (disallowedMethods.includes(req.method)) {
+    return res.status(405).send("Método no permitido");
+  }
+  next();
+});
+
+// Opcional: bloquear OPTIONS salvo para CORS preflight
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS" && !req.headers["access-control-request-method"]) {
+    return res.status(405).send("Método OPTIONS no permitido");
+  }
+  next();
+});
+
 // ============================
 // MIDDLEWARES
 // ============================
@@ -87,8 +104,30 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Helmet para headers de seguridad
-app.use(helmet());
+// Helmet para headers de seguridad con políticas reforzadas
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+        connectSrc: ["'self'", "https://api.mercadopago.com", "https://api.gocuotas.com"],
+        frameSrc: ["'self'", "https://www.google.com"],
+      },
+    },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    crossOriginResourcePolicy: { policy: "same-origin" },
+    crossOriginEmbedderPolicy: true,
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    hsts: { maxAge: 31536000, includeSubDomains: true },
+    xssFilter: true,
+    noSniff: true,
+    frameguard: { action: "deny" },
+  })
+);
 
 // Logs de acceso HTTP (solo en producción)
 if (process.env.NODE_ENV === "production") {

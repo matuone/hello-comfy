@@ -141,7 +141,7 @@ export async function sendSupportEmail(req, res) {
     return res.json({ success: true });
 
   } catch (err) {
-    console.error("Error enviando email:", err);
+    console.error("Error enviando email");
     return res.status(500).json({ error: "Error enviando email" });
   }
 }

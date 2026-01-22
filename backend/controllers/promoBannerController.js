@@ -20,7 +20,7 @@ export const getBanner = async (req, res) => {
 
     res.json(banner);
   } catch (error) {
-    console.error('Error al obtener banner:', error);
+    console.error('Error al obtener banner');
     res.status(500).json({ message: 'Error al obtener banner', error: error.message });
   }
 };
@@ -48,7 +48,7 @@ export const updateBanner = async (req, res) => {
     await banner.save();
     res.json({ message: 'Banner actualizado', banner });
   } catch (error) {
-    console.error('Error al actualizar banner:', error);
+    console.error('Error al actualizar banner');
     res.status(500).json({ message: 'Error al actualizar banner', error: error.message });
   }
 };
@@ -87,7 +87,7 @@ export const addImage = async (req, res) => {
 
     res.json({ message: 'Imagen agregada', banner });
   } catch (error) {
-    console.error('Error al agregar imagen:', error);
+    console.error('Error al agregar imagen');
     res.status(500).json({ message: 'Error al agregar imagen', error: error.message });
   }
 };
@@ -113,7 +113,7 @@ export const deleteImage = async (req, res) => {
     try {
       await cloudinary.uploader.destroy(image.publicId);
     } catch (cloudError) {
-      console.error('Error al eliminar de Cloudinary:', cloudError);
+      console.error('Error al eliminar de Cloudinary');
     }
 
     banner.images.pull(imageId);
@@ -121,7 +121,7 @@ export const deleteImage = async (req, res) => {
 
     res.json({ message: 'Imagen eliminada', banner });
   } catch (error) {
-    console.error('Error al eliminar imagen:', error);
+    console.error('Error al eliminar imagen');
     res.status(500).json({ message: 'Error al eliminar imagen', error: error.message });
   }
 };
@@ -149,7 +149,7 @@ export const updateImagePosition = async (req, res) => {
 
     res.json({ message: 'Posición actualizada', banner });
   } catch (error) {
-    console.error('Error al actualizar posición:', error);
+    console.error('Error al actualizar posición');
     res.status(500).json({ message: 'Error al actualizar posición', error: error.message });
   }
 };
@@ -175,7 +175,7 @@ export const reorderImages = async (req, res) => {
 
     res.json({ message: 'Imágenes reordenadas', banner });
   } catch (error) {
-    console.error('Error al reordenar imágenes:', error);
+    console.error('Error al reordenar imágenes');
     res.status(500).json({ message: 'Error al reordenar imágenes', error: error.message });
   }
 };

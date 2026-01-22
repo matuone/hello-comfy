@@ -22,7 +22,7 @@ export const getAllCustomers = async (req, res) => {
     const clientes = await Customer.find(filtros).sort({ createdAt: -1 });
     res.json(clientes);
   } catch (err) {
-    console.error("Error al obtener clientes:", err);
+    console.error("Error al obtener clientes");
     res.status(500).json({ error: "Error al obtener clientes" });
   }
 };
@@ -82,7 +82,7 @@ export const getAllBuyers = async (req, res) => {
 
     res.json(todos);
   } catch (err) {
-    console.error("Error al obtener compradores:", err);
+    console.error("Error al obtener compradores");
     res.status(500).json({ error: "Error al obtener compradores" });
   }
 };
@@ -98,7 +98,7 @@ export const getCustomerById = async (req, res) => {
 
     res.json(cliente);
   } catch (err) {
-    console.error("Error al obtener cliente:", err);
+    console.error("Error al obtener cliente");
     res.status(500).json({ error: "Error al obtener cliente" });
   }
 };
@@ -130,7 +130,7 @@ export const createCustomer = async (req, res) => {
     await nuevoCliente.save();
     res.status(201).json(nuevoCliente);
   } catch (err) {
-    console.error("Error al crear cliente:", err);
+    console.error("Error al crear cliente");
     res.status(500).json({ error: "Error al crear cliente" });
   }
 };
@@ -152,7 +152,7 @@ export const updateCustomer = async (req, res) => {
 
     res.json(cliente);
   } catch (err) {
-    console.error("Error al actualizar cliente:", err);
+    console.error("Error al actualizar cliente");
     res.status(500).json({ error: "Error al actualizar cliente" });
   }
 };
@@ -169,7 +169,7 @@ export const deleteCustomer = async (req, res) => {
 
     res.json({ mensaje: "Cliente eliminado", cliente });
   } catch (err) {
-    console.error("Error al eliminar cliente:", err);
+    console.error("Error al eliminar cliente");
     res.status(500).json({ error: "Error al eliminar cliente" });
   }
 };

@@ -33,7 +33,7 @@ export async function adminLogin(req, res) {
     });
 
   } catch (err) {
-    console.error("Error en login admin:", err);
+    console.error("Error en login admin");
     return res.status(500).json({ error: "Error interno del servidor" });
   }
 }

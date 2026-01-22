@@ -12,7 +12,7 @@ export const listSubcategories = async (_req, res) => {
     const subs = await Subcategory.find().sort({ category: 1, order: 1, name: 1 });
     res.json(subs);
   } catch (err) {
-    console.error("Error al listar subcategorías:", err);
+    console.error("Error al listar subcategorías");
     res.status(500).json({ error: "Error al listar subcategorías" });
   }
 };
@@ -49,7 +49,7 @@ export const createSubcategory = async (req, res) => {
     if (err.code === 11000) {
       return res.status(409).json({ error: "La subcategoría ya existe en esa categoría" });
     }
-    console.error("Error al crear subcategoría:", err);
+    console.error("Error al crear subcategoría");
     res.status(500).json({ error: "Error al crear subcategoría" });
   }
 };
@@ -85,7 +85,7 @@ export const updateSubcategory = async (req, res) => {
     if (err.code === 11000) {
       return res.status(409).json({ error: "Ya existe esa subcategoría en la categoría" });
     }
-    console.error("Error al actualizar subcategoría:", err);
+    console.error("Error al actualizar subcategoría");
     res.status(500).json({ error: "Error al actualizar subcategoría" });
   }
 };
@@ -101,7 +101,7 @@ export const deleteSubcategory = async (req, res) => {
 
     res.json({ message: "Subcategoría eliminada" });
   } catch (err) {
-    console.error("Error al eliminar subcategoría:", err);
+    console.error("Error al eliminar subcategoría");
     res.status(500).json({ error: "Error al eliminar subcategoría" });
   }
 };
@@ -131,7 +131,7 @@ export const reorderSubcategories = async (req, res) => {
 
     res.json({ message: "Orden actualizado" });
   } catch (err) {
-    console.error("Error al reordenar subcategorías:", err);
+    console.error("Error al reordenar subcategorías");
     res.status(500).json({ error: "Error al reordenar subcategorías" });
   }
 };

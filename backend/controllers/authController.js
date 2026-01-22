@@ -80,12 +80,9 @@ export async function registerUser(req, res) {
         }
       );
 
-      if (result.modifiedCount > 0) {
-        // console.log(`✅ Vinculadas ${result.modifiedCount} órdenes previas al usuario ${newUser.email}`); // Evitar exponer emails en logs de producción
-      }
+      // No loggear emails ni datos sensibles en producción
     } catch (linkError) {
-      console.error("⚠️ Error vinculando órdenes previas (no crítico):", linkError);
-      // No fallar el registro si falla la vinculación
+      // Error no crítico al vincular órdenes previas
     }
 
     // Generar token
@@ -107,7 +104,7 @@ export async function registerUser(req, res) {
     });
 
   } catch (err) {
-    console.error("Error en registro:", err);
+    console.error("Error en registro");
     return res.status(500).json({ error: "Error interno del servidor" });
   }
 }
@@ -155,7 +152,7 @@ export async function loginUser(req, res) {
     });
 
   } catch (err) {
-    console.error("Error en login:", err);
+    console.error("Error en login");
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }
@@ -228,7 +225,7 @@ export async function updateUserProfile(req, res) {
     });
 
   } catch (err) {
-    console.error("Error actualizando perfil:", err);
+    console.error("Error actualizando perfil");
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }
@@ -274,7 +271,7 @@ export async function updateUserAvatar(req, res) {
     });
 
   } catch (err) {
-    console.error("Error actualizando avatar:", err);
+    console.error("Error actualizando avatar");
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }

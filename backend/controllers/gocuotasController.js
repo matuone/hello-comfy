@@ -125,7 +125,7 @@ export const createCheckout = async (req, res) => {
   } catch (err) {
     const apiStatus = err.response?.status;
     const apiData = err.response?.data;
-    console.error("❌ Error creando checkout Go Cuotas:", err.message, apiStatus, apiData);
+    console.error("Error creando checkout Go Cuotas");
 
     res.status(apiStatus || 500).json({
       error: "Error al crear checkout",
@@ -155,7 +155,7 @@ export const getCheckoutStatus = async (req, res) => {
 
     res.json(response.data);
   } catch (err) {
-    console.error("❌ Error consultando checkout:", err.message);
+    console.error("Error consultando checkout");
     res.status(500).json({ error: "Error al consultar checkout: " + err.message });
   }
 };
@@ -194,7 +194,7 @@ export const webhookGocuotas = async (req, res) => {
         delete global.gocuotasOrders[checkout_id];
         // console.log("✅ Orden creada:", newOrder._id);
       } catch (err) {
-        console.error("❌ Error creando orden:", err.message);
+        console.error("Error creando orden");
       }
     } else if (["rejected", "cancelled", "expired"].includes(status)) {
       delete global.gocuotasOrders[checkout_id];
@@ -202,7 +202,7 @@ export const webhookGocuotas = async (req, res) => {
 
     res.status(200).json({ received: true });
   } catch (err) {
-    console.error("❌ Error procesando webhook Go Cuotas:", err.message);
+    console.error("Error procesando webhook Go Cuotas");
     res.status(200).json({ received: true });
   }
 };
@@ -258,7 +258,7 @@ export const processPayment = async (req, res) => {
 
     res.json({ success: true, orderId: newOrder._id, message: "Pago procesado correctamente" });
   } catch (err) {
-    console.error("❌ Error procesando pago:", err.message);
+    console.error("Error procesando pago");
     res.status(500).json({ error: "Error al procesar pago: " + err.message });
   }
 };

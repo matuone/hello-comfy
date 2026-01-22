@@ -44,7 +44,7 @@ export async function forgotPassword(req, res) {
     });
     res.json({ message: "Si el email existe, se envió un correo de recuperación" });
   } catch (err) {
-    console.error("Error en forgotPassword:", err);
+    console.error("Error en forgotPassword");
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }
