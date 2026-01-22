@@ -208,7 +208,7 @@ export default function AdminProducts() {
           null,
       };
 
-      setProductos((prev) => [...prev, adaptado]);
+      setProductos((prev) => [adaptado, ...prev]);
 
       setNoti({
         mensaje: "Producto duplicado correctamente",
