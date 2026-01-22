@@ -28,3 +28,7 @@ backend/config/afip-*.key
 backend/config/afip-*.crt
 backend/config/afip-*.csr
 backend/config/afip-ta/
+
+# Environment files (NEVER COMMIT THESE!)
+.env
+backend/.env
