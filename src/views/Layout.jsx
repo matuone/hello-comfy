@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useMaintenance } from "../context/MaintenanceContext";
 import { useAuth } from "../context/AuthContext";
 import AnnouncementBar from "../components/AnnouncementBar";
+import AnnouncementBarMobile from "../components/mobile/AnnouncementBarMobile";
 import Navbar from "../components/Navbar";
 import NavbarMobile from "../components/mobile/NavbarMobile";
 import useResponsive from "../hooks/useResponsive";
@@ -43,7 +44,7 @@ export default function Layout() {
       ============================ */}
       {!esAdmin && (
         <div className="header-sticky">
-          <AnnouncementBar />
+          {showMobileNav ? <AnnouncementBarMobile /> : <AnnouncementBar />}
           {showMobileNav ? <NavbarMobile /> : <Navbar />}
         </div>
       )}
@@ -59,6 +60,7 @@ export default function Layout() {
               ? "layout__content layout__content--full"
               : "layout__content"
         }
+        style={{}}
       >
         {showPromoBanner && (
           <PromoBanner
