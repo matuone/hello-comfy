@@ -117,12 +117,12 @@ export default function NavbarMobile() {
           </button>
           <Link to="/mi-cuenta" className="navbar-mobile__icon-btn" aria-label="Mi cuenta">
             <span className="navbar-mobile__icon-user">
-              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="#e57373" strokeWidth="1.7"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#e57373" strokeWidth="1.7"/></svg>
+              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="#e57373" strokeWidth="1.7" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#e57373" strokeWidth="1.7" /></svg>
             </span>
           </Link>
           <Link to="/cart" className="navbar-mobile__icon-btn" aria-label="Carrito">
             <span className="navbar-mobile__icon-cart">
-              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><path d="M6 7h12l-1 12H7L6 7Z" stroke="#e57373" strokeWidth="1.7"/><path d="M9 7a3 3 0 0 1 6 0" stroke="#e57373" strokeWidth="1.7"/></svg>
+              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><path d="M6 7h12l-1 12H7L6 7Z" stroke="#e57373" strokeWidth="1.7" /><path d="M9 7a3 3 0 0 1 6 0" stroke="#e57373" strokeWidth="1.7" /></svg>
               {count > 0 && <span className="navbar-mobile__cart-badge">{count}</span>}
             </span>
           </Link>
