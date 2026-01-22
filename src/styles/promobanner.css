@@ -1,3 +1,28 @@
+/* Gradiente inferior para fundir con .home-copy */
+
+
+/* Gradiente radial inferior para transición natural */
+
+/* Gradiente largo y progresivo para fundir la imagen a blanco */
+.promoBanner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38%;
+  /* El gradiente ocupa el 38% inferior del banner */
+  pointer-events: none;
+  z-index: 3;
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.02) 60%,
+      rgba(255, 255, 255, 0.10) 75%,
+      rgba(255, 255, 255, 0.25) 85%,
+      rgba(255, 255, 255, 0.55) 95%,
+      #fff 100%);
+}
+
 /* src/styles/promobanner.css */
 
 .promoBanner {
