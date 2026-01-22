@@ -1,3 +1,14 @@
+  .newin__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 32px 0 12px 0;
+    text-align: center;
+  }
+
+  .newin-mobile-swiper {
+    margin-bottom: 24px;
+  }
+
   .bestsellers-mobile-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;

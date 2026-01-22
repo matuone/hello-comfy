@@ -1,0 +1,47 @@
+import { useEffect, useState } from "react";
+import ProductCardNewInMobile from "../../components/mobile/ProductCardNewInMobile";
+import { useNavigate } from "react-router-dom";
+import "../../styles/mobile/bestsellers.mobile.css";
+
+export default function NewInMobile() {
+  const [productos, setProductos] = useState([]);
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products/new")
+      .then((res) => res.json())
+      .then((data) => setProductos(Array.isArray(data) ? data : []))
+      .catch(() => setProductos([]));
+  }, []);
+
+  const handleBuy = (product, size, quantity) => {
+    // Aquí puedes agregar lógica de compra directa
+    // Por ahora, redirige a checkout con el producto
+    navigate("/checkout");
+  };
+  const handleAddToCart = (product, size, quantity) => {
+    // Aquí puedes agregar lógica de agregar al carrito
+    // Por ahora, solo muestra un alert
+    alert("Agregado al carrito: " + product.name + " x" + quantity + " (" + size + ")");
+  };
+  const handleViewMore = (product) => {
+    navigate(`/products/${product._id}`);
+  };
+
+  return (
+    <div className="newin-mobile-swiper bestsellers-mobile-scroll">
+      <div className="bestsellers-mobile-track">
+        {productos.map((product) => (
+          <div className="bestsellers-mobile-slide" key={product._id}>
+            <ProductCardNewInMobile
+              product={product}
+              onBuy={handleBuy}
+              onAddToCart={handleAddToCart}
+              onViewMore={handleViewMore}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

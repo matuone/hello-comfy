@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import "../../styles/mobile/home.css";
 import BestSellersMobile from "../../components/mobile/BestSellersMobile";
+import NewInMobile from "../../components/mobile/NewInMobile";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -44,6 +45,8 @@ export default function HomeMobile() {
       <p>{homeDescription}</p>
       <h2 className="bestsellers__title">Los más vendidos:</h2>
       <BestSellersMobile />
+      <h2 className="newin__title">Nuevos ingresos:</h2>
+      <NewInMobile />
     </section>
   );
 }
