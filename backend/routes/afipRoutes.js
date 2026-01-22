@@ -119,7 +119,7 @@ router.post('/afip/generar-factura/:orderId', verifyAdmin, async (req, res) => {
 
     await order.save();
 
-    console.log(`✅ Factura ${order.facturaNumero} generada para orden ${order.code}`);
+    // console.log(`✅ Factura ${order.facturaNumero} generada para orden ${order.code}`);
 
     res.json({
       success: true,

@@ -68,7 +68,7 @@ router.post("/", verifyAdmin, async (req, res) => {
     // Generar el archivo JSX del componente
     try {
       const componentInfo = await generateSizeTableComponent(newTable);
-      console.log("Componente generado:", componentInfo);
+      // console.log("Componente generado:", componentInfo);
     } catch (error) {
       console.error("Error generando componente JSX:", error);
       // No fallar la creación si el componente no se genera

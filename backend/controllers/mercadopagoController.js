@@ -23,9 +23,9 @@ export const createPreference = async (req, res) => {
     }
 
     // DEBUG: Verificar variables de entorno
-    console.log("🔍 Variables de entorno:");
-    console.log("  FRONTEND_URL:", process.env.FRONTEND_URL);
-    console.log("  API_URL:", process.env.API_URL);
+    // console.log("🔍 Variables de entorno:");
+    // console.log("  FRONTEND_URL:", process.env.FRONTEND_URL);
+    // console.log("  API_URL:", process.env.API_URL); // No exponer variables en producción
 
     // Validar items
     if (!items || items.length === 0) {
@@ -53,7 +53,7 @@ export const createPreference = async (req, res) => {
       currency_id: "ARS",
     }));
 
-    console.log("📦 Items para Mercado Pago:", mercadopagoItems);
+    // console.log("📦 Items para Mercado Pago:", mercadopagoItems); // No loggear items completos en producción
 
     // Crear la preferencia
     const preference = {
@@ -80,7 +80,7 @@ export const createPreference = async (req, res) => {
       // auto_return: "approved", // ❌ No funciona con localhost - solo para producción
     };
 
-    console.log("🔄 Enviando preferencia a Mercado Pago:", JSON.stringify(preference, null, 2));
+    // console.log("🔄 Enviando preferencia a Mercado Pago:", JSON.stringify(preference, null, 2)); // No loggear payloads completos en producción
 
     // Hacer request a Mercado Pago
     const response = await axios.post(
@@ -94,7 +94,7 @@ export const createPreference = async (req, res) => {
       }
     );
 
-    console.log("✅ Preferencia creada en Mercado Pago:", response.data.id);
+    // console.log("✅ Preferencia creada en Mercado Pago:", response.data.id);
 
     res.json({
       id: response.data.id,
@@ -121,7 +121,7 @@ export const webhookMercadoPago = async (req, res) => {
 
     // Verificar que sea una notificación de Mercado Pago válida
     if (type === "payment") {
-      console.log("✅ Notificación de pago recibida:", data.id);
+      // console.log("✅ Notificación de pago recibida:", data.id);
 
       const paymentId = data.id;
 
@@ -138,12 +138,12 @@ export const webhookMercadoPago = async (req, res) => {
       const paymentData = paymentDetails.data;
       const externalReference = paymentData.external_reference;
 
-      console.log("📊 Detalles del pago:", {
-        id: paymentData.id,
-        status: paymentData.status,
-        reference: externalReference,
-        amount: paymentData.transaction_amount,
-      });
+      // console.log("📊 Detalles del pago:", {
+      //   id: paymentData.id,
+      //   status: paymentData.status,
+      //   reference: externalReference,
+      //   amount: paymentData.transaction_amount,
+      // });
 
       // Actualizar estado de pago en BD
       if (externalReference) {
@@ -205,12 +205,12 @@ export const processPayment = async (req, res) => {
       return res.status(400).json({ error: "paymentId requerido" });
     }
 
-    console.log("💳 Procesando pago confirmado con paymentId:", paymentId);
-    console.log("📋 PendingOrderData recibido:", !!pendingOrderData);
-    if (pendingOrderData) {
-      console.log("   - Email:", pendingOrderData.formData?.email);
-      console.log("   - Items:", pendingOrderData.items?.length || 0);
-    }
+    // console.log("💳 Procesando pago confirmado con paymentId:", paymentId);
+    // console.log("📋 PendingOrderData recibido:", !!pendingOrderData);
+    // if (pendingOrderData) {
+    //   console.log("   - Email:", pendingOrderData.formData?.email);
+    //   console.log("   - Items:", pendingOrderData.items?.length || 0);
+    // }
 
     // Obtener detalles del pago de Mercado Pago
     const paymentResponse = await axios.get(
@@ -224,11 +224,11 @@ export const processPayment = async (req, res) => {
 
     const paymentData = paymentResponse.data;
 
-    console.log("💳 Procesando pago confirmado:", {
-      id: paymentData.id,
-      status: paymentData.status,
-      amount: paymentData.transaction_amount,
-    });
+    // console.log("💳 Procesando pago confirmado:", {
+    //   id: paymentData.id,
+    //   status: paymentData.status,
+    //   amount: paymentData.transaction_amount,
+    // });
 
     // Verificar que el pago fue aprobado o está pendiente
     if (!["approved", "pending"].includes(paymentData.status)) {
@@ -241,21 +241,21 @@ export const processPayment = async (req, res) => {
     // Crear orden en BD
     let order = null;
     if (pendingOrderData) {
-      console.log("✅ Creando orden con pendingOrderData");
+      // console.log("✅ Creando orden con pendingOrderData");
       order = await crearOrdenDesdePago(paymentData, pendingOrderData);
     } else {
       console.warn("⚠️ No hay pendingOrderData, intentando actualizar estado de pago existente");
       // Si no hay datos de orden pendiente, solo actualizar estado
       const externalReference = paymentData.external_reference;
       if (externalReference) {
-        console.log("🔄 Actualizando estado de pago para referencia:", externalReference);
+        // console.log("🔄 Actualizando estado de pago para referencia:", externalReference);
         order = await actualizarEstadoPago(externalReference, paymentData.status);
       } else {
         console.error("❌ No hay external_reference y no hay pendingOrderData");
       }
     }
 
-    console.log("📦 Orden procesada:", order ? order.code : "NO CREADA");
+    // console.log("📦 Orden procesada:", order ? order.code : "NO CREADA");
 
     res.json({
       success: true,

@@ -136,12 +136,12 @@ router.post("/orders/create-transfer", async (req, res) => {
     const { userId, formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
 
     const paymentMethod = formData?.paymentMethod || "transfer";
-    console.log("📝 create-payment request recibido");
-    console.log("📋 Payment Method:", paymentMethod);
-    console.log("📋 FormData email:", formData?.email);
-    console.log("📋 UserId:", userId || "invitado");
-    console.log("📋 Items count:", items?.length);
-    console.log("📋 PaymentProof length:", paymentProof?.length || 0);
+    // console.log("📝 create-payment request recibido");
+    // console.log("📋 Payment Method:", paymentMethod);
+    // console.log("📋 FormData email:", formData?.email);
+    // console.log("📋 UserId:", userId || "invitado");
+    // console.log("📋 Items count:", items?.length);
+    // console.log("📋 PaymentProof length:", paymentProof?.length || 0);
 
     if (!formData || !items || !totalPrice) {
       return res.status(400).json({ error: "Datos incompletos" });
@@ -171,10 +171,10 @@ router.post("/orders/create-transfer", async (req, res) => {
       paymentProofName: paymentProofName || null,
     };
 
-    console.log("📝 Iniciando crearOrdenDesdePago");
+    // console.log("📝 Iniciando crearOrdenDesdePago");
     // Crear orden usando el servicio existente
     const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
-    console.log("✅ Orden creada:", order.code);
+    // console.log("✅ Orden creada:", order.code);
 
     res.json({
       success: true,

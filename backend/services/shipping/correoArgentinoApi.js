@@ -24,9 +24,9 @@ async function getAuthToken() {
   try {
     const auth = Buffer.from(`${user}:${password}`).toString("base64");
 
-    console.log(`📡 Intentando autenticar en ${BASE_URL}/token`);
-    console.log(`   Usuario: ${user}`);
-    console.log(`   Ambiente: ${process.env.CORREO_ARG_ENV || "test"}`);
+    // console.log(`📡 Intentando autenticar en ${BASE_URL}/token`);
+    // console.log(`   Usuario: ${user}`);
+    // console.log(`   Ambiente: ${process.env.CORREO_ARG_ENV || "test"}`);
     const response = await axios.post(
       `${BASE_URL}/token`,
       {},
@@ -53,7 +53,7 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
 
   // Si no hay credenciales configuradas, devolver placeholder
   if (!process.env.CORREO_ARG_USER || !customerId) {
-    console.log("⚠️ Correo Argentino API no configurado, usando tarifas locales");
+    // console.log("⚠️ Correo Argentino API no configurado, usando tarifas locales");
     return {
       pendingCredentials: true,
       home: { available: false },
@@ -128,7 +128,7 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
 
     return result;
   } catch (error) {
-    console.log("⚠️ No se pudo conectar a API de Correo Argentino, usando tarifas locales");
+    // console.log("⚠️ No se pudo conectar a API de Correo Argentino, usando tarifas locales");
 
     // Fallback silencioso a tarifas locales si la API falla
     return {

@@ -81,7 +81,7 @@ export async function registerUser(req, res) {
       );
 
       if (result.modifiedCount > 0) {
-        console.log(`✅ Vinculadas ${result.modifiedCount} órdenes previas al usuario ${newUser.email}`);
+        // console.log(`✅ Vinculadas ${result.modifiedCount} órdenes previas al usuario ${newUser.email}`); // Evitar exponer emails en logs de producción
       }
     } catch (linkError) {
       console.error("⚠️ Error vinculando órdenes previas (no crítico):", linkError);

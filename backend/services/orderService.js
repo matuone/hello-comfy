@@ -43,16 +43,9 @@ async function generarCodigoOrden() {
  */
 export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
   try {
-    console.log("🔄 Iniciando crearOrdenDesdePago");
-    console.log("📋 PaymentData:", {
-      id: paymentData.id,
-      status: paymentData.status,
-      email: paymentData.payer?.email,
-    });
-    console.log("📋 PendingOrderData:", {
-      email: pendingOrderData?.formData?.email,
-      itemsCount: pendingOrderData?.items?.length,
-    });
+    // console.log("🔄 Iniciando crearOrdenDesdePago");
+    // console.log("📋 PaymentData:", { id: paymentData.id, status: paymentData.status, email: paymentData.payer?.email });
+    // console.log("📋 PendingOrderData:", { email: pendingOrderData?.formData?.email, itemsCount: pendingOrderData?.items?.length });
 
     // Generar código único de orden secuencial
     const code = await generarCodigoOrden();
@@ -110,22 +103,18 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     const order = new Order(orderData);
     await order.save();
 
-    console.log("✅ Orden creada exitosamente:", {
-      code: order.code,
-      email: order.customer.email,
-      paymentId: paymentData.id,
-    });
+    // console.log("✅ Orden creada exitosamente:", { code: order.code, email: order.customer.email, paymentId: paymentData.id });
 
     // Enviar email de confirmación al cliente
-    console.log("📧 Iniciando envío de email a:", order.customer.email);
+    // console.log("📧 Iniciando envío de email a:", order.customer.email);
     const emailSent = await enviarEmailConfirmacionOrden(order);
-    console.log("📧 Email enviado:", emailSent ? "SÍ ✅" : "NO ❌");
+    // console.log("📧 Email enviado:", emailSent ? "SÍ ✅" : "NO ❌");
 
     // Enviar email al admin
-    console.log("📧 Iniciando envío de email al admin");
+    // console.log("📧 Iniciando envío de email al admin");
     try {
       const adminEmailSent = await enviarEmailAlAdmin(order);
-      console.log("📧 Email al admin enviado:", adminEmailSent ? "SÍ ✅" : "NO ❌");
+      // console.log("📧 Email al admin enviado:", adminEmailSent ? "SÍ ✅" : "NO ❌");
     } catch (adminEmailError) {
       console.error("❌ Error enviando email al admin (no falla la orden):", adminEmailError.message);
     }
@@ -166,10 +155,7 @@ export async function actualizarEstadoPago(externalReference, paymentStatus) {
       return null;
     }
 
-    console.log("✅ Estado de pago actualizado:", {
-      code: order.code,
-      pagoEstado: order.pagoEstado,
-    });
+    // console.log("✅ Estado de pago actualizado:", { code: order.code, pagoEstado: order.pagoEstado });
 
     return order;
   } catch (error) {

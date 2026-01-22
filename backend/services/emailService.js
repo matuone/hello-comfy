@@ -36,8 +36,8 @@ export async function enviarEmailConfirmacionOrden(order) {
       return false;
     }
 
-    console.log("📧 Intentando enviar email a:", order.customer?.email);
-    console.log("📧 Código de orden:", order.code);
+    // console.log("📧 Intentando enviar email a:", order.customer?.email);
+    // console.log("📧 Código de orden:", order.code);
 
     // Configurar transporte (mismo que supportController)
     const transporter = nodemailer.createTransport({
@@ -291,7 +291,7 @@ export async function enviarEmailConfirmacionOrden(order) {
       html: emailHtml,
     });
 
-    console.log(`✅ Email de confirmación enviado a: ${order.customer?.email}`);
+    // console.log(`✅ Email de confirmación enviado a: ${order.customer?.email}`);
     return true;
   } catch (error) {
     console.error("❌ Error enviando email de confirmación:", error.message);
@@ -518,7 +518,7 @@ export async function enviarEmailAlAdmin(order) {
               content: buffer,
               contentType: mimeType,
             });
-            console.log("✅ Comprobante adjuntado:", fileName, "(" + buffer.length + " bytes)");
+            // console.log("✅ Comprobante adjuntado:", fileName, "(" + buffer.length + " bytes)");
           }
         }
       } catch (attachError) {
@@ -540,7 +540,7 @@ export async function enviarEmailAlAdmin(order) {
 
     await transporter.sendMail(mailOptions);
 
-    console.log(`✅ Email al admin enviado para orden: ${order.code}`);
+    // console.log(`✅ Email al admin enviado para orden: ${order.code}`);
     return true;
   } catch (error) {
     console.error("❌ Error enviando email al admin:", error.message);
@@ -566,7 +566,7 @@ export async function enviarFacturaEmail(order, pdfBuffer) {
       return false;
     }
 
-    console.log("📧 Intentando enviar factura a:", order.customer?.email);
+    // console.log("📧 Intentando enviar factura a:", order.customer?.email);
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -646,7 +646,7 @@ export async function enviarFacturaEmail(order, pdfBuffer) {
 
     await transporter.sendMail(mailOptions);
 
-    console.log(`✅ Factura enviada a: ${order.customer.email}`);
+    // console.log(`✅ Factura enviada a: ${order.customer.email}`);
     return true;
   } catch (error) {
     console.error("❌ Error enviando factura:", error.message);

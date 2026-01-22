@@ -169,7 +169,7 @@ export const webhookGocuotas = async (req, res) => {
 
     const orderData = global.gocuotasOrders?.[checkout_id];
     if (!orderData) {
-      console.warn("⚠️ No se encontraron datos de la orden:", checkout_id);
+      // console.warn("⚠️ No se encontraron datos de la orden:", checkout_id);
       return res.status(200).json({ received: true });
     }
 
@@ -192,7 +192,7 @@ export const webhookGocuotas = async (req, res) => {
           },
         });
         delete global.gocuotasOrders[checkout_id];
-        console.log("✅ Orden creada:", newOrder._id);
+        // console.log("✅ Orden creada:", newOrder._id);
       } catch (err) {
         console.error("❌ Error creando orden:", err.message);
       }

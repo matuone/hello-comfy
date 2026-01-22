@@ -4,6 +4,9 @@ dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import morgan from "morgan";
 
 // ============================
 // IMPORTS DE RUTAS
@@ -44,9 +47,53 @@ const app = express();
 // ============================
 // MIDDLEWARES
 // ============================
-app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// Configuración de CORS restrictivo
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://tudominio.com" // Cambia esto por tu dominio real en producción
+];
+app.use(cors({
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como Postman) o desde orígenes permitidos
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("No permitido por CORS"));
+    }
+  },
+  credentials: true
+}));
+
+// Middleware para forzar HTTPS en producción
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    if (req.headers["x-forwarded-proto"] !== "https") {
+      return res.redirect("https://" + req.headers.host + req.url);
+    }
+    next();
+  });
+}
+
+// Rate limiting global: 100 requests cada 15 minutos por IP
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // Limite de requests por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Demasiadas solicitudes desde esta IP, intenta más tarde."
+});
+app.use(limiter);
+
+// Helmet para headers de seguridad
+app.use(helmet());
+
+// Logs de acceso HTTP (solo en producción)
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
+}
 
 // ============================
 // RUTAS DE AUTENTICACIÓN ADMIN
@@ -178,12 +225,12 @@ app.get("/", (req, res) => {
 // ============================
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB conectado"))
+  .then(() => {/* MongoDB conectado */ })
   .catch((err) => console.error("Error al conectar MongoDB:", err));
 
 // ============================
 // INICIO DEL SERVIDOR
 // ============================
 app.listen(5000, () => {
-  console.log("Servidor corriendo en puerto 5000");
+  console.log("\u2705  Backend corriendo en puerto 5000");
 });

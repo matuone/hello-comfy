@@ -18,8 +18,8 @@ export const createPaymentIntent = async (req, res) => {
     const MODO_STORE_ID = process.env.MODO_STORE_ID || "TEST_STORE_ID";
     const MODO_API_KEY = process.env.MODO_API_KEY || "TEST_API_KEY";
 
-    console.log("🟢 Creando intención de pago con Modo (Modo Test)");
-    console.log("  Store ID:", MODO_STORE_ID);
+    // console.log("🟢 Creando intención de pago con Modo (Modo Test)");
+    // console.log("  Store ID:", MODO_STORE_ID); // No exponer IDs en producción
 
     // Validar items
     if (!items || items.length === 0) {
@@ -70,7 +70,7 @@ export const createPaymentIntent = async (req, res) => {
       }))
     };
 
-    console.log("📤 Enviando request a Modo:", JSON.stringify(modoPayload, null, 2));
+    // console.log("📤 Enviando request a Modo:", JSON.stringify(modoPayload, null, 2)); // No loggear payloads completos en producción
 
     // En modo test, simulamos una respuesta de Modo
     // Cuando tengas credenciales reales, descomenta el código real
@@ -85,7 +85,7 @@ export const createPaymentIntent = async (req, res) => {
       external_reference: externalReference
     };
 
-    console.log("✅ Respuesta de Modo (TEST):", testResponse);
+    // console.log("✅ Respuesta de Modo (TEST):", testResponse);
 
     /* MODO PRODUCCIÓN - Código real (comentado por ahora)
     const response = await axios.post(
@@ -124,7 +124,7 @@ export const confirmPayment = async (req, res) => {
   try {
     const { reference, status, pendingOrderData } = req.body;
 
-    console.log("✅ Confirmando pago de Modo Test:", reference);
+    // console.log("✅ Confirmando pago de Modo Test:", reference);
 
     if (status === "approved") {
       // Crear datos de pago simulados
@@ -143,7 +143,7 @@ export const confirmPayment = async (req, res) => {
       // Crear orden en la base de datos
       const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
 
-      console.log("📦 Orden creada exitosamente:", order.code);
+      // console.log("📦 Orden creada exitosamente:", order.code);
 
       return res.json({
         success: true,
@@ -174,8 +174,8 @@ export const confirmPayment = async (req, res) => {
  */
 export const handleWebhook = async (req, res) => {
   try {
-    console.log("🔔 Webhook de Modo recibido:");
-    console.log(JSON.stringify(req.body, null, 2));
+    // console.log("🔔 Webhook de Modo recibido:");
+    // console.log(JSON.stringify(req.body, null, 2)); // No loggear payloads completos en producción
 
     const { external_reference, status, payment_id } = req.body;
 
@@ -198,7 +198,7 @@ export const handleWebhook = async (req, res) => {
       paymentStatus = "failed";
     }
 
-    console.log(`📝 Actualizando orden ${external_reference} a estado: ${paymentStatus}`);
+    // console.log(`📝 Actualizando orden ${external_reference} a estado: ${paymentStatus}`);
 
     // Actualizar orden
     await actualizarEstadoPago(external_reference, {
@@ -223,7 +223,7 @@ export const getPaymentStatus = async (req, res) => {
   try {
     const { paymentId } = req.params;
 
-    console.log("🔍 Consultando estado de pago:", paymentId);
+    // console.log("🔍 Consultando estado de pago:", paymentId);
 
     // En modo test, simulamos una respuesta
     const testStatus = {

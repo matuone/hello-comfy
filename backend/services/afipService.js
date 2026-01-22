@@ -20,7 +20,7 @@ let certContent, keyContent;
 try {
   certContent = fs.readFileSync(certPath, 'utf8');
   keyContent = fs.readFileSync(keyPath, 'utf8');
-  console.log('✅ Certificados AFIP cargados correctamente');
+  // console.log('✅ Certificados AFIP cargados correctamente');
 } catch (err) {
   console.error('❌ Error cargando certificados:', err.message);
   console.error('Ruta esperada para cert:', certPath);
@@ -43,11 +43,11 @@ const afip = new Afip({
  */
 export async function obtenerPuntosVenta() {
   try {
-    console.log('📍 Obteniendo puntos de venta habilitados...');
+    // console.log('📍 Obteniendo puntos de venta habilitados...');
 
     // SDK expone getSalesPoints para FEParamGetPtosVenta
     const ptos = await afip.ElectronicBilling.getSalesPoints();
-    console.log('✅ Puntos de venta:', ptos);
+    // console.log('✅ Puntos de venta:', ptos);
     return ptos;
   } catch (error) {
     console.error('❌ Error obteniendo puntos de venta:', error.message);
@@ -103,20 +103,20 @@ export async function probarPuntosVenta() {
  */
 export async function generarFacturaC(orderData, puntoVenta = null) {
   try {
-    console.log('📄 Iniciando generación de factura C para orden:', orderData.code);
+    // console.log('📄 Iniciando generación de factura C para orden:', orderData.code);
 
     // Usar punto de venta configurado en .env o el especificado
     const ptoVta = puntoVenta || parseInt(process.env.AFIP_PUNTO_VENTA) || 4;
 
-    console.log(`🔄 Usando punto de venta ${ptoVta}...`);
+    // console.log(`🔄 Usando punto de venta ${ptoVta}...`);
 
     // Obtener el último número de factura para este punto de venta
     const lastVoucher = await afip.ElectronicBilling.getLastVoucher(ptoVta, 11); // 11 = Factura C (Monotributo)
     const nextVoucherNumber = lastVoucher + 1;
 
-    console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
-    console.log('📝 Último comprobante:', lastVoucher);
-    console.log('📝 Próximo número:', nextVoucherNumber);
+    // console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
+    // console.log('📝 Último comprobante:', lastVoucher);
+    // console.log('📝 Próximo número:', nextVoucherNumber);
 
     // Parsear el total - asegurar que es número
     const total = parseFloat(orderData.totals?.total || orderData.total || 1000);
@@ -144,15 +144,15 @@ export async function generarFacturaC(orderData, puntoVenta = null) {
       'MonCotiz': 1,
     };
 
-    console.log('📋 Datos enviados a AFIP:', JSON.stringify(data, null, 2));
+    // console.log('📋 Datos enviados a AFIP:', JSON.stringify(data, null, 2));
 
     // Generar la factura en AFIP
     const result = await afip.ElectronicBilling.createVoucher(data);
 
-    console.log('✅ Factura generada exitosamente');
-    console.log('📋 CAE:', result.CAE);
-    console.log('📋 Vencimiento CAE:', result.CAEFchVto);
-    console.log('📋 Número de factura:', nextVoucherNumber);
+    // console.log('✅ Factura generada exitosamente');
+    // console.log('📋 CAE:', result.CAE);
+    // console.log('📋 Vencimiento CAE:', result.CAEFchVto);
+    // console.log('📋 Número de factura:', nextVoucherNumber);
 
     return {
       numero: nextVoucherNumber,
@@ -192,7 +192,7 @@ export async function consultarContribuyente(cuit) {
 export async function verificarEstadoServicio() {
   try {
     const status = await afip.ElectronicBilling.getServerStatus();
-    console.log('🟢 Estado del servidor AFIP:', status);
+    // console.log('🟢 Estado del servidor AFIP:', status);
     return status;
   } catch (error) {
     console.error('❌ Error verificando estado de AFIP:', error);
@@ -209,19 +209,19 @@ export async function verificarEstadoServicio() {
  */
 export async function generarFacturaA(orderData, cuitCliente, puntoVenta = null) {
   try {
-    console.log('📄 Iniciando generación de factura A para orden:', orderData.code);
+    // console.log('📄 Iniciando generación de factura A para orden:', orderData.code);
 
     // Usar punto de venta configurado en .env o el especificado
     const ptoVta = puntoVenta || parseInt(process.env.AFIP_PUNTO_VENTA) || 4;
 
-    console.log(`🔄 Usando punto de venta ${ptoVta}...`);
+    // console.log(`🔄 Usando punto de venta ${ptoVta}...`);
 
     const lastVoucher = await afip.ElectronicBilling.getLastVoucher(ptoVta, 1); // 1 = Factura A
     const nextVoucherNumber = lastVoucher + 1;
 
-    console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
-    console.log('📝 Último comprobante:', lastVoucher);
-    console.log('📝 Próximo número:', nextVoucherNumber);
+    // console.log(`✅ Punto de venta ${ptoVta} está habilitado`);
+    // console.log('📝 Último comprobante:', lastVoucher);
+    // console.log('📝 Próximo número:', nextVoucherNumber);
 
     // Calcular IVA (21%)
     const neto = orderData.totals.total / 1.21;
@@ -256,8 +256,8 @@ export async function generarFacturaA(orderData, cuitCliente, puntoVenta = null)
 
     const result = await afip.ElectronicBilling.createVoucher(data);
 
-    console.log('✅ Factura A generada exitosamente');
-    console.log('📋 CAE:', result.CAE);
+    // console.log('✅ Factura A generada exitosamente');
+    // console.log('📋 CAE:', result.CAE);
 
     return {
       numero: nextVoucherNumber,
