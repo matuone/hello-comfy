@@ -1,11 +1,46 @@
 // HomeMobile.jsx
 // Versión mobile/tablet del Home
 
+import { useState, useEffect } from "react";
+import "../../styles/mobile/home.css";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export default function HomeMobile() {
+  const [homeTitle, setHomeTitle] = useState("Bienvenid@ a Hello-Comfy");
+  const [homeDescription, setHomeDescription] = useState("");
+
+  useEffect(() => {
+    loadHomeCopy();
+    const handleUpdate = () => loadHomeCopy();
+    window.addEventListener("homeCopyUpdated", handleUpdate);
+    return () => window.removeEventListener("homeCopyUpdated", handleUpdate);
+  }, []);
+
+  async function loadHomeCopy() {
+    try {
+      const response = await fetch(`${API_URL}/config/home-copy`);
+      const text = await response.text();
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch (jsonError) {
+        console.error('Respuesta no es JSON:', text);
+        return;
+      }
+      if (data) {
+        setHomeTitle(data.title || "Bienvenid@ a Hello-Comfy");
+        setHomeDescription(data.description || "");
+      }
+    } catch (error) {
+      console.error('Error cargando home copy:', error);
+    }
+  }
+
   return (
-    <div>
-      {/* Contenido específico para mobile/tablet */}
-      <h1>Bienvenido a la versión Mobile/Tablet</h1>
-    </div>
+    <section className="home-copy">
+      <h1>{homeTitle}</h1>
+      <p>{homeDescription}</p>
+    </section>
   );
 }
