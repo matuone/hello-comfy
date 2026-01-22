@@ -1,3 +1,34 @@
+/* ============================
+   BOTONES GO CUOTAS
+============================ */
+
+.checkout-btn-gocuotas {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #ffb6b3 0%, #ff7e7e 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(255, 182, 179, 0.10);
+}
+
+.checkout-btn-gocuotas:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(255, 182, 179, 0.25);
+  background: linear-gradient(135deg, #ffb6b3 10%, #ff5eae 100%);
+  filter: brightness(1.05);
+}
+
+.checkout-btn-gocuotas:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* src/styles/payment.css */
 
 /* ============================

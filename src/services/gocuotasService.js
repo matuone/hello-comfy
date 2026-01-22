@@ -1,7 +1,9 @@
 // frontend/services/gocuotasService.js
 // Servicio para integración con Go Cuotas
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+let API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// Eliminar cualquier /api o / al final para evitar dobles rutas
+API_URL = API_URL.replace(/\/+$/, "").replace(/\/api$/, "");
 
 /**
  * Crea un checkout en Go Cuotas

@@ -1,13 +1,26 @@
-// src/components/AccountPopup.jsx
+
+
+
 import "../styles/accountpopup.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ForgotPassword from "./ForgotPassword";
 import avatar from "../assets/avatar/avatar.png";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
-
 export default function AccountPopup(props) {
+  function togglePassword() {
+    setShowPassword((prev) => !prev);
+  }
+  function handleCloseClick() {
+    props.onClose();
+  }
+  function handlePopupClick(e) {
+    e.stopPropagation();
+  }
+  function handleOverlayClick() {
+    props.onClose();
+  }
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,21 +31,17 @@ export default function AccountPopup(props) {
   const { user, logout, isAdmin, loginAdmin, loginUser } = useAuth();
   const navigate = useNavigate();
 
-  function togglePassword() {
-    setShowPassword(!showPassword);
-  }
+  // Ocultar el widget de Instagram (Elfsight) cuando el modal está abierto
+  useEffect(() => {
+    const elfsightDiv = document.querySelector('.elfsight-app-fc1e95e6-751c-428f-9cd7-de55cba26d02');
+    if (showForgot && elfsightDiv) {
+      elfsightDiv.style.display = 'none';
+    } else if (elfsightDiv) {
+      elfsightDiv.style.display = '';
+    }
+  }, [showForgot]);
 
-  function handleOverlayClick() {
-    props.onClose();
-  }
 
-  function handlePopupClick(e) {
-    e.stopPropagation();
-  }
-
-  function handleCloseClick() {
-    props.onClose();
-  }
 
   async function handleLoginSubmit(e) {
     e.preventDefault();
@@ -47,9 +56,12 @@ export default function AccountPopup(props) {
 
     const isAdminEmail = email.endsWith("@hellocomfy.com");
 
-    const result = isAdminEmail
-      ? await loginAdmin(email, password)
-      : await loginUser(email, password);
+    let result;
+    if (isAdminEmail) {
+      result = await loginAdmin(email, password);
+    } else {
+      result = await loginUser(email, password);
+    }
 
     if (result.success) {
       setEmail("");
@@ -186,12 +198,14 @@ export default function AccountPopup(props) {
             </a>
 
             {showForgot && (
-              <div className="modal-overlay" onClick={() => setShowForgot(false)}>
-                <div className="modal-content" onClick={e => e.stopPropagation()}>
-                  <button className="modal-close" onClick={() => setShowForgot(false)}>&times;</button>
-                  <ForgotPassword onSent={() => setShowForgot(false)} />
+              <>
+                <div className="modal-overlay" onClick={() => setShowForgot(false)}>
+                  <div className="modal-content" onClick={e => e.stopPropagation()}>
+                    <button className="modal-close" onClick={() => setShowForgot(false)}>&times;</button>
+                    <ForgotPassword onSent={() => setShowForgot(false)} />
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </>
         )}

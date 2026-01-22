@@ -17,7 +17,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Calcular descuento por transferencia
-  const discount = formData.paymentMethod === "transfer" ? totalPrice * 0.1 : 0;
+  const discount = (formData.paymentMethod === "transfer" ? totalPrice * 0.1 : 0);
   const finalPrice = totalPrice - discount;
 
   // ⭐ Pagar con Modo

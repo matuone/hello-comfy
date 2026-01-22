@@ -22,7 +22,7 @@ export default function ForgotPassword({ onSent }) {
         if (data.error === "Email inválido") {
           setError("Ingresá un email válido.");
         } else if (data.error === "El email no está registrado") {
-          setError("El email no está registrado. Verificá que esté bien escrito o creá una cuenta nueva.");
+          setError("Si el email existe, se envió un correo de recuperación.");
         } else if (data.error === "No se pudo enviar el email") {
           setError("No se pudo enviar el email. Intentá de nuevo más tarde.");
         } else {

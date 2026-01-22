@@ -2,7 +2,7 @@ import { useState } from "react";
 import qrCuentaDNI from "../assets/qrcuentaDNI.jpeg";
 
 export default function Step3({ formData, updateField, next, back }) {
-  const isValid = formData.paymentMethod !== "";
+  const isValid = (formData.paymentMethod || "") !== "";
   const [expandTransfer, setExpandTransfer] = useState(false);
   const [expandCuentaDNI, setExpandCuentaDNI] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);

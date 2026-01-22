@@ -1,9 +1,9 @@
 export default function Step2({ formData, updateField, next, back }) {
   const isValid =
     formData.shippingMethod === "pickup" ||
-    (formData.address.trim().length > 3 &&
-      formData.postalCode.trim().length >= 4 &&
-      formData.province.trim().length > 2 &&
+    ((formData.address || "").trim().length > 3 &&
+      (formData.postalCode || "").trim().length >= 4 &&
+      (formData.province || "").trim().length > 2 &&
       (formData.localidad || "").trim().length > 2 &&
       formData.shippingMethod === "home");
 

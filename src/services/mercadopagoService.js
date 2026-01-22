@@ -1,6 +1,8 @@
 // src/services/mercadopagoService.js
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+let API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// Eliminar cualquier /api o / al final para evitar dobles rutas
+API_URL = API_URL.replace(/\/+$/, "").replace(/\/api$/, "");
 
 /**
  * Crea una preferencia de pago en Mercado Pago

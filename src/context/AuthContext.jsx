@@ -1,10 +1,108 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 
 export const AuthContext = createContext();
+
+function InactivityModal({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0,0,0,0.35)",
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background:
+            "linear-gradient(135deg, #ffb6b3 0%, #ff7e7e 100%)",
+          color: "#fff",
+          borderRadius: 16,
+          padding: "40px 32px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+          textAlign: "center",
+          maxWidth: 340,
+          fontFamily: "inherit",
+          position: "relative",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 style={{ marginBottom: 16, fontWeight: 700 }}>
+          ¡Sesión cerrada por inactividad!
+        </h2>
+        <p style={{ fontSize: "1.1rem", marginBottom: 24 }}>
+          Por tu seguridad, cerramos tu sesión luego de 20 minutos sin actividad.
+          <br />
+          <span
+            style={{
+              fontSize: "0.95rem",
+              opacity: 0.85,
+            }}
+          >
+            Podés volver a iniciar sesión cuando quieras 😊
+          </span>
+        </p>
+        <button
+          style={{
+            background: "#fff",
+            color: "#ff7e7e",
+            border: "none",
+            borderRadius: 8,
+            padding: "10px 24px",
+            fontWeight: 600,
+            fontSize: "1rem",
+            cursor: "pointer",
+            marginTop: 8,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+          }}
+          onClick={onClose}
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [showInactivityModal, setShowInactivityModal] = useState(false);
+  const logoutTimer = useRef(null);
+  const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 minutos en ms
+
+  // ============================
+  // AUTO-LOGOUT POR INACTIVIDAD
+  // ============================
+  useEffect(() => {
+    if (!user) return;
+
+    function resetTimer() {
+      if (logoutTimer.current) clearTimeout(logoutTimer.current);
+      logoutTimer.current = setTimeout(() => {
+        logout();
+        setShowInactivityModal(true);
+      }, INACTIVITY_LIMIT);
+    }
+
+    // Eventos de actividad
+    const events = ["mousemove", "keydown", "scroll", "click", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, resetTimer));
+    resetTimer();
+
+    return () => {
+      if (logoutTimer.current) clearTimeout(logoutTimer.current);
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+    };
+  }, [user]);
 
   // ============================
   // CARGAR SESIÓN DESDE LOCALSTORAGE
@@ -162,6 +260,10 @@ export function AuthProvider({ children }) {
       }}
     >
       {children}
+      <InactivityModal
+        open={showInactivityModal}
+        onClose={() => setShowInactivityModal(false)}
+      />
     </AuthContext.Provider>
   );
 }

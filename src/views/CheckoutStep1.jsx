@@ -6,10 +6,10 @@ export default function Step1({ formData, updateField, next }) {
   const isLoggedIn = !!user;
 
   const isValid =
-    formData.name.trim().length > 2 &&
+    (formData.name || "").trim().length > 2 &&
     (formData.dni || "").trim().length >= 7 &&
-    formData.email.trim().length > 5 &&
-    formData.phone.trim().length > 5;
+    (formData.email || "").trim().length > 5 &&
+    (formData.phone || "").trim().length > 5;
 
   return (
     <div className="checkout-step">
