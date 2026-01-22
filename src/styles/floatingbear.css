@@ -1,3 +1,9 @@
+@media (max-width: 899px) {
+  .floating-bear {
+    display: none !important;
+  }
+}
+
 .floating-bear {
   position: fixed;
   bottom: 40px;
