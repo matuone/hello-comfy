@@ -41,6 +41,7 @@ export default function HomeMobile() {
     <section className="home-copy">
       <h1>{homeTitle}</h1>
       <p>{homeDescription}</p>
+      <h2 className="bestsellers__title">Los más vendidos:</h2>
     </section>
   );
 }
