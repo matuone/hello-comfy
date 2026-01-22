@@ -1,0 +1,48 @@
+.promoBannerTablet {
+  width: 100vw;
+  max-width: 900px;
+  background: #ffe6f0;
+  padding: 18px 0 0 0;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  margin: 0 auto;
+}
+
+.promoBannerTablet__message {
+  font-size: 1.3rem;
+  color: #d72660;
+  font-weight: bold;
+  padding: 0 32px;
+  position: relative;
+  z-index: 2;
+}
+
+.promoBannerTablet__slider {
+  position: relative;
+  width: 100vw;
+  max-width: 900px;
+  height: 220px;
+  overflow: hidden;
+  margin: 0 auto 8px auto;
+  border-radius: 0 0 16px 16px;
+}
+
+.promoBannerTablet__slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  max-width: 900px;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.6s cubic-bezier(.4,0,.2,1), transform 0.6s cubic-bezier(.4,0,.2,1);
+  border-radius: 0 0 16px 16px;
+  pointer-events: none;
+}
+
+@media (max-width: 767px), (min-width: 1025px) {
+  .promoBannerTablet {
+    display: none;
+  }
+}

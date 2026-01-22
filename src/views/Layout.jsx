@@ -9,6 +9,8 @@ import NavbarMobile from "../components/mobile/NavbarMobile";
 import useResponsive from "../hooks/useResponsive";
 import Footer from "../components/Footer";
 import PromoBanner from "../components/PromoBanner";
+import PromoBannerMobile from "../components/mobile/PromoBannerMobile";
+import PromoBannerTablet from "../components/mobile/PromoBannerTablet"; // ← IMPORTADO
 import FloatingBear from "../components/FloatingBear"; // ← AGREGADO
 import Maintenance from "./Maintenance";
 import "../styles/layout.css";
@@ -63,8 +65,10 @@ export default function Layout() {
         style={{}}
       >
         {showPromoBanner && (
-          showMobileNav ? (
+          isMobile ? (
             <PromoBannerMobile />
+          ) : isTablet ? (
+            <PromoBannerTablet />
           ) : (
             <PromoBanner
               fullBleed
@@ -74,7 +78,6 @@ export default function Layout() {
             />
           )
         )}
-import PromoBannerMobile from "../components/mobile/PromoBannerMobile";
 
         {/* ← EL OSITO VA ACÁ */}
         {!esAdmin && <FloatingBear />}
