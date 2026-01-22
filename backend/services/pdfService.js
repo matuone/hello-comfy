@@ -9,10 +9,8 @@ function resolveLogoPath() {
     const __dirname = path.dirname(__filename);
 
     const candidates = [
-      path.resolve(__dirname, '../assets/logo.png'),
-      path.resolve(__dirname, '../assets/logo.jpg'),
-      path.resolve(process.cwd(), 'backend', 'assets', 'logo.png'),
-      path.resolve(process.cwd(), 'backend', 'assets', 'logo.jpg'),
+      path.resolve(__dirname, '../assets/logofactura.png'),
+      path.resolve(process.cwd(), 'backend', 'assets', 'logofactura.png'),
     ];
 
     for (const p of candidates) {
@@ -49,7 +47,7 @@ export async function generarFacturaPDF(order) {
       const logoPath = resolveLogoPath();
       if (logoPath) {
         try {
-          doc.image(logoPath, 50, 12, { fit: [40, 46] });
+          doc.image(logoPath, 50, 12, { fit: [60, 60] });
         } catch (err) {
           console.warn('No se pudo cargar logo:', err.message);
           doc.fillColor('white').font('Helvetica-Bold').fontSize(20).text('Hello Comfy', 50, 25);
@@ -118,16 +116,20 @@ export async function generarFacturaPDF(order) {
       const totalsY = rowY + 12;
       const totalsW = 220;
       const totalsX = infoX + infoW - totalsW;
-      const totalsH = 110;
+      const totalsH = 120;
       doc.save();
       doc.roundedRect(totalsX, totalsY, totalsW, totalsH, 10).fill(light);
       doc.roundedRect(totalsX, totalsY, totalsW, totalsH, 10).stroke(accent);
       doc.font('Helvetica').fillColor(dark).fontSize(11);
       const t = order.totals || {};
-      doc.text(`Subtotal: ${formatCurrency(t.subtotal)}`, totalsX + 12, totalsY + 12, { align: 'left' });
-      doc.text(`Envío: ${formatCurrency(t.shipping)}`, totalsX + 12, totalsY + 30);
-      doc.text(`Descuento: ${formatCurrency(t.discount)}`, totalsX + 12, totalsY + 48);
-      doc.font('Helvetica-Bold').fillColor(dark).text(`Total: ${formatCurrency(t.total)}`, totalsX + 12, totalsY + 70);
+      let lineY = totalsY + 12;
+      doc.text(`Subtotal: ${formatCurrency(t.subtotal)}`, totalsX + 12, lineY, { align: 'left' });
+      lineY += 20;
+      doc.text(`Envío: ${formatCurrency(t.shipping)}`, totalsX + 12, lineY);
+      lineY += 20;
+      doc.text(`Descuento: ${formatCurrency(t.discount)}`, totalsX + 12, lineY);
+      lineY += 20;
+      doc.font('Helvetica-Bold').fillColor(dark).text(`Total: ${formatCurrency(t.total)}`, totalsX + 12, lineY);
       doc.restore();
 
       // Nota al pie

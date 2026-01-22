@@ -22,6 +22,12 @@ export default function AdminSaleDetail() {
   const moreRef = useRef(null);
 
   const token = localStorage.getItem("adminToken");
+  // Verificar token y redirigir si falta
+  useEffect(() => {
+    if (!token) {
+      window.location.href = "/admin/login";
+    }
+  }, [token]);
 
   // ============================
   // CARGAR VENTA DESDE BACKEND
@@ -275,12 +281,12 @@ export default function AdminSaleDetail() {
         <div className="detalle-box">
           <h3 className="detalle-title">Productos</h3>
 
-          {venta.items.map((item, i) => (
+          {(venta.items && Array.isArray(venta.items)) ? venta.items.map((item, i) => (
             <div key={i} className="detalle-info-line">
               <strong>{item.name}</strong> — {item.quantity} unid. — $
-              {item.price.toLocaleString("es-AR")}
+              {item.price?.toLocaleString("es-AR")}
             </div>
-          ))}
+          )) : <p className="detalle-info-line">No hay productos en la venta.</p>}
 
           <p className="detalle-info-line">
             <strong>Total pagado:</strong> ${venta.totals.total.toLocaleString("es-AR")}
