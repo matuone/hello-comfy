@@ -647,25 +647,28 @@
    RESPONSIVE
 ============================ */
   @media (max-width: 900px) {
-      .pd-info {
-        padding: 0 18px 18px 18px !important;
-        box-sizing: border-box;
-      }
-      .pd-actions {
-        flex-direction: row !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 12px !important;
-        margin-top: 18px !important;
-      }
-      .pd-btn-buy, .pd-btn-cart {
-        min-width: 0;
-        width: 48%;
-        max-width: 200px;
-        margin: 0;
-        padding: 12px 0;
-        font-size: 1rem;
-      }
+    .pd-info {
+      padding: 0 18px 18px 18px !important;
+      box-sizing: border-box;
+    }
+
+    .pd-actions {
+      flex-direction: row !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 12px !important;
+      margin-top: 18px !important;
+    }
+
+    .pd-btn-buy,
+    .pd-btn-cart {
+      min-width: 0;
+      width: 48%;
+      max-width: 200px;
+      margin: 0;
+      padding: 12px 0;
+      font-size: 1rem;
+    }
 
     body,
     main,
