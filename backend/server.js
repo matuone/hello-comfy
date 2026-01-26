@@ -100,7 +100,9 @@ const limiter = rateLimit({
   max: 100, // Limite de requests por IP
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Demasiadas solicitudes desde esta IP, intenta más tarde."
+  handler: (req, res) => {
+    res.status(429).json({ error: "Demasiadas solicitudes desde esta IP, intenta más tarde." });
+  }
 });
 app.use(limiter);
 

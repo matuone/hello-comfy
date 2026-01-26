@@ -19,6 +19,7 @@ import { toast } from "react-hot-toast";
 
 import "../styles/productdetail.css";
 import "../styles/newin.css";
+import ProductDetailMobile from "./mobile/ProductDetailMobile";
 
 // ⭐ NUEVO
 import { useShippingCalculator } from "../hooks/useShippingCalculator";
@@ -102,8 +103,37 @@ export default function ProductDetail() {
     fetchSimilares();
   }, [producto]);
 
+
+  // Detectar mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 900);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (loading) return <p className="loading">Cargando producto...</p>;
   if (!producto) return <p className="error">Producto no encontrado.</p>;
+
+  if (isMobile) {
+    // Acciones dummy para mobile (puedes conectar lógica real si lo deseas)
+    const handleAddToCart = (size, qty) => {
+      // Aquí podrías usar addToCart(producto, { size, quantity: qty })
+      alert(`Agregado al carrito: ${producto.name} - Talle: ${size} - Cantidad: ${qty}`);
+    };
+    const handleBuyNow = (size, qty) => {
+      // Aquí podrías usar addToCart y navigate
+      alert(`Comprar ahora: ${producto.name} - Talle: ${size} - Cantidad: ${qty}`);
+    };
+    return (
+      <ProductDetailMobile
+        product={producto}
+        similares={similares}
+        onAddToCart={handleAddToCart}
+        onBuyNow={handleBuyNow}
+      />
+    );
+  }
 
   const hasDiscount = producto.discount > 0;
 

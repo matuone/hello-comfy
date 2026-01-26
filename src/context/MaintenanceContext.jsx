@@ -19,8 +19,14 @@ export function MaintenanceProvider({ children }) {
   const fetchMaintenanceStatus = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/config/maintenance");
-      const data = await response.json();
-      setIsMaintenanceMode(data.maintenanceMode);
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        setIsMaintenanceMode(data.maintenanceMode);
+      } else {
+        const text = await response.text();
+        console.error("Respuesta no es JSON:", text);
+      }
     } catch (error) {
       console.error("Error al obtener estado de mantenimiento:", error);
     } finally {
