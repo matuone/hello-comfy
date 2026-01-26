@@ -19,7 +19,7 @@ import { toast } from "react-hot-toast";
 
 import "../styles/productdetail.css";
 import "../styles/newin.css";
-import ProductDetailMobile from "./mobile/ProductDetailMobile";
+// Eliminado: ProductDetailMobile
 
 // ⭐ NUEVO
 import { useShippingCalculator } from "../hooks/useShippingCalculator";
@@ -115,25 +115,7 @@ export default function ProductDetail() {
   if (loading) return <p className="loading">Cargando producto...</p>;
   if (!producto) return <p className="error">Producto no encontrado.</p>;
 
-  if (isMobile) {
-    // Acciones dummy para mobile (puedes conectar lógica real si lo deseas)
-    const handleAddToCart = (size, qty) => {
-      // Aquí podrías usar addToCart(producto, { size, quantity: qty })
-      alert(`Agregado al carrito: ${producto.name} - Talle: ${size} - Cantidad: ${qty}`);
-    };
-    const handleBuyNow = (size, qty) => {
-      // Aquí podrías usar addToCart y navigate
-      alert(`Comprar ahora: ${producto.name} - Talle: ${size} - Cantidad: ${qty}`);
-    };
-    return (
-      <ProductDetailMobile
-        product={producto}
-        similares={similares}
-        onAddToCart={handleAddToCart}
-        onBuyNow={handleBuyNow}
-      />
-    );
-  }
+  // Ya no se usa ProductDetailMobile. El layout se adapta con CSS y condicionales.
 
   const hasDiscount = producto.discount > 0;
 
