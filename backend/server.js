@@ -94,17 +94,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// Rate limiting global: 100 requests cada 15 minutos por IP
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Limite de requests por IP
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req, res) => {
-    res.status(429).json({ error: "Demasiadas solicitudes desde esta IP, intenta más tarde." });
-  }
-});
-app.use(limiter);
+// Rate limiting desactivado
 
 // Helmet para headers de seguridad con políticas reforzadas
 app.use(

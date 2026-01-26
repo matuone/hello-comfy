@@ -3,15 +3,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 import { loginUser, registerUser } from "../controllers/authController.js";
-import rateLimit from "express-rate-limit";
-// Rate limiting estricto para login y register
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Solo 5 intentos por IP
-  message: "Demasiados intentos, intenta más tarde.",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Rate limiting desactivado para login y register
 import { forgotPassword } from "../controllers/forgotPasswordController.js";
 import { resetPassword } from "../controllers/resetPasswordController.js";
 
@@ -21,7 +13,7 @@ const router = express.Router();
 // POST /api/auth/register
 router.post(
   "/register",
-  authLimiter,
+  // authLimiter,
   [
     body("name").trim().notEmpty().withMessage("El nombre es obligatorio").escape(),
     body("email").isEmail().withMessage("Email inválido").normalizeEmail(),
@@ -66,7 +58,7 @@ router.post(
 // POST /api/auth/login
 router.post(
   "/login",
-  authLimiter,
+  // authLimiter,
   [
     body("email").isEmail().withMessage("Email inválido").normalizeEmail(),
     body("password").isLength({ min: 6 }).withMessage("La contraseña debe tener al menos 6 caracteres"),
