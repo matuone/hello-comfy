@@ -12,6 +12,7 @@ import {
   PointElement,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 
 import { Line, Pie, Bar } from "react-chartjs-2";
@@ -25,7 +26,8 @@ ChartJS.register(
   LinearScale,
   PointElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 export default function AdminStats() {
