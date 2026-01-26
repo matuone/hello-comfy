@@ -228,73 +228,72 @@ export default function ProductDetail() {
 
   return (
     <div className="pd-container">
-      <h1 className="pd-title pd-title-centered">{producto.name}</h1>
-
       <div className="pd-main">
         {/* IMÁGENES */}
         <div className="pd-images">
-          <div className="pd-main-img-wrapper">
-            <img
-              src={selectedImage}
-              alt={producto.name}
-              className="pd-main-img"
-              onClick={() => setIsImageModalOpen(true)}
-              style={{ cursor: "pointer" }}
-            />
-
-            <button
-              className="pd-wishlist-floating"
-              onClick={() => {
-                toggleWishlist(producto);
-
-                if (isInWishlist(producto._id)) {
-                  toast("Quitado de favoritos", { icon: "💔" });
-                } else {
-                  toast("Agregado a favoritos", { icon: "❤️" });
-                }
-              }}
+          {isMobile ? (
+            <Swiper
+              modules={[Pagination]}
+              pagination={{ clickable: true }}
+              slidesPerView={1}
+              spaceBetween={0}
+              style={{ width: "100vw", height: "70vh" }}
             >
-              {isInWishlist(producto._id) ? (
-                <svg
-                  width="26"
-                  height="26"
-                  viewBox="0 0 24 24"
-                  fill="#d94f7a"
-                  stroke="#d94f7a"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
-                </svg>
-              ) : (
-                <svg
-                  width="26"
-                  height="26"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#d94f7a"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
-                </svg>
-              )}
-            </button>
-          </div>
-
-          <div className="pd-thumbs">
-            {producto.images?.map((img, i) => (
+              {producto.images?.map((img, i) => (
+                <SwiperSlide key={i}>
+                  <div style={{ width: "100vw", height: "70vh", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", margin: 0, padding: 0 }}>
+                    <img
+                      src={img}
+                      alt={producto.name}
+                      className="pd-main-img"
+                      style={{ width: "100vw", height: "70vh", objectFit: "cover", borderRadius: 0, margin: 0, padding: 0 }}
+                      onClick={() => setIsImageModalOpen(true)}
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div className="pd-main-img-wrapper">
               <img
-                key={i}
-                src={img}
-                alt=""
-                className={`pd-thumb ${selectedImage === img ? "active" : ""}`}
-                onClick={() => setSelectedImage(img)}
+                src={selectedImage}
+                alt={producto.name}
+                className="pd-main-img"
+                onClick={() => setIsImageModalOpen(true)}
+                style={{ cursor: "pointer" }}
               />
-            ))}
-          </div>
+              <button
+                className="pd-wishlist-floating"
+                onClick={() => {
+                  toggleWishlist(producto);
+                  if (isInWishlist(producto._id)) {
+                    toast("Quitado de favoritos", { icon: "💔" });
+                  } else {
+                    toast("Agregado a favoritos", { icon: "❤️" });
+                  }
+                }}
+              >
+                {isInWishlist(producto._id) ? (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="#d94f7a" stroke="#d94f7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
+                  </svg>
+                ) : (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d94f7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          )}
+          {/* TÍTULO debajo de la imagen */}
+          {/* Hint visual para swipear imágenes en mobile */}
+          {isMobile && producto.images?.length > 1 && (
+            <div style={{ textAlign: "center", marginTop: "8px", marginBottom: "4px", fontSize: "15px", color: "#d94f7a", opacity: 0.8, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+              <span className="hand-icon" style={{ fontSize: "22px", animation: "handMove 1.4s infinite ease-in-out" }}>🤚</span>
+              <span>Deslizá para ver más fotos</span>
+            </div>
+          )}
+          <h1 className="pd-title pd-title-centered">{producto.name}</h1>
         </div>
 
         {/* INFO */}
