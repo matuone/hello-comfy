@@ -63,8 +63,18 @@
 
 /* Ajustes para el layout unificado de tarjetas dentro del carrusel */
 .newin .productcard__item {
-  min-width: 260px;
+  min-width: 220px;
   height: 100%;
+  margin-right: 0;
+}
+
+@media (max-width: 600px) {
+  .newin .productcard__item {
+    min-width: 180px;
+    max-width: 90vw;
+    margin-right: 0;
+  }
+}
 }
 
 .newin .productcard__image {
