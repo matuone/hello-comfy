@@ -310,6 +310,7 @@ export default function ProductDetail() {
               )}
 
               <p className="pd-price">${formatPrice(discountedPrice)}</p>
+              <span className="pd-stars">★★★★★</span>
             </div>
 
             {selectedSize &&
@@ -536,8 +537,8 @@ export default function ProductDetail() {
           </div>
           {/* OPINIONES */}
           <div className="pd-opinions">
-            <h3>Opiniones</h3>
-            <div className="pd-stars-row">
+            <h3 className="pd-opiniones-title">Opiniones</h3>
+            <div className="pd-stars-row pd-opinions-hide-mobile">
               <span className="pd-stars">★★★★★</span>
               <span className="pd-opinions-count">
                 (Próximamente opiniones reales)
