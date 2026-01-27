@@ -493,9 +493,9 @@ export default function AdminMarketing() {
   }
 
   return (
-    <div className="admin-section">
-      <h2 className="admin-section-title">Marketing</h2>
-      <p className="admin-section-text">
+    <div className="admin-marketing-container">
+      <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 10 }}>Marketing</h2>
+      <p style={{ color: '#555', marginBottom: 25 }}>
         Personalizá los mensajes promocionales de la tienda.
       </p>
 

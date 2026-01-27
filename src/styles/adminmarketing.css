@@ -1,6 +1,13 @@
 /* ============================
    CONTENEDOR PRINCIPAL
 ============================ */
+.admin-marketing-container {
+  max-width: 900px;
+  margin-left: 0;
+  margin-right: auto;
+  padding-top: 30px;
+}
+
 .marketing-box {
   background: #fff;
   border: 1px solid #eee;
@@ -8,6 +15,8 @@
   border-radius: 12px;
   margin-bottom: 30px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ============================
