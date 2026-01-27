@@ -3,10 +3,12 @@ import "../styles/opinionspopup.css";
 import { useEffect, useState } from "react";
 
 export default function OpinionsPopup({ productId, onClose }) {
+  console.log("OpinionsPopup productId:", productId);
   const [opinions, setOpinions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!productId) return;
     async function fetchOpinions() {
       setLoading(true);
       try {
@@ -19,6 +21,15 @@ export default function OpinionsPopup({ productId, onClose }) {
       setLoading(false);
     }
     fetchOpinions();
+
+    // Escuchar evento global para recargar opiniones
+    function handleReload(e) {
+      if (e.detail?.productId === productId) {
+        fetchOpinions();
+      }
+    }
+    window.addEventListener("reloadProductOpinions", handleReload);
+    return () => window.removeEventListener("reloadProductOpinions", handleReload);
   }, [productId]);
 
   return (

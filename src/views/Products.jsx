@@ -27,6 +27,7 @@ export default function Products() {
 
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showOpinions, setShowOpinions] = useState(false);
+  const [opinionsProductId, setOpinionsProductId] = useState(null);
 
   const filtersRef = useRef(null);
 
@@ -464,6 +465,7 @@ export default function Products() {
                 className="productcard__stars"
                 onClick={(e) => {
                   e.stopPropagation();
+                  setOpinionsProductId(p._id);
                   setShowOpinions(true);
                 }}
               >
@@ -525,7 +527,9 @@ export default function Products() {
         </div>
       )}
 
-      {showOpinions && <OpinionsPopup onClose={() => setShowOpinions(false)} />}
+      {showOpinions && opinionsProductId && (
+        <OpinionsPopup productId={opinionsProductId} onClose={() => { setShowOpinions(false); setOpinionsProductId(null); }} />
+      )}
     </div>
   );
 }
