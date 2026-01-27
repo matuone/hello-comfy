@@ -313,6 +313,7 @@
   }
 
   .products__filters-horizontal {
+    margin-top: 64px; /* Ajuste fino: apenas debajo del navbar en mobile */
     padding: 8px 0;
     font-size: 0.95rem;
   }
