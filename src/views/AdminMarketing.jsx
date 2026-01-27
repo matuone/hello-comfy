@@ -423,6 +423,75 @@ export default function AdminMarketing() {
     }
   }, [isDragging]);
 
+  // AnnouncementBar messages (lista editable)
+  const [announcementMessages, setAnnouncementMessages] = useState([]);
+  const [newAnnouncementMessage, setNewAnnouncementMessage] = useState("");
+
+  useEffect(() => {
+    async function fetchAnnouncementMessages() {
+      try {
+        const res = await fetch(`${API_URL}/site-config/announcement-bar-messages`);
+        const data = await res.json();
+        // Si no hay mensajes en la base, usar los hardcodeados por defecto
+        if (Array.isArray(data.messages) && data.messages.length > 0) {
+          setAnnouncementMessages(data.messages);
+        } else {
+          setAnnouncementMessages([
+            "Envío gratis en compras +$190.000 🚀",
+            "10% OFF X TRANSFERENCIA 💸",
+            "3 cuotas sin interés 🐻",
+            "Envío gratis en compras +$190.000 💸"
+          ]);
+        }
+      } catch (err) {
+        setAnnouncementMessages([
+          "Envío gratis en compras +$190.000 🚀",
+          "10% OFF X TRANSFERENCIA 💸",
+          "3 cuotas sin interés 🐻",
+          "Envío gratis en compras +$190.000 💸"
+        ]);
+      }
+    }
+    fetchAnnouncementMessages();
+  }, []);
+
+  function handleAddAnnouncementMessage() {
+    if (newAnnouncementMessage.trim()) {
+      setAnnouncementMessages([...announcementMessages, newAnnouncementMessage]);
+      setNewAnnouncementMessage("");
+    }
+  }
+  function handleRemoveAnnouncementMessage(idx) {
+    setAnnouncementMessages(announcementMessages.filter((_, i) => i !== idx));
+  }
+  function handleEditAnnouncementMessage(idx, value) {
+    setAnnouncementMessages(announcementMessages.map((msg, i) => i === idx ? value : msg));
+  }
+
+  async function saveAnnouncementMessages() {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      await fetch(`${API_URL}/site-config/announcement-bar-messages`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ messages: announcementMessages })
+      });
+      setNotification({ mensaje: "Mensajes del AnnouncementBar guardados", tipo: "success" });
+      // Refrescar mensajes después de guardar
+      const res = await fetch(`${API_URL}/site-config/announcement-bar-messages`);
+      const data = await res.json();
+      setAnnouncementMessages(data.messages || []);
+    } catch (err) {
+      setNotification({ mensaje: "Error al guardar los mensajes", tipo: "error" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">Marketing</h2>
@@ -818,6 +887,43 @@ export default function AdminMarketing() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Mensajes AnnouncementBar (escritorio y mobile) */}
+      <div className="marketing-box" style={{ marginTop: '30px' }}>
+        <h3 style={{ marginBottom: '15px', color: '#333' }}>Mensajes AnnouncementBar (escritorio y mobile)</h3>
+        <p style={{ fontSize: '13px', color: '#666', marginBottom: '10px' }}>
+          Agregá, editá o eliminá los mensajes que se mostrarán en el AnnouncementBar. Podés usar emojis y separar con "•".
+        </p>
+        {announcementMessages.length === 0 && (
+          <div style={{ color: '#999', fontStyle: 'italic', marginBottom: '10px' }}>
+            No hay mensajes guardados. Agregá uno nuevo.
+          </div>
+        )}
+        {announcementMessages.map((msg, idx) => (
+          <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            <input
+              type="text"
+              value={msg}
+              onChange={e => handleEditAnnouncementMessage(idx, e.target.value)}
+              style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
+            />
+            <button onClick={() => handleRemoveAnnouncementMessage(idx)} style={{ background: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', padding: '0 12px', cursor: 'pointer' }}>🗑️</button>
+          </div>
+        ))}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          <input
+            type="text"
+            value={newAnnouncementMessage}
+            onChange={e => setNewAnnouncementMessage(e.target.value)}
+            placeholder="Nuevo mensaje..."
+            style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
+          />
+          <button onClick={handleAddAnnouncementMessage} style={{ background: '#d94f7a', color: 'white', border: 'none', borderRadius: '6px', padding: '0 12px', cursor: 'pointer' }}>➕</button>
+        </div>
+        <button className="btn-guardar" onClick={saveAnnouncementMessages} disabled={loading}>
+          {loading ? 'Guardando...' : 'Guardar mensajes AnnouncementBar'}
+        </button>
       </div>
 
       {/* Modales */}

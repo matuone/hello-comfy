@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/announcementbar.css";
 
@@ -13,11 +13,27 @@ const rotate = (arr, k) => arr.slice(k).concat(arr.slice(0, k));
 const SEP = " \u00A0\u00A0•\u00A0\u00A0 ";
 
 export default function AnnouncementBar({
-  messages = DEFAULT_MESSAGES,
   brand = "Hello Comfy",
   showBear = true,
   speed = 35,
 }) {
+  const [announcementMessages, setAnnouncementMessages] = useState(DEFAULT_MESSAGES);
+
+  useEffect(() => {
+    async function fetchMessages() {
+      try {
+        const res = await fetch("/api/site-config/announcement-bar-messages");
+        const data = await res.json();
+        if (Array.isArray(data.messages) && data.messages.length > 0) {
+          setAnnouncementMessages(data.messages);
+        }
+      } catch (err) {
+        setAnnouncementMessages(DEFAULT_MESSAGES);
+      }
+    }
+    fetchMessages();
+  }, []);
+
   const tickerRef = useRef(null);
   const seqRef = useRef(null);
   const rootRef = useRef(null);
@@ -66,7 +82,7 @@ export default function AnnouncementBar({
   // ============================
   useLayoutEffect(() => {
     const fit = () => {
-      const base = messages.filter(Boolean);
+      const base = announcementMessages.filter(Boolean);
       if (base.length === 0) return;
 
       const tickerW = tickerRef.current?.offsetWidth ?? 0;
@@ -100,7 +116,7 @@ export default function AnnouncementBar({
 
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [JSON.stringify(messages)]);
+  }, [JSON.stringify(announcementMessages)]);
 
   // ============================
   // FIX DEFINITIVO: actualizar --ab-height SIEMPRE
@@ -126,7 +142,7 @@ export default function AnnouncementBar({
     };
   }, []);
 
-  const safeBlock = buildSafeSequence(messages, repeat);
+  const safeBlock = buildSafeSequence(announcementMessages, repeat);
 
   return (
     <div

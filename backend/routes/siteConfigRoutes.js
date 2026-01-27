@@ -95,4 +95,41 @@ router.put("/home-copy", verifyAdmin, async (req, res) => {
   }
 });
 
+// Nueva ruta para AnnouncementBar messages
+router.get("/announcement-bar-messages", async (req, res) => {
+  try {
+    let config = await SiteConfig.findOne({ key: "announcementBarMessages" });
+    if (!config) {
+      config = await SiteConfig.create({
+        key: "announcementBarMessages",
+        value: [
+          "¡Envío gratis en compras +$190.000! 🤑",
+          "10% OFF X TRANSFERENCIA 💳",
+          "3x2 en remeras sólo hoy 🧸"
+        ]
+      });
+    }
+    res.json({ messages: config.value });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener mensajes AnnouncementBar" });
+  }
+});
+
+router.put("/announcement-bar-messages", verifyAdmin, async (req, res) => {
+  try {
+    const { messages } = req.body;
+    let config = await SiteConfig.findOne({ key: "announcementBarMessages" });
+    if (!config) {
+      config = await SiteConfig.create({ key: "announcementBarMessages", value: messages });
+    } else {
+      config.value = messages;
+      config.updatedAt = Date.now();
+      await config.save();
+    }
+    res.json({ messages: config.value });
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar mensajes AnnouncementBar" });
+  }
+});
+
 export default router;
