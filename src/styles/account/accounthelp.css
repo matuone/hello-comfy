@@ -6,23 +6,28 @@
     max-width: 100vw;
     padding: 0 4px;
   }
+
   .help-title {
     font-size: 1.1rem;
   }
+
   .help-subtitle {
     font-size: 0.95rem;
   }
+
   .help-input,
   .help-textarea {
     font-size: 15px;
     padding: 10px;
   }
+
   .help-button {
     width: 100%;
     font-size: 1rem;
     padding: 10px 0;
   }
 }
+
 .help-title {
   margin-bottom: 8px;
 }

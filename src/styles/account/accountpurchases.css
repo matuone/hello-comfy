@@ -6,28 +6,35 @@
     padding: 8px;
     border-radius: 8px;
   }
+
   .order-header {
     gap: 0.5rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
   }
+
   .order-info h3 {
     font-size: 1rem;
   }
+
   .order-items h4,
   .order-shipping h4 {
     font-size: 0.8rem;
   }
+
   .summary-row {
     font-size: 0.8rem;
   }
+
   .summary-row.total {
     font-size: 0.95rem;
   }
+
   .summary-row.total span:last-child {
     font-size: 1rem;
   }
 }
+
 /* ============================
    ACCOUNT PURCHASES STYLES
    ============================ */

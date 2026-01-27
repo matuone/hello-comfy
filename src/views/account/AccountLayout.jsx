@@ -78,7 +78,7 @@ export default function AccountLayout() {
       {/* SIDEBAR */}
       <aside className="account-sidebar">
 
-        <div style={{ textAlign: "center" }}>
+        <div>
           <div className="account-avatar-wrapper">
             <div className="account-avatar">
               {user?.avatar ? (
@@ -110,13 +110,8 @@ export default function AccountLayout() {
             />
           </div>
 
-          <div style={{ fontWeight: "700", fontSize: "1.1rem" }}>
-            {user?.name || "Usuario"}
-          </div>
-
-          <div style={{ fontSize: "0.9rem", color: "#777" }}>
-            {user?.email}
-          </div>
+          <div className="account-sidebar-name">{user?.name || "Usuario"}</div>
+          <div className="account-sidebar-email">{user?.email}</div>
         </div>
 
         <nav className="account-nav">

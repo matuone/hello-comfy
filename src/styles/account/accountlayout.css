@@ -1,3 +1,181 @@
+/* Centrado nombre/email debajo del avatar en ESCRITORIO */
+.account-sidebar-name,
+.account-sidebar-email {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  display: block;
+}
+
+@media (max-width: 600px) {
+
+  .account-sidebar-name,
+  .account-sidebar-email {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .account-sidebar-name,
+  .account-sidebar-email {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .account-sidebar>div>div[style*="font-weight: 700"],
+  .account-sidebar>div>div[style*="color: #777"] {
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100%;
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-sidebar>div {
+    padding: 0 18px;
+  }
+
+  .account-sidebar>div .account-avatar-wrapper {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+  }
+
+  .account-sidebar>div>div[style*="font-weight: 700"] {
+    text-align: left !important;
+    margin-left: 0 !important;
+  }
+
+  .account-sidebar>div>div[style*="color: #777"] {
+    text-align: left !important;
+    margin-left: 0 !important;
+  }
+
+  .account-nav {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  .account-nav a {
+    padding: 10px 0 10px 0;
+    font-size: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    text-align: left;
+  }
+
+  .account-logout {
+    display: block;
+    margin: 18px 0 0 0;
+    min-width: 120px;
+    max-width: 100%;
+    text-align: left;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 12px 0 12px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-sidebar {
+    max-width: 340px;
+    margin: 0 auto 18px auto;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 18px 0 18px 0;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .account-sidebar>div {
+    padding: 0 18px;
+    text-align: left !important;
+  }
+
+  .account-avatar-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+  }
+
+  .account-avatar {
+    width: 100%;
+    height: 100%;
+    border-width: 2px;
+  }
+
+  .account-nav {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  .account-nav a {
+    padding: 10px 0 10px 0;
+    font-size: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    text-align: left;
+  }
+
+  .account-sidebar>div>div[style*="font-weight: 700"] {
+    font-size: 1.08rem;
+    margin-bottom: 2px;
+    margin-top: 0;
+    text-align: left;
+  }
+
+  .account-sidebar>div>div[style*="color: #777"] {
+    font-size: 0.93rem;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+
+  .account-logout {
+    display: block;
+    margin: 18px 0 0 0;
+    min-width: 120px;
+    max-width: 100%;
+    text-align: left;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 12px 0 12px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-avatar-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+
+  .account-sidebar>div {
+    text-align: left !important;
+  }
+}
+
 /* =========================
    MOBILE/TABLET RESPONSIVE
    ========================= */
@@ -6,6 +184,7 @@
     flex-direction: column;
     padding: 0;
   }
+
   .account-sidebar {
     width: 100%;
     min-height: auto;
@@ -16,27 +195,33 @@
     gap: 12px;
     box-shadow: none;
   }
+
   .account-avatar-wrapper {
     width: 70px;
     height: 70px;
     margin-bottom: 8px;
   }
+
   .account-avatar {
     border-width: 2px;
   }
+
   .account-nav a {
     padding: 8px 10px;
     font-size: 15px;
     margin-bottom: 8px;
   }
+
   .account-content {
     padding: 12px 4px;
   }
+
   .account-logout {
     padding: 8px 10px;
     font-size: 15px;
   }
 }
+
 /* CONTENEDOR GENERAL */
 .account-container {
   display: flex;
