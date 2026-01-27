@@ -182,8 +182,11 @@
       .navbar-mobile__search-results {
         position: absolute;
         top: 110%;
-        left: 0;
-        right: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50vw;
+        min-width: 180px;
+        max-width: 320px;
         background: #fff;
         border: 1px solid #eee;
         border-radius: 10px;
@@ -197,10 +200,13 @@
         display: flex;
         align-items: center;
         gap: 0.7rem;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 1.2rem;
         cursor: pointer;
         border-bottom: 1px solid #f3f3f3;
         transition: background 0.15s;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
       }
 
       .navbar-mobile__search-item:last-child {
@@ -223,6 +229,8 @@
       .navbar-mobile__search-info {
         flex: 1;
         min-width: 0;
+        max-width: 100%;
+        overflow: visible;
       }
 
       .navbar-mobile__search-name {
@@ -230,9 +238,9 @@
         font-weight: 500;
         margin: 0;
         color: #222;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
 
       .navbar-mobile__search-price {
