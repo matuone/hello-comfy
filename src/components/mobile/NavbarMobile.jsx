@@ -11,6 +11,9 @@ import "../../styles/mobile/navbar.css";
 
 
 export default function NavbarMobile() {
+  // Para doble click en Productos
+  const [productsClickCount, setProductsClickCount] = useState(0);
+  const productsClickTimeout = useRef(null);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { items } = useCart();
@@ -77,6 +80,13 @@ export default function NavbarMobile() {
     setShowResults(false);
     setSearchQuery("");
   }
+
+  // Limpiar timeout al desmontar
+  useEffect(() => {
+    return () => {
+      if (productsClickTimeout.current) clearTimeout(productsClickTimeout.current);
+    };
+  }, []);
 
   return (
     <nav className="navbar-mobile" role="navigation" aria-label="Principal">
@@ -152,7 +162,22 @@ export default function NavbarMobile() {
               <li>
                 <button
                   className="navbar-mobile__products-btn"
-                  onClick={() => setMenuOpen(menuOpen === "productos" ? true : "productos")}
+                  onClick={() => {
+                    if (menuOpen === "productos") {
+                      // Segundo click: navegar y cerrar menú
+                      setMenuOpen(false);
+                      setProductsClickCount(0);
+                      navigate("/products");
+                      return;
+                    }
+                    // Primer click: mostrar submenú
+                    setMenuOpen("productos");
+                    setProductsClickCount(1);
+                    if (productsClickTimeout.current) clearTimeout(productsClickTimeout.current);
+                    productsClickTimeout.current = setTimeout(() => {
+                      setProductsClickCount(0);
+                    }, 700);
+                  }}
                 >
                   Productos
                 </button>
