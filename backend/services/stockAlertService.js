@@ -56,28 +56,24 @@ async function sendStockAlertEmail(lista) {
     <h2 style="color: #a259e6; text-align: center; margin-bottom: 8px;">🚨 Alerta de bajo stock</h2>
     <p style="text-align: center; color: #333; margin-bottom: 24px;">Estos son los productos, colores y talles con stock crítico (4 o menos unidades).<br>Por favor, revisá y reponé lo antes posible.</p>`;
 
-  // Agrupar por producto y color
+  // Agrupar solo por color
   const agrupado = {};
   for (const item of lista) {
-    if (!agrupado[item.producto]) agrupado[item.producto] = {};
-    if (!agrupado[item.producto][item.color]) agrupado[item.producto][item.color] = [];
-    agrupado[item.producto][item.color].push(item);
+    if (!agrupado[item.color]) agrupado[item.color] = [];
+    agrupado[item.color].push(item);
   }
 
-  for (const producto in agrupado) {
+  for (const color in agrupado) {
     html += `<div style="margin-bottom: 18px; padding: 16px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #eee;">
-      <h3 style="color: #764ba2; margin: 0 0 8px 0;">${producto}</h3>`;
-    for (const color in agrupado[producto]) {
-      html += `<div style="margin-bottom: 8px;"><b style="color:#a259e6">Color:</b> ${color}<ul style="margin: 4px 0 0 16px; padding: 0;">`;
-      for (const item of agrupado[producto][color]) {
-        html += `<li style="margin-bottom: 2px; color: #333;">
-          <span style="display:inline-block; min-width:60px;"><b>Talle:</b> ${item.talle}</span>
-          <span style="display:inline-block; min-width:60px; color:${item.stock <= 2 ? '#e74c3c' : '#f39c12'}"><b>Stock:</b> ${item.stock}</span>
-        </li>`;
-      }
-      html += `</ul></div>`;
+      <h3 style="color: #764ba2; margin: 0 0 8px 0;">${color}</h3>`;
+    html += `<ul style="margin: 4px 0 0 16px; padding: 0;">`;
+    for (const item of agrupado[color]) {
+      html += `<li style="margin-bottom: 2px; color: #333;">
+        <span style="display:inline-block; min-width:60px;"><b>Talle:</b> ${item.talle}</span>
+        <span style="display:inline-block; min-width:60px; color:${item.stock <= 2 ? '#e74c3c' : '#f39c12'}"><b>Stock:</b> ${item.stock}</span>
+      </li>`;
     }
-    html += `</div>`;
+    html += `</ul></div>`;
   }
 
   html += `<p style="text-align:center; color:#888; font-size:13px; margin-top:32px;">Este aviso se envía automáticamente una vez al día.<br>Equipo HelloComfy</p></div>`;
