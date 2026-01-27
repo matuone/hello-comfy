@@ -11,6 +11,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useRef } from "react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -26,6 +27,7 @@ import { useShippingCalculator } from "../hooks/useShippingCalculator";
 import ShippingOptions from "../components/ShippingOptions";
 
 export default function ProductDetail() {
+  const swiperRef = useRef(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -255,13 +257,25 @@ export default function ProductDetail() {
             </Swiper>
           ) : (
             <div className="pd-main-img-wrapper">
-              <img
-                src={selectedImage}
-                alt={producto.name}
-                className="pd-main-img"
-                onClick={() => setIsImageModalOpen(true)}
-                style={{ cursor: "pointer" }}
-              />
+              <Swiper
+                slidesPerView={1}
+                navigation
+                pagination={{ clickable: true }}
+                style={{ width: 480, height: 480 }}
+                onSwiper={swiper => { swiperRef.current = swiper; }}
+              >
+                {producto.images?.map((img, i) => (
+                  <SwiperSlide key={i}>
+                    <img
+                      src={img}
+                      alt={producto.name}
+                      className="pd-main-img"
+                      onClick={() => setIsImageModalOpen(true)}
+                      style={{ cursor: "pointer", borderRadius: 18 }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
               <button
                 className="pd-wishlist-floating"
                 onClick={() => {
@@ -283,6 +297,18 @@ export default function ProductDetail() {
                   </svg>
                 )}
               </button>
+              {/* Miniaturas debajo de la imagen grande */}
+              <div className="pd-thumbs">
+                {producto.images?.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt={producto.name}
+                    className={`pd-thumb${swiperRef.current && swiperRef.current.activeIndex === i ? " active" : ""}`}
+                    onClick={() => swiperRef.current && swiperRef.current.slideTo(i)}
+                  />
+                ))}
+              </div>
             </div>
           )}
           {/* TÍTULO debajo de la imagen */}
@@ -293,11 +319,14 @@ export default function ProductDetail() {
               <span>Deslizá para ver más fotos</span>
             </div>
           )}
-          <h1 className="pd-title pd-title-centered">{producto.name}</h1>
+          {/* TÍTULO SOLO EN MOBILE */}
+          {isMobile && <h1 className="pd-title pd-title-centered">{producto.name}</h1>}
         </div>
 
         {/* INFO */}
         <div className="pd-info">
+          {/* TÍTULO SOLO EN DESKTOP */}
+          {!isMobile && <h1 className="pd-title pd-title-centered">{producto.name}</h1>}
           {/* PRECIO */}
           <div className="pd-price-block">
             {hasDiscount && (
@@ -310,7 +339,7 @@ export default function ProductDetail() {
               )}
 
               <p className="pd-price">${formatPrice(discountedPrice)}</p>
-              <span className="pd-stars">★★★★★</span>
+              {isMobile && <span className="pd-stars">★★★★★</span>}
             </div>
 
             {selectedSize &&
