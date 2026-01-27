@@ -1,8 +1,30 @@
 import express from "express";
 import SiteConfig from "../models/SiteConfig.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
+import stockAlertService from '../services/stockAlertService.js';
 
 const router = express.Router();
+
+// Endpoint temporal para forzar el envío del email de bajo stock SOLO para admins
+router.post("/force-stock-alert", verifyAdmin, async (req, res) => {
+  try {
+    // Forzar ejecución del envío (ignora la fecha)
+    const lista = await stockAlertService.getLowStockList();
+    if (!lista.length) return res.status(400).json({ ok: false, message: "No hay productos con bajo stock" });
+    await stockAlertService.sendStockAlertEmail(lista);
+    // Actualizar la fecha de último envío
+    let config = await SiteConfig.findOne({ key: "lastStockAlert" });
+    if (!config) {
+      config = new SiteConfig({ key: "lastStockAlert", value: new Date().toISOString() });
+    } else {
+      config.value = new Date().toISOString();
+    }
+    await config.save();
+    res.json({ ok: true, message: "Email de bajo stock enviado" });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
 // Obtener el estado de mantenimiento (público)
 router.get("/maintenance", async (req, res) => {

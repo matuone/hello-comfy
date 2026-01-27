@@ -32,6 +32,7 @@ import modoRoutes from "./routes/modoRoutes.js"; // ⭐ NUEVO
 import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
 import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CORREO ARG API
 import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
+import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
