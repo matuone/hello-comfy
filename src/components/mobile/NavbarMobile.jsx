@@ -21,6 +21,7 @@ export default function NavbarMobile() {
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
   const menuRef = useRef(null);
+  const menuBtnRef = useRef(null);
 
   useEffect(() => {
     if (searchQuery.trim().length < 2) {
@@ -49,7 +50,12 @@ export default function NavbarMobile() {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
         setShowResults(false);
       }
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+      // Si el click fue en el botón de menú, no cerrar
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target) &&
+        (!menuBtnRef.current || !menuBtnRef.current.contains(e.target))
+      ) {
         setMenuOpen(false);
       }
     }
@@ -112,7 +118,15 @@ export default function NavbarMobile() {
               </div>
             )}
           </form>
-          <button className="navbar-mobile__menu-btn" onClick={() => setMenuOpen((v) => !v)} aria-label="Abrir menú">
+          <button
+            ref={menuBtnRef}
+            className="navbar-mobile__menu-btn"
+            onClick={() => {
+              setMenuOpen((v) => (v ? false : true));
+            }}
+            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={!!menuOpen}
+          >
             <span className="navbar-mobile__menu-icon">☰</span>
           </button>
           <Link to="/mi-cuenta" className="navbar-mobile__icon-btn" aria-label="Mi cuenta">
@@ -136,9 +150,14 @@ export default function NavbarMobile() {
                 </Link>
               </li>
               <li>
-                <button className="navbar-mobile__products-btn" onClick={() => setMenuOpen("productos")}>Productos</button>
+                <button
+                  className="navbar-mobile__products-btn"
+                  onClick={() => setMenuOpen(menuOpen === "productos" ? true : "productos")}
+                >
+                  Productos
+                </button>
                 {menuOpen === "productos" && (
-                  <CategoriesMenuMobile onClose={() => setMenuOpen(false)} />
+                  <CategoriesMenuMobile onClose={() => setMenuOpen(true)} />
                 )}
               </li>
               <li>
