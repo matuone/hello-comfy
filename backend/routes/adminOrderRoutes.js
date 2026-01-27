@@ -1,8 +1,35 @@
+
 import express from "express";
 const router = express.Router();
 
 import Order from "../models/Order.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
+
+/* ============================================================
+   ⭐ Editar comentario del cliente
+   PATCH /api/admin/orders/:id/comentario
+============================================================ */
+router.patch("/admin/orders/:id/comentario", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { comentario } = req.body;
+  if (typeof comentario !== "string") {
+    return res.status(400).json({ error: "comentario requerido" });
+  }
+  try {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+    order.comentarios = comentario;
+    order.timeline.push({
+      status: `Comentario del cliente editado`,
+      date: new Date().toLocaleString("es-AR"),
+    });
+    await order.save();
+    res.json({ message: "Comentario actualizado", order });
+  } catch (err) {
+    console.error("Error actualizando comentario:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
 
 /* ============================================================
    ⭐ Lista todas las ventas

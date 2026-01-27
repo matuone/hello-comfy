@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import FacturaModal from "../components/FacturaModal";
+import NotificationModal from "../components/NotificationModal";
 import "../styles/adminsaledetail.css";
 import "../styles/admin/facturamodal.css";
 
@@ -214,6 +215,37 @@ export default function AdminSaleDetail() {
     setIsAppsOpen(false);
   }
 
+  // ============================
+  // ESTADO Y LÓGICA DE EDICIÓN DE COMENTARIO
+  // ============================
+  const [isEditingComentario, setIsEditingComentario] = useState(false);
+  const [comentarioEditado, setComentarioEditado] = useState("");
+  const [guardandoComentario, setGuardandoComentario] = useState(false);
+
+  async function guardarComentario() {
+    setGuardandoComentario(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/orders/${id}/comentario`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ comentario: comentarioEditado }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al guardar comentario');
+      setVenta(data.order);
+      setIsEditingComentario(false);
+    } catch (err) {
+      setModalError(err.message || 'Error al guardar comentario');
+    } finally {
+      setGuardandoComentario(false);
+    }
+  }
+
+  const [modalError, setModalError] = useState(null);
+
   if (loading) {
     return (
       <div className="admin-section">
@@ -387,13 +419,38 @@ export default function AdminSaleDetail() {
       ============================ */}
       <div className="detalle-box">
         <h3 className="detalle-title">Comentarios del cliente</h3>
-
-        {venta.comentarios ? (
-          <p className="detalle-comentarios">{venta.comentarios}</p>
+        {isEditingComentario ? (
+          <>
+            <textarea
+              className="detalle-comentarios-edit"
+              value={comentarioEditado}
+              onChange={e => setComentarioEditado(e.target.value)}
+              rows={3}
+              style={{ width: '100%', marginBottom: 8 }}
+            />
+            <button className="factura-btn confirm" style={{ marginRight: 8 }} onClick={guardarComentario} disabled={guardandoComentario}>
+              {guardandoComentario ? 'Guardando...' : 'Guardar'}
+            </button>
+            <button className="factura-btn cancel" onClick={() => setIsEditingComentario(false)} disabled={guardandoComentario}>
+              Cancelar
+            </button>
+          </>
         ) : (
-          <p className="detalle-comentarios detalle-comentarios-vacio">
-            Sin comentarios
-          </p>
+          <>
+            {venta.comentarios ? (
+              <p className="detalle-comentarios">{venta.comentarios}</p>
+            ) : (
+              <p className="detalle-comentarios detalle-comentarios-vacio">
+                Sin comentarios
+              </p>
+            )}
+            <button className="factura-btn" style={{ marginTop: 8 }} onClick={() => {
+              setComentarioEditado(venta.comentarios || '');
+              setIsEditingComentario(true);
+            }}>
+              Editar comentario
+            </button>
+          </>
         )}
       </div>
 
@@ -536,6 +593,14 @@ export default function AdminSaleDetail() {
             </button>
           </div>
         </div>
+      )}
+
+      {modalError && (
+        <NotificationModal
+          mensaje={modalError}
+          tipo="error"
+          onClose={() => setModalError(null)}
+        />
       )}
     </div>
   );
