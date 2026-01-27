@@ -1,4 +1,32 @@
 /* ============================
+   RESPONSIVE: SCROLL LATERAL EN MOBILE PARA TABLA DE STOCK
+============================ */
+@media (max-width: 900px) {
+  .excel-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .excel-table {
+    min-width: 700px;
+  }
+}
+
+/* ============================
+   RESPONSIVE: SCROLL LATERAL EN MOBILE PARA TABLA DE STOCK
+============================ */
+@media (max-width: 900px) {
+  .excel-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 700px;
+  }
+}
+
+/* ============================
    CONTENEDOR PRINCIPAL
 ============================ */
 .admin-stock-excel {

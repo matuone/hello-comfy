@@ -279,93 +279,95 @@ export default function AdminStock() {
         + Agregar color
       </button>
 
-      <table className="excel-table">
-        <thead>
-          <tr>
-            <th>Color</th>
-            <th>Hex</th>
-            <th>Pausado</th>
-            {ORDEN_TALLES.map((t) => (
-              <th key={t}>{t}</th>
-            ))}
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {rows.map((row, index) => (
-            <tr
-              key={row.data._id}
-              className={
-                row.saving
-                  ? "saving-row"
-                  : row.saved
-                    ? "saved-row"
-                    : row.dirty
-                      ? "dirty-row"
-                      : ""
-              }
-            >
-              <td>
-                <input
-                  value={row.data.color}
-                  onChange={(e) => editar(index, "color", e.target.value)}
-                />
-              </td>
-
-              <td>
-                <input
-                  type="color"
-                  value={row.data.colorHex}
-                  onChange={(e) => editar(index, "colorHex", e.target.value)}
-                />
-              </td>
-
-              {/* TOGGLE PAUSAR */}
-              <td>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={!row.data.paused}
-                    onChange={() => togglePause(index)}
-                  />
-                  <span className="slider"></span>
-                </label>
-              </td>
-
+      <div className="excel-table-container">
+        <table className="excel-table">
+          <thead>
+            <tr>
+              <th>Color</th>
+              <th>Hex</th>
+              <th>Pausado</th>
               {ORDEN_TALLES.map((t) => (
-                <td key={t}>
+                <th key={t}>{t}</th>
+              ))}
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {rows.map((row, index) => (
+              <tr
+                key={row.data._id}
+                className={
+                  row.saving
+                    ? "saving-row"
+                    : row.saved
+                      ? "saved-row"
+                      : row.dirty
+                        ? "dirty-row"
+                        : ""
+                }
+              >
+                <td>
                   <input
-                    type="number"
-                    value={row.data.talles[t]}
-                    onChange={(e) => editarTalle(index, t, e.target.value)}
+                    value={row.data.color}
+                    onChange={(e) => editar(index, "color", e.target.value)}
                   />
                 </td>
-              ))}
 
-              <td className="acciones">
-                <button
-                  className="btn-guardar"
-                  disabled={!row.dirty || row.saving}
-                  onClick={() => guardarFila(index)}
-                >
-                  {row.saving ? "Guardando..." : "Guardar"}
-                </button>
+                <td>
+                  <input
+                    type="color"
+                    value={row.data.colorHex}
+                    onChange={(e) => editar(index, "colorHex", e.target.value)}
+                  />
+                </td>
 
-                <button
-                  className="btn-eliminar"
-                  onClick={() => eliminarFila(index)}
-                >
-                  ✕
-                </button>
+                {/* TOGGLE PAUSAR */}
+                <td>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={!row.data.paused}
+                      onChange={() => togglePause(index)}
+                    />
+                    <span className="slider"></span>
+                  </label>
+                </td>
 
-                {row.saved && <span className="ok-msg">✔ Guardado</span>}
-                {row.error && <span className="error-msg">✖ Error</span>}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                {ORDEN_TALLES.map((t) => (
+                  <td key={t}>
+                    <input
+                      type="number"
+                      value={row.data.talles[t]}
+                      onChange={(e) => editarTalle(index, t, e.target.value)}
+                    />
+                  </td>
+                ))}
+
+                <td className="acciones">
+                  <button
+                    className="btn-guardar"
+                    disabled={!row.dirty || row.saving}
+                    onClick={() => guardarFila(index)}
+                  >
+                    {row.saving ? "Guardando..." : "Guardar"}
+                  </button>
+
+                  <button
+                    className="btn-eliminar"
+                    onClick={() => eliminarFila(index)}
+                  >
+                    ✕
+                  </button>
+
+                  {row.saved && <span className="ok-msg">✔ Guardado</span>}
+                  {row.error && <span className="error-msg">✖ Error</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
