@@ -1,3 +1,11 @@
+
+import express from 'express';
+import Opinion from '../models/Opinion.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import mongoose from 'mongoose';
+
+const router = express.Router();
+
 // Opiniones propias del usuario autenticado
 router.get('/user/me', authMiddleware, async (req, res) => {
   try {
@@ -12,12 +20,6 @@ router.get('/user/me', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Error al obtener tus opiniones' });
   }
 });
-import express from 'express';
-import Opinion from '../models/Opinion.js';
-import authMiddleware from '../middleware/authMiddleware.js';
-import mongoose from 'mongoose';
-
-const router = express.Router();
 
 // Crear opinión
 router.post('/', authMiddleware, async (req, res) => {
