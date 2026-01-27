@@ -8,15 +8,19 @@ const router = express.Router();
 router.get("/maintenance", async (req, res) => {
   try {
     let config = await SiteConfig.findOne({ key: "maintenanceMode" });
-
     if (!config) {
-      config = await SiteConfig.create({
-        key: "maintenanceMode",
-        value: false,
-      });
+      // Si la colección no existe o está vacía, crear el valor por defecto
+      try {
+        config = await SiteConfig.create({
+          key: "maintenanceMode",
+          value: false,
+        });
+      } catch (err) {
+        // Si hay un error de índice duplicado, buscar de nuevo
+        config = await SiteConfig.findOne({ key: "maintenanceMode" });
+      }
     }
-
-    res.json({ maintenanceMode: config.value });
+    res.json({ maintenanceMode: config?.value ?? false });
   } catch (error) {
     console.error("Error al obtener configuración:", error);
     res.status(500).json({ error: "Error al obtener configuración" });

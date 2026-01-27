@@ -6,6 +6,19 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
+// Eliminar una opinión (solo admin)
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    if (!req.user?.isAdmin) return res.status(403).json({ error: 'Solo admin' });
+    const { id } = req.params;
+    const deleted = await Opinion.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ error: 'Opinión no encontrada' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al eliminar opinión' });
+  }
+});
+
 // Obtener todas las opiniones (solo admin)
 router.get('/', authMiddleware, async (req, res) => {
   try {

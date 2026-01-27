@@ -22,7 +22,7 @@ export default function AnnouncementBar({
   useEffect(() => {
     async function fetchMessages() {
       try {
-        const res = await fetch("/api/site-config/announcement-bar-messages");
+        const res = await fetch("/api/config/announcement-bar-messages");
         const data = await res.json();
         if (Array.isArray(data.messages) && data.messages.length > 0) {
           setAnnouncementMessages(data.messages);

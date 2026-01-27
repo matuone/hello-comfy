@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ComfyModal from "../components/ComfyModal";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -7,6 +8,7 @@ export default function AdminOpinions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState("");
+  const [modal, setModal] = useState({ open: false, id: null });
 
   useEffect(() => {
     fetchOpinions();
@@ -29,9 +31,14 @@ export default function AdminOpinions() {
     setLoading(false);
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm("¿Eliminar esta opinión?")) return;
+  function handleDelete(id) {
+    setModal({ open: true, id });
+  }
+
+  async function confirmDelete() {
+    const id = modal.id;
     setDeleting(id);
+    setModal({ open: false, id: null });
     try {
       const token = localStorage.getItem("adminToken");
       await fetch(`${API_URL}/opinions/${id}`, {
@@ -46,6 +53,15 @@ export default function AdminOpinions() {
 
   return (
     <div className="admin-opinions-container">
+      <ComfyModal
+        open={modal.open}
+        title="Eliminar opinión"
+        message="¿Estás seguro de que deseas eliminar esta opinión?"
+        onConfirm={confirmDelete}
+        onCancel={() => setModal({ open: false, id: null })}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
       <h2>Opiniones de productos</h2>
       {loading ? (
         <p>Cargando opiniones...</p>

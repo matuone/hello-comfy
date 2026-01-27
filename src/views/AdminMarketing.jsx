@@ -430,7 +430,7 @@ export default function AdminMarketing() {
   useEffect(() => {
     async function fetchAnnouncementMessages() {
       try {
-        const res = await fetch(`${API_URL}/site-config/announcement-bar-messages`);
+        const res = await fetch(`${API_URL}/config/announcement-bar-messages`);
         const data = await res.json();
         // Si no hay mensajes en la base, usar los hardcodeados por defecto
         if (Array.isArray(data.messages) && data.messages.length > 0) {
@@ -472,7 +472,7 @@ export default function AdminMarketing() {
     setLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      await fetch(`${API_URL}/site-config/announcement-bar-messages`, {
+      await fetch(`${API_URL}/config/announcement-bar-messages`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -482,7 +482,7 @@ export default function AdminMarketing() {
       });
       setNotification({ mensaje: "Mensajes del AnnouncementBar guardados", tipo: "success" });
       // Refrescar mensajes después de guardar
-      const res = await fetch(`${API_URL}/site-config/announcement-bar-messages`);
+      const res = await fetch(`${API_URL}/config/announcement-bar-messages`);
       const data = await res.json();
       setAnnouncementMessages(data.messages || []);
     } catch (err) {
