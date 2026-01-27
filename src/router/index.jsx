@@ -55,6 +55,7 @@ import AdminCustomers from "../views/AdminCustomers";
 import AdminCustomerDetail from "../views/AdminCustomerDetail";
 import AdminCustomerEdit from "../views/AdminCustomerEdit";
 import AdminStats from "../views/AdminStats";
+import AdminOpinions from "../views/AdminOpinions";
 import AdminMarketing from "../views/AdminMarketing";
 import AdminSubcategories from "../views/AdminSubcategories";
 
@@ -153,6 +154,7 @@ export default function AppRouter() {
         <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
         <Route path="/admin/subcategories" element={<AdminSubcategories />} />
         <Route path="/admin/sizetables" element={<AdminSizeTables />} />
+        <Route path="/admin/opinions" element={<AdminOpinions />} />
       </Route>
 
       {/* Área de cliente */}

@@ -1,3 +1,7 @@
+{/* ============================
+      OPINIONES
+    ============================ */}
+
 // src/components/AdminSidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -102,6 +106,17 @@ export default function AdminSidebar() {
           </NavLink>
         </li>
 
+        <li>
+          <NavLink
+            to="/admin/opinions"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+          >
+            Opiniones
+          </NavLink>
+        </li>
         {/* ============================
             ESTADÍSTICAS
         ============================ */}

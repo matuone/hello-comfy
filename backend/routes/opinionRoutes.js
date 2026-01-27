@@ -6,6 +6,20 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
+// Obtener todas las opiniones (solo admin)
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    if (!req.user?.isAdmin) return res.status(403).json({ error: 'Solo admin' });
+    const opinions = await Opinion.find({})
+      .populate('user', 'name')
+      .populate('product', 'name')
+      .sort({ createdAt: -1 });
+    res.json({ opinions });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener opiniones' });
+  }
+});
+
 // Opiniones propias del usuario autenticado
 router.get('/user/me', authMiddleware, async (req, res) => {
   try {
