@@ -3,7 +3,7 @@ import cron from "node-cron";
 import Product from "../models/Product.js";
 import StockColor from "../models/StockColor.js";
 import SiteConfig from "../models/SiteConfig.js";
-import emailService from "./emailService.js";
+import sendEmail from "./emailService.js";
 
 const ALERT_EMAIL = "hellocomfyind@gmail.com";
 const ALERT_CRON = "0 * * * *"; // Cada 1 hora
@@ -26,26 +26,19 @@ function isToday(dateStr) {
 
 // Arma la lista de talles/colores con bajo stock
 async function getLowStockList() {
-  const productos = await Product.find({});
+  const productos = await Product.find({}).populate('stockColorId');
   const lowStock = [];
   for (const prod of productos) {
-    for (const color of prod.colors || []) {
-      // Buscar nombre real del color si existe color._id o color.stockColorId
-      let colorNombre = color.name;
-      if (color.stockColorId || color._id) {
-        const colorId = color.stockColorId || color._id;
-        try {
-          const stockColor = await StockColor.findById(colorId);
-          if (stockColor && stockColor.color) colorNombre = stockColor.color;
-        } catch { }
-      }
-      for (const talle of color.sizes || []) {
-        if (typeof talle.stock === "number" && talle.stock <= 4) {
+    const stockColor = prod.stockColorId;
+    if (stockColor && stockColor.talles) {
+      const colorNombre = stockColor.color;
+      for (const [talle, stock] of Object.entries(stockColor.talles)) {
+        if (typeof stock === "number" && stock <= 4) {
           lowStock.push({
             producto: prod.name,
             color: colorNombre,
-            talle: talle.name,
-            stock: talle.stock,
+            talle,
+            stock,
           });
         }
       }
@@ -89,7 +82,7 @@ async function sendStockAlertEmail(lista) {
 
   html += `<p style="text-align:center; color:#888; font-size:13px; margin-top:32px;">Este aviso se envía automáticamente una vez al día.<br>Equipo HelloComfy</p></div>`;
 
-  await emailService.sendMail({
+  await sendEmail({
     to: ALERT_EMAIL,
     subject: "🚨 Bajo stock en color y talle - HelloComfy",
     html,
@@ -112,4 +105,4 @@ cron.schedule(ALERT_CRON, async () => {
   }
 });
 
-export default {};
+export { getLowStockList, sendStockAlertEmail };

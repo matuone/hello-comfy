@@ -1,7 +1,7 @@
 import express from "express";
 import SiteConfig from "../models/SiteConfig.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
-import stockAlertService from '../services/stockAlertService.js';
+import { getLowStockList, sendStockAlertEmail } from '../services/stockAlertService.js';
 
 const router = express.Router();
 
@@ -9,9 +9,9 @@ const router = express.Router();
 router.post("/force-stock-alert", verifyAdmin, async (req, res) => {
   try {
     // Forzar ejecución del envío (ignora la fecha)
-    const lista = await stockAlertService.getLowStockList();
+    const lista = await getLowStockList();
     if (!lista.length) return res.status(400).json({ ok: false, message: "No hay productos con bajo stock" });
-    await stockAlertService.sendStockAlertEmail(lista);
+    await sendStockAlertEmail(lista);
     // Actualizar la fecha de último envío
     let config = await SiteConfig.findOne({ key: "lastStockAlert" });
     if (!config) {

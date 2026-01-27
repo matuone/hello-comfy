@@ -1,11 +1,11 @@
 meta {
-  name: Puntos de venta 2
+  name: Stock Aviso email
   type: http
   seq: 8
 }
 
-get {
-  url: http://localhost:5000/api/afip/puntos-venta
+post {
+  url: http://localhost:5000/api/config/force-stock-alert
   body: none
   auth: inherit
 }
