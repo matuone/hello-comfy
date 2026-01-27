@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import OpinionsPopup from "../components/OpinionsPopup";
 
 import BabyTeesTable from "../components/sizeTables/BabyTeesTable";
 import CropTopsTable from "../components/sizeTables/CropTopsTable";
@@ -34,6 +35,7 @@ export default function ProductDetail() {
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [producto, setProducto] = useState(null);
+  const [showOpinionsPopup, setShowOpinionsPopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -570,12 +572,15 @@ export default function ProductDetail() {
           {/* OPINIONES */}
           <div className="pd-opinions">
             <h3 className="pd-opiniones-title">Opiniones</h3>
-            <div className="pd-stars-row pd-opinions-hide-mobile">
-              <span className="pd-stars">★★★★★</span>
-              <span className="pd-opinions-count">
-                (Próximamente opiniones reales)
-              </span>
+            <div className="pd-stars-row pd-opinions-hide-mobile" style={{ alignItems: 'center', gap: 10 }}>
+              <span className="productcard__stars" style={{ cursor: 'pointer' }} onClick={() => setShowOpinionsPopup(true)}>★★★★★</span>
             </div>
+            <button className="pd-opinions-btn" style={{ marginTop: 8, background: 'none', border: 'none', color: '#d94f7a', cursor: 'pointer', fontWeight: 600, paddingLeft: 0 }} onClick={() => setShowOpinionsPopup(true)}>
+              Ver opiniones
+            </button>
+            {showOpinionsPopup && (
+              <OpinionsPopup productId={producto._id} onClose={() => setShowOpinionsPopup(false)} />
+            )}
           </div>
         </div>
       </div>
