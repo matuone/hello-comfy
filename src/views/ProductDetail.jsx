@@ -257,46 +257,49 @@ export default function ProductDetail() {
             </Swiper>
           ) : (
             <div className="pd-main-img-wrapper">
-              <Swiper
-                slidesPerView={1}
-                navigation
-                pagination={{ clickable: true }}
-                style={{ width: 480, height: 480 }}
-                onSwiper={swiper => { swiperRef.current = swiper; }}
-              >
-                {producto.images?.map((img, i) => (
-                  <SwiperSlide key={i}>
-                    <img
-                      src={img}
-                      alt={producto.name}
-                      className="pd-main-img"
-                      onClick={() => setIsImageModalOpen(true)}
-                      style={{ cursor: "pointer", borderRadius: 18 }}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <button
-                className="pd-wishlist-floating"
-                onClick={() => {
-                  toggleWishlist(producto);
-                  if (isInWishlist(producto._id)) {
-                    toast("Quitado de favoritos", { icon: "💔" });
-                  } else {
-                    toast("Agregado a favoritos", { icon: "❤️" });
-                  }
-                }}
-              >
-                {isInWishlist(producto._id) ? (
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="#d94f7a" stroke="#d94f7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
-                  </svg>
-                ) : (
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d94f7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
-                  </svg>
-                )}
-              </button>
+              <div style={{ position: 'relative', width: 480, height: 480 }}>
+                <Swiper
+                  slidesPerView={1}
+                  navigation
+                  pagination={{ clickable: true }}
+                  style={{ width: 480, height: 480 }}
+                  onSwiper={swiper => { swiperRef.current = swiper; }}
+                >
+                  {producto.images?.map((img, i) => (
+                    <SwiperSlide key={i}>
+                      <img
+                        src={img}
+                        alt={producto.name}
+                        className="pd-main-img"
+                        onClick={() => setIsImageModalOpen(true)}
+                        style={{ cursor: "pointer", borderRadius: 18 }}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+                <button
+                  className="pd-wishlist-floating"
+                  style={{ top: 16, right: 16, zIndex: 10 }}
+                  onClick={() => {
+                    toggleWishlist(producto);
+                    if (isInWishlist(producto._id)) {
+                      toast("Quitado de favoritos", { icon: "💔" });
+                    } else {
+                      toast("Agregado a favoritos", { icon: "❤️" });
+                    }
+                  }}
+                >
+                  {isInWishlist(producto._id) ? (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#d94f7a" stroke="#d94f7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
+                    </svg>
+                  ) : (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d94f7a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 21s-6.5-4.35-9.33-7.92C-1.1 9.4 1.4 4 6 4c2.1 0 3.57 1.1 4.5 2.09C11.43 5.1 12.9 4 15 4c4.6 0 7.1 5.4 3.33 9.08C18.5 16.65 12 21 12 21z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {/* Miniaturas debajo de la imagen grande */}
               <div className="pd-thumbs">
                 {producto.images?.map((img, i) => (
