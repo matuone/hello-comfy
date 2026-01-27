@@ -71,10 +71,18 @@ export default function AdminCustomerDetail() {
         <Link to="/admin/customers" className="btn-volver">
           ← Volver
         </Link>
-
-        <Link to={`/admin/customers/${id}/edit`} className="btn-editar">
-          Editar cliente
-        </Link>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            className="btn-contact eliminar"
+            onClick={() => setShowDeleteModal(true)}
+            disabled={deleting}
+          >
+            🗑️ Eliminar cliente
+          </button>
+          <Link to={`/admin/customers/${id}/edit`} className="btn-editar">
+            Editar cliente
+          </Link>
+        </div>
       </div>
 
       {/* DATOS PERSONALES */}
@@ -158,13 +166,6 @@ export default function AdminCustomerDetail() {
           >
             💬 WhatsApp
           </a>
-          <button
-            className="btn-contact eliminar"
-            onClick={() => setShowDeleteModal(true)}
-            disabled={deleting}
-          >
-            🗑️ Eliminar cliente
-          </button>
         </div>
       </div>
 
