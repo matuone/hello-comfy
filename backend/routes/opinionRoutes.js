@@ -62,17 +62,17 @@ router.post('/', authMiddleware, async (req, res) => {
 router.get('/product/:productId', async (req, res) => {
   try {
     let { productId } = req.params;
-    console.log("[Opinions] GET /product/:productId =>", productId);
+    // console.log removido por seguridad
     // Permitir tanto string como ObjectId
     let queryId = productId;
     if (mongoose.Types.ObjectId.isValid(productId)) {
       queryId = new mongoose.Types.ObjectId(productId);
     }
-    console.log("[Opinions] Querying for product:", queryId);
+    // console.log removido por seguridad
     const opinions = await Opinion.find({ product: queryId })
       .populate('user', 'name')
       .sort({ createdAt: -1 });
-    console.log("[Opinions] Result count:", opinions.length);
+    // console.log removido por seguridad
     res.json({ opinions });
   } catch (err) {
     console.error("[Opinions] Error al obtener opiniones:", err);
