@@ -19,7 +19,7 @@ export default function AdminLayout() {
       <button
         className="admin-hamburger-btn"
         aria-label="Abrir menú"
-        onClick={() => setSidebarOpen(true)}
+        onClick={() => setSidebarOpen((open) => !open)}
       >
         <span />
         <span />
