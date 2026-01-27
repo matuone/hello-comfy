@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useState as useReactState } from "react";
+import "../../styles/account/accountopinions.css";
 
 export default function AccountOpinions() {
   const { user, token } = useAuth();

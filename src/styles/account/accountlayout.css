@@ -1,3 +1,42 @@
+/* =========================
+   MOBILE/TABLET RESPONSIVE
+   ========================= */
+@media (max-width: 600px) {
+  .account-container {
+    flex-direction: column;
+    padding: 0;
+  }
+  .account-sidebar {
+    width: 100%;
+    min-height: auto;
+    padding: 12px 8px;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    gap: 12px;
+    box-shadow: none;
+  }
+  .account-avatar-wrapper {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 8px;
+  }
+  .account-avatar {
+    border-width: 2px;
+  }
+  .account-nav a {
+    padding: 8px 10px;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .account-content {
+    padding: 12px 4px;
+  }
+  .account-logout {
+    padding: 8px 10px;
+    font-size: 15px;
+  }
+}
 /* CONTENEDOR GENERAL */
 .account-container {
   display: flex;

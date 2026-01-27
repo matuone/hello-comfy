@@ -1,0 +1,39 @@
+/* Responsive para AccountOpinions (mobile/tablet)
+   Solo sobreescribe, no afecta desktop */
+
+@media (max-width: 900px) {
+  .account-opinions-container {
+    padding: 16px;
+    max-width: 100vw;
+  }
+  .account-opinions-container h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .account-opinions-container form {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-opinions-container {
+    padding: 8px;
+  }
+  .account-opinions-container h2 {
+    font-size: 1rem;
+  }
+  .account-opinions-container form {
+    padding: 0;
+  }
+  .account-opinions-container textarea {
+    font-size: 15px;
+  }
+  .account-opinions-container button[type="submit"] {
+    width: 100%;
+    font-size: 1rem;
+    padding: 10px 0;
+  }
+  .account-opinions-container h3 {
+    font-size: 1rem;
+  }
+}
