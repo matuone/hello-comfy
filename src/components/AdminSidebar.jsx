@@ -7,7 +7,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useMaintenance } from "../context/MaintenanceContext";
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onNavigate }) {
   const { logout } = useAuth();
   const { isMaintenanceMode, toggleMaintenanceMode } = useMaintenance();
   const navigate = useNavigate();
@@ -15,10 +15,16 @@ export default function AdminSidebar() {
   function handleLogout() {
     logout();
     navigate("/");
+    if (onNavigate) onNavigate();
   }
 
   function handleHome() {
     navigate("/");
+    if (onNavigate) onNavigate();
+  }
+
+  function handleNavLink() {
+    if (onNavigate) onNavigate();
   }
 
   return (
@@ -41,6 +47,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             General
           </NavLink>
@@ -56,6 +63,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Ventas
           </NavLink>
@@ -71,6 +79,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Productos
           </NavLink>
@@ -86,6 +95,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Stock
           </NavLink>
@@ -101,6 +111,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Clientes
           </NavLink>
@@ -113,6 +124,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Opiniones
           </NavLink>
@@ -127,6 +139,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Estadísticas
           </NavLink>
@@ -142,6 +155,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Marketing
           </NavLink>
@@ -157,6 +171,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Descuentos
           </NavLink>
@@ -172,6 +187,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Códigos promocionales
           </NavLink>
@@ -187,6 +203,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Agregar subcategoría
           </NavLink>
@@ -202,6 +219,7 @@ export default function AdminSidebar() {
               "admin-sidebar-link" +
               (isActive ? " admin-sidebar-link--active" : "")
             }
+            onClick={handleNavLink}
           >
             Agregar tabla de talle
           </NavLink>

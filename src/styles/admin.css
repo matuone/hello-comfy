@@ -1,3 +1,186 @@
+@media (max-width: 600px) {
+  .admin-main-header {
+    margin-bottom: 8px;
+    padding-top: 8px;
+  }
+
+  .admin-main-title {
+    font-size: 1rem;
+    margin-bottom: 2px;
+    word-break: break-word;
+    text-align: center;
+    margin-top: 0;
+  }
+
+  .admin-main-subtitle {
+    font-size: 0.92rem;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .admin-section {
+    padding: 8px 2vw;
+    border-radius: 7px;
+    margin-bottom: 10px;
+  }
+
+  .admin-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+
+  .admin-card {
+    border-radius: 8px;
+    padding: 10px 8px;
+    margin-bottom: 0;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
+/* ============================
+   HAMBURGER Y SIDEBAR MOBILE
+============================ */
+.admin-hamburger-btn {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .admin-hamburger-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    width: 38px;
+    height: 38px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    z-index: 210;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    gap: 5px;
+    padding: 0;
+  }
+
+  .admin-main {
+    padding-top: 16px;
+    padding-left: 0;
+  }
+
+  .admin-main-header {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    word-break: break-word;
+  }
+
+  /* En mobile, dejar espacio a la izquierda para el botón hamburguesa */
+  @media (max-width: 600px) {
+    .admin-main {
+      padding-top: 24px;
+      padding-left: 0;
+    }
+
+    .admin-main-header {
+      padding-left: 12px;
+      padding-right: 8px;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .admin-main-title {
+      font-size: 1.1rem;
+      margin-bottom: 2px;
+      word-break: break-word;
+    }
+
+    .admin-main-subtitle {
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+    }
+  }
+
+  .admin-hamburger-btn span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    background: #d94f7a;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+}
+
+.admin-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .admin-sidebar {
+    position: fixed;
+    left: -80vw;
+    top: 0;
+    width: 70vw;
+    max-width: 300px;
+    min-width: 180px;
+    height: 100vh;
+    z-index: 202;
+    background: #fff;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.12);
+    transition: left 0.25s cubic-bezier(.4, 0, .2, 1);
+    border-right: 1px solid #eee;
+    padding: 18px 10px;
+    overflow-y: auto;
+  }
+
+  .admin-sidebar--open {
+    left: 0;
+  }
+
+  .admin-sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.32);
+    z-index: 200;
+    cursor: pointer;
+  }
+
+  .admin-main {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-hamburger-btn {
+    left: 12px;
+    top: 12px;
+    z-index: 210;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-sidebar {
+    width: 90vw;
+    min-width: 0;
+    max-width: 260px;
+    padding: 12px 3vw;
+  }
+}
+
 /* ============================
    SHELL GENERAL DEL ADMIN
 ============================ */
@@ -10,6 +193,10 @@
   color: #222;
   overflow: hidden;
 }
+
+/* ============================
+   RESPONSIVE ADMIN PANEL
+============================ */
 
 /* ============================
    SIDEBAR

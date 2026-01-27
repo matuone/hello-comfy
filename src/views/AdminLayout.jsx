@@ -1,14 +1,38 @@
 // src/views/AdminLayout.jsx
+
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "../components/AdminSidebar";
 import "../styles/admin.css";
+import { useState } from "react";
 
 export default function AdminLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Cierra el sidebar al navegar (en móvil)
+  function handleSidebarClose() {
+    setSidebarOpen(false);
+  }
+
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
-        <AdminSidebar />
+      {/* Botón hamburguesa solo visible en móvil */}
+      <button
+        className="admin-hamburger-btn"
+        aria-label="Abrir menú"
+        onClick={() => setSidebarOpen(true)}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+      {/* Sidebar: offcanvas en móvil, fijo en desktop */}
+      <aside className={`admin-sidebar${sidebarOpen ? " admin-sidebar--open" : ""}`}>
+        <AdminSidebar onNavigate={handleSidebarClose} />
       </aside>
+
+      {/* Overlay para cerrar el menú en móvil */}
+      {sidebarOpen && <div className="admin-sidebar-overlay" onClick={handleSidebarClose} />}
 
       <main className="admin-main">
         <header className="admin-main-header">
