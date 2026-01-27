@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import "../styles/admincustomerdetail.css";
 import EmailModal from "../components/EmailModal";
 
 export default function AdminCustomerDetail() {
   const { id } = useParams(); // id = email del cliente
+  const navigate = useNavigate();
   const [cliente, setCliente] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Cargar cliente de MongoDB
   useEffect(() => {
@@ -138,7 +141,6 @@ export default function AdminCustomerDetail() {
       {/* CONTACTAR */}
       <div className="detalle-box">
         <h3 className="detalle-title">Contactar cliente</h3>
-
         <div className="contact-buttons">
           <button
             className="btn-contact email"
@@ -147,7 +149,6 @@ export default function AdminCustomerDetail() {
           >
             📧 Enviar email
           </button>
-
           <a
             href={`https://wa.me/${cliente.whatsapp.replace(/\D/g, "")}`}
             target="_blank"
@@ -157,8 +158,60 @@ export default function AdminCustomerDetail() {
           >
             💬 WhatsApp
           </a>
+          <button
+            className="btn-contact eliminar"
+            onClick={() => setShowDeleteModal(true)}
+            disabled={deleting}
+          >
+            🗑️ Eliminar cliente
+          </button>
         </div>
       </div>
+
+      {/* Modal comfy para eliminar cliente */}
+      {showDeleteModal && (
+        <div className="comfy-modal-backdrop">
+          <div className="comfy-modal">
+            <div className="modal-icon">🗑️</div>
+            <div className="modal-message">
+              ¿Seguro que querés eliminar este cliente?<br />
+              <span style={{ color: '#d32f2f', fontWeight: 700 }}>{cliente.nombre}</span>
+              <br />Esta acción no se puede deshacer.
+            </div>
+            <div className="comfy-modal-buttons">
+              <button
+                className="btn-contact eliminar"
+                onClick={async () => {
+                  setDeleting(true);
+                  try {
+                    const res = await fetch(`http://localhost:5000/api/customers/${encodeURIComponent(cliente.email)}`, { method: 'DELETE' });
+                    if (res.ok) {
+                      navigate('/admin/customers');
+                    } else {
+                      alert('Error al eliminar cliente');
+                    }
+                  } catch (e) {
+                    alert('Error al eliminar cliente');
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                disabled={deleting}
+              >
+                Sí, eliminar
+              </button>
+              <button
+                className="btn-contact"
+                style={{ background: '#eee', color: '#444' }}
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Email Modal */}
       {showEmailModal && (
