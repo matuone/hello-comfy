@@ -31,6 +31,7 @@ import promoBannerRoutes from "./routes/promoBannerRoutes.js"; // ⭐ NUEVO
 import modoRoutes from "./routes/modoRoutes.js"; // ⭐ NUEVO
 import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
 import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CORREO ARG API
+import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -205,6 +206,11 @@ app.use("/api", correoArgentinoRoutes);
 // RUTAS DE PEDIDOS (checkout, crear orden, etc.)
 // ============================
 app.use("/api", orderRoutes);
+
+// ============================
+// RUTAS DE OPINIONES (⭐ NUEVO)
+// ============================
+app.use("/api/opinions", opinionRoutes);
 
 // ============================
 // ENDPOINTS DE ENVÍO

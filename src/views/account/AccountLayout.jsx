@@ -123,6 +123,7 @@ export default function AccountLayout() {
           <NavLink to="/">🏠 Volver al home</NavLink>
           <NavLink to="/mi-cuenta/perfil">👤 Mi perfil</NavLink>
           <NavLink to="/mi-cuenta/compras">🛒 Mis compras</NavLink>
+          <NavLink to="/mi-cuenta/opiniones">⭐ Opiniones</NavLink>
           <NavLink to="/mi-cuenta/ayuda">❓ Ayuda</NavLink>
         </nav>
 

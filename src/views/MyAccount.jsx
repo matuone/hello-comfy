@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/myaccount.css";
 import "../styles/forgotpassword.css";
-
+import OpinionsPopup from "../components/OpinionsPopup";
 
 export default function MyAccount() {
   const { loginAdmin, loginUser, user } = useAuth();
@@ -15,6 +15,7 @@ export default function MyAccount() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [showForgot, setShowForgot] = useState(false);
+  const [opinionsPopup, setOpinionsPopup] = useState(null);
 
   // Si el usuario ya está logueado, redirigir al perfil
   useEffect(() => {
@@ -22,6 +23,14 @@ export default function MyAccount() {
       navigate("/mi-cuenta/perfil", { replace: true });
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    function handleShowOpinions(e) {
+      setOpinionsPopup(e.detail.productId);
+    }
+    window.addEventListener("showProductOpinions", handleShowOpinions);
+    return () => window.removeEventListener("showProductOpinions", handleShowOpinions);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -45,76 +54,80 @@ export default function MyAccount() {
   }
 
   return (
-    <div className="account-page">
-      <div className="account-box">
-        <h2 className="account-title">Mi cuenta</h2>
-        <p className="account-subtitle">Ingresá para acceder a tu cuenta</p>
+    <>
+      <div className="account-page">
+        <div className="account-box">
+          <h2 className="account-title">Mi cuenta</h2>
+          <p className="account-subtitle">Ingresá para acceder a tu cuenta</p>
 
-        <form onSubmit={handleSubmit} className="account-form">
-          <div className="account-input-wrapper">
-            <input
-              className="account-input"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="account-input-wrapper">
-            <input
-              className="account-input account-input-password"
-              type={showPassword ? "text" : "password"}
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            <button
-              type="button"
-              className="account-eye"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-            >
-              <span
-                className={
-                  showPassword
-                    ? "eye-icon eye-icon--visible"
-                    : "eye-icon eye-icon--hidden"
-                }
+          <form onSubmit={handleSubmit} className="account-form">
+            <div className="account-input-wrapper">
+              <input
+                className="account-input"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-            </button>
-          </div>
-
-          {error && <div className="login-error">{error}</div>}
-
-          <button type="submit" className="account-btn">
-            Iniciar sesión
-          </button>
-        </form>
-
-
-        <a
-          href="#"
-          className="account-link small"
-          onClick={e => { e.preventDefault(); setShowForgot(true); }}
-        >
-          ¿Olvidaste tu contraseña?
-        </a>
-
-        {showForgot && (
-          <div className="modal-overlay" onClick={() => setShowForgot(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-              <button className="modal-close" onClick={() => setShowForgot(false)}>&times;</button>
-              <ForgotPassword onSent={() => setShowForgot(false)} />
             </div>
-          </div>
-        )}
 
-        {/* Enlace duplicado eliminado */}
+            <div className="account-input-wrapper">
+              <input
+                className="account-input account-input-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <button
+                type="button"
+                className="account-eye"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                <span
+                  className={
+                    showPassword
+                      ? "eye-icon eye-icon--visible"
+                      : "eye-icon eye-icon--hidden"
+                  }
+                />
+              </button>
+            </div>
+
+            {error && <div className="login-error">{error}</div>}
+
+            <button type="submit" className="account-btn">
+              Iniciar sesión
+            </button>
+          </form>
+
+
+          <a
+            href="#"
+            className="account-link small"
+            onClick={e => { e.preventDefault(); setShowForgot(true); }}
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+
+          {showForgot && (
+            <div className="modal-overlay" onClick={() => setShowForgot(false)}>
+              <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <button className="modal-close" onClick={() => setShowForgot(false)}>&times;</button>
+                <ForgotPassword onSent={() => setShowForgot(false)} />
+              </div>
+            </div>
+          )}
+
+          {opinionsPopup && (
+            <OpinionsPopup productId={opinionsPopup} onClose={() => setOpinionsPopup(null)} />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

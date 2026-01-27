@@ -10,6 +10,11 @@ export default function ProductCard({ product }) {
     product.images?.[0] ||
     "https://via.placeholder.com/300x300?text=Sin+imagen";
 
+  function handleStarsClick() {
+    // Aquí se podría abrir un modal o popup con las opiniones del producto
+    window.dispatchEvent(new CustomEvent("showProductOpinions", { detail: { productId: product._id } }));
+  }
+
   return (
     <div className="product-card">
       {/* Badge opcional */}
@@ -26,6 +31,9 @@ export default function ProductCard({ product }) {
       />
 
       <h3>{product.name}</h3>
+      <div className="productcard__stars" onClick={handleStarsClick} style={{ cursor: "pointer", fontSize: 20, color: "#FFD700", marginBottom: 8 }}>
+        {"★★★★★"}
+      </div>
       <p className="price">${product.price}</p>
     </div>
   );
