@@ -75,6 +75,7 @@ import AccountShipping from "../views/account/AccountShipping";
 import AccountContact from "../views/account/AccountContact";
 
 // ⭐ NUEVO: soporte
+import AccountOpinions from "../views/account/AccountOpinions";
 import AccountHelp from "../views/account/AccountHelp";
 
 export default function AppRouter() {
@@ -166,7 +167,7 @@ export default function AppRouter() {
         <Route path="/mi-cuenta/perfil" element={<AccountProfile />} />
         <Route path="/mi-cuenta/envio" element={<AccountShipping />} />
         <Route path="/mi-cuenta/contacto" element={<AccountContact />} />
-
+        <Route path="/mi-cuenta/opiniones" element={<AccountOpinions />} />
         {/* ⭐ NUEVA RUTA DE AYUDA */}
         <Route path="/mi-cuenta/ayuda" element={<AccountHelp />} />
       </Route>

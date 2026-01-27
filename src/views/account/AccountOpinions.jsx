@@ -19,7 +19,12 @@ export default function AccountOpinions() {
       });
       const data = await res.json();
       // Extraer productos comprados
-      const prods = (data.orders || []).flatMap(order => order.items.map(item => item.product));
+      const prods = (data.orders || []).flatMap(order =>
+        order.items.map(item => ({
+          _id: item.productId || item._id,
+          name: item.name || item.productName || "Producto"
+        }))
+      );
       setProducts(prods);
     }
     fetchPurchases();
@@ -59,7 +64,24 @@ export default function AccountOpinions() {
       <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600 }}>Producto:</label>
-          <select value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)} required style={{ width: "100%", borderRadius: 8, padding: 8 }}>
+          <select
+            value={selectedProduct}
+            onChange={e => setSelectedProduct(e.target.value)}
+            required
+            style={{
+              width: "100%",
+              borderRadius: 8,
+              padding: 8,
+              border: "2px solid #d94f7a",
+              background: "#fff0f6",
+              color: "#d94f7a",
+              fontWeight: 600,
+              fontSize: "1rem",
+              outline: "none",
+              marginBottom: 8,
+              boxShadow: "0 2px 8px rgba(217,79,122,0.07)"
+            }}
+          >
             <option value="">Seleccioná un producto</option>
             {products.map(prod => (
               <option key={prod._id} value={prod._id}>{prod.name}</option>
