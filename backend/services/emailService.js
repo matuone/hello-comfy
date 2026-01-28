@@ -18,68 +18,83 @@ export async function enviarEmailRetiroPickup(order, fechaRetiro) {
       },
     });
 
-    const productosHtml = order.items
-      .map(
-        (item) => `
-        <tr>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <strong>${item.name}</strong><br>
-            <small style="color: #888;">
-              Cantidad: ${item.quantity}
-              ${item.size ? `<br>Talle: ${item.size}` : ''}
-              ${item.color ? `<br>Color: ${item.color}` : ''}
-            </small>
-          </td>
-        </tr>
-      `
-      )
-      .join("");
-
-    const emailHtml = `
-      <div style="
-        font-family: 'Arial', sans-serif;
-        max-width: 600px;
-        margin: 0 auto;
-        background: #ffffff;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      ">
-        <!-- Header -->
-        <div style="
-          background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%);
-          padding: 32px 24px;
-          text-align: center;
-        </div>
-
-        <!-- Body -->
-        <div style="padding: 32px 24px;">
-          <p style="color: #333; font-size: 16px; margin: 0 0 16px 0;">
-            Hola <strong>${order.customer?.name || "Cliente"}</strong>,<br>
-            ¡Tu pedido ya está listo para retirar en nuestro punto de Pick Up!
-          </p>
-          <div style="background: #f8f8f8; border: 2px solid #d94f7a; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
-            <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">Podés pasar a retirarlo a partir de:</p>
-            <p style="margin: 0; color: #d94f7a; font-size: 24px; font-weight: 800;">${fechaRetiro}</p>
-            <p style="margin: 8px 0 0 0; color: #555; font-size: 15px;">Punto de retiro: <strong>${order.shipping?.pickPoint || "(consultar dirección)"}</strong></p>
+    let emailHtml;
+    const pickPoint = (order.shipping?.pickPoint || '').toLowerCase();
+    if (pickPoint.includes('aquelarre')) {
+      emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+          <div style="padding: 32px 24px; text-align: left;">
+            <p style="color: #333; font-size: 17px; margin: 0 0 18px 0;">¡Buenas! Te escribo desde <b>HELLO COMFY!</b> para avisarte que podes pasar a retirar tu compra <b>#${order.code}</b> a partir del día <b>${fechaRetiro}</b> por <b>AQUELARRE SHOWROOM  - LAVALLE 2086 (Portón rosa), CABA</b></p>
+            <p style="color: #d94f7a; font-size: 16px; margin: 0 0 12px 0; font-weight: bold;">Los horarios de atención del showroom son: LUN. A DOM. de 10 a 19hs, sin cita previa</p>
+            <p style="color: #444; font-size: 15px; margin: 0 0 12px 0;">⚠️ Para el retiro es necesario que indiques número de pedido, nombre de quien realizó la compra emprendimiento al que corresponde la misma</p>
+            <p style="color: #e76f93; font-size: 15px; margin: 0 0 12px 0; font-weight: bold;">‼️ Los pedidos permanecen en el showroom por un plazo de 30 días, luego vuelven a nuestro taller, SIN EXCEPCIÓN</p>
+            <p style="color: #888; font-size: 14px; margin: 0 0 12px 0;">Saludos,<br>HELLO COMFY! 🐻</p>
           </div>
-          <h2 style="color: #333; font-size: 20px; margin: 0 0 16px 0;">Productos</h2>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #eee;">
-            ${productosHtml}
-          </table>
-          <p style="color: #888; font-size: 14px; margin: 0;">
-            <strong>Email:</strong> ${order.customer?.email}<br>
-            <strong>Nombre:</strong> ${order.customer?.name}
-          </p>
         </div>
+      `;
+    } else {
+      const productosHtml = order.items
+        .map(
+          (item) => `
+          <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">
+              <strong>${item.name}</strong><br>
+              <small style="color: #888;">
+                Cantidad: ${item.quantity}
+                ${item.size ? `<br>Talle: ${item.size}` : ''}
+                ${item.color ? `<br>Color: ${item.color}` : ''}
+              </small>
+            </td>
+          </tr>
+        `
+        )
+        .join("");
+      emailHtml = `
+        <div style="
+          font-family: 'Arial', sans-serif;
+          max-width: 600px;
+          margin: 0 auto;
+          background: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        ">
+          <!-- Header -->
+          <div style="
+            background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%);
+            padding: 32px 24px;
+            text-align: center;
+          </div>
 
-        <!-- Footer -->
-        <div style="background: #f8f8f8; padding: 24px; text-align: center; border-top: 1px solid #eee;">
-          <p style="color: #999; font-size: 14px; margin: 0 0 8px 0;">¿Necesitás ayuda?</p>
-          <p style="color: #d94f7a; font-size: 14px; margin: 0; font-weight: 600;">Contactanos: hellocomfyind@gmail.com</p>
+          <!-- Body -->
+          <div style="padding: 32px 24px;">
+            <p style="color: #333; font-size: 16px; margin: 0 0 16px 0;">
+              Hola <strong>${order.customer?.name || "Cliente"}</strong>,<br>
+              ¡Tu pedido ya está listo para retirar en nuestro punto de Pick Up!
+            </p>
+            <div style="background: #f8f8f8; border: 2px solid #d94f7a; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
+              <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">Podés pasar a retirarlo a partir de:</p>
+              <p style="margin: 0; color: #d94f7a; font-size: 24px; font-weight: 800;">${fechaRetiro}</p>
+              <p style="margin: 8px 0 0 0; color: #555; font-size: 15px;">Punto de retiro: <strong>${order.shipping?.pickPoint || "(consultar dirección)"}</strong></p>
+            </div>
+            <h2 style="color: #333; font-size: 20px; margin: 0 0 16px 0;">Productos</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #eee;">
+              ${productosHtml}
+            </table>
+            <p style="color: #888; font-size: 14px; margin: 0;">
+              <strong>Email:</strong> ${order.customer?.email}<br>
+              <strong>Nombre:</strong> ${order.customer?.name}
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 24px; text-align: center; border-top: 1px solid #eee;">
+            <p style="color: #999; font-size: 14px; margin: 0 0 8px 0;">¿Necesitás ayuda?</p>
+            <p style="color: #d94f7a; font-size: 14px; margin: 0; font-weight: 600;">Contactanos: hellocomfyind@gmail.com</p>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
 
     await transporter.sendMail({
       from: 'Hello Comfy 🧸 <hellocomfyind@gmail.com>',

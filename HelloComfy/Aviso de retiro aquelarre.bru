@@ -1,0 +1,27 @@
+meta {
+  name: Aviso de retiro aquelarre
+  type: http
+  seq: 9
+}
+
+patch {
+  url: http://localhost:5000/api/admin/orders/ID_DE_LA_ORDEN/pickup-notify
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NjJiMzRlMmJhNTM4NDZlMjllZWIyYyIsImVtYWlsIjoibWF0eWNvbWZ5QGhlbGxvY29tZnkuY29tIiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzY5NDUzMDYzLCJleHAiOjE3NzAwNTc4NjN9.0G4Y9vfPYoCJok0Qa6vs-1Q8ZEA7Jx4M3vfcY_ksAi8
+}
+
+body:json {
+  {
+    "fechaRetiro": "28/01/2026 15:00"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
