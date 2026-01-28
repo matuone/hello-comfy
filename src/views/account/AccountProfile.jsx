@@ -3,6 +3,60 @@ import { AuthContext } from "../../context/AuthContext";
 import "../../styles/account/accountprofile.css";
 
 export default function AccountProfile() {
+  // ============================
+  // CAMBIO DE CONTRASEÑA (FRONTEND)
+  // ============================
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordMsg, setPasswordMsg] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  function handlePasswordChange(e) {
+    const { name, value } = e.target;
+    if (name === "currentPassword") setCurrentPassword(value);
+    if (name === "newPassword") setNewPassword(value);
+    setPasswordError("");
+    setPasswordMsg("");
+  }
+
+  async function handlePasswordSubmit(e) {
+    e.preventDefault();
+    setPasswordError("");
+    setPasswordMsg("");
+    if (!currentPassword || !newPassword) {
+      setPasswordError("Completá ambos campos");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError("La nueva contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      const res = await fetch(`/api/users/${user.id}/password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPasswordError(data.error || "Error al cambiar la contraseña");
+        setPasswordLoading(false);
+        return;
+      }
+      setPasswordMsg("Contraseña cambiada correctamente");
+      setCurrentPassword("");
+      setNewPassword("");
+      setPasswordLoading(false);
+    } catch (err) {
+      setPasswordError("Error de conexión. Intenta de nuevo.");
+      setPasswordLoading(false);
+    }
+  }
   const { user, token, logout } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     name: "",
@@ -292,11 +346,50 @@ export default function AccountProfile() {
             </div>
           </div>
 
+
           {/* BOTÓN SUBMIT */}
           <button type="submit" className="btn-save" disabled={loading}>
             {loading ? "Guardando..." : "Guardar Cambios"}
           </button>
         </form>
+
+        {/* CAMBIO DE CONTRASEÑA */}
+        <div className="form-section" style={{ marginTop: 32 }}>
+          <h2>Cambiar contraseña</h2>
+          <form className="password-form" onSubmit={handlePasswordSubmit}>
+            <div className="form-group">
+              <label htmlFor="currentPassword">Contraseña actual</label>
+              <input
+                type="password"
+                id="currentPassword"
+                name="currentPassword"
+                autoComplete="current-password"
+                placeholder="Ingresá tu contraseña actual"
+                value={currentPassword}
+                onChange={handlePasswordChange}
+                disabled={passwordLoading}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="newPassword">Nueva contraseña</label>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                autoComplete="new-password"
+                placeholder="Ingresá la nueva contraseña"
+                value={newPassword}
+                onChange={handlePasswordChange}
+                disabled={passwordLoading}
+              />
+            </div>
+            {passwordError && <div className="profile-error">{passwordError}</div>}
+            {passwordMsg && <div className="profile-success">{passwordMsg}</div>}
+            <button type="submit" className="btn-save" disabled={passwordLoading}>
+              {passwordLoading ? "Cambiando..." : "Cambiar contraseña"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

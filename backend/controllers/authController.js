@@ -1,3 +1,38 @@
+// ===============================
+// CAMBIAR CONTRASEÑA DE USUARIO
+// ===============================
+export async function changeUserPassword(req, res) {
+  try {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    // Verificar que el usuario sea propietario del perfil
+    if (req.user.id !== id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
+    // Buscar usuario
+    const user = await User.findById(id).select("password");
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Verificar contraseña actual
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "La contraseña actual es incorrecta" });
+    }
+
+    // Cambiar contraseña
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: "Contraseña actualizada correctamente" });
+  } catch (err) {
+    console.error("Error cambiando contraseña", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
 // controllers/authController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -152,6 +187,9 @@ export async function loginUser(req, res) {
         email: user.email,
         avatar: user.avatar,
         isAdmin: user.isAdmin,
+        dni: user.dni,
+        whatsapp: user.whatsapp,
+        address: user.address,
       },
     });
 

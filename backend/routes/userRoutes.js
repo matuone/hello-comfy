@@ -1,10 +1,31 @@
+
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
-import { updateUserProfile, updateUserAvatar } from "../controllers/authController.js";
+import { updateUserProfile, updateUserAvatar, changeUserPassword } from "../controllers/authController.js";
 import upload from "../middleware/upload.js";
 import { body, validationResult } from "express-validator";
 
 const router = express.Router();
+
+// ============================
+// CAMBIAR CONTRASEÑA DEL USUARIO
+// ============================
+router.put(
+  "/:id/password",
+  authMiddleware,
+  [
+    body("currentPassword").notEmpty().withMessage("La contraseña actual es obligatoria"),
+    body("newPassword").isLength({ min: 6 }).withMessage("La nueva contraseña debe tener al menos 6 caracteres"),
+  ],
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+  changeUserPassword
+);
 
 // ============================
 // ACTUALIZAR PERFIL DEL USUARIO
