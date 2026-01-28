@@ -51,18 +51,21 @@ export default function AdminSaleDetail() {
   }
 
   // Utilidad para armar mensaje de WhatsApp igual al email
-  function getMensajeWhatsapp({ nombre, fecha, hora, pickPoint }) {
-    const fechaObj = new Date(`${fecha}T${hora}`);
-    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const fechaStr = fechaObj.toLocaleDateString('es-AR', opciones);
-    let horaStr = fechaObj.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true });
-    const fechaHoraFinal = `${fechaStr} a las ${horaStr}`;
-    // Mensaje para Temperley o Aquelarre
-    if (pickPoint && pickPoint.toLowerCase().includes('aquelarre')) {
-      return `¡Hola ${nombre || ''}! Tu pedido ya está listo para retirar en Aquelarre (Av. Meeks 654, Temperley) a partir de ${fechaHoraFinal}. Recordá traer tu DNI. ¡Gracias por tu compra!`;
-    } else {
-      return `¡Hola ${nombre || ''}! Tu pedido ya está listo para retirar en HelloComfy (Av. Meeks 654, Temperley) a partir de ${fechaHoraFinal}. Recordá traer tu DNI. ¡Gracias por tu compra!`;
+  function getMensajeWhatsapp({ nombre, fecha, hora, pickPoint, numeroOrden }) {
+    // Formato dd/mm para la fecha de retiro
+    let fechaRetiro = '';
+    if (fecha && hora) {
+      const fechaObj = new Date(`${fecha}T${hora}`);
+      const dia = String(fechaObj.getDate()).padStart(2, '0');
+      const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+      fechaRetiro = `${dia}/${mes}`;
     }
+    // Si el pickPoint es AQUELARRE, usar mensaje especial
+    if (pickPoint && pickPoint.toUpperCase().includes('AQUELARRE')) {
+      return `¡Buenas! Te escribo desde HELLO COMFY! para avisarte que podes pasar a retirar tu compra #${numeroOrden || ''} a partir del día ${fechaRetiro} por AQUELARRE SHOWROOM  - LAVALLE 2086 (Portón rosa), CABA\n\nLos horarios de atención del showroom son: LUN. A DOM. de 10 a 19hs, sin cita previa\n\n⚠️ Para el retiro es necesario que indiques número de pedido, nombre de quien realizó la compra emprendimiento al que corresponde la misma\n\n‼️ Los pedidos permanecen en el showroom por un plazo de 30 días, luego vuelven a nuestro taller, SIN EXCEPCIÓN\n\nSaludos,\nHELLO COMFY! 🐻`;
+    }
+    // Mensaje estándar
+    return `¡Buenas! Te escribo desde HELLO COMFY! para avisarte que podes pasar a retirar tu compra con Orden #${numeroOrden || ''} a partir del día ${fechaRetiro} por ${pickPoint ? pickPoint + ' - ' : ''}RAFAEL JIJENA SANCHEZ 380 (Casa estilo ingles)\n\nLos horarios de atención son: LUN. A VIE. de 15 a 19hs, con cita previa\n\n� Para el retiro es necesario que indiques número de pedido y nombre de quien realizó la compra\n\nSaludos,\nHELLO COMFY!`;
   }
 
   const [venta, setVenta] = useState(null);
@@ -374,32 +377,31 @@ export default function AdminSaleDetail() {
               </div>
               <div className="factura-modal-actions">
                 <button
+                  className="factura-modal-btn confirm"
+                  onClick={enviarNotificacionPickup}
+                  disabled={enviandoPickup}
+                  style={{ background: "#4caf50" }}
+                >
+                  {enviandoPickup ? "Enviando..." : "Enviar notificación por email"}
+                </button>
+                {/* Botón WhatsApp SIEMPRE visible, pero deshabilitado si falta teléfono o fecha/hora */}
+                <a
+                  className="factura-modal-btn confirm"
+                  style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: venta?.customer?.telefono && fechaRetiroFecha && fechaRetiroHora ? 1 : 0.5, pointerEvents: venta?.customer?.telefono && fechaRetiroFecha && fechaRetiroHora ? 'auto' : 'none' }}
+                  href={venta?.customer?.telefono && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${venta.customer.telefono.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: venta.customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: venta.shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={venta?.customer?.telefono ? '' : 'El cliente no tiene teléfono'}
+                >
+                  Enviar WhatsApp
+                </a>
+                <button
                   className="factura-modal-btn cancel"
                   onClick={() => setModalPickup(false)}
                   disabled={enviandoPickup}
                 >
                   Cancelar
                 </button>
-                <button
-                  className="factura-modal-btn confirm"
-                  onClick={enviarNotificacionPickup}
-                  disabled={enviandoPickup}
-                  style={{ background: "#4caf50" }}
-                >
-                  {enviandoPickup ? "Enviando..." : "Enviar notificación"}
-                </button>
-                {/* Botón WhatsApp */}
-                {venta?.customer?.telefono && fechaRetiroFecha && fechaRetiroHora && (
-                  <a
-                    className="factura-modal-btn confirm"
-                    style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none' }}
-                    href={`https://wa.me/${venta.customer.telefono.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: venta.customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: venta.shipping.pickPoint }))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Enviar WhatsApp
-                  </a>
-                )}
               </div>
             </div>
           </div>
@@ -463,6 +465,9 @@ export default function AdminSaleDetail() {
           <h3 className="detalle-title">Cliente</h3>
           <p className="detalle-info-line"><strong>Nombre:</strong> {venta.customer.name}</p>
           <p className="detalle-info-line"><strong>Email:</strong> {venta.customer.email}</p>
+          {venta.customer.telefono && (
+            <p className="detalle-info-line"><strong>Teléfono:</strong> {venta.customer.telefono}</p>
+          )}
         </div>
 
         {/* DIRECCIÓN */}
