@@ -29,11 +29,11 @@
     "node-soap": "^1.0.0",
     "nodemailer": "^7.0.12",
     "pdfkit": "^0.13.0",
-    "validator": "^13.15.26"
-    ,"cloudinary": "^2.2.0"
-    ,"fs-extra": "^11.2.0"
-    ,"path": "^0.12.7"
-    ,"url": "^0.11.3"
-    ,"crypto": "^1.0.1"
+    "validator": "^13.15.26",
+    "cloudinary": "^2.2.0",
+    "fs-extra": "^11.2.0",
+    "path": "^0.12.7",
+    "url": "^0.11.3",
+    "crypto": "^1.0.1"
   }
 }
