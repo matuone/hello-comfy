@@ -89,23 +89,42 @@ export default function NewIn() {
                   alt={p.name}
                   className="productcard__image"
                 />
+
                 {p.featured && (
                   <span className="productcard__badge">Destacado</span>
                 )}
+
                 <div className="productcard__top">
                   {p.stockColorId?.talles && (
                     <div className="productcard__stock">
-                      {Object.entries(p.stockColorId.talles).every(([, qty]) => qty === 0)
-                        ? <span className="productcard__nostock">Sin stock</span>
-                        : Object.values(p.stockColorId.talles).some((qty) => qty > 0 && qty <= 3)
-                          ? <span className="productcard__lowstock">¡Pocas unidades!</span>
-                          : <span className="productcard__instock">Stock disponible</span>
-                      }
+                      {Object.entries(p.stockColorId.talles).every(
+                        ([, qty]) => qty === 0
+                      ) ? (
+                        <span className="productcard__nostock">Sin stock</span>
+                      ) : Object.values(p.stockColorId.talles).some(
+                        (qty) => qty > 0 && qty <= 3
+                      ) ? (
+                        <span className="productcard__lowstock">
+                          ¡Pocas unidades!
+                        </span>
+                      ) : (
+                        <span className="productcard__instock">
+                          Stock disponible
+                        </span>
+                      )}
                     </div>
                   )}
+
                   <h3 className="productcard__name">{p.name}</h3>
-                  <p className="productcard__price">${p.price?.toLocaleString("es-AR")}</p>
-                  <p className="productcard__desc">{p.cardDescription || p.description || "Nuevo producto disponible"}</p>
+
+                  <p className="productcard__price">
+                    ${p.price?.toLocaleString("es-AR")}
+                  </p>
+
+                  <p className="productcard__desc">
+                    {p.cardDescription || p.description || "Nuevo producto disponible"}
+                  </p>
+
                   {p.stockColorId?.talles && (
                     <div
                       className="productcard__sizes productcard__sizes--selectable"
@@ -114,11 +133,12 @@ export default function NewIn() {
                       {(() => {
                         const availableSizes = getAvailableSizes(p);
                         const selected = selectedSizes[p._id] || availableSizes[0]?.[0];
+
                         return availableSizes.map(([t]) => (
                           <button
                             key={t}
                             type="button"
-                            className={`productcard__size-pill productcard__size-pill--button${selected === t ? " is-selected" : ""}`}
+                            className={`productcard__size-pill productcard__size-pill--button ${selected === t ? "is-selected" : ""}`}
                             onClick={() => handleSelectSize(p._id, t)}
                           >
                             {t}
@@ -127,6 +147,7 @@ export default function NewIn() {
                       })()}
                     </div>
                   )}
+
                   <div
                     className="productcard__qty"
                     onClick={(e) => e.stopPropagation()}
@@ -141,6 +162,7 @@ export default function NewIn() {
                     />
                   </div>
                 </div>
+
                 <div
                   className="productcard__stars"
                   onClick={(e) => {
@@ -150,6 +172,7 @@ export default function NewIn() {
                 >
                   {"★".repeat(4)}☆
                 </div>
+
                 <div
                   className="productcard__buttons"
                   onClick={(e) => e.stopPropagation()}
@@ -167,6 +190,7 @@ export default function NewIn() {
                     Agregar al carrito
                   </button>
                 </div>
+
                 <button
                   className="productcard__btn-viewmore"
                   onClick={(e) => {

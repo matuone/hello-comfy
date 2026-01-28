@@ -72,17 +72,12 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // Configuración de CORS restrictivo
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://hello-comfy.vercel.app",
-  "https://hello-comfy.onrender.com"
+  "https://tudominio.com" // Cambia esto por tu dominio real en producción
 ];
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir requests sin origin (como Postman), desde orígenes permitidos o cualquier subdominio de Vercel
-    if (
-      !origin ||
-      allowedOrigins.includes(origin) ||
-      /\.vercel\.app$/.test(origin)
-    ) {
+    // Permitir requests sin origin (como Postman) o desde orígenes permitidos
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("No permitido por CORS"));
@@ -216,6 +211,10 @@ app.use("/api", orderRoutes);
 // RUTAS DE OPINIONES (⭐ NUEVO)
 // ============================
 app.use("/api/opinions", opinionRoutes);
+
+// ============================
+// RUTA DE WHATSAPP (NUEVO)
+// ============================
 
 // ============================
 // ENDPOINTS DE ENVÍO

@@ -16,25 +16,25 @@ export default function ProductCard({ product }) {
   }
 
   return (
-    <div className="productcard__item">
+    <div className="product-card">
       {/* Badge opcional */}
-      {product.badge && <span className="productcard__badge">{product.badge}</span>}
+      {product.badge && <span className="badge">{product.badge}</span>}
 
       {/* Skeleton mientras carga */}
-      {!loaded && <div className="productcard__skeleton"></div>}
+      {!loaded && <div className="skeleton"></div>}
 
       <img
         src={mainImage}
         alt={product.name}
         onLoad={() => setLoaded(true)}
-        className={loaded ? "productcard__image" : "productcard__image productcard__image--hidden"}
+        className={loaded ? "loaded" : "hidden"}
       />
 
-      <h3 className="productcard__name">{product.name}</h3>
+      <h3>{product.name}</h3>
       <div className="productcard__stars" onClick={handleStarsClick} style={{ cursor: "pointer", fontSize: 20, color: "#FFD700", marginBottom: 8 }}>
         {"★★★★★"}
       </div>
-      <p className="productcard__price">${product.price}</p>
+      <p className="price">${product.price}</p>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export async function crearPreferenciaMercadoPago({
       metadata,
     });
 
-    const response = await fetch(`${API_URL}/mercadopago/create-preference`, {
+    const response = await fetch(`${API_URL}/api/mercadopago/create-preference`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -97,7 +97,7 @@ export function cargarScriptMercadoPago() {
  */
 export async function procesarPagoConfirmado(paymentId, pendingOrderData) {
   try {
-    const response = await fetch(`${API_URL}/mercadopago/process-payment`, {
+    const response = await fetch(`${API_URL}/api/mercadopago/process-payment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
