@@ -24,7 +24,7 @@ export async function enviarEmailRetiroPickup(order, fechaRetiro) {
       emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
           <div style="padding: 32px 24px; text-align: left;">
-            <p style="color: #333; font-size: 17px; margin: 0 0 18px 0;">¡Buenas! Te escribo desde <b>HELLO COMFY!</b> para avisarte que podes pasar a retirar tu compra <b>#${order.code}</b> a partir del día <b>${fechaRetiro}</b> por <b>AQUELARRE SHOWROOM  - LAVALLE 2086 (Portón rosa), CABA</b></p>
+            <p style="color: #333; font-size: 17px; margin: 0 0 18px 0;">¡Buenas! Te escribo desde <b>HELLO COMFY!</b> para avisarte que podes pasar a retirar tu compra <b>#${order.code}</b> a partir del día <b>${fechaRetiro}</b> por <b><a href="https://www.google.com/maps?q=Lavalle+2086,+C1051+Cdad.+Aut%C3%B3noma+de+Buenos+Aires" target="_blank" style="color: #d94f7a; text-decoration: underline;">AQUELARRE SHOWROOM - LAVALLE 2086 (Portón rosa), CABA</a></b></p>
             <p style="color: #d94f7a; font-size: 16px; margin: 0 0 12px 0; font-weight: bold;">Los horarios de atención del showroom son: LUN. A DOM. de 10 a 19hs, sin cita previa</p>
             <p style="color: #444; font-size: 15px; margin: 0 0 12px 0;">⚠️ Para el retiro es necesario que indiques número de pedido, nombre de quien realizó la compra emprendimiento al que corresponde la misma</p>
             <p style="color: #e76f93; font-size: 15px; margin: 0 0 12px 0; font-weight: bold;">‼️ Los pedidos permanecen en el showroom por un plazo de 30 días, luego vuelven a nuestro taller, SIN EXCEPCIÓN</p>
