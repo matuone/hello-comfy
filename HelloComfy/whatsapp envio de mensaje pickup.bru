@@ -1,0 +1,27 @@
+meta {
+  name: whatsapp envio de mensaje pickup
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:5000/api/whatsapp/send
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "to": "whatsapp:+5491125025895", 
+    "message": "¡Hola! Este es un mensaje de prueba desde HelloComfy."
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

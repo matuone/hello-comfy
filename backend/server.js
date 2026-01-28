@@ -33,6 +33,7 @@ import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
 import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CORREO ARG API
 import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
 import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
+import whatsappRoutes from "./routes/whatsappRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -212,6 +213,11 @@ app.use("/api", orderRoutes);
 // RUTAS DE OPINIONES (⭐ NUEVO)
 // ============================
 app.use("/api/opinions", opinionRoutes);
+
+// ============================
+// RUTA DE WHATSAPP (NUEVO)
+// ============================
+app.use("/api/whatsapp", whatsappRoutes);
 
 // ============================
 // ENDPOINTS DE ENVÍO

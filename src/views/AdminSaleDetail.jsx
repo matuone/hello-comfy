@@ -4,6 +4,7 @@ import FacturaModal from "../components/FacturaModal";
 import NotificationModal from "../components/NotificationModal";
 import "../styles/adminsaledetail.css";
 import "../styles/admin/facturamodal.css";
+import axios from "axios";
 
 
 export default function AdminSaleDetail() {
@@ -47,6 +48,36 @@ export default function AdminSaleDetail() {
       setModalError(err.message || "Error al notificar retiro");
     } finally {
       setEnviandoPickup(false);
+    }
+  }
+
+  // ============================
+  // ENVIAR WHATSAPP PICKUP
+  // ============================
+  const [enviandoWhatsapp, setEnviandoWhatsapp] = useState(false);
+  async function enviarWhatsappPickup() {
+    if (!venta?.customer?.telefono) {
+      setModalError("El cliente no tiene teléfono registrado");
+      return;
+    }
+    setEnviandoWhatsapp(true);
+    try {
+      // Mensaje igual al email de retiro
+      const fecha = new Date(`${fechaRetiroFecha}T${fechaRetiroHora}`);
+      const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const fechaStr = fecha.toLocaleDateString('es-AR', opciones);
+      let horaStr = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const fechaHoraFinal = `${fechaStr} a las ${horaStr}`;
+      const mensaje = `¡Hola ${venta.customer.name || ''}! Tu pedido ya está listo para retirar en ${venta.shipping.pickPoint || 'el local'} a partir de ${fechaHoraFinal}. Recordá traer tu DNI. ¡Gracias por tu compra!`;
+      await axios.post("/api/whatsapp/send", {
+        to: venta.customer.telefono,
+        message: mensaje
+      });
+      alert("Mensaje de WhatsApp enviado correctamente");
+    } catch (err) {
+      setModalError("Error enviando WhatsApp: " + (err.response?.data?.error || err.message));
+    } finally {
+      setEnviandoWhatsapp(false);
     }
   }
 
@@ -361,7 +392,7 @@ export default function AdminSaleDetail() {
                 <button
                   className="factura-modal-btn cancel"
                   onClick={() => setModalPickup(false)}
-                  disabled={enviandoPickup}
+                  disabled={enviandoPickup || enviandoWhatsapp}
                 >
                   Cancelar
                 </button>
@@ -371,7 +402,15 @@ export default function AdminSaleDetail() {
                   disabled={enviandoPickup}
                   style={{ background: "#4caf50" }}
                 >
-                  {enviandoPickup ? "Enviando..." : "Enviar notificación"}
+                  {enviandoPickup ? "Enviando..." : "Enviar notificación por email"}
+                </button>
+                <button
+                  className="factura-modal-btn confirm"
+                  onClick={enviarWhatsappPickup}
+                  disabled={enviandoWhatsapp}
+                  style={{ background: "#25d366" }}
+                >
+                  {enviandoWhatsapp ? "Enviando..." : "Enviar WhatsApp"}
                 </button>
               </div>
             </div>
