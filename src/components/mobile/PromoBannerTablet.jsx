@@ -9,7 +9,7 @@ export default function PromoBannerTablet(props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/promo-banner`)
+    fetch(`${API_URL}/api/promo-banner`)
       .then(res => res.json())
       .then(data => {
         setBannerData(data);

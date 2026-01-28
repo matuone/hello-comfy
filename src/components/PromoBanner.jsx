@@ -19,7 +19,7 @@ export default function PromoBanner(props) {
 
   // Cargar configuración del banner desde el backend
   useEffect(() => {
-    fetch(`${API_URL}/promo-banner`)
+    fetch(`${API_URL}/api/promo-banner`)
       .then(res => res.json())
       .then(data => {
         setBannerData(data);
