@@ -1,9 +1,51 @@
 
+
 import express from "express";
 const router = express.Router();
-
 import Order from "../models/Order.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
+import { enviarEmailRetiroPickup } from "../services/emailService.js";
+
+/* ============================================================
+   ⭐ Notificar retiro listo (Pick Up)
+   PATCH /api/admin/orders/:id/pickup-notify
+============================================================ */
+router.patch("/admin/orders/:id/pickup-notify", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { fechaRetiro } = req.body;
+  if (!fechaRetiro) {
+    return res.status(400).json({ error: "fechaRetiro requerida" });
+  }
+  try {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+    if (order.pickupNotificado) {
+      return res.status(400).json({ error: "El cliente ya fue notificado para retiro" });
+    }
+    if (order.shipping.method !== "pickup") {
+      return res.status(400).json({ error: "El pedido no es para retiro en punto de pick up" });
+    }
+
+    // Enviar email de notificación de retiro
+    const emailOk = await enviarEmailRetiroPickup(order, fechaRetiro);
+    if (!emailOk) {
+      return res.status(500).json({ error: "No se pudo enviar el email de notificación" });
+    }
+
+    order.pickupNotificado = true;
+    order.timeline.push({
+      status: `Cliente notificado para retiro (${fechaRetiro})`,
+      date: new Date().toLocaleString("es-AR"),
+    });
+    await order.save();
+    res.json({ message: "Cliente notificado para retiro", order });
+  } catch (err) {
+    console.error("Error notificando retiro:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+
 
 /* ============================================================
    ⭐ Editar comentario del cliente

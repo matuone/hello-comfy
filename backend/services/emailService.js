@@ -1,3 +1,110 @@
+/**
+ * Enviar email de notificación de retiro en punto de Pick Up
+ * @param {Object} order - Objeto de orden
+ * @param {String} fechaRetiro - Fecha/hora para retirar
+ */
+export async function enviarEmailRetiroPickup(order, fechaRetiro) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email de retiro");
+      return false;
+    }
+    const nodemailer = (await import('nodemailer')).default;
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const productosHtml = order.items
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding: 12px; border-bottom: 1px solid #eee;">
+            <strong>${item.name}</strong><br>
+            <small style="color: #888;">
+              Cantidad: ${item.quantity}
+              ${item.size ? `<br>Talle: ${item.size}` : ''}
+              ${item.color ? `<br>Color: ${item.color}` : ''}
+            </small>
+          </td>
+        </tr>
+      `
+      )
+      .join("");
+
+    const emailHtml = `
+      <div style="
+        font-family: 'Arial', sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      ">
+        <!-- Header -->
+        <div style="
+          background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%);
+          padding: 32px 24px;
+          text-align: center;
+        ">
+          <h1 style="
+            color: white;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+          ">¡Tu pedido está listo para retirar!</h1>
+          <p style="
+            color: rgba(255,255,255,0.95);
+            margin: 8px 0 0 0;
+            font-size: 16px;
+          ">Orden #${order.code}</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 32px 24px;">
+          <p style="color: #333; font-size: 16px; margin: 0 0 16px 0;">
+            Hola <strong>${order.customer?.name || "Cliente"}</strong>,<br>
+            ¡Tu pedido ya está listo para retirar en nuestro punto de Pick Up!
+          </p>
+          <div style="background: #f8f8f8; border: 2px solid #d94f7a; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
+            <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">Podés pasar a retirarlo a partir de:</p>
+            <p style="margin: 0; color: #d94f7a; font-size: 24px; font-weight: 800;">${fechaRetiro}</p>
+            <p style="margin: 8px 0 0 0; color: #555; font-size: 15px;">Punto de retiro: <strong>${order.shipping?.pickPoint || "(consultar dirección)"}</strong></p>
+          </div>
+          <h2 style="color: #333; font-size: 20px; margin: 0 0 16px 0;">Productos</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #eee;">
+            ${productosHtml}
+          </table>
+          <p style="color: #888; font-size: 14px; margin: 0;">
+            <strong>Email:</strong> ${order.customer?.email}<br>
+            <strong>Nombre:</strong> ${order.customer?.name}
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #f8f8f8; padding: 24px; text-align: center; border-top: 1px solid #eee;">
+          <p style="color: #999; font-size: 14px; margin: 0 0 8px 0;">¿Necesitás ayuda?</p>
+          <p style="color: #d94f7a; font-size: 14px; margin: 0; font-weight: 600;">Contactanos: hellocomfyind@gmail.com</p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: 'Hello Comfy 🧸 <hellocomfyind@gmail.com>',
+      to: order.customer?.email,
+      subject: `🛍️ ¡Tu pedido está listo para retirar! - Orden #${order.code}`,
+      html: emailHtml,
+    });
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando email de retiro pickup:", error.message);
+    return false;
+  }
+}
 // Enviar email simple (para recuperación de contraseña, etc)
 export default async function sendEmail({ to, subject, html }) {
   if (!process.env.GMAIL_APP_PASSWORD) {

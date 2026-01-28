@@ -158,6 +158,12 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  // ⭐ Notificación de retiro enviada
+  pickupNotificado: {
+    type: Boolean,
+    default: false,
+  },
 },
   {
     timestamps: true,

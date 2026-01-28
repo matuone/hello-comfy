@@ -5,8 +5,50 @@ import NotificationModal from "../components/NotificationModal";
 import "../styles/adminsaledetail.css";
 import "../styles/admin/facturamodal.css";
 
+
 export default function AdminSaleDetail() {
   const { id } = useParams();
+
+  // ============================
+  // PICKUP NOTIFY MODAL
+  // ============================
+  const [modalPickup, setModalPickup] = useState(false);
+  const [fechaRetiro, setFechaRetiro] = useState("");
+  const [enviandoPickup, setEnviandoPickup] = useState(false);
+  const [fechaRetiroFecha, setFechaRetiroFecha] = useState("");
+  const [fechaRetiroHora, setFechaRetiroHora] = useState("");
+
+  async function enviarNotificacionPickup() {
+    if (!fechaRetiroFecha || !fechaRetiroHora) {
+      setModalError("Debes ingresar la fecha/hora para retirar.");
+      return;
+    }
+    setEnviandoPickup(true);
+    try {
+      const fecha = new Date(`${fechaRetiroFecha}T${fechaRetiroHora}`);
+      const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const fechaStr = fecha.toLocaleDateString('es-AR', opciones);
+      let horaStr = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const fechaHoraFinal = `${fechaStr} a las ${horaStr}`;
+      const res = await fetch(`http://localhost:5000/api/admin/orders/${id}/pickup-notify`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ fechaRetiro: fechaHoraFinal }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al notificar retiro");
+      setVenta(data.order);
+      setModalPickup(false);
+      setFechaRetiro("");
+    } catch (err) {
+      setModalError(err.message || "Error al notificar retiro");
+    } finally {
+      setEnviandoPickup(false);
+    }
+  }
 
   const [venta, setVenta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -270,7 +312,71 @@ export default function AdminSaleDetail() {
       {/* ============================
           BOTONES DE ACCIÓN
       ============================ */}
+
       <div className="detalle-actions">
+        {/* Enviar mensaje de retiro (Pick Up) */}
+        {venta.shipping.method === "pickup" && (
+          <button
+            className="factura-btn"
+            style={{ background: "#4caf50", color: "white" }}
+            onClick={() => setModalPickup(true)}
+            disabled={!!venta.pickupNotificado}
+            title={venta.pickupNotificado ? "El cliente ya fue notificado" : "Enviar mensaje de retiro"}
+          >
+            {venta.pickupNotificado ? "✅ Cliente notificado para retiro" : "📩 Enviar mensaje de retiro"}
+          </button>
+        )}
+        {/* ============================
+          MODAL PICKUP NOTIFY
+      ============================ */}
+        {modalPickup && (
+          <div className="factura-modal-overlay" onClick={() => setModalPickup(false)}>
+            <div className="factura-modal-content" onClick={e => e.stopPropagation()}>
+              <h2 className="factura-modal-title">Notificar cliente para retiro</h2>
+              <p className="factura-modal-message">¿Desde cuándo puede retirar el cliente?</p>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexDirection: 'column' }}>
+                <label style={{ fontWeight: 500, color: '#d94f7a' }}>
+                  Fecha:
+                  <input
+                    type="date"
+                    className="factura-modal-input"
+                    value={fechaRetiroFecha || ''}
+                    onChange={e => setFechaRetiroFecha(e.target.value)}
+                    style={{ marginTop: 4 }}
+                  />
+                </label>
+                <label style={{ fontWeight: 500, color: '#d94f7a' }}>
+                  Hora:
+                  <input
+                    type="time"
+                    className="factura-modal-input"
+                    value={fechaRetiroHora || ''}
+                    onChange={e => setFechaRetiroHora(e.target.value)}
+                    style={{ marginTop: 4 }}
+                    step="900"
+                  />
+                </label>
+              </div>
+              <div className="factura-modal-actions">
+                <button
+                  className="factura-modal-btn cancel"
+                  onClick={() => setModalPickup(false)}
+                  disabled={enviandoPickup}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="factura-modal-btn confirm"
+                  onClick={enviarNotificacionPickup}
+                  disabled={enviandoPickup}
+                  style={{ background: "#4caf50" }}
+                >
+                  {enviandoPickup ? "Enviando..." : "Enviar notificación"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Facturar esta venta */}
         <button
