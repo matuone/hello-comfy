@@ -20,7 +20,7 @@ export default function PromoBannerMobile(props) {
   const defaultIMGS = useMemo(() => [banner1, banner2, banner3], []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/promo-banner`)
+    fetch(`${API_URL}/promo-banner`)
       .then(res => res.json())
       .then(data => {
         setBannerData(data);

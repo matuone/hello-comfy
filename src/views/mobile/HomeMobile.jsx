@@ -22,7 +22,7 @@ export default function HomeMobile() {
 
   async function loadHomeCopy() {
     try {
-      const response = await fetch(`${API_URL}/api/config/home-copy`);
+      const response = await fetch(`${API_URL}/config/home-copy`);
       const text = await response.text();
       let data = null;
       try {

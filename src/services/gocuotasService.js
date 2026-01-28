@@ -10,7 +10,7 @@ API_URL = API_URL.replace(/\/+$/, "").replace(/\/api$/, "");
  */
 export const createGocuotasCheckout = async (checkoutData) => {
   try {
-    const response = await fetch(`${API_URL}/api/gocuotas/create-checkout`, {
+    const response = await fetch(`${API_URL}/gocuotas/create-checkout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export const createGocuotasCheckout = async (checkoutData) => {
  */
 export const getGocuotasCheckoutStatus = async (checkoutId) => {
   try {
-    const response = await fetch(`${API_URL}/api/gocuotas/checkout/${checkoutId}`, {
+    const response = await fetch(`${API_URL}/gocuotas/checkout/${checkoutId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -70,7 +70,7 @@ export const getGocuotasCheckoutStatus = async (checkoutId) => {
  */
 export const processGocuotasPayment = async (checkoutId, orderReference) => {
   try {
-    const response = await fetch(`${API_URL}/api/gocuotas/process-payment`, {
+    const response = await fetch(`${API_URL}/gocuotas/process-payment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
