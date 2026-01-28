@@ -33,7 +33,6 @@ import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
 import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CORREO ARG API
 import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
 import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
-import whatsappRoutes from "./routes/whatsappRoutes.js"; // ⭐ NUEVO
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO
@@ -110,7 +109,6 @@ app.use(
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
         connectSrc: ["'self'", "https://api.mercadopago.com", "https://api.gocuotas.com"],
-        frameSrc: ["'self'", "https://www.google.com"],
       },
     },
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
@@ -217,7 +215,6 @@ app.use("/api/opinions", opinionRoutes);
 // ============================
 // RUTA DE WHATSAPP (NUEVO)
 // ============================
-app.use("/api/whatsapp", whatsappRoutes);
 
 // ============================
 // ENDPOINTS DE ENVÍO
