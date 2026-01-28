@@ -50,18 +50,6 @@ export async function enviarEmailRetiroPickup(order, fechaRetiro) {
           background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%);
           padding: 32px 24px;
           text-align: center;
-        ">
-          <h1 style="
-            color: white;
-            margin: 0;
-            font-size: 28px;
-            font-weight: 700;
-          ">¡Tu pedido está listo para retirar!</h1>
-          <p style="
-            color: rgba(255,255,255,0.95);
-            margin: 8px 0 0 0;
-            font-size: 16px;
-          ">Orden #${order.code}</p>
         </div>
 
         <!-- Body -->
