@@ -563,6 +563,32 @@ export default function AdminSales() {
                     {venta.shipping.method === "pickup" && (
                       <>
                         🏬 Pick Up Point
+                        {venta.shipping.pickPoint && (() => {
+                          const pick = venta.shipping.pickPoint.toUpperCase();
+                          if (pick.includes('TEMPERLEY')) {
+                            return (
+                              <span style={{
+                                display: 'inline-block',
+                                marginLeft: 6,
+                                color: '#00bfff', // celeste
+                                fontWeight: 'bold',
+                                fontSize: '1.1em',
+                              }}>T</span>
+                            );
+                          }
+                          if (pick.includes('AQUELARRE')) {
+                            return (
+                              <span style={{
+                                display: 'inline-block',
+                                marginLeft: 6,
+                                color: '#e75480', // rosado
+                                fontWeight: 'bold',
+                                fontSize: '1.1em',
+                              }}>A</span>
+                            );
+                          }
+                          return null;
+                        })()}
                         {venta.pickupNotificado && <span style={{ marginLeft: 6 }} title="Cliente notificado para retiro">✅</span>}
                       </>
                     )}

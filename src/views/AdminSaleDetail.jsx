@@ -486,9 +486,36 @@ export default function AdminSaleDetail() {
             <strong>Método:</strong> {renderMetodo(venta.shipping.method)}
           </p>
 
+
           {venta.shipping.pickPoint && (
             <p className="detalle-info-line">
               <strong>Pick Up:</strong> {venta.shipping.pickPoint}
+              {(() => {
+                const pick = venta.shipping.pickPoint?.toUpperCase();
+                if (pick.includes('TEMPERLEY')) {
+                  return (
+                    <span style={{
+                      display: 'inline-block',
+                      marginLeft: 8,
+                      color: '#00bfff', // celeste
+                      fontWeight: 'bold',
+                      fontSize: '1.1em',
+                    }}>T</span>
+                  );
+                }
+                if (pick.includes('AQUELARRE')) {
+                  return (
+                    <span style={{
+                      display: 'inline-block',
+                      marginLeft: 8,
+                      color: '#e75480', // rosado
+                      fontWeight: 'bold',
+                      fontSize: '1.1em',
+                    }}>A</span>
+                  );
+                }
+                return null;
+              })()}
             </p>
           )}
 
