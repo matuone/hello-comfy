@@ -105,23 +105,43 @@ export function AuthProvider({ children }) {
   }, [user]);
 
   // ============================
-  // CARGAR SESIÓN DESDE LOCALSTORAGE
+  // CARGAR SESIÓN DESDE LOCALSTORAGE Y REFRESCAR DATOS DESDE API
   // ============================
   useEffect(() => {
     const savedUser = localStorage.getItem("authUser");
     const savedAdminToken = localStorage.getItem("adminToken");
     const savedUserToken = localStorage.getItem("userToken");
 
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-
+    let tokenToUse = null;
     if (savedAdminToken && savedAdminToken !== "undefined") {
       setToken(savedAdminToken);
+      tokenToUse = savedAdminToken;
+    } else if (savedUserToken && savedUserToken !== "undefined") {
+      setToken(savedUserToken);
+      tokenToUse = savedUserToken;
     }
 
-    if (savedUserToken && savedUserToken !== "undefined") {
-      setToken(savedUserToken);
+    // Si hay usuario y token, refrescar datos desde la API
+    if (savedUser && tokenToUse) {
+      const parsedUser = JSON.parse(savedUser);
+      // Traer datos frescos desde la API
+      fetch(`/api/users/${parsedUser.id}`, {
+        headers: {
+          Authorization: `Bearer ${tokenToUse}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.user) {
+            setUser(data.user);
+            localStorage.setItem("authUser", JSON.stringify(data.user));
+          } else {
+            setUser(parsedUser); // fallback
+          }
+        })
+        .catch(() => {
+          setUser(parsedUser); // fallback si falla fetch
+        });
     }
   }, []);
 
