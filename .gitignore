@@ -23,11 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# AFIP Certificates (NEVER COMMIT THESE!)
-backend/config/afip-*.key
-backend/config/afip-*.crt
-backend/config/afip-*.csr
-backend/config/afip-ta/
+## AFIP Certificates (permitido temporalmente para deploy Render)
+# backend/config/afip-*.key
+# backend/config/afip-*.crt
+# backend/config/afip-*.csr
+# backend/config/afip-ta/
 
 # Environment files (NEVER COMMIT THESE!)
 .env
