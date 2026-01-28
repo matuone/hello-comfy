@@ -272,6 +272,7 @@ mongoose
 // ============================
 // INICIO DEL SERVIDOR
 // ============================
-app.listen(5000, () => {
-  console.log("\u2705  Backend corriendo en puerto 5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`\u2705  Backend corriendo en puerto ${PORT}`);
 });
