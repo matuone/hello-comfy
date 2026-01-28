@@ -243,8 +243,8 @@ export default function Navbar() {
               {/* MI CUENTA */}
               <button
                 type="button"
-                className="nav-action"
-                aria-label="Mi cuenta"
+                className={`nav-action nav-action--main${user ? " nav-action--logged" : ""}`}
+                aria-label={user ? user.nombre || user.name || "Mi cuenta" : "Mi cuenta"}
                 onClick={() => setShowPopup(true)}
               >
                 <span className="nav-glyph" aria-hidden="true">
@@ -257,7 +257,9 @@ export default function Navbar() {
                     <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
                   </svg>
                 </span>
-                <span className="nav-label">Mi cuenta</span>
+                <span className="nav-label">
+                  {user ? (user.nombre || user.name || "Mi cuenta") : "Mi cuenta"}
+                </span>
               </button>
 
               {/* CARRITO */}
