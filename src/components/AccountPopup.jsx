@@ -70,7 +70,7 @@ export default function AccountPopup(props) {
       if (result.isAdmin) {
         navigate("/admin");
       } else {
-        navigate("/mi-cuenta/perfil");
+        navigate("/");
       }
     } else {
       setError("Email o contraseña incorrectos");
@@ -227,7 +227,7 @@ export default function AccountPopup(props) {
                   navigate("/mi-cuenta/perfil");
                 }}
               >
-                Mi Cuenta
+                Mi cuenta
               </button>
 
               {/* BOTÓN ADMIN SOLO PARA ADMINS */}

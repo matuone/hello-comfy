@@ -46,7 +46,7 @@ export default function MyAccount() {
       if (result.isAdmin) {
         navigate("/admin");
       } else {
-        navigate("/mi-cuenta/perfil");
+        navigate("/");
       }
     } else {
       setError("Email o contraseña incorrectos.");
