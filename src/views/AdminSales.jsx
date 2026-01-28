@@ -560,7 +560,12 @@ export default function AdminSales() {
 
                   <td className="shipping-method-cell">
                     {venta.shipping.method === "home" && "📦 Envío a domicilio"}
-                    {venta.shipping.method === "pickup" && "🏬 Pick Up Point"}
+                      {venta.shipping.method === "pickup" && (
+                        <>
+                          🏬 Pick Up Point
+                          {venta.pickupNotificado && <span style={{ marginLeft: 6 }} title="Cliente notificado para retiro">✅</span>}
+                        </>
+                      )}
                   </td>
 
                   <td>
