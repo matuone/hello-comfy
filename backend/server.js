@@ -72,7 +72,8 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // Configuración de CORS restrictivo
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://tudominio.com" // Cambia esto por tu dominio real en producción
+  "https://hello-comfy.vercel.app",
+  "https://hello-comfy.onrender.com"
 ];
 app.use(cors({
   origin: function (origin, callback) {
@@ -211,10 +212,6 @@ app.use("/api", orderRoutes);
 // RUTAS DE OPINIONES (⭐ NUEVO)
 // ============================
 app.use("/api/opinions", opinionRoutes);
-
-// ============================
-// RUTA DE WHATSAPP (NUEVO)
-// ============================
 
 // ============================
 // ENDPOINTS DE ENVÍO
