@@ -144,7 +144,7 @@ export default function PromoBanner(props) {
       className={`promoBanner ${props.fullBleed ? "fullBleed" : ""}`}
     >
       {/* TEXTO SUPERPUESTO */}
-      <div className="promoBanner__message">
+      <div className="promobanner__message">
         <MarketingMessage message={finalMessage} />
       </div>
 
@@ -159,7 +159,7 @@ export default function PromoBanner(props) {
             src={src}
             alt=""
             draggable={false}
-            className="promoBanner__slide"
+            className="promobanner__slide"
             style={{
               opacity: active ? 1 : 0,
               transform: active ? "scale(1)" : "scale(1.02)",
@@ -187,7 +187,7 @@ export default function PromoBanner(props) {
       </div>
 
       {/* A11Y */}
-      <span className="promoBanner__a11yText">
+      <span className="promobanner__a11ytext">
         Slide {i + 1} de {IMGS.length}
       </span>
     </section>
