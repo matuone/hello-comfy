@@ -86,10 +86,12 @@ export async function registerUser(req, res) {
     }
 
     // Generar token
+    // 30 minutos para usuarios normales, 2h para admin
+    const expiresIn = newUser.isAdmin ? "2h" : "30m";
     const token = jwt.sign(
       { id: newUser._id, isAdmin: newUser.isAdmin },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn }
     );
 
     return res.status(201).json({
@@ -133,10 +135,12 @@ export async function loginUser(req, res) {
     await user.save();
 
     // Generar token
+    // 30 minutos para usuarios normales, 2h para admin
+    const expiresIn = user.isAdmin ? "2h" : "30m";
     const token = jwt.sign(
       { id: user._id, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn }
     );
 
     // Respuesta

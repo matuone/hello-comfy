@@ -20,10 +20,11 @@ export async function adminLogin(req, res) {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
+    // 2 horas para admin
     const token = jwt.sign(
       { id: admin._id, email: admin.email, isAdmin: true },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "2h" }
     );
 
     return res.json({
