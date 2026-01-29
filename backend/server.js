@@ -7,6 +7,8 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // ============================
 // IMPORTS DE RUTAS
@@ -19,24 +21,22 @@ import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import supportRoutes from "./routes/supportRoutes.js"; // ⭐ NUEVO
-import userRoutes from "./routes/userRoutes.js"; // ⭐ NUEVO
-import customerRoutes from "./routes/customerRoutes.js"; // ⭐ NUEVO
-import mercadopagoRoutes from "./routes/mercadopagoRoutes.js"; // ⭐ NUEVO
-import gocuotasRoutes from "./routes/gocuotasRoutes.js"; // ⭐ NUEVO
-import subcategoryRoutes from "./routes/subcategoryRoutes.js"; // ⭐ NUEVO
-import siteConfigRoutes from "./routes/siteConfigRoutes.js"; // ⭐ NUEVO
-import sizeTableRoutes from "./routes/sizeTableRoutes.js"; // ⭐ NUEVO
-import promoBannerRoutes from "./routes/promoBannerRoutes.js"; // ⭐ NUEVO
-import modoRoutes from "./routes/modoRoutes.js"; // ⭐ NUEVO
-import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
-import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CORREO ARG API
-import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
-import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
+import supportRoutes from "./routes/supportRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import customerRoutes from "./routes/customerRoutes.js";
+import mercadopagoRoutes from "./routes/mercadopagoRoutes.js";
+import gocuotasRoutes from "./routes/gocuotasRoutes.js";
+import subcategoryRoutes from "./routes/subcategoryRoutes.js";
+import siteConfigRoutes from "./routes/siteConfigRoutes.js";
+import sizeTableRoutes from "./routes/sizeTableRoutes.js";
+import promoBannerRoutes from "./routes/promoBannerRoutes.js";
+import modoRoutes from "./routes/modoRoutes.js";
+import afipRoutes from "./routes/afipRoutes.js";
+import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js";
+import opinionRoutes from "./routes/opinionRoutes.js";
 
-// ============================
-// IMPORTS DE SERVICIOS DE ENVÍO
-// ============================
+import "./services/stockAlertService.js";
+
 import { cotizarAndreani } from "./services/shipping/andreani.js";
 import { cotizarCorreo } from "./services/shipping/correo.js";
 import { cotizarCorreoArgentino } from "./services/shipping/correoArgentinoApi.js";
@@ -46,21 +46,22 @@ import { cotizarCorreoArgentino } from "./services/shipping/correoArgentinoApi.j
 // ============================
 const app = express();
 
-// Deshabilitar métodos HTTP inseguros
-const disallowedMethods = ["TRACE", "TRACK"];
-app.use((req, res, next) => {
-  if (disallowedMethods.includes(req.method)) {
-    return res.status(405).send("Método no permitido");
-  }
-  next();
-});
+// ============================
+// BLOQUE PARA SERVIR EL FRONTEND (⭐ NUEVO ⭐)
+// ============================
 
-// Opcional: bloquear OPTIONS salvo para CORS preflight
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS" && !req.headers["access-control-request-method"]) {
-    return res.status(405).send("Método OPTIONS no permitido");
-  }
-  next();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Tu carpeta dist está en: hello-comfy/dist
+const distPath = path.join(__dirname, "..", "dist");
+
+// Servir archivos estáticos del frontend
+app.use(express.static(distPath));
+
+// Fallback para React Router
+app.get("/", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
 // ============================
@@ -69,14 +70,13 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// Configuración de CORS restrictivo
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://tudominio.com" // Cambia esto por tu dominio real en producción
+  "https://tudominio.com"
 ];
+
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir requests sin origin (como Postman) o desde orígenes permitidos
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -86,7 +86,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Middleware para forzar HTTPS en producción
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     if (req.headers["x-forwarded-proto"] !== "https") {
@@ -96,9 +95,6 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// Rate limiting desactivado
-
-// Helmet para headers de seguridad con políticas reforzadas
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -122,120 +118,42 @@ app.use(
   })
 );
 
-// Logs de acceso HTTP (solo en producción)
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
 }
 
 // ============================
-// RUTAS DE AUTENTICACIÓN ADMIN
+// RUTAS API
 // ============================
 app.use("/api/admin", adminAuthRoutes);
-
-// ============================
-// RUTA DE LOGIN CLIENTE
-// ============================
 app.use("/api/auth", authRoutes);
-
-// ============================
-// RUTA DE SOPORTE (NUEVA)
-// ============================
-app.use("/api/support", supportRoutes); // ⭐ NUEVO
-
-// ============================
-// RUTA DE USUARIOS (NUEVA)
-// ============================
-app.use("/api/users", userRoutes); // ⭐ NUEVO
-
-// ============================
-// RUTA DE CLIENTES (NUEVA)
-// ============================
-app.use("/api/customers", customerRoutes); // ⭐ NUEVO
-
-// ============================
-// RUTAS EXISTENTES
-// ============================
+app.use("/api/support", supportRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/customers", customerRoutes);
 app.use("/api/stock", stockRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/discounts", discountRoutes);
 app.use("/api/promocodes", promoCodeRoutes);
 app.use("/api/subcategories", subcategoryRoutes);
 app.use("/api/sizetables", sizeTableRoutes);
-
-// ============================
-// RUTAS DE MERCADO PAGO (⭐ NUEVO)
-// ============================
 app.use("/api/mercadopago", mercadopagoRoutes);
-
-// ============================
-// RUTAS DE GO CUOTAS (⭐ NUEVO)
-// ============================
 app.use("/api/gocuotas", gocuotasRoutes);
-
-// ============================
-// RUTAS DE MODO (⭐ NUEVO)
-// ============================
 app.use("/api/modo", modoRoutes);
-
-// ============================
-// RUTAS DE AFIP (⭐ NUEVO)
-// ============================
 app.use("/api", afipRoutes);
-
-// ============================
-// RUTAS DE ADMIN (FACTURACIÓN, ESTADOS, ETC.)
-// ============================
 app.use("/api", adminOrderRoutes);
-
-// ============================
-// RUTAS DE CONFIGURACIÓN DEL SITIO (⭐ NUEVO)
-// ============================
 app.use("/api/config", siteConfigRoutes);
-
-// ============================
-// RUTAS DE PROMO BANNER (⭐ NUEVO)
-// ============================
 app.use("/api/promo-banner", promoBannerRoutes);
-
-// ============================
-// RUTAS CORREO ARGENTINO API
-// ============================
 app.use("/api", correoArgentinoRoutes);
-
-// ============================
-// RUTAS DE PEDIDOS (checkout, crear orden, etc.)
-// ============================
 app.use("/api", orderRoutes);
-
-// ============================
-// RUTAS DE OPINIONES (⭐ NUEVO)
-// ============================
 app.use("/api/opinions", opinionRoutes);
-
-// ============================
-// RUTA DE WHATSAPP (NUEVO)
-// ============================
 
 // ============================
 // ENDPOINTS DE ENVÍO
 // ============================
-// COMENTADO: Andreani no configurado aún
-// app.post("/api/shipping/andreani", async (req, res) => {
-//   try {
-//     const result = await cotizarAndreani(req.body);
-//     res.json(result);
-//   } catch (err) {
-//     console.error("Error cotizando Andreani:", err);
-//     res.status(500).json({ error: "Error cotizando Andreani" });
-//   }
-// });
-
 app.post("/api/shipping/correo", async (req, res) => {
   try {
-    // Intentar usar la API de Correo Argentino primero
     const apiResult = await cotizarCorreoArgentino(req.body);
 
-    // Si la API no está configurada o falla, usar tarifas locales
     if (apiResult.pendingCredentials || apiResult.apiError) {
       const fallbackResult = cotizarCorreo(req.body);
       res.json({ ...fallbackResult, source: "local" });
@@ -244,7 +162,6 @@ app.post("/api/shipping/correo", async (req, res) => {
     }
   } catch (err) {
     console.error("Error cotizando Correo Argentino:", err);
-    // Fallback a tarifas locales en caso de error
     try {
       const fallbackResult = cotizarCorreo(req.body);
       res.json({ ...fallbackResult, source: "local-fallback" });
@@ -255,18 +172,11 @@ app.post("/api/shipping/correo", async (req, res) => {
 });
 
 // ============================
-// RUTA DE PRUEBA
-// ============================
-app.get("/", (req, res) => {
-  res.send("API HelloComfy funcionando");
-});
-
-// ============================
 // CONEXIÓN A MONGO
 // ============================
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {/* MongoDB conectado */ })
+  .then(() => { })
   .catch((err) => console.error("Error al conectar MongoDB:", err));
 
 // ============================
@@ -274,5 +184,5 @@ mongoose
 // ============================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`\u2705  Backend corriendo en puerto ${PORT}`);
+  console.log(`✔ Backend corriendo en puerto ${PORT}`);
 });
