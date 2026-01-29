@@ -1,3 +1,4 @@
+/*
 .nav-action--main,
 .nav-action--logged,
 .nav-action--last {
@@ -70,7 +71,7 @@
 .nav-action--logged:focus .nav-icon__svg {
   stroke: #fff;
 }
-
+*/
 /* ====== VARIABLES ====== */
 :root {
   --hc-pink: #ffb6b3;
@@ -505,3 +506,5 @@ a.nav-link.active {
       border-radius: 0;
       background: transparent;
     }
+  }
+}
