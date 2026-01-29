@@ -134,7 +134,7 @@ export default function AdminCustomers() {
 
             {filtrados.length === 0 && (
               <tr>
-                <td colSpan="4" className="clientes-empty">
+                <td colSpan="6" className="clientes-empty">
                   No se encontraron clientes con los filtros aplicados.
                 </td>
               </tr>
