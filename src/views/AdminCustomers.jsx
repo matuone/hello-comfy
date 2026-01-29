@@ -105,20 +105,20 @@ export default function AdminCustomers() {
                 <td>{c.nombre}</td>
                 <td>{c.email}</td>
                 <td>
-                  {(c.whatsapp || c.address?.whatsapp) ? (
+                  {(c.whatsapp || c.address?.whatsapp || c.telefono) ? (
                     <a
-                      href={`https://wa.me/${formatWhatsAppNumber(c.whatsapp || c.address?.whatsapp)}`}
+                      href={`https://wa.me/${formatWhatsAppNumber(c.whatsapp || c.address?.whatsapp || c.telefono)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="whatsapp-link"
                     >
-                      {c.whatsapp || c.address?.whatsapp}
+                      {c.whatsapp || c.address?.whatsapp || c.telefono}
                     </a>
                   ) : (
                     "—"
                   )}
                 </td>
-                {/* <td>{c.telefono || "—"}</td> */}
+                <td>{c.telefono || "—"}</td>
                 <td>
                   <span className={`status-badge status-${c.estado}`}>
                     {c.estado === "activo" ? "Activo" : "Inactivo"}
@@ -134,7 +134,7 @@ export default function AdminCustomers() {
 
             {filtrados.length === 0 && (
               <tr>
-                <td colSpan="6" className="clientes-empty">
+                <td colSpan="4" className="clientes-empty">
                   No se encontraron clientes con los filtros aplicados.
                 </td>
               </tr>
