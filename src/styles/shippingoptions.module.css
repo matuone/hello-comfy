@@ -1,0 +1,46 @@
+/* ============================
+   SHIPPING OPTIONS (COMFY)
+============================ */
+.shipopt-container {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.shipopt-title {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+.shipopt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.shipopt-item {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #f0d3df;
+  background: #fff7fb;
+  width: 100%;
+}
+
+.shipopt-carrier {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.shipopt-price {
+  margin: 4px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+.shipopt-eta {
+  color: #666;
+  font-size: 0.85rem;
+}

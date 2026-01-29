@@ -1,0 +1,452 @@
+/* ============================
+   RESPONSIVE: SCROLL LATERAL EN MOBILE PARA TABLA DE STOCK
+============================ */
+@media (max-width: 900px) {
+  .excel-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .excel-table {
+    min-width: 700px;
+  }
+}
+
+/* ============================
+   RESPONSIVE: SCROLL LATERAL EN MOBILE PARA TABLA DE STOCK
+============================ */
+@media (max-width: 900px) {
+  .excel-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 700px;
+  }
+}
+
+/* ============================
+   CONTENEDOR PRINCIPAL
+============================ */
+.admin-stock-excel {
+  max-width: 1100px;
+  margin-left: 0;
+  padding: 10px;
+  position: relative;
+}
+
+.admin-stock-excel h2 {
+  margin-bottom: 10px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ff4fa2;
+}
+
+/* ============================
+   TOAST COMFY
+============================ */
+.comfy-toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: toastSlideIn 0.25s ease-out;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+
+.comfy-toast-success {
+  background: linear-gradient(135deg, #4caf50, #81c784);
+}
+
+.comfy-toast-error {
+  background: linear-gradient(135deg, #e53935, #ef5350);
+}
+
+.comfy-toast-warning {
+  background: linear-gradient(135deg, #f9a825, #ffca28);
+}
+
+.comfy-toast-info {
+  background: linear-gradient(135deg, #2196f3, #64b5f6);
+}
+
+/* ============================
+   BOTÓN AGREGAR COLOR
+============================ */
+.btn-agregar-color {
+  background: linear-gradient(135deg, #ff4fa2, #ff7bbf);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 8px rgba(255, 79, 162, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-agregar-color:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(255, 79, 162, 0.35);
+}
+
+/* ============================
+   TABLA COMFY
+============================ */
+.excel-table {
+  width: auto;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  font-size: 0.9rem;
+  margin-left: 0;
+}
+
+.excel-table thead {
+  background: #ffe3f1;
+}
+
+/* Alineación vertical + horizontal */
+.excel-table th,
+.excel-table td {
+  padding: 10px 14px;
+  vertical-align: middle !important;
+}
+
+/* Centrar SOLO los talles */
+.excel-table thead th:nth-child(n+4):not(:last-child) {
+  text-align: center;
+  padding-left: 0;
+}
+
+.excel-table thead th {
+  font-weight: 700;
+  color: #444;
+  border-bottom: 2px solid #ffc7e6;
+}
+
+/* ============================
+   FILAS
+============================ */
+.excel-table tbody tr {
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+}
+
+.dirty-row {
+  background: #fff4d9 !important;
+}
+
+.saving-row {
+  background: #e6f0ff !important;
+}
+
+.saved-row {
+  background: #e7ffe7 !important;
+}
+
+.error-row {
+  background: #ffe5e5 !important;
+}
+
+/* ============================
+   INPUT COLOR
+============================ */
+.excel-table input[type="color"] {
+  width: 45px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.excel-table input[type="color"]:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================
+   INPUTS DE TEXTO
+============================ */
+.excel-table input[type="text"] {
+  width: 140px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.excel-table input[type="text"]:focus {
+  background: white;
+  border-color: #ff4fa2;
+  box-shadow: 0 0 0 2px rgba(255, 79, 162, 0.25);
+  outline: none;
+}
+
+/* ============================
+   INPUTS DE TALLES — AJUSTADOS
+============================ */
+.excel-table input[type="number"] {
+  width: 48px;
+  /* 🔥 antes 55px */
+  padding: 6px 6px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-right: 4px;
+  transition: all 0.2s ease;
+}
+
+.excel-table input[type="number"]:focus {
+  background: white;
+  border-color: #ff4fa2;
+  box-shadow: 0 0 0 2px rgba(255, 79, 162, 0.25);
+  outline: none;
+}
+
+/* ============================
+   ACCIONES
+============================ */
+.acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+/* Botón GUARDAR blindado */
+.acciones .btn-guardar {
+  all: unset;
+  background: #ff4fa2;
+  color: white;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.acciones .btn-guardar:hover {
+  background: #e63f8f;
+}
+
+.acciones .btn-guardar:disabled {
+  background: #ffb3d4;
+  cursor: not-allowed;
+}
+
+/* ============================
+   BOTÓN ELIMINAR
+============================ */
+.acciones .btn-eliminar {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 0 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.2s ease;
+}
+
+.acciones .btn-eliminar:hover {
+  background: #b71c1c;
+}
+
+/* ============================
+   MENSAJES INLINE
+============================ */
+.ok-msg,
+.error-msg {
+  position: absolute;
+  right: -70px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ok-msg {
+  color: #2e7d32;
+}
+
+.error-msg {
+  color: #c62828;
+}
+
+/* ============================
+   TOGGLE
+============================ */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ffb3d4;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.switch input:checked+.slider {
+  background-color: #ff4fa2;
+}
+
+.switch input:checked+.slider:before {
+  transform: translateX(22px);
+}
+
+/* ============================
+   MODAL COMFY
+============================ */
+.comfy-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comfy-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #444;
+  animation: modalIn 0.25s ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-icon {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+
+.modal-message {
+  font-size: 1.05rem;
+  color: #444;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.comfy-modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #ff4fa2, #ff7bbf);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-confirm:hover {
+  background: #e63f8f;
+}
+
+.btn-cancel {
+  background: #eee;
+  color: #444;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background: #ddd;
+}

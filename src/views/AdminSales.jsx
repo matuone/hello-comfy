@@ -30,6 +30,9 @@ export default function AdminSales() {
   const [ventasData, setVentasData] = useState([]);
   const [error, setError] = useState(false);
 
+  // Modal comfy para token inválido
+  const [showTokenModal, setShowTokenModal] = useState(false);
+
   // Redirigir si no hay token
   useEffect(() => {
     if (!token) {
@@ -49,13 +52,29 @@ export default function AdminSales() {
           },
         });
 
+        let errorMsg = "";
+        let data = null;
+        try {
+          data = await res.json();
+        } catch (e) {
+          errorMsg = await res.text();
+        }
+
         if (!res.ok) {
-          console.error("Error cargando ventas:", await res.text());
+          // Si el backend responde con token inválido, forzar logout y redirigir
+          if (data && data.error === "Token inválido") {
+            setShowTokenModal(true);
+            // Limpiar tokens
+            localStorage.removeItem("adminToken");
+            localStorage.removeItem("authUser");
+            localStorage.removeItem("userToken");
+            return;
+          }
+          console.error("Error cargando ventas:", data?.error || errorMsg);
           setError(true);
           return;
         }
 
-        const data = await res.json();
         setVentasData(data);
       } catch (err) {
         console.error("Error cargando ventas:", err);
@@ -473,7 +492,63 @@ export default function AdminSales() {
         </div>
       </div>
 
-      {/* Tabla */}
+      {/* Modal comfy para token inválido */}
+      {showTokenModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          background: "rgba(0,0,0,0.35)",
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <div style={{
+            background: "linear-gradient(135deg, #ffb6b3 0%, #ff7e7e 100%)",
+            color: "#fff",
+            borderRadius: 16,
+            padding: "40px 32px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+            textAlign: "center",
+            maxWidth: 340,
+            fontFamily: "inherit",
+            position: "relative"
+          }}>
+            <h2 style={{ marginBottom: 16, fontWeight: 700 }}>
+              ¡Sesión expirada!
+            </h2>
+            <p style={{ fontSize: "1.1rem", marginBottom: 24 }}>
+              Por tu seguridad, tu sesión de administrador fue cerrada.<br />
+              <span style={{ fontSize: "0.95rem", opacity: 0.85 }}>
+                Volvé a iniciar sesión para seguir gestionando ventas 😊
+              </span>
+            </p>
+            <button
+              style={{
+                background: "#fff",
+                color: "#ff7e7e",
+                border: "none",
+                borderRadius: 8,
+                padding: "10px 24px",
+                fontWeight: 600,
+                fontSize: "1rem",
+                cursor: "pointer",
+                marginTop: 8,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+              }}
+              onClick={() => {
+                setShowTokenModal(false);
+                window.location.href = "/admin/login";
+              }}
+            >
+              Ir al login
+            </button>
+          </div>
+        </div>
+      )}
       <div className="admin-table-container">
         <table className="admin-table">
           <thead>

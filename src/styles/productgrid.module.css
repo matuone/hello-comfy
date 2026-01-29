@@ -1,0 +1,266 @@
+/* ============================
+   GRID
+============================ */
+.products__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 26px;
+  margin-top: 30px;
+}
+
+/* ============================
+   TARJETA (UNIFICADA)
+============================ */
+.productcard__item {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.productcard__item:hover {
+  transform: translateY(-4px);
+}
+
+/* ============================
+   IMAGEN
+============================ */
+.productcard__image {
+  width: 100%;
+  aspect-ratio: 4 / 5.5;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #eee;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.productcard__item:hover .productcard__image {
+  transform: scale(1.03);
+}
+
+/* ============================
+   NOMBRE (TRUNCADO A 2 LÍNEAS)
+============================ */
+.productcard__name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--hc-text);
+  cursor: pointer;
+  text-align: center;
+
+  /* ⭐ Altura homogénea */
+  line-height: 1.3;
+  min-height: calc(1.3em * 2);
+
+  /* ⭐ Truncado */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================
+   PRECIO
+============================ */
+.productcard__price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #d94f7a;
+  margin-bottom: 10px;
+  min-height: 24px;
+  text-align: center;
+}
+
+/* ============================
+   DESCRIPCIÓN (TRUNCADA A 3 LÍNEAS)
+============================ */
+.productcard__desc {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  text-align: center;
+
+  /* ⭐ Altura homogénea exacta */
+  min-height: 4.5em;
+
+  /* ⭐ Truncado */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================
+   ESTRELLAS
+============================ */
+.productcard__stars {
+  font-size: 1.2rem;
+  color: #ffb400;
+  margin-bottom: 14px;
+  min-height: 24px;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ============================
+   BOTONES
+============================ */
+.productcard__buttons {
+  margin-top: auto;
+  /* ⭐ Empuja los botones al fondo */
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.productcard__btn-buy,
+.productcard__btn-cart {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.productcard__btn-buy {
+  background: #d94f7a;
+  color: white;
+}
+
+.productcard__btn-buy:hover {
+  background: #c63f6a;
+}
+
+.productcard__btn-cart {
+  background: #eee;
+  color: #333;
+}
+
+.productcard__btn-cart:hover {
+  background: #ddd;
+}
+
+/* ============================
+   VER MÁS
+============================ */
+.productcard__btn-viewmore {
+  margin-top: 8px;
+  background: none;
+  border: none;
+  color: #d94f7a;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  min-height: 40px;
+}
+
+/* ============================
+   STOCK BADGES
+============================ */
+.productcard__stock {
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.productcard__instock {
+  background: #d4f8d4;
+  color: #2d7a2d;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.productcard__nostock {
+  background: #ffd6d6;
+  color: #b30000;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.productcard__lowstock {
+  background: #fff3c4;
+  color: #8a6d00;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ============================
+   TALLES DISPONIBLES
+============================ */
+.productcard__sizes {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* ⭐ Esto los centra */
+}
+
+
+.productcard__size-pill {
+  background: #f2f2f2;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+}
+
+.productcard__sizes--selectable {
+  gap: 6px;
+}
+
+.productcard__size-pill--button {
+  border: 1px solid #e5e5e5;
+  background: #f7f7f7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.productcard__size-pill--button.is-selected {
+  border-color: #d94f7a;
+  color: #c63f6a;
+  background: #ffe4ee;
+}
+
+.productcard__qty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.productcard__qty-label {
+  font-size: 13px;
+  color: #555;
+  font-weight: 700;
+}
+
+.productcard__qty input {
+  width: 68px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-weight: 600;
+}

@@ -1,0 +1,145 @@
+/* Gradiente inferior para fundir con .home-copy */
+
+
+/* Gradiente radial inferior para transición natural */
+
+/* Gradiente largo y progresivo para fundir la imagen a blanco */
+.promoBanner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38%;
+  /* El gradiente ocupa el 38% inferior del banner */
+  pointer-events: none;
+  z-index: 3;
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.02) 60%,
+      rgba(255, 255, 255, 0.10) 75%,
+      rgba(255, 255, 255, 0.25) 85%,
+      rgba(255, 255, 255, 0.55) 95%,
+      #fff 100%);
+}
+
+/* src/styles/promobanner.css */
+
+.promoBanner {
+  position: relative;
+  width: 100%;
+  height: clamp(450px, 70vw, 800px);
+  overflow: hidden;
+  background: #f3f3f3;
+  line-height: 0;
+  margin: 0;
+}
+
+.promoBanner.fullBleed {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+}
+
+
+.promoBanner__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* object-position: se define via props, no hardcodear aquí */
+  transition: opacity 400ms ease, transform 400ms ease;
+  will-change: opacity, transform;
+  display: block;
+}
+
+/* ===========================================
+   TEXTO SUPERPUESTO (IZQUIERDA, MUY GRANDE)
+=========================================== */
+.promoBanner__message {
+  position: absolute;
+  top: 140px;
+  left: 60px;
+  z-index: 5;
+
+  font-size: clamp(4rem, 8vw, 7rem);
+  font-weight: 900;
+
+  color: white;
+  text-shadow: 0 5px 20px rgba(0, 0, 0, 0.55);
+
+  text-align: left;
+  max-width: 700px;
+  line-height: 1.05;
+
+  pointer-events: none;
+
+  /* ANIMACIÓN DE ENTRADA */
+  animation: promoTextEnter 0.8s ease-out both;
+}
+
+/* ===========================
+   ANIMACIÓN TEXTO
+=========================== */
+@keyframes promoTextEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* DOTS */
+.promoBanner__dots {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 350ms ease;
+}
+
+.promoBanner__dots.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.promoBanner__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 240ms ease, transform 240ms ease;
+}
+
+.promoBanner__dot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.promoBanner__dot.active {
+  background: rgba(255, 255, 255, 0.95);
+  transform: scale(1.9);
+}
+
+/* A11Y */
+.promoBanner__a11yText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

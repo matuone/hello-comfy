@@ -1,0 +1,102 @@
+/* ============================
+   SECCIÓN NEW IN
+============================ */
+.newin {
+  width: 100%;
+  padding: 64px 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+
+  .newin__container {
+    width: 1800px;
+    max-width: calc(100vw - 32px);
+    padding: 0 16px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  .newin__title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: var(--hc-text);
+    text-align: center;
+  }
+
+  /* HINT VISUAL */
+  .carousel-hint {
+    text-align: right;
+    font-size: 14px;
+    color: #d94f7a;
+    margin-bottom: 12px;
+    opacity: 0.8;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hand-icon {
+    display: inline-block;
+    animation: handMove 1.4s infinite ease-in-out;
+  }
+
+  @keyframes handMove {
+    0% {
+      transform: translateX(0);
+    }
+
+    50% {
+      transform: translateX(6px);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  /* ============================
+   CARD NEW IN
+============================ */
+
+  /* Ajustes para el layout unificado de tarjetas dentro del carrusel */
+  .newin .productcard__item {
+    min-width: 220px;
+    height: 100%;
+    margin-right: 0;
+  }
+
+  @media (max-width: 600px) {
+    .newin .productcard__item {
+      min-width: 180px;
+      max-width: 90vw;
+      margin-right: 0;
+    }
+  }
+}
+
+.newin .productcard__image {
+  aspect-ratio: 4 / 5.5;
+}
+
+/* SWIPER DOTS */
+.swiper-pagination {
+  position: relative;
+  margin-top: 40px;
+  text-align: center;
+}
+
+.swiper-pagination-bullet {
+  background: #d94f7a;
+  opacity: 0.35;
+  width: 12px;
+  height: 12px;
+  margin: 0 6px !important;
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1;
+}

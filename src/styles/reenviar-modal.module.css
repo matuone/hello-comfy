@@ -1,0 +1,174 @@
+/* ============================
+   REENVIAR MODAL
+============================ */
+
+.reenviar-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.reenviar-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 48px 40px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================
+   ICONO DEL MODAL
+============================ */
+
+.reenviar-modal-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reenviar-modal-exito .reenviar-modal-icon {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.reenviar-modal-exito .reenviar-modal-icon svg {
+  width: 44px;
+  height: 44px;
+  color: white;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reenviar-modal-error .reenviar-modal-icon {
+  background: linear-gradient(135deg, #FF6B6B 0%, #EE5A52 100%);
+}
+
+.reenviar-modal-error .reenviar-modal-icon svg {
+  width: 44px;
+  height: 44px;
+  color: white;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ============================
+   CONTENIDO
+============================ */
+
+.reenviar-modal-titulo {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.reenviar-modal-mensaje {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+}
+
+/* ============================
+   BOTÓN
+============================ */
+
+.reenviar-modal-btn {
+  background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(217, 79, 122, 0.25);
+}
+
+.reenviar-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(217, 79, 122, 0.35);
+}
+
+.reenviar-modal-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================
+   RESPONSIVE
+============================ */
+
+@media (max-width: 480px) {
+  .reenviar-modal {
+    padding: 40px 24px;
+    border-radius: 16px;
+  }
+
+  .reenviar-modal-titulo {
+    font-size: 20px;
+  }
+
+  .reenviar-modal-mensaje {
+    font-size: 14px;
+  }
+
+  .reenviar-modal-icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .reenviar-modal-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+}

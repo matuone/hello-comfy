@@ -1,0 +1,386 @@
+/* ============================
+   CONTENEDOR GENERAL
+============================ */
+.products {
+  width: 100%;
+  max-width: 1400px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+  color: var(--hc-text);
+  box-sizing: border-box;
+}
+
+.products__title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #d94f7a;
+  margin-bottom: 8px;
+}
+
+.products__subtitle {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.65);
+  margin-bottom: 40px;
+}
+
+/* ============================
+   FILTROS HORIZONTALES (sticky)
+============================ */
+.products__filters-horizontal {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 12px 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.products__filters-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Cada dropdown */
+.products__dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* ============================
+   BOTÓN PRINCIPAL — Pastel Comfy
+============================ */
+.products__dropdown-toggle {
+  padding: 10px 18px;
+  background: #ffe8f0;
+  border: 1px solid #f7c9d8;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #d94f7a;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Flechita */
+.products__dropdown-toggle::after {
+  content: "▼";
+  font-size: 0.75rem;
+  transition: transform 0.25s ease;
+}
+
+/* Flecha rotada cuando está abierto */
+.products__dropdown.open .products__dropdown-toggle::after {
+  transform: rotate(180deg);
+}
+
+.products__dropdown-toggle:hover {
+  background: #ffd9e7;
+  border-color: #f3b3c7;
+}
+
+/* ============================
+   MENÚ DESPLEGABLE
+============================ */
+.products__dropdown-menu {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+
+  animation: dropdownFadeIn 0.25s ease forwards;
+  transform-origin: top center;
+}
+
+.products__dropdown-menu.closing {
+  animation: dropdownFadeOut 0.2s ease forwards;
+}
+
+/* ============================
+   ANIMACIONES
+============================ */
+@keyframes dropdownFadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+    filter: blur(3px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes dropdownFadeOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+    filter: blur(3px);
+  }
+}
+
+/* ============================
+   ITEMS DEL MENÚ — underline slide
+============================ */
+.products__dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #444;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.products__dropdown-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+  width: 0%;
+  height: 2px;
+  background: #d94f7a;
+  transition: width 0.25s ease;
+  border-radius: 2px;
+}
+
+.products__dropdown-item:hover {
+  color: #d94f7a;
+}
+
+.products__dropdown-item:hover::after {
+  width: 100%;
+}
+
+.products__dropdown-item.active {
+  background: #d94f7a;
+  color: #fff;
+}
+
+/* ============================
+   GRID — columnas centradas
+============================ */
+.products__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: stretch;
+}
+
+/* ============================
+   SKELETON LOADERS
+============================ */
+.skeleton-card {
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.skeleton-img {
+  width: 100%;
+  aspect-ratio: 4 / 5.5;
+  background: #f0f0f0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ============================
+   AJUSTES DE ALINEACIÓN SOLO PARA PRODUCTS
+   (NO afecta BestSellers)
+============================ */
+
+/* Asegurar que el nombre ocupe el mismo alto */
+.bestsellers__name {
+  min-height: 24px;
+}
+
+/* Asegurar que el precio ocupe el mismo alto */
+.bestsellers__price {
+  min-height: 24px;
+}
+
+/* Asegurar que la descripción no mueva las estrellas */
+.bestsellers__desc {
+  min-height: 48px;
+  max-height: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* Alinear estrellas entre tarjetas */
+.bestsellers__stars {
+  min-height: 24px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Alinear botones entre tarjetas */
+.bestsellers__buttons {
+  min-height: 48px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Ver más siempre abajo */
+.bestsellers__btn-viewmore {
+  margin-top: auto;
+  min-height: 40px;
+}
+
+/* Asegurar que todas las tarjetas tengan la misma altura */
+.bestsellers__item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 520px;
+}
+
+/* ============================
+   RESPONSIVE PRODUCTS
+============================ */
+@media (max-width: 900px) {
+  .products {
+    padding: 8px 0 0 0;
+    margin: 0;
+    max-width: 100vw;
+  }
+
+  .products__title {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+  }
+
+  .products__subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+  }
+
+  .products__filters-horizontal {
+    margin-top: 64px;
+    /* Ajuste fino: apenas debajo del navbar en mobile */
+    padding: 8px 0;
+    font-size: 0.95rem;
+  }
+
+  .products__filters-row {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .products__dropdown-toggle {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    border-radius: 10px;
+  }
+
+  .products__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0 6px;
+  }
+
+  .skeleton-card {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .products {
+    padding: 0;
+    margin: 0;
+    max-width: 100vw;
+  }
+
+  .products__title {
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+  }
+
+  .products__subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+
+  .products__filters-horizontal {
+    padding: 6px 0;
+    font-size: 0.9rem;
+  }
+
+  .products__filters-row {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .products__dropdown-toggle {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .products__grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 0 2px;
+  }
+
+  .skeleton-card {
+    min-height: 180px;
+  }
+}

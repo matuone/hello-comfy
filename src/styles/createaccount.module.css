@@ -1,0 +1,186 @@
+/* ================================
+   CONTENEDOR GENERAL
+================================ */
+.create-account {
+  min-height: calc(100vh - var(--navbar-height));
+  width: 100%;
+  background: #f9f9f9;
+
+  display: flex;
+  justify-content: center;
+  /* centra horizontal */
+  align-items: flex-start;
+  /* 🔥 sube la tarjeta */
+
+  padding-top: 80px;
+  /* 🔥 separación del navbar */
+  padding-bottom: 40px;
+}
+
+
+/* ================================
+   TARJETA
+================================ */
+.create-account__card {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 56px;
+  background: #fff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+/* ================================
+   TÍTULOS
+================================ */
+.create-account__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #d94f7a;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.create-account__subtitle {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+/* ================================
+   FORM GRID
+================================ */
+.create-account__form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px 32px;
+}
+
+/* ================================
+   CAMPOS
+================================ */
+.create-account__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ================================
+   LABELS
+================================ */
+.create-account__field label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #444;
+}
+
+/* ================================
+   INPUTS (TODOS IGUALES)
+================================ */
+.create-account__field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  padding-right: 48px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  line-height: 44px;
+  box-sizing: border-box;
+}
+
+.create-account__field input:focus {
+  border-color: #d94f7a;
+}
+
+/* ================================
+   PASSWORD
+================================ */
+.create-account__password {
+  position: relative;
+}
+
+/* 🔥 OJO CORREGIDO (SVG) */
+.create-account__eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  padding: 0;
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #555;
+}
+
+.create-account__eye svg {
+  display: block;
+}
+
+.create-account__eye:hover {
+  color: #000;
+}
+
+/* ================================
+   BOTÓN
+================================ */
+.create-account__btn {
+  grid-column: 1 / -1;
+  height: 46px;
+  width: 260px;
+  margin: 20px auto 0;
+
+  background: #d94f7a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.create-account__btn:hover {
+  background: #c23f6a;
+}
+
+/* ================================
+   LOGIN LINK
+================================ */
+.create-account__login {
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+.create-account__login a {
+  color: #d94f7a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.create-account__login a:hover {
+  text-decoration: underline;
+}
+
+/* ================================
+   MOBILE
+================================ */
+@media (max-width: 768px) {
+  .create-account__form {
+    grid-template-columns: 1fr;
+  }
+}

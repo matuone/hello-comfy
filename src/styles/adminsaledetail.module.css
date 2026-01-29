@@ -1,0 +1,319 @@
+/* ============================
+   DETALLE DE VENTA – CONTENEDOR
+============================ */
+.detalle-box {
+  background: #fafafa;
+  padding: 18px 20px;
+  border-radius: 14px;
+  margin-bottom: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+/* ============================
+   TÍTULOS DE SECCIÓN
+============================ */
+.detalle-title {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+/* ============================
+   LISTA DE HISTORIAL
+============================ */
+.detalle-historial {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detalle-historial li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.detalle-historial li:last-child {
+  border-bottom: none;
+}
+
+.detalle-actions button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.detalle-actions button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Botón Facturar - Estado Pendiente (Naranja) */
+.facturar-btn.pendiente {
+  background: #ff9800;
+  color: white;
+}
+
+.facturar-btn.pendiente:hover {
+  background: #f57c00;
+}
+
+.facturar-btn.pendiente:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Botón Facturar - Estado Facturado (Verde) */
+.facturar-btn.facturado {
+  background: #4caf50;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.facturar-btn.facturado:hover {
+  background: #45a049;
+}
+
+.facturar-btn:disabled {
+  opacity: 0.7;
+}
+
+/* Otros botones del detalle */
+.detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .detalle-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================
+   BOTÓN DE COPIAR CÓDIGO
+============================ */
+.detalle-copy-btn {
+  background: #d94f7a;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.15s ease;
+}
+
+.detalle-copy-btn:hover {
+  background: #c63f6a;
+}
+
+/* ============================
+   BLOQUES DE INFORMACIÓN
+============================ */
+.detalle-info-line {
+  margin: 6px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.detalle-info-line strong {
+  color: #000;
+}
+
+/* ============================
+   BOTONES DESPLEGABLES
+============================ */
+.detalle-actions {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-btn {
+  background: #d94f7a;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.15s ease;
+}
+
+.dropdown-btn:hover {
+  background: #c63f6a;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 8px 0;
+  display: none;
+  min-width: 240px;
+  z-index: 10;
+}
+
+.dropdown-menu.open {
+  display: block;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.dropdown-menu button:hover {
+  background: #fce4ec;
+}
+
+/* ============================
+   COMENTARIOS DEL CLIENTE
+============================ */
+.detalle-comentarios {
+  font-size: 0.9rem;
+  color: #444;
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.detalle-comentarios-vacio {
+  color: #999;
+  font-style: italic;
+}
+
+/* ============================
+   MÉTODO DE ENVÍO (ICONO + TEXTO)
+============================ */
+.detalle-envio-metodo {
+  font-size: 0.95rem;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+/* ============================
+   FACTURACIÓN EN DETALLE – BOTONES
+============================ */
+.detalle-box .factura-btn {
+  margin-right: 10px;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.detalle-box .factura-btn.reenviar {
+  margin-right: 0;
+}
+
+/* ============================
+   NÚMERO DE FACTURA - BADGE ESTILIZADO
+============================ */
+.factura-numero {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  word-break: break-all;
+  transition: all 0.3s ease;
+}
+
+.factura-numero:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Badge compacto para vista previa */
+.factura-numero-compact {
+  display: block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 1.2px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  margin-top: 10px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.factura-numero-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================
+   REGALO
+============================ */
+.detalle-gift-box {
+  background: linear-gradient(135deg, #fff0f5 0%, #ffe8f0 100%);
+  border: 2px solid #d94f7a;
+}
+
+.detalle-gift-message {
+  margin-top: 12px;
+}
+
+.detalle-gift-message strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #d94f7a;
+  font-size: 0.95rem;
+}
+
+.detalle-gift-message-text {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #d94f7a;
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+}

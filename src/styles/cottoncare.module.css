@@ -1,0 +1,139 @@
+/* 🔧 Reset local */
+.cotton-care,
+.cotton-care * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 🧼 Sección principal */
+.cotton-care {
+  min-height: 100vh;
+  padding: 80px 20px 60px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Contenedor relativo para posicionar el oso */
+.cotton-care-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  /* 👈 ancho centrado */
+  margin: 0 auto;
+}
+
+/* 📄 Texto centrado */
+.cotton-care-text {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 700px;
+  margin: 0 auto;
+  /* 👈 centrado absoluto */
+}
+
+/* 🐻 Oso posicionado a la izquierda del texto */
+.cotton-care-bear {
+  position: absolute;
+  left: -280px;
+  /* 👈 distancia desde el texto */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 260px;
+}
+
+.cotton-care-bear img {
+  width: 100%;
+  height: auto;
+  display: block;
+  animation: cottonFloat 6s ease-in-out infinite;
+}
+
+/* 🎯 Tipografía */
+.cotton-care-text h2 {
+  font-size: 48px;
+  color: #d94f7a;
+}
+
+.cotton-care-text h3 {
+  font-size: 28px;
+  color: #555;
+}
+
+.cotton-care-text p {
+  font-size: 20px;
+  color: #444;
+  line-height: 1.8;
+}
+
+.cotton-care-text h4 {
+  font-size: 26px;
+  color: #d94f7a;
+  margin-top: 8px;
+}
+
+/* 📋 Lista */
+.cotton-care-text ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.cotton-care-text li {
+  background: #f8b6c9;
+  color: #fff;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* 🫧 Animación */
+@keyframes cottonFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* 📱 Mobile */
+@media (max-width: 900px) {
+  .cotton-care {
+    padding: 100px 16px 40px;
+  }
+
+  .cotton-care-wrap {
+    max-width: 100%;
+  }
+
+  .cotton-care-bear {
+    position: static;
+    transform: none;
+    width: 200px;
+    margin: 0 auto 20px;
+  }
+
+  .cotton-care-text {
+    max-width: 100%;
+  }
+
+  .cotton-care-text li {
+    font-size: 16px;
+    padding: 12px 16px;
+  }
+}

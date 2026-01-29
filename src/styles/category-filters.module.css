@@ -1,0 +1,48 @@
+/* ==========================================
+   CATEGORY VIEW — Estilos aislados
+   Archivo: category-filters.css
+   ========================================== */
+
+/* Título de subcategoría */
+.category-title {
+  text-align: center;
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #d94f7a;
+  /* rosa comfy */
+}
+
+/* Contenedor del filtro */
+.category-filters {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 30px;
+  flex-wrap: wrap;
+}
+
+/* Loader */
+.category-loading {
+  text-align: center;
+  font-size: 16px;
+  color: #777;
+  margin-top: 40px;
+}
+
+/* Mensaje vacío */
+.category-empty {
+  text-align: center;
+  font-size: 17px;
+  margin-top: 40px;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .category-filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

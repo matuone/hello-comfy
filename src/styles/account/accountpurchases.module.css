@@ -1,0 +1,395 @@
+/* =========================
+   MOBILE/TABLET RESPONSIVE EXTRA
+   ========================= */
+@media (max-width: 600px) {
+  .order-item {
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .order-header {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .order-info h3 {
+    font-size: 1rem;
+  }
+
+  .order-items h4,
+  .order-shipping h4 {
+    font-size: 0.8rem;
+  }
+
+  .summary-row {
+    font-size: 0.8rem;
+  }
+
+  .summary-row.total {
+    font-size: 0.95rem;
+  }
+
+  .summary-row.total span:last-child {
+    font-size: 1rem;
+  }
+}
+
+/* ============================
+   ACCOUNT PURCHASES STYLES
+   ============================ */
+
+.purchases-container {
+  width: 100%;
+}
+
+.purchases-card {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.purchases-card h1 {
+  margin: 0 0 2rem 0;
+  font-size: 2rem;
+  color: #333;
+  font-weight: 700;
+}
+
+/* ERROR MESSAGE */
+.purchases-error {
+  background: #ffebee;
+  border-left: 4px solid #f44336;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* EMPTY STATE */
+.purchases-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #999;
+}
+
+.purchases-empty p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-size: 1rem;
+}
+
+/* ORDERS LIST */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ORDER ITEM CARD */
+.order-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 2rem;
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.order-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: #ccc;
+}
+
+/* ORDER HEADER */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.order-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.order-date {
+  margin: 0;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.order-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  min-width: 140px;
+  text-align: center;
+}
+
+/* ORDER ITEMS */
+.order-items {
+  margin-bottom: 2rem;
+}
+
+.order-items h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f8f8;
+  border-radius: 8px;
+  border-left: 4px solid #d94f7a;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.item-meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.item-price {
+  font-size: 1.05rem;
+  color: #d94f7a;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+.no-items {
+  margin: 0;
+  color: #999;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* ORDER SUMMARY */
+.order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #f8f8f8;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid #e8e8e8;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.summary-row span:first-child {
+  font-weight: 500;
+}
+
+.summary-row span:last-child {
+  color: #333;
+  text-align: right;
+  font-weight: 600;
+}
+
+.summary-row.discount {
+  color: #4caf50;
+}
+
+.summary-row.discount span:last-child {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.summary-row.total {
+  border-top: 2px solid #ddd;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.summary-row.total span:last-child {
+  color: #d94f7a;
+  font-size: 1.2rem;
+}
+
+/* ORDER SHIPPING */
+.order-shipping {
+  background: #e3f2fd;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.order-shipping h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: #1565c0;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.shipping-method {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.tracking {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.tracking code {
+  background: white;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  color: #1565c0;
+  word-break: break-all;
+  font-weight: 600;
+}
+
+.delivery-date {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.delivery-address {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  word-break: break-word;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .purchases-card {
+    padding: 0;
+  }
+
+  .purchases-card h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .order-item {
+    padding: 1.5rem;
+  }
+
+  .item-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .item-price {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .purchases-card {
+    padding: 0;
+  }
+
+  .purchases-card h1 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .order-item {
+    padding: 1rem;
+  }
+
+  .order-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .order-info h3 {
+    font-size: 1rem;
+  }
+
+  .order-items h4,
+  .order-shipping h4 {
+    font-size: 0.8rem;
+  }
+
+  .summary-row {
+    font-size: 0.85rem;
+  }
+
+  .summary-row.total {
+    font-size: 0.95rem;
+  }
+
+  .summary-row.total span:last-child {
+    font-size: 1rem;
+  }
+}
