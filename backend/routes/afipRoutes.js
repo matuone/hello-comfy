@@ -130,10 +130,7 @@ router.post('/afip/generar-factura/:orderId', verifyAdmin, async (req, res) => {
         fecha: factura.fecha,
         total: factura.total,
       },
-      order: {
-        code: order.code,
-        customer: order.customer,
-      }
+      order: order // Devuelve el objeto completo
     });
 
   } catch (error) {

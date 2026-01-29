@@ -74,15 +74,9 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://tudominio.com" // Cambia esto por tu dominio real en producción
 ];
+// CORS abierto para pruebas externas (bruno, postman, etc)
 app.use(cors({
-  origin: function (origin, callback) {
-    // Permitir requests sin origin (como Postman) o desde orígenes permitidos
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("No permitido por CORS"));
-    }
-  },
+  origin: "*",
   credentials: true
 }));
 
