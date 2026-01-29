@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import OpinionsPopup from "../../components/OpinionsPopup";
 import ProductCardBestSellersMobile from "../../components/mobile/ProductCardBestSellersMobile";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
@@ -6,6 +7,7 @@ import "../../styles/mobile/bestsellers.mobile.css";
 
 export default function BestSellersMobile() {
   const [productos, setProductos] = useState([]);
+  const [opinionsProductId, setOpinionsProductId] = useState(null);
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
@@ -26,6 +28,9 @@ export default function BestSellersMobile() {
   const handleViewMore = (product) => {
     navigate(`/products/${product._id}`);
   };
+  const handleShowOpinions = useCallback((productId) => {
+    setOpinionsProductId(productId);
+  }, []);
 
   return (
     <div className="bestsellers-mobile-swiper bestsellers-mobile-scroll">
@@ -37,10 +42,14 @@ export default function BestSellersMobile() {
               onBuy={handleBuy}
               onAddToCart={handleAddToCart}
               onViewMore={handleViewMore}
+              onShowOpinions={handleShowOpinions}
             />
           </div>
         ))}
       </div>
+      {opinionsProductId && (
+        <OpinionsPopup productId={opinionsProductId} onClose={() => setOpinionsProductId(null)} />
+      )}
     </div>
   );
 }
