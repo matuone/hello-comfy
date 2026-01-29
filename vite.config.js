@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+  base: "./", // ⭐ CLAVE PARA QUE FUNCIONE EN RAILWAY
   plugins: [react()],
   css: {
     modules: {
