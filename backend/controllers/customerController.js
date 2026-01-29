@@ -41,7 +41,6 @@ export const getAllCustomers = async (req, res) => {
       nombre: u.name,
       email: u.email,
       whatsapp: u.whatsapp,
-      telefono: u.address?.phone || "",
       direccion: u.address?.street ? `${u.address.street} ${u.address.number || ''}` : "",
       ciudad: u.address?.city || "",
       codigoPostal: u.address?.postalCode || "",
@@ -100,7 +99,6 @@ export const getAllBuyers = async (req, res) => {
       nombre: u.name,
       email: u.email,
       whatsapp: u.whatsapp,
-      telefono: u.address?.phone || "",
       estado: "activo",
       tipo: "user",
       createdAt: u.createdAt,
@@ -127,7 +125,6 @@ export const getAllBuyers = async (req, res) => {
           nombre: order.customer?.name || "Sin nombre",
           email: order.customer.email,
           whatsapp: null,
-          telefono: null,
           estado: "inactivo",
           esComprador: true,
           createdAt: order.date,
@@ -183,7 +180,7 @@ export const getCustomerById = async (req, res) => {
 
 export const createCustomer = async (req, res) => {
   try {
-    const { nombre, email, whatsapp, telefono, direccion, ciudad, codigoPostal, notas } = req.body;
+    const { nombre, email, whatsapp, direccion, ciudad, codigoPostal, notas } = req.body;
 
     if (!nombre || !email) {
       return res.status(400).json({ error: "Nombre y email son requeridos" });
@@ -198,7 +195,6 @@ export const createCustomer = async (req, res) => {
       nombre,
       email,
       whatsapp,
-      telefono,
       direccion,
       ciudad,
       codigoPostal,

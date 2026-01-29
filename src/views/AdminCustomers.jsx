@@ -105,20 +105,20 @@ export default function AdminCustomers() {
                 <td>{c.nombre}</td>
                 <td>{c.email}</td>
                 <td>
-                  {(c.whatsapp || c.address?.whatsapp || c.telefono) ? (
+                  {(c.whatsapp || c.address?.whatsapp) ? (
                     <a
-                      href={`https://wa.me/${formatWhatsAppNumber(c.whatsapp || c.address?.whatsapp || c.telefono)}`}
+                      href={`https://wa.me/${formatWhatsAppNumber(c.whatsapp || c.address?.whatsapp)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="whatsapp-link"
                     >
-                      {c.whatsapp || c.address?.whatsapp || c.telefono}
+                      {c.whatsapp || c.address?.whatsapp}
                     </a>
                   ) : (
                     "—"
                   )}
                 </td>
-                <td>{c.telefono || "—"}</td>
+                {/* <td>{c.telefono || "—"}</td> */}
                 <td>
                   <span className={`status-badge status-${c.estado}`}>
                     {c.estado === "activo" ? "Activo" : "Inactivo"}

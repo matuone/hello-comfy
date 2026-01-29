@@ -99,11 +99,7 @@ export default function AdminCustomerDetail() {
           </div>
           <div>
             <label>WhatsApp</label>
-            <p>{cliente.whatsapp || cliente.address?.whatsapp || cliente.telefono || "—"}</p>
-          </div>
-          <div>
-            <label>Teléfono</label>
-            <p>{cliente.telefono || (cliente.address?.phone) || "—"}</p>
+            <p>{cliente.whatsapp || cliente.address?.whatsapp || "—"}</p>
           </div>
           <div>
             <label>DNI</label>

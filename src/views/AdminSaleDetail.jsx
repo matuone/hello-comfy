@@ -387,11 +387,11 @@ export default function AdminSaleDetail() {
                 {/* Botón WhatsApp SIEMPRE visible, pero deshabilitado si falta teléfono o fecha/hora */}
                 <a
                   className="factura-modal-btn confirm"
-                  style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: venta?.customer?.telefono && fechaRetiroFecha && fechaRetiroHora ? 1 : 0.5, pointerEvents: venta?.customer?.telefono && fechaRetiroFecha && fechaRetiroHora ? 'auto' : 'none' }}
-                  href={venta?.customer?.telefono && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${venta.customer.telefono.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: venta.customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: venta.shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
+                  style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 1 : 0.5, pointerEvents: venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 'auto' : 'none' }}
+                  href={venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${venta.customer.whatsapp.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: venta.customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: venta.shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title={venta?.customer?.telefono ? '' : 'El cliente no tiene teléfono'}
+                  title={venta?.customer?.whatsapp ? '' : 'El cliente no tiene WhatsApp'}
                 >
                   Enviar WhatsApp
                 </a>
@@ -465,9 +465,7 @@ export default function AdminSaleDetail() {
           <h3 className="detalle-title">Cliente</h3>
           <p className="detalle-info-line"><strong>Nombre:</strong> {venta.customer.name}</p>
           <p className="detalle-info-line"><strong>Email:</strong> {venta.customer.email}</p>
-          {venta.customer.telefono && (
-            <p className="detalle-info-line"><strong>Teléfono:</strong> {venta.customer.telefono}</p>
-          )}
+          {/* Teléfono eliminado, solo WhatsApp disponible */}
         </div>
 
         {/* DIRECCIÓN */}

@@ -18,10 +18,6 @@ const customerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    telefono: {
-      type: String,
-      trim: true,
-    },
     direccion: {
       type: String,
       trim: true,
