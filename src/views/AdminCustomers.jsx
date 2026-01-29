@@ -105,14 +105,14 @@ export default function AdminCustomers() {
                 <td>{c.nombre}</td>
                 <td>{c.email}</td>
                 <td>
-                  {c.whatsapp ? (
+                  {(c.whatsapp || c.address?.whatsapp || c.telefono) ? (
                     <a
-                      href={`https://wa.me/${formatWhatsAppNumber(c.whatsapp)}`}
+                      href={`https://wa.me/${formatWhatsAppNumber(c.whatsapp || c.address?.whatsapp || c.telefono)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="whatsapp-link"
                     >
-                      {c.whatsapp}
+                      {c.whatsapp || c.address?.whatsapp || c.telefono}
                     </a>
                   ) : (
                     "—"

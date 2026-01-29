@@ -83,7 +83,8 @@ export function AuthProvider({ children }) {
   // AUTO-LOGOUT POR INACTIVIDAD
   // ============================
   useEffect(() => {
-    if (!user || user.isAdmin) return; // Solo usuarios normales, no admins
+    // Solo usuarios normales, no admins
+    if (!user || user.isAdmin) return;
 
     function resetTimer() {
       if (logoutTimer.current) clearTimeout(logoutTimer.current);
@@ -102,7 +103,7 @@ export function AuthProvider({ children }) {
       if (logoutTimer.current) clearTimeout(logoutTimer.current);
       events.forEach((e) => window.removeEventListener(e, resetTimer));
     };
-  }, [user]);
+  }, [user && !user.isAdmin]);
 
   // ============================
   // CARGAR SESIÓN DESDE LOCALSTORAGE Y REFRESCAR DATOS DESDE API
@@ -121,10 +122,25 @@ export function AuthProvider({ children }) {
       tokenToUse = savedUserToken;
     }
 
-    // Si hay usuario y token, refrescar datos desde la API
+    // Si hay usuario y token, refrescar datos desde la API (solo usuarios normales, no admins)
     if (savedUser && tokenToUse) {
       const parsedUser = JSON.parse(savedUser);
-      // Traer datos frescos desde la API
+      // Si es admin, solo setear el usuario y token desde localStorage, nunca forzar logout ni fetch
+      if (parsedUser.isAdmin) {
+        setUser(parsedUser);
+        setToken(tokenToUse);
+        return;
+      }
+      // Si no hay id válido, forzar logout y no hacer fetch
+      if (!parsedUser.id || parsedUser.id === "null" || parsedUser.id === null || parsedUser.id === undefined) {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("authUser");
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("userToken");
+        return;
+      }
+      // Traer datos frescos desde la API para usuarios normales
       fetch(`/api/users/${parsedUser.id}`, {
         headers: {
           Authorization: `Bearer ${tokenToUse}`,
@@ -149,17 +165,17 @@ export function AuthProvider({ children }) {
   // LOGIN AUTOMÁTICO DESPUÉS DE REGISTRO
   // ============================
   function loginAfterRegister(token, userData) {
+    // Guardar todos los datos relevantes del usuario
     const loggedUser = {
+      ...userData,
       id: userData.id,
       email: userData.email,
       name: userData.name,
       avatar: userData.avatar || null,
       isAdmin: userData.isAdmin || false,
     };
-
     setUser(loggedUser);
     setToken(token);
-
     localStorage.setItem("authUser", JSON.stringify(loggedUser));
     localStorage.setItem("userToken", token);
     localStorage.removeItem("adminToken");
@@ -180,17 +196,17 @@ export function AuthProvider({ children }) {
 
       if (!res.ok || !data.token) return { success: false };
 
+      // Guardar todos los datos relevantes del usuario admin
       const loggedUser = {
-        id: data.id || null,
-        email: data.email,
-        name: data.name || null,
-        avatar: data.avatar || null,
+        ...data.user,
+        id: data.id || data.user?.id || null,
+        email: data.email || data.user?.email,
+        name: data.name || data.user?.name || null,
+        avatar: data.avatar || data.user?.avatar || null,
         isAdmin: true,
       };
-
       setUser(loggedUser);
       setToken(data.token);
-
       localStorage.setItem("authUser", JSON.stringify(loggedUser));
       localStorage.setItem("adminToken", data.token);
       localStorage.removeItem("userToken");
@@ -219,17 +235,17 @@ export function AuthProvider({ children }) {
         return { success: false };
       }
 
+      // Guardar todos los datos relevantes del usuario
       const loggedUser = {
+        ...data.user,
         id: data.user.id,
         email: data.user.email,
         name: data.user.name,
         avatar: data.user.avatar || null,
         isAdmin: false,
       };
-
       setUser(loggedUser);
       setToken(data.token);
-
       localStorage.setItem("authUser", JSON.stringify(loggedUser));
       localStorage.setItem("userToken", data.token);
       localStorage.removeItem("adminToken");

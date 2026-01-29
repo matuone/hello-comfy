@@ -20,8 +20,46 @@ export const getAllCustomers = async (req, res) => {
       ];
     }
 
+    // Buscar en Customer
     const clientes = await Customer.find(filtros).sort({ createdAt: -1 });
-    res.json(clientes);
+
+    // Buscar en User (solo usuarios normales, no admins)
+    const userFiltros = {};
+    if (search) {
+      userFiltros.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { whatsapp: { $regex: search, $options: "i" } },
+      ];
+    }
+    userFiltros.isAdmin = false;
+    const usuarios = await User.find(userFiltros).select("name email whatsapp dni birthdate address createdAt").sort({ createdAt: -1 });
+
+    // Unificar formato para frontend
+    const usuariosAdaptados = usuarios.map(u => ({
+      _id: u._id,
+      nombre: u.name,
+      email: u.email,
+      whatsapp: u.whatsapp,
+      telefono: u.address?.phone || "",
+      direccion: u.address?.street ? `${u.address.street} ${u.address.number || ''}` : "",
+      ciudad: u.address?.city || "",
+      codigoPostal: u.address?.postalCode || "",
+      birthdate: u.birthdate,
+      dni: u.dni,
+      createdAt: u.createdAt,
+      tipo: "user"
+    }));
+
+    // Los de Customer ya están en formato esperado, solo agregamos tipo
+    const clientesAdaptados = clientes.map(c => ({
+      ...c.toObject(),
+      tipo: "customer"
+    }));
+
+    // Unir y ordenar por fecha de creación descendente
+    const todos = [...clientesAdaptados, ...usuariosAdaptados].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.json(todos);
   } catch (err) {
     console.error("Error al obtener clientes");
     res.status(500).json({ error: "Error al obtener clientes" });
@@ -90,7 +128,10 @@ export const getAllBuyers = async (req, res) => {
 
 export const getCustomerById = async (req, res) => {
   try {
-    const { email } = req.params;
+    let { email } = req.params;
+    if (!email) return res.status(400).json({ error: "Email requerido" });
+    // Normalizar email: minúsculas y sin espacios
+    email = email.trim().toLowerCase();
     // Buscar primero en Customer
     let cliente = await Customer.findOne({ email });
     if (cliente) {
