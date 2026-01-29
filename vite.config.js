@@ -1,17 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// https://vite.dev/config/
 export default defineConfig({
-  base: "./", // ⭐ CLAVE PARA QUE FUNCIONE EN RAILWAY
   plugins: [react()],
-  css: {
-    modules: {
-      localsConvention: 'camelCaseOnly'
-    }
-  },
-  build: {
-    cssCodeSplit: true
-  },
   server: {
     host: 'localhost',
     port: 5173,

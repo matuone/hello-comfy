@@ -41,7 +41,6 @@ export const getAllCustomers = async (req, res) => {
       nombre: u.name,
       email: u.email,
       whatsapp: u.whatsapp,
-      telefono: u.address?.phone || "",
       direccion: u.address?.street ? `${u.address.street} ${u.address.number || ''}` : "",
       ciudad: u.address?.city || "",
       codigoPostal: u.address?.postalCode || "",
@@ -70,58 +69,87 @@ export const getAllBuyers = async (req, res) => {
   try {
     const { search, estado } = req.query;
 
-    // 1. Obtener todos los clientes registrados
-    const filtros = {};
-    if (estado) {
-      filtros.estado = estado;
-    }
+    // 1. Clientes (Customer)
+    const custFiltros = {};
+    if (estado) custFiltros.estado = estado;
     if (search) {
-      filtros.$or = [
+      custFiltros.$or = [
         { nombre: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
         { whatsapp: { $regex: search, $options: "i" } },
       ];
     }
+    const registrados = await Customer.find(custFiltros).sort({ createdAt: -1 });
+    const registradosEmails = new Set(registrados.map((c) => (c.email || "").trim().toLowerCase()));
 
-    const registrados = await Customer.find(filtros).sort({ createdAt: -1 });
+    // 2. Usuarios registrados (User) — incluir para mostrar WhatsApp en la lista
+    const userFiltros = { isAdmin: false };
+    if (search) {
+      userFiltros.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { whatsapp: { $regex: search, $options: "i" } },
+      ];
+    }
+    const users = await User.find(userFiltros)
+      .select("name email whatsapp address createdAt")
+      .sort({ createdAt: -1 });
+    const usuariosAdaptados = users.map((u) => ({
+      _id: u._id,
+      nombre: u.name,
+      email: u.email,
+      whatsapp: u.whatsapp,
+      estado: "activo",
+      tipo: "user",
+      createdAt: u.createdAt,
+    }));
+    const userEmails = new Set(usuariosAdaptados.map((u) => (u.email || "").trim().toLowerCase()));
 
-    // 2. Obtener emails únicos de órdenes
-    const orders = await Order.find({}, { 'customer.email': 1, 'customer.name': 1, date: 1, totals: 1 }).sort({ date: -1 });
-    const emailsEnOrdenes = new Set(orders.map(o => o.customer?.email).filter(Boolean));
-
-    // 3. Crear lista de compradores sin registrarse que no estén en Customer
-    const registradosEmails = new Set(registrados.map(c => c.email));
+    // 3. Compradores sin registro (solo emails de órdenes que no están en Customer ni User)
+    const orders = await Order.find(
+      {},
+      { "customer.email": 1, "customer.name": 1, date: 1 }
+    ).sort({ date: -1 });
     const compradoresSinRegistro = [];
-
-    orders.forEach(order => {
-      const email = order.customer?.email;
-      if (email && !registradosEmails.has(email)) {
-        const existing = compradoresSinRegistro.find(c => c.email === email);
-        if (!existing) {
-          compradoresSinRegistro.push({
-            _id: `guest-${email}`,
-            nombre: order.customer?.name || 'Sin nombre',
-            email: email,
-            whatsapp: null,
-            telefono: null,
-            estado: 'inactivo',
-            esComprador: true,
-            createdAt: order.date,
-          });
-        }
+    for (const order of orders) {
+      const raw = order.customer?.email;
+      if (!raw) continue;
+      const email = raw.trim().toLowerCase();
+      if (registradosEmails.has(email) || userEmails.has(email)) continue;
+      const existing = compradoresSinRegistro.some(
+        (c) => (c.email || "").trim().toLowerCase() === email
+      );
+      if (!existing) {
+        compradoresSinRegistro.push({
+          _id: `guest-${order.customer.email}`,
+          nombre: order.customer?.name || "Sin nombre",
+          email: order.customer.email,
+          whatsapp: null,
+          estado: "inactivo",
+          esComprador: true,
+          createdAt: order.date,
+        });
       }
-    });
+    }
 
-    // 4. Combinar y ordenar
-    const todos = [...registrados, ...compradoresSinRegistro].sort((a, b) => {
-      const dateA = new Date(a.createdAt || 0);
-      const dateB = new Date(b.createdAt || 0);
-      return dateB - dateA;
-    });
+    // 4. Unificar y deduplicar por email: User > Customer > guest
+    const byEmail = new Map();
+    const add = (x) => {
+      const e = (x.email || "").trim().toLowerCase();
+      const prio = x.tipo === "user" ? 0 : x.tipo === "customer" ? 1 : 2;
+      const cur = byEmail.get(e);
+      const curPrio = cur ? (cur.tipo === "user" ? 0 : cur.tipo === "customer" ? 1 : 2) : 3;
+      if (!cur || prio < curPrio) byEmail.set(e, x);
+    };
+    const withTipo = registrados.map((c) => ({ ...c.toObject(), tipo: "customer" }));
+    [...usuariosAdaptados, ...withTipo, ...compradoresSinRegistro].forEach(add);
 
+    const todos = [...byEmail.values()].sort(
+      (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+    );
     res.json(todos);
   } catch (err) {
-    console.error("Error al obtener compradores");
+    console.error("Error al obtener compradores", err);
     res.status(500).json({ error: "Error al obtener compradores" });
   }
 };
@@ -152,7 +180,7 @@ export const getCustomerById = async (req, res) => {
 
 export const createCustomer = async (req, res) => {
   try {
-    const { nombre, email, whatsapp, telefono, direccion, ciudad, codigoPostal, notas } = req.body;
+    const { nombre, email, whatsapp, direccion, ciudad, codigoPostal, notas } = req.body;
 
     if (!nombre || !email) {
       return res.status(400).json({ error: "Nombre y email son requeridos" });
@@ -167,7 +195,6 @@ export const createCustomer = async (req, res) => {
       nombre,
       email,
       whatsapp,
-      telefono,
       direccion,
       ciudad,
       codigoPostal,
