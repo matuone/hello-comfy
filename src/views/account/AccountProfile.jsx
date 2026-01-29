@@ -63,6 +63,7 @@ export default function AccountProfile() {
     email: "",
     dni: "",
     whatsapp: "",
+    birthdate: "",
     address: {
       street: "",
       number: "",
@@ -87,6 +88,7 @@ export default function AccountProfile() {
         email: user.email || "",
         dni: user.dni || "",
         whatsapp: user.whatsapp || "",
+        birthdate: user.birthdate ? user.birthdate.slice(0, 10) : "",
         address: {
           street: user.address?.street || "",
           number: user.address?.number || "",
@@ -175,6 +177,7 @@ export default function AccountProfile() {
         name: data.user.name,
         dni: data.user.dni,
         whatsapp: data.user.whatsapp,
+        birthdate: data.user.birthdate,
         address: data.user.address,
       };
 
@@ -243,6 +246,17 @@ export default function AccountProfile() {
                 onChange={handleChange}
                 required
                 placeholder="12.345.678"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="birthdate">Fecha de nacimiento</label>
+              <input
+                type="date"
+                id="birthdate"
+                name="birthdate"
+                value={formData.birthdate}
+                onChange={handleChange}
+                placeholder="YYYY-MM-DD"
               />
             </div>
 

@@ -12,6 +12,7 @@ export default function Register() {
     confirmPassword: "",
     dni: "",
     whatsapp: "",
+    birthdate: "",
     address: {
       street: "",
       number: "",
@@ -156,6 +157,19 @@ export default function Register() {
             )}
           </button>
         </div>
+
+
+
+        <input
+          type={form.birthdate ? "date" : "text"}
+          name="birthdate"
+          placeholder="Fecha de nacimiento"
+          value={form.birthdate}
+          onFocus={e => e.target.type = 'date'}
+          onBlur={e => { if (!e.target.value) e.target.type = 'text'; }}
+          onChange={handleChange}
+          required
+        />
 
         <input
           type="text"

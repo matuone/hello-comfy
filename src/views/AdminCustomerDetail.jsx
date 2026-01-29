@@ -85,62 +85,69 @@ export default function AdminCustomerDetail() {
         </div>
       </div>
 
-      {/* DATOS PERSONALES */}
+      {/* DATOS PERSONALES UNIFICADOS */}
       <div className="detalle-box">
         <h3 className="detalle-title">Datos personales</h3>
-
         <div className="cliente-info-grid">
           <div>
             <label>Nombre</label>
-            <p>{cliente.nombre}</p>
+            <p>{cliente.nombre || cliente.name || "—"}</p>
           </div>
-
           <div>
             <label>Email</label>
-            <p>{cliente.email}</p>
+            <p>{cliente.email || "—"}</p>
           </div>
-
           <div>
             <label>WhatsApp</label>
             <p>{cliente.whatsapp || "—"}</p>
           </div>
-
           <div>
             <label>Teléfono</label>
-            <p>{cliente.telefono || "—"}</p>
+            <p>{cliente.telefono || (cliente.address?.phone) || "—"}</p>
           </div>
-
+          <div>
+            <label>DNI</label>
+            <p>{cliente.dni || "—"}</p>
+          </div>
+          <div>
+            <label>Fecha de nacimiento</label>
+            <p>{cliente.birthdate ? new Date(cliente.birthdate).toLocaleDateString() : "—"}</p>
+          </div>
           <div>
             <label>Ciudad</label>
-            <p>{cliente.ciudad || "—"}</p>
+            <p>{cliente.ciudad || cliente.address?.city || "—"}</p>
           </div>
-
+          <div>
+            <label>Provincia</label>
+            <p>{cliente.province || cliente.address?.province || "—"}</p>
+          </div>
           <div>
             <label>Código Postal</label>
-            <p>{cliente.codigoPostal || "—"}</p>
+            <p>{cliente.codigoPostal || cliente.address?.postalCode || "—"}</p>
           </div>
         </div>
       </div>
 
-      {/* ESTADÍSTICAS */}
+      {/* INFORMACIÓN ADICIONAL UNIFICADA */}
       <div className="detalle-box">
         <h3 className="detalle-title">Información adicional</h3>
-
         <div className="info-section">
           <label>Dirección</label>
-          <p>{cliente.direccion || "—"}</p>
+          <p>{cliente.direccion || cliente.address?.street ? `${cliente.address?.street} ${cliente.address?.number || ''}` : "—"}</p>
         </div>
-
+        <div className="info-section">
+          <label>Piso/Depto</label>
+          <p>{cliente.address?.floor || "—"}</p>
+        </div>
         <div className="info-section">
           <label>Notas</label>
           <p>{cliente.notas || "Sin notas"}</p>
         </div>
-
         <div className="info-section">
           <label>Estado</label>
           <p>
-            <span className={`status-badge status-${cliente.estado}`}>
-              {cliente.estado === "activo" ? "Activo" : "Inactivo"}
+            <span className={`status-badge status-${cliente.estado || (cliente.isAdmin !== undefined ? (cliente.isAdmin ? "admin" : "user") : "")}`}>
+              {cliente.estado ? (cliente.estado === "activo" ? "Activo" : "Inactivo") : (cliente.isAdmin !== undefined ? (cliente.isAdmin ? "Admin" : "Usuario") : "—")}
             </span>
           </p>
         </div>

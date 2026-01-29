@@ -122,6 +122,7 @@ export default function AppRouter() {
         <Route path="/seguimiento" element={<OrderTracking />} />
         <Route path="/orden/:code" element={<OrderDetails />} />
 
+        <Route path="/notfound" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Route>
 

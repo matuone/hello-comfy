@@ -53,6 +53,7 @@ export async function registerUser(req, res) {
       dni,
       whatsapp,
       address,
+      birthdate,
     } = req.body;
 
     // Validaciones básicas
@@ -92,6 +93,7 @@ export async function registerUser(req, res) {
       password: hashedPassword,
       dni: validator.escape(dni),
       whatsapp: validator.escape(whatsapp),
+      birthdate: birthdate ? new Date(birthdate) : undefined,
       address: {
         street: validator.escape(address.street),
         number: validator.escape(address.number),
@@ -137,6 +139,10 @@ export async function registerUser(req, res) {
         email: newUser.email,
         avatar: newUser.avatar,
         isAdmin: newUser.isAdmin,
+        dni: newUser.dni,
+        whatsapp: newUser.whatsapp,
+        birthdate: newUser.birthdate,
+        address: newUser.address,
       },
     });
 
@@ -189,6 +195,7 @@ export async function loginUser(req, res) {
         isAdmin: user.isAdmin,
         dni: user.dni,
         whatsapp: user.whatsapp,
+        birthdate: user.birthdate,
         address: user.address,
       },
     });
@@ -205,7 +212,7 @@ export async function loginUser(req, res) {
 export async function updateUserProfile(req, res) {
   try {
     const { id } = req.params;
-    const { name, dni, whatsapp, address } = req.body;
+    const { name, dni, whatsapp, address, birthdate } = req.body;
 
     // Verificar que el usuario sea propietario del perfil
     if (req.user.id !== id) {
@@ -237,7 +244,9 @@ export async function updateUserProfile(req, res) {
     user.name = validator.escape(name);
     user.dni = validator.escape(dni);
     user.whatsapp = validator.escape(whatsapp);
-
+    if (birthdate) {
+      user.birthdate = new Date(birthdate);
+    }
     if (address) {
       user.address = {
         street: validator.escape(address.street),
@@ -262,6 +271,7 @@ export async function updateUserProfile(req, res) {
         avatar: user.avatar,
         dni: user.dni,
         whatsapp: user.whatsapp,
+        birthdate: user.birthdate,
         address: user.address,
       },
     });

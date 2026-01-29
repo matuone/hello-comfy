@@ -1,5 +1,6 @@
 import Customer from "../models/Customer.js";
 import Order from "../models/Order.js";
+import User from "../models/User.js";
 
 export const getAllCustomers = async (req, res) => {
   try {
@@ -90,16 +91,21 @@ export const getAllBuyers = async (req, res) => {
 export const getCustomerById = async (req, res) => {
   try {
     const { email } = req.params;
-    const cliente = await Customer.findOne({ email });
-
-    if (!cliente) {
-      return res.status(404).json({ error: "Cliente no encontrado" });
+    // Buscar primero en Customer
+    let cliente = await Customer.findOne({ email });
+    if (cliente) {
+      return res.json({ ...cliente.toObject(), tipo: "customer" });
     }
-
-    res.json(cliente);
+    // Si no está en Customer, buscar en User
+    const usuario = await User.findOne({ email }).select("-password");
+    if (usuario) {
+      return res.json({ ...usuario.toObject(), tipo: "user" });
+    }
+    // Si no se encuentra en ninguno
+    return res.status(404).json({ error: "Cliente o usuario no encontrado" });
   } catch (err) {
-    console.error("Error al obtener cliente");
-    res.status(500).json({ error: "Error al obtener cliente" });
+    console.error("Error al obtener cliente/usuario", err);
+    res.status(500).json({ error: "Error al obtener cliente/usuario" });
   }
 };
 

@@ -38,6 +38,10 @@ const customerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    birthdate: {
+      type: Date,
+      required: false,
+    },
     estado: {
       type: String,
       enum: ["activo", "inactivo"],

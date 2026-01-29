@@ -1,3 +1,4 @@
+// ...existing code...
 import mongoose from "mongoose";
 
 const DEFAULT_AVATAR =
@@ -22,6 +23,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+
+    birthdate: {
+      type: Date,
+      required: false,
     },
 
     email: {

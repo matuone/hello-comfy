@@ -125,7 +125,7 @@ export default function AdminCustomers() {
                   </span>
                 </td>
                 <td>
-                  <Link to={`/admin/customers/${c.email}`} className="btn-ver-venta">
+                  <Link to={`/admin/customers/${encodeURIComponent(c.email)}`} className="btn-ver-venta">
                     Ver cliente →
                   </Link>
                 </td>
