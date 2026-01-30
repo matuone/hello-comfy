@@ -15,14 +15,14 @@ export default function AdminDiscounts() {
 
   // Traer productos para generar categorías dinámicas
   useEffect(() => {
-    fetch(`${API_URL}/products`)
+    fetch("http://localhost:5000/api/products")
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
 
   // Traer reglas
   useEffect(() => {
-    fetch(`${API_URL} / discounts`)
+    fetch("http://localhost:5000/api/discounts")
       .then((res) => res.json())
       .then((data) => setRules(data));
   }, []);
@@ -70,7 +70,7 @@ export default function AdminDiscounts() {
     });
     setEditingId(null);
 
-    const updated = await fetch(`${API_URL}/discounts`).then(
+    const updated = await fetch("http://localhost:5000/api/discounts").then(
       (res) => res.json()
     );
     setRules(updated);

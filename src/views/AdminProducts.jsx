@@ -29,7 +29,7 @@ export default function AdminProducts() {
   // CARGAR PRODUCTOS
   // ============================
   useEffect(() => {
-    fetch(`${API_URL}/products`)
+    fetch("http://localhost:5000/api/products")
       .then((res) => res.json())
       .then((data) => {
         const adaptados = data.map((p) => ({
@@ -71,7 +71,7 @@ export default function AdminProducts() {
     setPorcentaje("");
 
     setNoti({
-      mensaje: `Precios actualizados con un aumento del ${p} % `,
+      mensaje: `Precios actualizados con un aumento del ${p}%`,
       tipo: "exito",
     });
   }
@@ -126,7 +126,7 @@ export default function AdminProducts() {
     try {
       // 1) Traer el producto completo desde el backend (con descripción, sizeGuide y stockColorId correcto)
       const detalleRes = await fetch(
-        `${API_URL}/products/${prod.id}`
+        `http://localhost:5000/api/products/${prod.id}`
       );
 
       if (!detalleRes.ok) {
@@ -159,7 +159,7 @@ export default function AdminProducts() {
       };
 
       // 3) Crear el nuevo producto
-      const res = await fetch(`${API_URL}/products`, {
+      const res = await fetch("http://localhost:5000/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -392,7 +392,7 @@ export default function AdminProducts() {
 
                     <td className="acciones-cell">
                       <Link
-                        to={`/ admin / products / ${prod.id}`}
+                        to={`/admin/products/${prod.id}`}
                         className="accion-btn editar"
                       >
                         ✏️

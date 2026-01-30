@@ -36,13 +36,12 @@ export default function Products() {
     const clean = str.trim();
     return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
   };
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   // ============================
   // CARGAR CATEGORÍAS
   // ============================
   useEffect(() => {
-    fetch(`${API_URL}/products/filters/data`)
+    fetch("http://localhost:5000/api/products/filters/data")
       .then((res) => res.json())
       .then((data) => {
         const normalized = {};
@@ -75,7 +74,7 @@ export default function Products() {
   // CARGAR TODOS LOS PRODUCTOS
   // ============================
   useEffect(() => {
-    fetch(`${API_URL}/products`)
+    fetch("http://localhost:5000/api/products")
       .then((res) => res.json())
       .then((data) => setAllProducts(data))
       .catch((err) => console.error("Error cargando todos los productos:", err));
@@ -94,19 +93,19 @@ export default function Products() {
         const params = [];
 
         if (selectedGroup !== "Todos") {
-          params.push(`category = ${encodeURIComponent(selectedGroup)}`);
+          params.push(`category=${encodeURIComponent(selectedGroup)}`);
         }
 
         if (selectedCategory !== "Todos") {
-          params.push(`subcategory = ${encodeURIComponent(selectedCategory)}`);
+          params.push(`subcategory=${encodeURIComponent(selectedCategory)}`);
         }
 
         if (sortBy !== "none") {
-          params.push(`sort = ${encodeURIComponent(sortBy)}`);
+          params.push(`sort=${encodeURIComponent(sortBy)}`);
         }
 
-        params.push(`page = ${page}`);
-        params.push(`limit = 12`);
+        params.push(`page=${page}`);
+        params.push(`limit=12`);
 
         if (params.length > 0) {
           url += "?" + params.join("&");
@@ -253,7 +252,7 @@ export default function Products() {
           {orderedCategories.map(([group, cats]) => (
             <div
               key={group}
-              className={`products__dropdown ${openDropdown === group ? "open" : ""} `}
+              className={`products__dropdown ${openDropdown === group ? "open" : ""}`}
             >
               <button
                 className="products__dropdown-toggle"
@@ -269,8 +268,8 @@ export default function Products() {
                     {cats.map(({ value, label }) => (
                       <button
                         key={value}
-                        className={`products__dropdown - item ${selectedCategory === value ? "active" : ""
-                          } `}
+                        className={`products__dropdown-item ${selectedCategory === value ? "active" : ""
+                          }`}
                         onClick={() => {
                           setSelectedGroup(group);
                           setSelectedCategory(value);
@@ -288,7 +287,7 @@ export default function Products() {
 
           <div
             className={`products__dropdown ${openDropdown === "Ordenar" ? "open" : ""
-              } `}
+              }`}
           >
             <button
               className="products__dropdown-toggle"
@@ -304,8 +303,8 @@ export default function Products() {
                 <div className="products__backdrop" />
                 <div className="products__dropdown-menu">
                   <button
-                    className={`products__dropdown - item ${sortBy === "none" ? "active" : ""
-                      } `}
+                    className={`products__dropdown-item ${sortBy === "none" ? "active" : ""
+                      }`}
                     onClick={() => {
                       setSortBy("none");
                       setOpenDropdown(null);
@@ -314,8 +313,8 @@ export default function Products() {
                     Destacados
                   </button>
                   <button
-                    className={`products__dropdown - item ${sortBy === "price_asc" ? "active" : ""
-                      } `}
+                    className={`products__dropdown-item ${sortBy === "price_asc" ? "active" : ""
+                      }`}
                     onClick={() => {
                       setSortBy("price_asc");
                       setOpenDropdown(null);
@@ -324,8 +323,8 @@ export default function Products() {
                     Precio más bajo
                   </button>
                   <button
-                    className={`products__dropdown - item ${sortBy === "price_desc" ? "active" : ""
-                      } `}
+                    className={`products__dropdown-item ${sortBy === "price_desc" ? "active" : ""
+                      }`}
                     onClick={() => {
                       setSortBy("price_desc");
                       setOpenDropdown(null);
@@ -334,8 +333,8 @@ export default function Products() {
                     Precio más alto
                   </button>
                   <button
-                    className={`products__dropdown - item ${sortBy === "sold_desc" ? "active" : ""
-                      } `}
+                    className={`products__dropdown-item ${sortBy === "sold_desc" ? "active" : ""
+                      }`}
                     onClick={() => {
                       setSortBy("sold_desc");
                       setOpenDropdown(null);
@@ -374,7 +373,7 @@ export default function Products() {
             <div
               key={p._id}
               className="productcard__item"
-              onClick={() => navigate(`/ products / ${p._id} `)}
+              onClick={() => navigate(`/products/${p._id}`)}
             >
               <img
                 src={p.images?.[0] || "https://via.placeholder.com/300"}
@@ -436,7 +435,7 @@ export default function Products() {
                         <button
                           key={t}
                           type="button"
-                          className={`productcard__size - pill productcard__size - pill--button ${selected === t ? "is-selected" : ""} `}
+                          className={`productcard__size-pill productcard__size-pill--button ${selected === t ? "is-selected" : ""}`}
                           onClick={() => handleSelectSize(p._id, t)}
                         >
                           {t}
@@ -495,7 +494,7 @@ export default function Products() {
                 className="productcard__btn-viewmore"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/ products / ${p._id} `);
+                  navigate(`/products/${p._id}`);
                 }}
               >
                 Ver más
@@ -517,7 +516,7 @@ export default function Products() {
             !initialLoading &&
             Array.from({ length: 6 }).map((_, i) => (
               <div
-                key={`loader - ${i} `}
+                key={`loader-${i}`}
                 className="productcard__item skeleton-card"
               >
                 <div className="skeleton-img"></div>

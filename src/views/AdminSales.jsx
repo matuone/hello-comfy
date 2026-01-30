@@ -46,7 +46,7 @@ export default function AdminSales() {
 
     async function fetchVentas() {
       try {
-        const res = await fetch(`${API_URL}/admin/orders`, {
+        const res = await fetch("http://localhost:5000/api/admin/orders", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -132,7 +132,7 @@ export default function AdminSales() {
       ? "A"
       : "C";
 
-    if (!window.confirm(`¿Generar factura ${tipoFactura} en ARCA para ${seleccionadas.length} venta(s) ? `)) {
+    if (!window.confirm(`¿Generar factura ${tipoFactura} en ARCA para ${seleccionadas.length} venta(s)?`)) {
       return;
     }
 
@@ -211,7 +211,7 @@ export default function AdminSales() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/correo-argentino/import-batch`, {
+      const res = await fetch("http://localhost:5000/api/correo-argentino/import-batch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

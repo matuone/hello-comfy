@@ -13,7 +13,7 @@ export default function NewInMobile() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   useEffect(() => {
-    fetch(`${API_URL}/products/new`)
+    fetch("http://localhost:5000/api/products/new")
       .then((res) => res.json())
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]));
@@ -27,7 +27,7 @@ export default function NewInMobile() {
     navigate("/checkout");
   };
   const handleViewMore = (product) => {
-    navigate(`/ products / ${product._id}`);
+    navigate(`/products/${product._id}`);
   };
   const handleShowOpinions = useCallback((productId) => {
     setOpinionsProductId(productId);

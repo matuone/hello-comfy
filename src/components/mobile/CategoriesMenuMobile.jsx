@@ -19,7 +19,7 @@ export default function CategoriesMenuMobile({ onClose }) {
   const [openCat, setOpenCat] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/products/filters/data`)
+    fetch("http://localhost:5000/api/products/filters/data")
       .then((res) => res.json())
       .then((data) => {
         if (data?.groupedSubcategories) {
@@ -43,7 +43,7 @@ export default function CategoriesMenuMobile({ onClose }) {
               {(grouped[cat] || FALLBACK[cat]).map((sub) => (
                 <Link
                   key={sub}
-                  to={`/ ${catSlug[cat]} / ${encodeURIComponent(sub)}`}
+                  to={`/${catSlug[cat]}/${encodeURIComponent(sub)}`}
                   className="cat-mobile-link"
                   onClick={onClose}
                 >

@@ -31,7 +31,7 @@ export default function AdminSizeTables() {
   const fetchTables = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await fetch(`${API_URL}/sizetables/all`, {
+      const response = await fetch("http://localhost:5000/api/sizetables/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -151,7 +151,7 @@ export default function AdminSizeTables() {
   const handleReorder = async (newOrderIds) => {
     try {
       const token = localStorage.getItem("adminToken");
-      await fetch(`${API_URL}/sizetables/reorder/all`, {
+      await fetch("http://localhost:5000/api/sizetables/reorder/all", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

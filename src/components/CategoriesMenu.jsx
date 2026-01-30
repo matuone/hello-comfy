@@ -15,13 +15,11 @@ const catSlug = {
   "Merch": "merch",
 };
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 export default function CategoriesMenu({ className = "" }) {
   const [grouped, setGrouped] = useState(FALLBACK);
 
   useEffect(() => {
-    fetch(`${API_URL}/products/filters/data`)
+    fetch("http://localhost:5000/api/products/filters/data")
       .then((res) => res.json())
       .then((data) => {
         if (data?.groupedSubcategories) {

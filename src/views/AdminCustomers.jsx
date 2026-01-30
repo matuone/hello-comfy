@@ -28,7 +28,7 @@ export default function AdminCustomers() {
     const fetchClientes = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API_URL}/customers/all-buyers`);
+        const res = await fetch("http://localhost:5000/api/customers/all-buyers");
         const data = await res.json();
         setClientes(Array.isArray(data) ? data : []);
         setError(null);
@@ -113,38 +113,35 @@ export default function AdminCustomers() {
                       className="whatsapp-link"
                     >
                       {c.whatsapp || c.address?.whatsapp}
-                    </a >
+                    </a>
                   ) : (
                     "—"
-                  )
-                  }
-                </td >
+                  )}
+                </td>
                 {/* <td>{c.telefono || "—"}</td> */}
-                < td >
+                <td>
                   <span className={`status-badge status-${c.estado}`}>
                     {c.estado === "activo" ? "Activo" : "Inactivo"}
                   </span>
-                </td >
+                </td>
                 <td>
                   <Link to={`/admin/customers/${encodeURIComponent(c.email)}`} className="btn-ver-venta">
                     Ver cliente →
                   </Link>
                 </td>
-              </tr >
+              </tr>
             ))}
 
-            {
-              filtrados.length === 0 && (
-                <tr>
-                  <td colSpan="6" className="clientes-empty">
-                    No se encontraron clientes con los filtros aplicados.
-                  </td>
-                </tr>
-              )
-            }
-          </tbody >
-        </table >
-      </div >
-    </div >
+            {filtrados.length === 0 && (
+              <tr>
+                <td colSpan="6" className="clientes-empty">
+                  No se encontraron clientes con los filtros aplicados.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

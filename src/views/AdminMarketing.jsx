@@ -108,7 +108,7 @@ export default function AdminMarketing() {
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
 
       // Actualizar home copy
-      const homeCopyResponse = await fetch(`  ${API_URL}/config/home-copy`, {
+      const homeCopyResponse = await fetch(`${API_URL}/config/home-copy`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
