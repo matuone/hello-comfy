@@ -28,7 +28,7 @@ export default function AdminCustomers() {
     const fetchClientes = async () => {
       try {
         setLoading(true);
-        const res = await fetch("${API_URL}/customers/all-buyers");
+        const res = await fetch(`${API_URL}/customers/all-buyers`);
         const data = await res.json();
         setClientes(Array.isArray(data) ? data : []);
         setError(null);

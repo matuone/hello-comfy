@@ -74,7 +74,7 @@ export default function AdminPromoCodes() {
     });
     setEditingId(null);
 
-    const updated = await fetch("${API_URL}/promocodes").then(
+    const updated = await fetch(`${API_URL}/promocodes`).then(
       (res) => res.json()
     );
     setCodes(updated);

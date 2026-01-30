@@ -8,13 +8,13 @@ const CATEGORY_OPTIONS = [
 ];
 
 const fetchGrouped = async () => {
-  const res = await fetch("${API_URL}/products/filters/data");
+  const res = await fetch(`${API_URL}/products/filters/data`);
   if (!res.ok) throw new Error("No se pudo cargar subcategorías");
   return res.json();
 };
 
 const fetchSubcategories = async () => {
-  const res = await fetch(`${API_URL}/subcategories`);
+  const res = await fetch(`${API_URL} / subcategories`);
   if (!res.ok) throw new Error("No se pudo cargar subcategorías manuales");
   return res.json();
 };
@@ -58,7 +58,7 @@ export default function AdminSubcategories() {
     setError("");
 
     try {
-      const res = await fetch(`${API_URL}/subcategories`, {
+      const res = await fetch(`${API_URL} / subcategories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ category: categoria, name: nombre }),
@@ -136,7 +136,7 @@ export default function AdminSubcategories() {
 
   const handleReorder = async (category, newOrderIds) => {
     try {
-      await fetch("${API_URL}/subcategories/reorder/all", {
+      await fetch(`${API_URL}/subcategories/reorder/all`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ category, order: newOrderIds }),

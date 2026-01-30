@@ -25,7 +25,7 @@ export default function AdminProductNew() {
   useEffect(() => {
     async function fetchColors() {
       try {
-        const res = await fetch("${API_URL}/stock");
+        const res = await fetch(`${API_URL}/stock`);
         const data = await res.json();
         setStockColors(data);
       } catch (err) {
@@ -80,7 +80,7 @@ export default function AdminProductNew() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/products`, {
+      const res = await fetch(`${API_URL} / products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

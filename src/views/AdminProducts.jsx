@@ -29,7 +29,7 @@ export default function AdminProducts() {
   // CARGAR PRODUCTOS
   // ============================
   useEffect(() => {
-    fetch("${API_URL}/products")
+    fetch(`${API_URL}/products`)
       .then((res) => res.json())
       .then((data) => {
         const adaptados = data.map((p) => ({

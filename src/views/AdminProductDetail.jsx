@@ -38,7 +38,7 @@ export default function AdminProductDetail() {
   // CARGAR TABLAS DE TALLES
   // ============================
   useEffect(() => {
-    fetch("${API_URL}/sizetables")
+    fetch(`${API_URL}/sizetables`)
       .then((res) => res.json())
       .then((data) => {
         setSizeTables(data);
@@ -64,7 +64,7 @@ export default function AdminProductDetail() {
   useEffect(() => {
     if (!esEdicion) return;
 
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(`${API_URL}/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
         const categoriasValidas = ["Indumentaria", "Cute Items", "Merch"];
@@ -174,7 +174,7 @@ export default function AdminProductDetail() {
       const formData = new FormData();
       formData.append("images", archivoComprimido);
 
-      const res = await fetch("${API_URL}/products/upload", {
+      const res = await fetch(`${API_URL}/products/upload`, {
         method: "POST",
         body: formData,
       });
@@ -340,7 +340,7 @@ export default function AdminProductDetail() {
     };
 
     try {
-      const res = await fetch("${API_URL}/products", {
+      const res = await fetch(`${API_URL}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

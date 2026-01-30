@@ -94,7 +94,7 @@ export default function MobileHeader() {
   const [grouped, setGrouped] = useState(FALLBACK);
 
   useEffect(() => {
-    fetch("${API_URL}/products/filters/data")
+    fetch(`${API_URL}/products/filters/data`)
       .then((res) => res.json())
       .then((data) => {
         if (data?.groupedSubcategories) {

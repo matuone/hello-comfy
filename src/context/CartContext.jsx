@@ -71,7 +71,7 @@ export function CartProvider({ children }) {
   // FETCH REGLAS DE DESCUENTO
   // ============================
   useEffect(() => {
-    fetch("${API_URL}/discounts")
+    fetch(`${API_URL}/discounts`)
       .then((res) => res.json())
       .then((data) => setDiscountRules(data))
       .catch(() => { });
@@ -203,7 +203,7 @@ export function CartProvider({ children }) {
     if (!promoCode.trim()) return;
 
     try {
-      const res = await fetch(`${API_URL}/promocodes/validate`, {
+      const res = await fetch(`${API_URL} / promocodes / validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: promoCode }),
