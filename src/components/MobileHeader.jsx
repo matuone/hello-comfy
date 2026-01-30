@@ -94,7 +94,7 @@ export default function MobileHeader() {
   const [grouped, setGrouped] = useState(FALLBACK);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/filters/data")
+    fetch("${API_URL}/products/filters/data")
       .then((res) => res.json())
       .then((data) => {
         if (data?.groupedSubcategories) {
@@ -133,7 +133,7 @@ export default function MobileHeader() {
           <Link to="/mi-cuenta" className="mheader__iconbtn" aria-label="Mi cuenta">
             <span className="mh-icon is-user" aria-hidden="true" />
           </Link>
-          <Link to="/cart" className="mheader__iconbtn" aria-label={`Carrito (${count})`}>
+          <Link to="/cart" className="mheader__iconbtn" aria-label={`Carrito(${count})`}>
             <span className="mh-icon is-bag" aria-hidden="true" />
             {count > 0 && <span className="mh-badge">{count}</span>}
           </Link>
@@ -162,7 +162,7 @@ export default function MobileHeader() {
 
         <nav className="mdrawer__list" aria-label="Navegación">
           {/* ===== CATEGORÍAS ===== */}
-          <div ref={catsRef} className={`mnav__item has-children ${catsOpen ? "is-open" : ""}`}>
+          <div ref={catsRef} className={`mnav__item has - children ${catsOpen ? "is-open" : ""}`}>
             <button
               type="button"
               className="mnav__link mnav__toggle"
@@ -179,7 +179,8 @@ export default function MobileHeader() {
                 {COLS.map(({ title, base, items }) => (
                   <div className="mnav__col" key={title[1]}>
                     <NavLink
-                      to={`/${base}/${encodeURIComponent(items[0]?.[1] || "")}`}
+                      to={`/ ${base} / ${encodeURIComponent(items[0]?.[1] || "")
+                        }`}
                       className="mnav__parent"
                       onClick={navAndClose}
                     >
@@ -189,7 +190,7 @@ export default function MobileHeader() {
                     {items.map(([label, slug]) => (
                       <NavLink
                         key={slug}
-                        to={`/${base}/${encodeURIComponent(slug)}`}
+                        to={`/ ${base} / ${encodeURIComponent(slug)}`}
                         className="mnav__sublink"
                         onClick={navAndClose}
                       >

@@ -30,7 +30,7 @@ export default function AdminStock() {
   // CARGAR STOCK
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/stock")
+    fetch("${API_URL}/stock")
       .then((res) => res.json())
       .then((data) =>
         setRows(
@@ -56,7 +56,7 @@ export default function AdminStock() {
       talles: { S: 0, M: 0, L: 0, XL: 0, XXL: 0, "3XL": 0 },
     };
 
-    const res = await fetch("http://localhost:5000/api/stock", {
+    const res = await fetch(`${API_URL}/stock`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(nuevo),

@@ -26,7 +26,7 @@ export default function Cart() {
   const [discountRules, setDiscountRules] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/discounts")
+    fetch("${API_URL}/discounts")
       .then((res) => res.json())
       .then((data) => setDiscountRules(data));
   }, []);

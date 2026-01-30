@@ -38,7 +38,7 @@ export default function AdminProductDetail() {
   // CARGAR TABLAS DE TALLES
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/sizetables")
+    fetch("${API_URL}/sizetables")
       .then((res) => res.json())
       .then((data) => {
         setSizeTables(data);
@@ -50,7 +50,7 @@ export default function AdminProductDetail() {
   // CARGAR COLORES (StockColor)
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/stock")
+    fetch(`${API_URL}/stock`)
       .then((res) => res.json())
       .then((data) => {
         setColores(data);
@@ -174,7 +174,7 @@ export default function AdminProductDetail() {
       const formData = new FormData();
       formData.append("images", archivoComprimido);
 
-      const res = await fetch("http://localhost:5000/api/products/upload", {
+      const res = await fetch("${API_URL}/products/upload", {
         method: "POST",
         body: formData,
       });
@@ -340,7 +340,7 @@ export default function AdminProductDetail() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/products", {
+      const res = await fetch("${API_URL}/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

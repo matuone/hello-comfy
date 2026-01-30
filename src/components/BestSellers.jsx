@@ -11,6 +11,8 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export default function BestSellers() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -21,7 +23,7 @@ export default function BestSellers() {
   const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
-    fetch("https://backendhello.onrender.com/api/products/bestsellers")
+    fetch(`${API_URL}/products/bestsellers`)
       .then((res) => res.json())
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]));

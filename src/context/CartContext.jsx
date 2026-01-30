@@ -71,7 +71,7 @@ export function CartProvider({ children }) {
   // FETCH REGLAS DE DESCUENTO
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/discounts")
+    fetch("${API_URL}/discounts")
       .then((res) => res.json())
       .then((data) => setDiscountRules(data))
       .catch(() => { });
@@ -83,7 +83,7 @@ export function CartProvider({ children }) {
   const addToCart = (product, options = {}) => {
     const { size, color, quantity = 1 } = options;
 
-    const key = `${product._id}-${size || "nosize"}`;
+    const key = `${product._id} - ${size || "nosize"}`;
 
     setItems((prev) => {
       const existing = prev.find((item) => item.key === key);
@@ -203,7 +203,7 @@ export function CartProvider({ children }) {
     if (!promoCode.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/promocodes/validate", {
+      const res = await fetch(`${API_URL}/promocodes/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: promoCode }),

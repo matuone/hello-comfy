@@ -8,7 +8,7 @@ export default function SizeGuide() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/sizetables")
+    fetch("${API_URL}/sizetables")
       .then((res) => res.json())
       .then((data) => {
         setTables(data.filter((t) => t.active));

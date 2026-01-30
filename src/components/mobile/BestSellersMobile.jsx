@@ -12,7 +12,7 @@ export default function BestSellersMobile() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/bestsellers")
+    fetch(`${API_URL}/products/bestsellers`)
       .then((res) => res.json())
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]));
@@ -26,7 +26,7 @@ export default function BestSellersMobile() {
     navigate("/checkout");
   };
   const handleViewMore = (product) => {
-    navigate(`/products/${product._id}`);
+    navigate(`/ products / ${product._id}`);
   };
   const handleShowOpinions = useCallback((productId) => {
     setOpinionsProductId(productId);

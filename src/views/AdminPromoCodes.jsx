@@ -17,11 +17,11 @@ export default function AdminPromoCodes() {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/promocodes")
+    fetch(`${API_URL}/promocodes`)
       .then((res) => res.json())
       .then((data) => setCodes(data));
 
-    fetch("http://localhost:5000/api/products")
+    fetch(`${API_URL}/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
@@ -74,7 +74,7 @@ export default function AdminPromoCodes() {
     });
     setEditingId(null);
 
-    const updated = await fetch("http://localhost:5000/api/promocodes").then(
+    const updated = await fetch("${API_URL}/promocodes").then(
       (res) => res.json()
     );
     setCodes(updated);
