@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "./OpinionsPopup";
 import { useCart } from "../context/CartContext";
+import { VITE_API_URL } from "../config/index.js";
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -21,7 +22,7 @@ export default function NewIn() {
   const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/new")
+    fetch(`${VITE_API_URL}/api/products/new`)
       .then((res) => res.json())
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]));

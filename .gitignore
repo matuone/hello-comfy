@@ -32,3 +32,5 @@ backend/config/afip-ta/
 # Environment files (NEVER COMMIT THESE!)
 .env
 backend/.env
+
+.vercel

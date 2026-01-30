@@ -5,8 +5,9 @@ import banner2 from "../assets/banner2.png";
 import banner3 from "../assets/banner3.png";
 import "../styles/promobanner.css";
 import MarketingMessage from "./MarketingMessage";
+import { VITE_API_URL } from "../config/index.js";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = VITE_API_URL || "http://localhost:5000/api";
 
 export default function PromoBanner(props) {
   const [bannerData, setBannerData] = useState(null);

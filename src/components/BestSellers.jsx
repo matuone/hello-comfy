@@ -21,7 +21,7 @@ export default function BestSellers() {
   const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/bestsellers")
+    fetch("https://backendhello.onrender.com/api/products/bestsellers")
       .then((res) => res.json())
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]));
