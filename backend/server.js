@@ -72,6 +72,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // CORS compatible con Render y local
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://hello-comfy.vercel.app",
   (process.env.FRONTEND_URL || "https://tudominio.com").replace(/\/$/, "") // sin slash final
 ];
 app.use(cors({
