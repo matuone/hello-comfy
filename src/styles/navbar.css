@@ -6,19 +6,10 @@
   --hc-white: #fff;
   --hc-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   --hc-ring: rgba(0, 0, 0, 0.06);
-
-  /* Altura de barra superior (AnnouncementBar) */
   --ab-height: 0px;
-
-  /* Altura REAL del navbar fijo */
+  /* Altura de barra superior (AnnouncementBar) */
   --navbar-height: 56px;
-}
-
-/* Ocultar navbar de escritorio en mobile */
-@media (max-width: 899px) {
-  .navbar {
-    display: none !important;
-  }
+  /* Altura REAL del navbar fijo */
 }
 
 /* ================= NAVBAR CONTENEDOR ================= */
@@ -26,17 +17,12 @@
   position: fixed;
   left: 0;
   right: 0;
-
-  /* Se coloca DEBAJO del AnnouncementBar */
   top: var(--ab-height);
-
   z-index: 999;
-  /* AnnouncementBar está en 9999 */
   line-height: 1;
   margin: 0;
   padding: 0;
   border: none;
-
   transition:
     background 0.2s ease,
     box-shadow 0.2s ease,
@@ -55,7 +41,6 @@
   pointer-events: none;
 }
 
-/* Estado arriba de todo */
 .navbar--top {
   background: rgba(225, 225, 225, 0.78);
   backdrop-filter: blur(16px);
@@ -63,7 +48,6 @@
   box-shadow: none;
 }
 
-/* Estado con scroll */
 .navbar--scrolled {
   background: rgba(235, 235, 235, 0.96);
   backdrop-filter: blur(16px);
@@ -119,7 +103,7 @@
   display: block;
 }
 
-/* Search */
+/* ====== SEARCH ====== */
 .navbar__search {
   display: flex;
   align-items: center;
@@ -149,7 +133,6 @@
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
 
-/* Dropdown de resultados de búsqueda */
 .navbar__search-results {
   position: absolute;
   top: calc(100% + 8px);
@@ -405,4 +388,11 @@ a.nav-link.active {
   padding: 0;
   border-radius: 0;
   background: transparent;
+}
+
+/* ====== MEDIA QUERIES ====== */
+@media (max-width: 899px) {
+  .navbar {
+    display: none !important;
+  }
 }
