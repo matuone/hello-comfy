@@ -1,4 +1,11 @@
 import { useState, useEffect } from "react";
+
+// Centralización de rutas API
+function apiPath(path) {
+  const base = import.meta.env.VITE_API_URL || "/api";
+  if (path.startsWith("/")) return base + path;
+  return base + "/" + path;
+}
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "../styles/admincustomerdetail.css";
 import EmailModal from "../components/EmailModal";
@@ -18,7 +25,7 @@ export default function AdminCustomerDetail() {
     const fetchCliente = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:5000/api/customers/${id}`);
+        const res = await fetch(apiPath(`/customers/${id}`));
         if (!res.ok) {
           throw new Error("Cliente no encontrado");
         }
@@ -188,7 +195,7 @@ export default function AdminCustomerDetail() {
                 onClick={async () => {
                   setDeleting(true);
                   try {
-                    const res = await fetch(`http://localhost:5000/api/customers/${encodeURIComponent(cliente.email)}`, { method: 'DELETE' });
+                    const res = await fetch(apiPath(`/customers/${encodeURIComponent(cliente.email)}`), { method: 'DELETE' });
                     if (res.ok) {
                       navigate('/admin/customers');
                     } else {

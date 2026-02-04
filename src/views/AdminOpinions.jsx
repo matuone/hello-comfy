@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import ComfyModal from "../components/ComfyModal";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+// Centralización de rutas API
+function apiPath(path) {
+  const base = import.meta.env.VITE_API_URL || "/api";
+  if (path.startsWith("/")) return base + path;
+  return base + "/" + path;
+}
 
 export default function AdminOpinions() {
   const [opinions, setOpinions] = useState([]);
@@ -19,7 +25,7 @@ export default function AdminOpinions() {
     setError(null);
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${API_URL}/opinions`, {
+      const res = await fetch(apiPath("/opinions"), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -41,7 +47,7 @@ export default function AdminOpinions() {
     setModal({ open: false, id: null });
     try {
       const token = localStorage.getItem("adminToken");
-      await fetch(`${API_URL}/opinions/${id}`, {
+      await fetch(apiPath(`/opinions/${id}`), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -1,4 +1,12 @@
+
 import { useEffect, useState } from "react";
+
+// Centralización de rutas API
+function apiPath(path) {
+  const base = import.meta.env.VITE_API_URL || "/api";
+  if (path.startsWith("/")) return base + path;
+  return base + "/" + path;
+}
 
 export default function AdminDiscounts() {
   const [rules, setRules] = useState([]);
@@ -15,14 +23,14 @@ export default function AdminDiscounts() {
 
   // Traer productos para generar categorías dinámicas
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+    fetch(apiPath("/products"))
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
 
   // Traer reglas
   useEffect(() => {
-    fetch("http://localhost:5000/api/discounts")
+    fetch(apiPath("/discounts"))
       .then((res) => res.json())
       .then((data) => setRules(data));
   }, []);
@@ -51,8 +59,8 @@ export default function AdminDiscounts() {
     const payload = { ...form };
 
     const url = editingId
-      ? `http://localhost:5000/api/discounts/${editingId}`
-      : "http://localhost:5000/api/discounts";
+      ? apiPath(`/discounts/${editingId}`)
+      : apiPath("/discounts");
 
     const method = editingId ? "PUT" : "POST";
 
@@ -70,7 +78,7 @@ export default function AdminDiscounts() {
     });
     setEditingId(null);
 
-    const updated = await fetch("http://localhost:5000/api/discounts").then(
+    const updated = await fetch(apiPath("/discounts")).then(
       (res) => res.json()
     );
     setRules(updated);
@@ -87,7 +95,7 @@ export default function AdminDiscounts() {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5000/api/discounts/${id}`, {
+    await fetch(apiPath(`/discounts/${id}`), {
       method: "DELETE",
     });
 
