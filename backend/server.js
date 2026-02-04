@@ -167,7 +167,15 @@ app.use("/api/customers", customerRoutes); // ⭐ NUEVO
 // RUTAS EXISTENTES
 // ============================
 app.use("/api/stock", stockRoutes);
-app.use("/api/products", productRoutes);
+app.use("/api/products", (req, res, next) => {
+  console.log('[REQ PRODUCTS]', {
+    method: req.method,
+    url: req.originalUrl,
+    origin: req.headers.origin,
+    userAgent: req.headers['user-agent']
+  });
+  next();
+}, productRoutes);
 app.use("/api/discounts", discountRoutes);
 app.use("/api/promocodes", promoCodeRoutes);
 app.use("/api/subcategories", subcategoryRoutes);

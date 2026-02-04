@@ -19,7 +19,11 @@ export default function CategoriesMenuMobile({ onClose }) {
   const [openCat, setOpenCat] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/filters/data")
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    function apiPath(path) {
+      return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+    }
+    fetch(apiPath('/products/filters/data'))
       .then((res) => res.json())
       .then((data) => {
         if (data?.groupedSubcategories) {
