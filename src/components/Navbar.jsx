@@ -1,4 +1,5 @@
 // src/components/Navbar.jsx
+
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "../context/CartContext";
@@ -7,6 +8,12 @@ import CategoriesMenu from "./CategoriesMenu";
 import AccountPopup from "./AccountPopup";
 import "../styles/navbar.css";
 import logoBear from "../assets/logo.png";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function Navbar() {
   const { items } = useCart();
@@ -60,9 +67,7 @@ export default function Navbar() {
     const fetchResults = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/products?search=${encodeURIComponent(
-            searchQuery
-          )}`
+          apiPath(`/products?search=${encodeURIComponent(searchQuery)}`)
         );
         const data = await res.json();
         setSearchResults(Array.isArray(data) ? data.slice(0, 6) : []);

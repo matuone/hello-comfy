@@ -1,7 +1,14 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import "../styles/mobile-header.css";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function MobileHeader() {
   const { cart } = (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
@@ -94,7 +101,7 @@ export default function MobileHeader() {
   const [grouped, setGrouped] = useState(FALLBACK);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/filters/data")
+    fetch(apiPath("/products/filters/data"))
       .then((res) => res.json())
       .then((data) => {
         if (data?.groupedSubcategories) {

@@ -1,9 +1,16 @@
+
 import "../styles/products.css";
 import "../styles/productgrid.css"; // CSS aislado
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "../components/OpinionsPopup";
 import { useCart } from "../context/CartContext";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function Products() {
   const navigate = useNavigate();
@@ -41,7 +48,7 @@ export default function Products() {
   // CARGAR CATEGORÍAS
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/filters/data")
+    fetch(apiPath("/products/filters/data"))
       .then((res) => res.json())
       .then((data) => {
         const normalized = {};
@@ -74,7 +81,7 @@ export default function Products() {
   // CARGAR TODOS LOS PRODUCTOS
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+    fetch(apiPath("/products"))
       .then((res) => res.json())
       .then((data) => setAllProducts(data))
       .catch((err) => console.error("Error cargando todos los productos:", err));
@@ -89,7 +96,7 @@ export default function Products() {
         setLoading(true);
         if (page === 1) setInitialLoading(true);
 
-        let url = "http://localhost:5000/api/products";
+        let url = apiPath("/products");
         const params = [];
 
         if (selectedGroup !== "Todos") {

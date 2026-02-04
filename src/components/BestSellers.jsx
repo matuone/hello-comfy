@@ -1,9 +1,16 @@
+
 import "../styles/bestsellers.css";
 import "../styles/productgrid.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "./OpinionsPopup";
 import { useCart } from "../context/CartContext";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -21,7 +28,7 @@ export default function BestSellers() {
   const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/bestsellers")
+    fetch(apiPath("/products/bestsellers"))
       .then((res) => res.json())
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]));

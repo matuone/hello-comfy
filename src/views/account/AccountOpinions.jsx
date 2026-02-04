@@ -1,7 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useState as useReactState } from "react";
 import "../../styles/account/accountopinions.css";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function AccountOpinions() {
   const { user, token } = useAuth();
@@ -18,7 +25,7 @@ export default function AccountOpinions() {
   useEffect(() => {
     async function fetchPurchasesAndOpinions() {
       if (!user || !token) return;
-      const res = await fetch("/api/orders/my-orders", {
+      const res = await fetch(apiPath("/orders/my-orders"), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -41,7 +48,7 @@ export default function AccountOpinions() {
       setProducts(uniqueProds);
 
       // Traer opiniones propias
-      const resOp = await fetch("/api/opinions/user/me", {
+      const resOp = await fetch(apiPath("/opinions/user/me"), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const dataOp = await resOp.json();
@@ -73,7 +80,7 @@ export default function AccountOpinions() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/opinions", {
+      const res = await fetch(apiPath("/opinions"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

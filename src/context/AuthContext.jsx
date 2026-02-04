@@ -1,4 +1,11 @@
+
 import { createContext, useContext, useState, useEffect, useRef } from "react";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export const AuthContext = createContext();
 
@@ -141,7 +148,7 @@ export function AuthProvider({ children }) {
         return;
       }
       // Traer datos frescos desde la API para usuarios normales
-      fetch(`/api/users/${parsedUser.id}`, {
+      fetch(apiPath(`/users/${parsedUser.id}`), {
         headers: {
           Authorization: `Bearer ${tokenToUse}`,
         },
@@ -186,7 +193,7 @@ export function AuthProvider({ children }) {
   // ============================
   async function loginAdmin(email, password) {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/login", {
+      const res = await fetch(apiPath("/admin/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -223,7 +230,7 @@ export function AuthProvider({ children }) {
   // ============================
   async function loginUser(email, password) {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch(apiPath("/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

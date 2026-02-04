@@ -1,6 +1,13 @@
 // src/components/OpinionsPopup.jsx
+
 import "../styles/opinionspopup.css";
 import { useEffect, useState, useRef } from "react";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function OpinionsPopup({ productId, onClose }) {
   const [opinions, setOpinions] = useState([]);
@@ -13,7 +20,7 @@ export default function OpinionsPopup({ productId, onClose }) {
     async function fetchOpinions() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/opinions/product/${productId}`);
+        const res = await fetch(apiPath(`/opinions/product/${productId}`));
         const data = await res.json();
         setOpinions(data.opinions || []);
       } catch (err) {

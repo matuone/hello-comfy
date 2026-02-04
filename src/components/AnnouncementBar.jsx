@@ -1,6 +1,13 @@
+
 import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/announcementbar.css";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 const DEFAULT_MESSAGES = [
   "Envío gratis en compras +$190.000 🚀",
@@ -22,7 +29,7 @@ export default function AnnouncementBar({
   useEffect(() => {
     async function fetchMessages() {
       try {
-        const res = await fetch("/api/config/announcement-bar-messages");
+        const res = await fetch(apiPath("/config/announcement-bar-messages"));
         const data = await res.json();
         if (Array.isArray(data.messages) && data.messages.length > 0) {
           setAnnouncementMessages(data.messages);

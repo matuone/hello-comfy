@@ -1,5 +1,12 @@
+
 import { useState } from "react";
 import "../styles/admin/emailmodal.css";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function EmailModal({ customerEmail, customerName, onClose }) {
   const [form, setForm] = useState({
@@ -28,7 +35,7 @@ export default function EmailModal({ customerEmail, customerName, onClose }) {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/support", {
+      const res = await fetch(apiPath("/support"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
