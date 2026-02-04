@@ -1,6 +1,13 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/adminproducts.css";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function AdminProductNew() {
   const navigate = useNavigate();
@@ -25,7 +32,7 @@ export default function AdminProductNew() {
   useEffect(() => {
     async function fetchColors() {
       try {
-        const res = await fetch("http://localhost:5000/api/stock");
+        const res = await fetch(apiPath("/stock"));
         const data = await res.json();
         setStockColors(data);
       } catch (err) {

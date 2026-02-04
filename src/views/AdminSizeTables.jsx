@@ -1,7 +1,15 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "../components/ConfirmModal";
 import "../styles/admin/sizetables.css";
+
+// Centralización de rutas API
+function apiPath(path) {
+  const base = import.meta.env.VITE_API_URL || "/api";
+  if (path.startsWith("/")) return base + path;
+  return base + "/" + path;
+}
 
 export default function AdminSizeTables() {
   const [tables, setTables] = useState([]);
@@ -31,7 +39,7 @@ export default function AdminSizeTables() {
   const fetchTables = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await fetch("http://localhost:5000/api/sizetables/all", {
+      const response = await fetch(apiPath("/sizetables/all"), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -39,7 +47,6 @@ export default function AdminSizeTables() {
       const data = await response.json();
       setTables(data);
     } catch (error) {
-      console.error("Error al cargar tablas:", error);
       toast.error("Error al cargar tablas de talles");
     } finally {
       setLoading(false);
@@ -67,8 +74,8 @@ export default function AdminSizeTables() {
       };
 
       const url = editingTable
-        ? `http://localhost:5000/api/sizetables/${editingTable._id}`
-        : "http://localhost:5000/api/sizetables";
+        ? apiPath(`/sizetables/${editingTable._id}`)
+        : apiPath("/sizetables");
 
       const method = editingTable ? "PUT" : "POST";
 
@@ -107,7 +114,7 @@ export default function AdminSizeTables() {
       sizes: table.sizes,
       measurements: table.measurements.map((m) => ({
         name: m.name,
-        values: Object.fromEntries(m.values),
+        values: Object.fromEntries(Object.entries(m.values)),
       })),
       note: table.note || "",
       active: table.active,
@@ -123,7 +130,7 @@ export default function AdminSizeTables() {
   const confirmDelete = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await fetch(`http://localhost:5000/api/sizetables/${tableToDelete}`, {
+      const response = await fetch(apiPath(`/sizetables/${tableToDelete}`), {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -151,7 +158,7 @@ export default function AdminSizeTables() {
   const handleReorder = async (newOrderIds) => {
     try {
       const token = localStorage.getItem("adminToken");
-      await fetch("http://localhost:5000/api/sizetables/reorder/all", {
+      await fetch(apiPath("/sizetables/reorder/all"), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

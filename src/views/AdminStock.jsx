@@ -26,11 +26,16 @@ export default function AdminStock() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
-  // ============================
+  // Centralización de rutas API
+  function apiPath(path) {
+    const base = import.meta.env.VITE_API_URL || "/api";
+    if (path.startsWith("/")) return base + path;
+    return base + "/" + path;
+  }
   // CARGAR STOCK
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/stock")
+    fetch(apiPath("/stock"))
       .then((res) => res.json())
       .then((data) =>
         setRows(
@@ -56,7 +61,7 @@ export default function AdminStock() {
       talles: { S: 0, M: 0, L: 0, XL: 0, XXL: 0, "3XL": 0 },
     };
 
-    const res = await fetch("http://localhost:5000/api/stock", {
+    const res = await fetch(apiPath("/stock"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(nuevo),
@@ -82,12 +87,10 @@ export default function AdminStock() {
   // ELIMINAR COLOR (confirmado)
   // ============================
   async function eliminarFilaConfirmado(index) {
-    const id = rows[index].data._id;
-
-    await fetch(`http://localhost:5000/api/stock/${id}`, {
+    const row = rows[index];
+    await fetch(apiPath(`/stock/${row.data._id}`), {
       method: "DELETE",
     });
-
     setRows((prev) => prev.filter((_, i) => i !== index));
     showToast("Color eliminado del stock.", "warning");
   }

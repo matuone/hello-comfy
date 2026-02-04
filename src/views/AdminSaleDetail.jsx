@@ -1,5 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+
+// Centralización de rutas API
+function apiPath(path) {
+  const base = import.meta.env.VITE_API_URL || "/api";
+  if (path.startsWith("/")) return base + path;
+  return base + "/" + path;
+}
 import FacturaModal from "../components/FacturaModal";
 import NotificationModal from "../components/NotificationModal";
 import "../styles/adminsaledetail.css";
@@ -30,7 +37,7 @@ export default function AdminSaleDetail() {
       const fechaStr = fecha.toLocaleDateString('es-AR', opciones);
       let horaStr = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true });
       const fechaHoraFinal = `${fechaStr} a las ${horaStr}`;
-      const res = await fetch(`http://localhost:5000/api/admin/orders/${id}/pickup-notify`, {
+      const res = await fetch(apiPath(`/admin/orders/${id}/pickup-notify`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -96,7 +103,7 @@ export default function AdminSaleDetail() {
   useEffect(() => {
     async function fetchVenta() {
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/orders/${id}`, {
+        const res = await fetch(apiPath(`/admin/orders/${id}`), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -148,7 +155,7 @@ export default function AdminSaleDetail() {
       if (cuitCliente) body.cuitCliente = cuitCliente;
 
       const res = await fetch(
-        `http://localhost:5000/api/afip/generar-factura/${id}`,
+        apiPath(`/afip/generar-factura/${id}`),
         {
           method: "POST",
           headers: {
@@ -195,7 +202,7 @@ export default function AdminSaleDetail() {
         alert('Orden inválida');
         return;
       }
-      const url = `http://localhost:5000/api/afip/factura-pdf/${venta._id}`;
+      const url = apiPath(`/afip/factura-pdf/${venta._id}`);
       const res = await fetch(url, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
@@ -285,7 +292,7 @@ export default function AdminSaleDetail() {
   async function guardarComentario() {
     setGuardandoComentario(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/orders/${id}/comentario`, {
+      const res = await fetch(apiPath(`/admin/orders/${id}/comentario`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,13 @@
+
 import { useState, useEffect } from "react";
 import "../styles/admincustomers.css";
 import { Link } from "react-router-dom";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 // Función para formatear número de WhatsApp (sin caracteres especiales)
 function formatWhatsAppNumber(phone) {
@@ -28,7 +35,7 @@ export default function AdminCustomers() {
     const fetchClientes = async () => {
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:5000/api/customers/all-buyers");
+        const res = await fetch(apiPath("/customers/all-buyers"));
         const data = await res.json();
         setClientes(Array.isArray(data) ? data : []);
         setError(null);

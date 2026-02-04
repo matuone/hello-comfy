@@ -1,8 +1,15 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import imageCompression from "browser-image-compression";
 import Notification from "../components/Notification";
 import "../styles/adminproductdetail.css";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function AdminProductDetail() {
   const { id } = useParams();
@@ -38,7 +45,7 @@ export default function AdminProductDetail() {
   // CARGAR TABLAS DE TALLES
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/sizetables")
+    fetch(apiPath("/sizetables"))
       .then((res) => res.json())
       .then((data) => {
         setSizeTables(data);
@@ -50,7 +57,7 @@ export default function AdminProductDetail() {
   // CARGAR COLORES (StockColor)
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/stock")
+    fetch(apiPath("/stock"))
       .then((res) => res.json())
       .then((data) => {
         setColores(data);
@@ -64,7 +71,7 @@ export default function AdminProductDetail() {
   useEffect(() => {
     if (!esEdicion) return;
 
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(apiPath(`/products/${id}`))
       .then((res) => res.json())
       .then((data) => {
         const categoriasValidas = ["Indumentaria", "Cute Items", "Merch"];

@@ -7,14 +7,19 @@ const CATEGORY_OPTIONS = [
   { value: "Merch", label: "Merch" },
 ];
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 const fetchGrouped = async () => {
-  const res = await fetch("http://localhost:5000/api/products/filters/data");
+  const res = await fetch(apiPath("/products/filters/data"));
   if (!res.ok) throw new Error("No se pudo cargar subcategorías");
   return res.json();
 };
 
 const fetchSubcategories = async () => {
-  const res = await fetch("http://localhost:5000/api/subcategories");
+  const res = await fetch(apiPath("/subcategories"));
   if (!res.ok) throw new Error("No se pudo cargar subcategorías manuales");
   return res.json();
 };
@@ -58,7 +63,7 @@ export default function AdminSubcategories() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/subcategories", {
+      const res = await fetch(apiPath("/subcategories"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ category: categoria, name: nombre }),

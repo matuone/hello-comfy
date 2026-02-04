@@ -1,4 +1,12 @@
+
 import { useEffect, useState } from "react";
+
+// Centralización de rutas API
+function apiPath(path) {
+  const base = import.meta.env.VITE_API_URL || "/api";
+  if (path.startsWith("/")) return base + path;
+  return base + "/" + path;
+}
 
 export default function AdminPromoCodes() {
   const [codes, setCodes] = useState([]);
@@ -17,11 +25,11 @@ export default function AdminPromoCodes() {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/promocodes")
+    fetch(apiPath("/promocodes"))
       .then((res) => res.json())
       .then((data) => setCodes(data));
 
-    fetch("http://localhost:5000/api/products")
+    fetch(apiPath("/products"))
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
@@ -52,8 +60,8 @@ export default function AdminPromoCodes() {
     const payload = { ...form };
 
     const url = editingId
-      ? `http://localhost:5000/api/promocodes/${editingId}`
-      : "http://localhost:5000/api/promocodes";
+      ? apiPath(`/promocodes/${editingId}`)
+      : apiPath("/promocodes");
 
     const method = editingId ? "PUT" : "POST";
 
@@ -74,7 +82,7 @@ export default function AdminPromoCodes() {
     });
     setEditingId(null);
 
-    const updated = await fetch("http://localhost:5000/api/promocodes").then(
+    const updated = await fetch(apiPath("/promocodes")).then(
       (res) => res.json()
     );
     setCodes(updated);
@@ -94,7 +102,7 @@ export default function AdminPromoCodes() {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5000/api/promocodes/${id}`, {
+    await fetch(apiPath(`/promocodes/${id}`), {
       method: "DELETE",
     });
 

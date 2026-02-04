@@ -1,4 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
+
+// Centralización de rutas API
+function apiPath(path) {
+  const base = import.meta.env.VITE_API_URL || "/api";
+  if (path.startsWith("/")) return base + path;
+  return base + "/" + path;
+}
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/adminsales.css";
@@ -43,7 +50,7 @@ export default function AdminSales() {
 
     async function fetchVentas() {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/orders", {
+        const res = await fetch(apiPath("/admin/orders"), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -139,7 +146,7 @@ export default function AdminSales() {
       for (const id of seleccionadas) {
         try {
           const res = await fetch(
-            `http://localhost:5000/api/afip/generar-factura/${id}`,
+            apiPath(`/afip/generar-factura/${id}`),
             {
               method: "POST",
               headers: {
@@ -192,7 +199,7 @@ export default function AdminSales() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/correo-argentino/import-batch", {
+      const res = await fetch(apiPath("/correo-argentino/import-batch"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -239,7 +246,7 @@ export default function AdminSales() {
   // ============================
   async function descargarFactura(id) {
     try {
-      const url = `http://localhost:5000/api/afip/factura-pdf/${id}`;
+      const url = apiPath(`/afip/factura-pdf/${id}`);
       const res = await fetch(url, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
@@ -272,7 +279,7 @@ export default function AdminSales() {
   async function reenviarFactura(id) {
     setReenvioLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/afip/reenviar-factura/${id}`, {
+      const res = await fetch(apiPath(`/afip/reenviar-factura/${id}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -313,7 +320,7 @@ export default function AdminSales() {
   // ============================
   async function marcarPagoRecibido(id) {
     try {
-      await fetch(`http://localhost:5000/api/admin/orders/${id}/payment`, {
+      await fetch(apiPath(`/admin/orders/${id}/payment`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -343,7 +350,7 @@ export default function AdminSales() {
 
   async function guardarSeguimiento() {
     try {
-      await fetch(`http://localhost:5000/api/admin/orders/${ventaSeleccionada}/shipping`, {
+      await fetch(apiPath(`/admin/orders/${ventaSeleccionada}/shipping`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
