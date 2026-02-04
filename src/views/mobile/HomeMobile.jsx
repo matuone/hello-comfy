@@ -8,6 +8,9 @@ import NewInMobile from "../../components/mobile/NewInMobile";
 import FloatingBearMobile from "../../components/mobile/FloatingBearMobile";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function HomeMobile() {
   const [homeTitle, setHomeTitle] = useState("Bienvenid@ a Hello-Comfy");
@@ -22,7 +25,7 @@ export default function HomeMobile() {
 
   async function loadHomeCopy() {
     try {
-      const response = await fetch(`${API_URL}/config/home-copy`);
+      const response = await fetch(apiPath('/config/home-copy'));
       const text = await response.text();
       let data = null;
       try {

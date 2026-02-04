@@ -7,6 +7,9 @@ import MarketingMessage from "../MarketingMessage";
 import "../../styles/promobanner.mobile.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function PromoBannerMobile(props) {
   const [bannerData, setBannerData] = useState(null);
@@ -20,7 +23,7 @@ export default function PromoBannerMobile(props) {
   const defaultIMGS = useMemo(() => [banner1, banner2, banner3], []);
 
   useEffect(() => {
-    fetch(`${API_URL}/promo-banner`)
+    fetch(apiPath('/promo-banner'))
       .then(res => res.json())
       .then(data => {
         setBannerData(data);

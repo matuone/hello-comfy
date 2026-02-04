@@ -7,6 +7,9 @@ import "../styles/promobanner.css";
 import MarketingMessage from "./MarketingMessage";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function PromoBanner(props) {
   const [bannerData, setBannerData] = useState(null);
@@ -19,7 +22,7 @@ export default function PromoBanner(props) {
 
   // Cargar configuración del banner desde el backend
   useEffect(() => {
-    fetch(`${API_URL}/promo-banner`)
+    fetch(apiPath('/promo-banner'))
       .then(res => res.json())
       .then(data => {
         setBannerData(data);

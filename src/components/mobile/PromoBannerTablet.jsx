@@ -3,13 +3,16 @@ import MarketingMessage from "../MarketingMessage";
 import "../../styles/promobanner.tablet.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function PromoBannerTablet(props) {
   const [bannerData, setBannerData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/promo-banner`)
+    fetch(apiPath('/promo-banner'))
       .then(res => res.json())
       .then(data => {
         setBannerData(data);

@@ -6,6 +6,9 @@ import BestSellers from "../components/BestSellers";
 import NewIn from "../components/NewIn";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function Home() {
   const { isMobile, isTablet } = useResponsive();
@@ -31,7 +34,7 @@ export default function Home() {
 
   async function loadHomeCopy() {
     try {
-      const response = await fetch(`${API_URL}/config/home-copy`);
+      const response = await fetch(apiPath('/config/home-copy'));
       const text = await response.text();
       let data = null;
       try {

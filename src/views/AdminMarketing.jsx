@@ -4,6 +4,9 @@ import NotificationModal from "../components/NotificationModal";
 import ConfirmModal from "../components/ConfirmModal";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
 
 export default function AdminMarketing() {
   const defaultMessage = "Aprovechá hoy 3x2 en remeras 🧸";
@@ -58,7 +61,7 @@ export default function AdminMarketing() {
 
   async function loadBannerConfig() {
     try {
-      const response = await fetch(`${API_URL}/promo-banner`);
+      const response = await fetch(apiPath('/promo-banner'));
       const data = await response.json();
 
       if (data) {
@@ -74,7 +77,7 @@ export default function AdminMarketing() {
 
   async function loadHomeCopy() {
     try {
-      const response = await fetch(`${API_URL}/config/home-copy`);
+      const response = await fetch(apiPath('/config/home-copy'));
       const data = await response.json();
 
       if (data) {
@@ -96,7 +99,7 @@ export default function AdminMarketing() {
       const token = localStorage.getItem('adminToken');
 
       // Actualizar configuración del banner
-      const bannerResponse = await fetch(`${API_URL}/promo-banner`, {
+      const bannerResponse = await fetch(apiPath('/promo-banner'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +111,7 @@ export default function AdminMarketing() {
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
 
       // Actualizar home copy
-      const homeCopyResponse = await fetch(`${API_URL}/config/home-copy`, {
+      const homeCopyResponse = await fetch(apiPath('/config/home-copy'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +168,7 @@ export default function AdminMarketing() {
       console.log('📤 Enviando imagen con posición:', positionCSS);
       console.log('📍 Preview position:', previewPosition);
 
-      const response = await fetch(`${API_URL}/promo-banner/images`, {
+      const response = await fetch(apiPath('/promo-banner/images'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -210,7 +213,7 @@ export default function AdminMarketing() {
     setLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/promo-banner/images/${imageId}`, {
+      const response = await fetch(apiPath(`/promo-banner/images/${imageId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -235,7 +238,7 @@ export default function AdminMarketing() {
     setLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/promo-banner/images/${imageId}/position`, {
+      const response = await fetch(apiPath(`/promo-banner/images/${imageId}/position`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -316,7 +319,7 @@ export default function AdminMarketing() {
     setLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/config/home-copy`, {
+      const response = await fetch(apiPath('/config/home-copy'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -387,7 +390,7 @@ export default function AdminMarketing() {
       const token = localStorage.getItem('adminToken');
       const imageIds = newImages.map(img => img._id);
 
-      const response = await fetch(`${API_URL}/promo-banner/images/reorder`, {
+      const response = await fetch(apiPath('/promo-banner/images/reorder'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
