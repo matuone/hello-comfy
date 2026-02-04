@@ -165,10 +165,9 @@ export default function Navbar() {
                   >
                     Productos
                   </NavLink>
-                </li>
-
-                <li className="mega-wrap">
-                  <CategoriesMenu className={menuOpen ? "visible" : ""} />
+                  <div className="mega-wrap">
+                    <CategoriesMenu />
+                  </div>
                 </li>
 
                 <li className="nav-item">

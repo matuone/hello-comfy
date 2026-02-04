@@ -58,7 +58,6 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 22px;
   animation: fadeInUp 0.4s ease-out both;
 }
@@ -73,20 +72,6 @@
 /* ============================
    FORMULARIO
 ============================ */
-.checkout-step h2,
-.checkout-step h3,
-.checkout-step .form-group,
-.checkout-step .checkout-pickup-box,
-.checkout-step .shipping-options,
-.checkout-step .payment-options,
-.checkout-step .review-box,
-.checkout-step .checkout-nav,
-.checkout-step>.checkout-btn {
-  max-width: 480px;
-  width: 100%;
-  align-self: center;
-}
-
 .form-group {
   display: flex;
   flex-direction: column;
@@ -101,9 +86,6 @@
 
 .form-group input,
 .form-group select {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
   padding: 12px;
   border-radius: 12px;
   border: 1.5px solid #e3e3e3;
@@ -182,9 +164,6 @@
 }
 
 .checkout-pickup-select {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
   padding: 12px;
   border-radius: 12px;
   border: 1.5px solid #f7c9d8;

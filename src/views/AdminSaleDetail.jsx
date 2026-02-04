@@ -333,7 +333,7 @@ export default function AdminSaleDetail() {
 
       <div className="detalle-actions">
         {/* Enviar mensaje de retiro (Pick Up) */}
-        {venta.shipping?.method === "pickup" && (
+        {venta.shipping.method === "pickup" && (
           <button
             className="factura-btn"
             style={{ background: "#4caf50", color: "white" }}
@@ -388,7 +388,7 @@ export default function AdminSaleDetail() {
                 <a
                   className="factura-modal-btn confirm"
                   style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 1 : 0.5, pointerEvents: venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 'auto' : 'none' }}
-                  href={venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${venta.customer.whatsapp.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: venta.customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: venta.shipping?.pickPoint, numeroOrden: venta.code }))}` : '#'}
+                  href={venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${venta.customer.whatsapp.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: venta.customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: venta.shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   title={venta?.customer?.whatsapp ? '' : 'El cliente no tiene WhatsApp'}

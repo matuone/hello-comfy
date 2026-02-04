@@ -15,7 +15,7 @@ export default function NewIn() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [productos, setProductos] = useState([]);
-  const [opinionsProductId, setOpinionsProductId] = useState(null);
+  const [showOpinions, setShowOpinions] = useState(false);
 
   const [selectedSizes, setSelectedSizes] = useState({});
   const [quantities, setQuantities] = useState({});
@@ -165,10 +165,9 @@ export default function NewIn() {
 
                 <div
                   className="productcard__stars"
-                  style={{ cursor: "pointer" }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setOpinionsProductId(p._id);
+                    setShowOpinions(true);
                   }}
                 >
                   {"★".repeat(4)}☆
@@ -207,7 +206,7 @@ export default function NewIn() {
         </Swiper>
       </div>
 
-      {opinionsProductId && <OpinionsPopup productId={opinionsProductId} onClose={() => setOpinionsProductId(null)} />}
+      {showOpinions && <OpinionsPopup onClose={() => setShowOpinions(false)} />}
     </section>
   );
 }
