@@ -77,12 +77,6 @@ const allowedOrigins = [
 ];
 // Log detallado para depuración de requests
 app.use((req, res, next) => {
-  console.log('[REQ]', {
-    method: req.method,
-    url: req.originalUrl,
-    origin: req.headers.origin,
-    userAgent: req.headers['user-agent']
-  });
   next();
 });
 app.use(cors({
@@ -167,15 +161,7 @@ app.use("/api/customers", customerRoutes); // ⭐ NUEVO
 // RUTAS EXISTENTES
 // ============================
 app.use("/api/stock", stockRoutes);
-app.use("/api/products", (req, res, next) => {
-  console.log('[REQ PRODUCTS]', {
-    method: req.method,
-    url: req.originalUrl,
-    origin: req.headers.origin,
-    userAgent: req.headers['user-agent']
-  });
-  next();
-}, productRoutes);
+app.use("/api/products", productRoutes);
 app.use("/api/discounts", discountRoutes);
 app.use("/api/promocodes", promoCodeRoutes);
 app.use("/api/subcategories", subcategoryRoutes);
@@ -244,7 +230,6 @@ app.use("/api/opinions", opinionRoutes);
 //     const result = await cotizarAndreani(req.body);
 //     res.json(result);
 //   } catch (err) {
-//     console.error("Error cotizando Andreani:", err);
 //     res.status(500).json({ error: "Error cotizando Andreani" });
 //   }
 // });
@@ -262,7 +247,6 @@ app.post("/api/shipping/correo", async (req, res) => {
       res.json({ ...apiResult, source: "api" });
     }
   } catch (err) {
-    console.error("Error cotizando Correo Argentino:", err);
     // Fallback a tarifas locales en caso de error
     try {
       const fallbackResult = cotizarCorreo(req.body);
@@ -286,7 +270,7 @@ app.get("/", (req, res) => {
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {/* MongoDB conectado */ })
-  .catch((err) => console.error("Error al conectar MongoDB:", err));
+  .catch((err) => { });
 
 // ============================
 // INICIO DEL SERVIDOR

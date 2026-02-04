@@ -1,5 +1,7 @@
 
+
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 // Centralización de rutas API
 function apiPath(path) {
@@ -8,7 +10,9 @@ function apiPath(path) {
   return base + "/" + path;
 }
 
+
 export default function AdminPromoCodes() {
+  const { token } = useAuth();
   const [codes, setCodes] = useState([]);
   const [products, setProducts] = useState([]);
 
@@ -25,14 +29,18 @@ export default function AdminPromoCodes() {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch(apiPath("/promocodes"))
+    // Fetch de códigos promocionales (protegido)
+    fetch(apiPath("/promocodes"), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
       .then((res) => res.json())
       .then((data) => setCodes(data));
 
+    // Fetch de productos (público)
     fetch(apiPath("/products"))
       .then((res) => res.json())
       .then((data) => setProducts(data));
-  }, []);
+  }, [token]);
 
   // Normalización visual
   const normalize = (str) =>
@@ -54,6 +62,7 @@ export default function AdminPromoCodes() {
         ),
       ];
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -67,7 +76,10 @@ export default function AdminPromoCodes() {
 
     await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify(payload),
     });
 
@@ -82,9 +94,10 @@ export default function AdminPromoCodes() {
     });
     setEditingId(null);
 
-    const updated = await fetch(apiPath("/promocodes")).then(
-      (res) => res.json()
-    );
+    // Refrescar lista de códigos (protegido)
+    const updated = await fetch(apiPath("/promocodes"), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }).then((res) => res.json());
     setCodes(updated);
   };
 
@@ -101,9 +114,11 @@ export default function AdminPromoCodes() {
     });
   };
 
+
   const handleDelete = async (id) => {
     await fetch(apiPath(`/promocodes/${id}`), {
       method: "DELETE",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
 
     setCodes(codes.filter((c) => c._id !== id));

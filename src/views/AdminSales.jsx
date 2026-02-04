@@ -57,7 +57,6 @@ export default function AdminSales() {
         });
 
         if (!res.ok) {
-          console.error("Error cargando ventas:", await res.text());
           setError(true);
           return;
         }
@@ -65,7 +64,6 @@ export default function AdminSales() {
         const data = await res.json();
         setVentasData(data);
       } catch (err) {
-        console.error("Error cargando ventas:", err);
         setError(true);
       }
     }
@@ -180,7 +178,6 @@ export default function AdminSales() {
       setSeleccionadas([]);
       setSelectAll(false);
     } catch (err) {
-      console.error("Error facturando:", err);
       alert("Error al generar las facturas");
     }
   }
@@ -211,7 +208,6 @@ export default function AdminSales() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error("Error registrando en Correo Argentino:", data);
         alert(data.error || "Error al registrar órdenes");
         return;
       }
@@ -236,7 +232,6 @@ export default function AdminSales() {
 
       alert(`Registro finalizado\n✅ Exitosas: ${data.success}\n❌ Fallidas: ${data.failed}`);
     } catch (err) {
-      console.error(err);
       alert("Error al registrar órdenes en Correo Argentino");
     }
   }
@@ -268,7 +263,6 @@ export default function AdminSales() {
       link.click();
       link.remove();
     } catch (err) {
-      console.error(err);
       alert('Error descargando PDF');
     }
   }
@@ -304,7 +298,6 @@ export default function AdminSales() {
         mensaje: 'La factura ha sido enviada exitosamente al cliente',
       });
     } catch (err) {
-      console.error(err);
       setModalReenvio({
         tipo: 'error',
         titulo: 'Error de conexión',
@@ -335,7 +328,6 @@ export default function AdminSales() {
         )
       );
     } catch (err) {
-      console.error("Error marcando pago:", err);
     }
   }
 
@@ -372,7 +364,6 @@ export default function AdminSales() {
 
       setPopupAbierto(false);
     } catch (err) {
-      console.error("Error guardando seguimiento:", err);
     }
   }
 

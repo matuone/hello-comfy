@@ -71,7 +71,7 @@ export default function AdminMarketing() {
         setInterval(data.interval || 5000);
       }
     } catch (error) {
-      console.error('Error cargando configuración del banner:', error);
+      // Error cargando configuración del banner
     }
   }
 
@@ -89,7 +89,7 @@ export default function AdminMarketing() {
         setOriginalHomeDescription(description);
       }
     } catch (error) {
-      console.error('Error cargando home copy:', error);
+      // Error cargando home copy
     }
   }
 
@@ -133,7 +133,6 @@ export default function AdminMarketing() {
 
       setNotification({ mensaje: "Cambios guardados correctamente", tipo: "success" });
     } catch (error) {
-      console.error('Error guardando:', error);
       setNotification({ mensaje: "Error al guardar los cambios", tipo: "error" });
     } finally {
       setLoading(false);
@@ -165,8 +164,7 @@ export default function AdminMarketing() {
       const positionCSS = convertPositionToCSS(previewPosition);
       formData.append('objectPosition', positionCSS);
 
-      console.log('📤 Enviando imagen con posición:', positionCSS);
-      console.log('📍 Preview position:', previewPosition);
+      // Enviando imagen con posición
 
       const response = await fetch(apiPath('/promo-banner/images'), {
         method: 'POST',
@@ -179,8 +177,6 @@ export default function AdminMarketing() {
       if (!response.ok) throw new Error('Error al subir imagen');
 
       const data = await response.json();
-      console.log('✅ Respuesta del backend:', data);
-      console.log('📷 Imágenes recibidas:', data.banner.images);
 
       setBannerImages(data.banner.images);
       setNewImage(null);
@@ -193,7 +189,6 @@ export default function AdminMarketing() {
 
       setNotification({ mensaje: "Imagen agregada correctamente", tipo: "success" });
     } catch (error) {
-      console.error('Error subiendo imagen:', error);
       setNotification({ mensaje: "Error al subir la imagen", tipo: "error" });
     } finally {
       setLoading(false);
@@ -208,7 +203,7 @@ export default function AdminMarketing() {
     const imageId = confirmDelete;
     setConfirmDelete(null);
 
-    console.log('🗑️ Eliminando imagen con ID:', imageId);
+    // Eliminando imagen con ID
 
     setLoading(true);
     try {
@@ -227,7 +222,6 @@ export default function AdminMarketing() {
 
       setNotification({ mensaje: "Imagen eliminada correctamente", tipo: "success" });
     } catch (error) {
-      console.error('Error eliminando imagen:', error);
       setNotification({ mensaje: "Error al eliminar la imagen", tipo: "error" });
     } finally {
       setLoading(false);
@@ -254,7 +248,6 @@ export default function AdminMarketing() {
 
       setNotification({ mensaje: "Posición actualizada", tipo: "success" });
     } catch (error) {
-      console.error('Error actualizando posición:', error);
       setNotification({ mensaje: "Error al actualizar la posición", tipo: "error" });
     } finally {
       setLoading(false);
@@ -340,7 +333,6 @@ export default function AdminMarketing() {
 
       setNotification({ mensaje: "Sección de bienvenida actualizada", tipo: "success" });
     } catch (error) {
-      console.error('Error guardando home copy:', error);
       setNotification({ mensaje: "Error al guardar la sección de bienvenida", tipo: "error" });
     } finally {
       setLoading(false);
@@ -403,7 +395,6 @@ export default function AdminMarketing() {
 
       setNotification({ mensaje: "Orden actualizado correctamente", tipo: "success" });
     } catch (error) {
-      console.error('Error reordenando:', error);
       setNotification({ mensaje: "Error al actualizar el orden", tipo: "error" });
       // Recargar para restaurar orden original
       loadBannerConfig();

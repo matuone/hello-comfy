@@ -37,7 +37,13 @@ export default function AccountHelp() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/support", {
+      // Centralización de rutas API
+      function apiPath(path) {
+        const base = import.meta.env.VITE_API_URL || "/api";
+        if (path.startsWith("/")) return base + path;
+        return base + "/" + path;
+      }
+      const res = await fetch(apiPath("/support"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
