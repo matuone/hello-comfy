@@ -75,6 +75,16 @@ const allowedOrigins = [
   "https://hello-comfy.vercel.app",
   (process.env.FRONTEND_URL || "https://tudominio.com").replace(/\/$/, "") // sin slash final
 ];
+// Log detallado para depuración de requests
+app.use((req, res, next) => {
+  console.log('[REQ]', {
+    method: req.method,
+    url: req.originalUrl,
+    origin: req.headers.origin,
+    userAgent: req.headers['user-agent']
+  });
+  next();
+});
 app.use(cors({
   origin: function (origin, callback) {
     // Permitir requests sin origin (como Postman) o desde orígenes permitidos
