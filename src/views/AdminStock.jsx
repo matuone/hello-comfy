@@ -114,7 +114,7 @@ export default function AdminStock() {
     row.data.paused = !row.data.paused;
     setRows(copia);
 
-    await fetch(`http://localhost:5000/api/stock/${row.data._id}`, {
+    await fetch(apiPath(`/stock/${row.data._id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(row.data),
@@ -177,7 +177,7 @@ export default function AdminStock() {
     const row = rows[index].data;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/stock/${row._id}`, {
+      const res = await fetch(apiPath(`/stock/${row._id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(row),
