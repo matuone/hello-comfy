@@ -69,18 +69,18 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// Configuración de CORS restrictivo
+// CORS compatible con Render y local
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://tudominio.com" // Cambia esto por tu dominio real en producción
+  (process.env.FRONTEND_URL || "https://tudominio.com").replace(/\/$/, "") // sin slash final
 ];
 app.use(cors({
   origin: function (origin, callback) {
     // Permitir requests sin origin (como Postman) o desde orígenes permitidos
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
       callback(null, true);
     } else {
-      callback(new Error("No permitido por CORS"));
+      callback(new Error("No permitido por CORS: " + origin));
     }
   },
   credentials: true
