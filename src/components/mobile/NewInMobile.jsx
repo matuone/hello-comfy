@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import ProductCardNewInMobile from "../../components/mobile/ProductCardNewInMobile";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import OpinionsPopup from "../OpinionsPopup";
 import "../../styles/mobile/bestsellers.mobile.css";
 
 export default function NewInMobile() {
   const [productos, setProductos] = useState([]);
+  const [showOpinions, setShowOpinions] = useState(false);
+  const [opinionsProductId, setOpinionsProductId] = useState(null);
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -31,21 +34,37 @@ export default function NewInMobile() {
   const handleViewMore = (product) => {
     navigate(`/products/${product._id}`);
   };
+  const handleStarsClick = (product) => {
+    setOpinionsProductId(product._id);
+    setShowOpinions(true);
+  };
 
   return (
-    <div className="newin-mobile-swiper bestsellers-mobile-scroll">
-      <div className="bestsellers-mobile-track">
-        {productos.map((product) => (
-          <div className="bestsellers-mobile-slide" key={product._id}>
-            <ProductCardNewInMobile
-              product={product}
-              onBuy={handleBuy}
-              onAddToCart={handleAddToCart}
-              onViewMore={handleViewMore}
-            />
-          </div>
-        ))}
+    <>
+      <div className="newin-mobile-swiper bestsellers-mobile-scroll">
+        <div className="bestsellers-mobile-track">
+          {productos.map((product) => (
+            <div className="bestsellers-mobile-slide" key={product._id}>
+              <ProductCardNewInMobile
+                product={product}
+                onBuy={handleBuy}
+                onAddToCart={handleAddToCart}
+                onViewMore={handleViewMore}
+                onStarsClick={handleStarsClick}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+      {showOpinions && opinionsProductId && (
+        <OpinionsPopup
+          productId={opinionsProductId}
+          onClose={() => {
+            setShowOpinions(false);
+            setOpinionsProductId(null);
+          }}
+        />
+      )}
+    </>
   );
 }
