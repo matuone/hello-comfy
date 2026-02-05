@@ -41,19 +41,22 @@ router.get("/maintenance", async (req, res) => {
 router.put("/maintenance", verifyAdmin, async (req, res) => {
   try {
     const { maintenanceMode } = req.body;
+    console.log("PUT /maintenance:", { maintenanceMode, adminId: req.user?.id });
 
     let config = await SiteConfig.findOne({ key: "maintenanceMode" });
 
     if (!config) {
-      config = await SiteConfig.create({
+      config = new SiteConfig({
         key: "maintenanceMode",
         value: maintenanceMode,
       });
     } else {
       config.value = maintenanceMode;
       config.updatedAt = Date.now();
-      await config.save();
     }
+
+    await config.save();
+    console.log("Configuracion guardada:", config);
 
     res.json({ maintenanceMode: config.value });
   } catch (error) {

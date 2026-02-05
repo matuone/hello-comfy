@@ -46,7 +46,9 @@ export function MaintenanceProvider({ children }) {
         return;
       }
 
-      console.log("Actualizando modo mantenimiento a:", value);
+      // Actualizar estado local INMEDIATAMENTE
+      setIsMaintenanceMode(value);
+      console.log("Toggle local actualizado a:", value);
 
       const response = await fetch(apiPath("/config/maintenance"), {
         method: "PUT",
@@ -59,14 +61,18 @@ export function MaintenanceProvider({ children }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Modo mantenimiento actualizado:", data);
+        console.log("Modo mantenimiento guardado en BD:", data);
         setIsMaintenanceMode(data.maintenanceMode);
       } else {
         const errorData = await response.text();
         console.error("Error del servidor:", response.status, errorData);
+        // Revertir estado local si la petición falla
+        setIsMaintenanceMode(!value);
       }
     } catch (error) {
       console.error("Error al actualizar modo mantenimiento:", error);
+      // Revertir estado local si hay error
+      setIsMaintenanceMode(!value);
     }
   };
 
