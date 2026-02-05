@@ -73,6 +73,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 const allowedOrigins = [
   "http://localhost:5173",
   "http://200.58.98.98",
+  "http://test.hellocomfy.com.ar",
   "https://hello-comfy.vercel.app",
   (process.env.FRONTEND_URL || "https://tudominio.com").replace(/\/$/, "") // sin slash final
 ];
