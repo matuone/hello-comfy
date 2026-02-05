@@ -23,6 +23,7 @@ export default function NewIn() {
   const { addToCart } = useCart();
   const [productos, setProductos] = useState([]);
   const [showOpinions, setShowOpinions] = useState(false);
+  const [opinionsProductId, setOpinionsProductId] = useState(null);
 
   const [selectedSizes, setSelectedSizes] = useState({});
   const [quantities, setQuantities] = useState({});
@@ -176,6 +177,7 @@ export default function NewIn() {
                   className="productcard__stars"
                   onClick={(e) => {
                     e.stopPropagation();
+                    setOpinionsProductId(p._id);
                     setShowOpinions(true);
                   }}
                 >
@@ -215,7 +217,15 @@ export default function NewIn() {
         </Swiper>
       </div>
 
-      {showOpinions && <OpinionsPopup onClose={() => setShowOpinions(false)} />}
+      {showOpinions && opinionsProductId && (
+        <OpinionsPopup
+          productId={opinionsProductId}
+          onClose={() => {
+            setShowOpinions(false);
+            setOpinionsProductId(null);
+          }}
+        />
+      )}
     </section>
   );
 }

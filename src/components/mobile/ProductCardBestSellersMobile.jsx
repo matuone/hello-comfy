@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function ProductCardBestSellersMobile({ product, onBuy, onAddToCart, onViewMore }) {
+export default function ProductCardBestSellersMobile({ product, onBuy, onAddToCart, onViewMore, onStarsClick }) {
   const [selectedSize, setSelectedSize] = useState(() => {
     const sizes = product.sizes || ["S", "M", "L", "XL", "XXL", "3XL"];
     return sizes[0] || null;
@@ -64,7 +64,15 @@ export default function ProductCardBestSellersMobile({ product, onBuy, onAddToCa
           <button type="button" aria-label="Sumar" onClick={e => { e.stopPropagation(); setQuantity(q => Math.max(1, (parseInt(q) || 1) + 1)); }}>+</button>
         </div>
       </div>
-      <div className="productcard__stars">★★★★★</div>
+      <div
+        className="productcard__stars"
+        onClick={(e) => {
+          e.stopPropagation();
+          onStarsClick?.(product);
+        }}
+      >
+        ★★★★★
+      </div>
       <div className="productcard__buttons">
         <button className="productcard__btn-buy" onClick={e => { e.stopPropagation(); onBuy(product, selectedSize, quantity); }} disabled={noStock}>Comprar</button>
         <button className="productcard__btn-cart" onClick={e => { e.stopPropagation(); onAddToCart(product, selectedSize, quantity); }} disabled={noStock}>Agregar al carrito</button>
