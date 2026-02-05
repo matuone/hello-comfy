@@ -27,6 +27,12 @@ import "../styles/newin.css";
 import { useShippingCalculator } from "../hooks/useShippingCalculator";
 import ShippingOptions from "../components/ShippingOptions";
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function ProductDetail() {
   const swiperRef = useRef(null);
   const { id } = useParams();
@@ -58,7 +64,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(apiPath(`/products/${id}`))
       .then((res) => res.json())
       .then((data) => {
         setProducto(data);
@@ -82,7 +88,7 @@ export default function ProductDetail() {
     const fetchSimilares = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/products?category=${producto.category}`
+          apiPath(`/products?category=${producto.category}`)
         );
         let data = await res.json();
 
@@ -90,7 +96,7 @@ export default function ProductDetail() {
 
         if (data.length < 4) {
           const best = await fetch(
-            "http://localhost:5000/api/products/bestsellers"
+            apiPath("/products/bestsellers")
           );
           const bestData = await best.json();
           data = [...data, ...bestData.filter((p) => p._id !== producto._id)];

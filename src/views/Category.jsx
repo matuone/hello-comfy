@@ -6,6 +6,12 @@ import "../styles/productgrid.css";
 import "../styles/products.css";
 import "../styles/category-filters.css";
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function Category() {
   const { subcategory } = useParams();
   const navigate = useNavigate();
@@ -68,7 +74,7 @@ export default function Category() {
   useEffect(() => {
     setLoading(true);
 
-    fetch(`http://localhost:5000/api/products/subcategory/${subcategory}`)
+    fetch(apiPath(`/products/subcategory/${subcategory}`))
       .then((res) => res.json())
       .then((data) => {
         setProducts(data || []);

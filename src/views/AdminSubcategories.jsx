@@ -104,7 +104,7 @@ export default function AdminSubcategories() {
     setMessage("");
     setError("");
     try {
-      const res = await fetch(`http://localhost:5000/api/subcategories/${editingId}`, {
+      const res = await fetch(apiPath(`/subcategories/${editingId}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ category: editingCat, name: editingName }),
@@ -126,7 +126,7 @@ export default function AdminSubcategories() {
     setMessage("");
     setError("");
     try {
-      const res = await fetch(`http://localhost:5000/api/subcategories/${id}`, {
+      const res = await fetch(apiPath(`/subcategories/${id}`), {
         method: "DELETE",
       });
       const data = await res.json();
@@ -141,7 +141,7 @@ export default function AdminSubcategories() {
 
   const handleReorder = async (category, newOrderIds) => {
     try {
-      await fetch("http://localhost:5000/api/subcategories/reorder/all", {
+      await fetch(apiPath("/subcategories/reorder/all"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ category, order: newOrderIds }),

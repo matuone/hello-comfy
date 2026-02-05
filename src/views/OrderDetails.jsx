@@ -3,6 +3,12 @@ import { useParams, useSearchParams } from "react-router-dom";
 import "../styles/orderdetails.css";
 import OrderTimeline from "../components/OrderTimeline";
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function OrderDetails() {
   const { id, code } = useParams();
   const [searchParams] = useSearchParams();
@@ -26,11 +32,11 @@ export default function OrderDetails() {
             setLoading(false);
             return;
           }
-          url = `http://localhost:5000/api/orders/${code}?email=${email}`;
+          url = apiPath(`/orders/${code}?email=${email}`);
         }
 
         if (isPrivate) {
-          url = `http://localhost:5000/api/orders/private/${id}`;
+          url = apiPath(`/orders/private/${id}`);
         }
 
         const res = await fetch(url);

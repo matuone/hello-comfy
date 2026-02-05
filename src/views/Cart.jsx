@@ -8,6 +8,12 @@ import "../styles/cart.css";
 import { useShippingCalculator } from "../hooks/useShippingCalculator";
 import ShippingOptions from "../components/ShippingOptions";
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function Cart() {
   const navigate = useNavigate();
   const {
@@ -26,7 +32,7 @@ export default function Cart() {
   const [discountRules, setDiscountRules] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/discounts")
+    fetch(apiPath("/discounts"))
       .then((res) => res.json())
       .then((data) => setDiscountRules(data));
   }, []);
@@ -57,7 +63,7 @@ export default function Cart() {
         Object.keys(groupedByProduct).map(async (productId) => {
           try {
             const res = await fetch(
-              `http://localhost:5000/api/products/${productId}`
+              apiPath(`/products/${productId}`)
             );
             const data = await res.json();
             const talles = data.stockColorId?.talles || {};
@@ -101,7 +107,7 @@ export default function Cart() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/promocodes/validate/${promoCode}`
+        apiPath(`/promocodes/validate/${promoCode}`)
       );
       const data = await res.json();
 

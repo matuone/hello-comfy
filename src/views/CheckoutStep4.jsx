@@ -8,6 +8,12 @@ import { crearIntencionPagoModo } from "../services/modoService";
 import { toast } from "react-hot-toast";
 import ConfirmProofModal from "../components/ConfirmProofModal";
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function Step4({ formData, items, totalPrice, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
   const { clearCart } = useCart();
@@ -218,7 +224,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
       toast.success("Procesando tu orden...");
 
       // Crear orden en el backend con datos de transferencia
-      const response = await fetch("http://localhost:5000/api/orders/create-transfer", {
+      const response = await fetch(apiPath("/orders/create-transfer"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
