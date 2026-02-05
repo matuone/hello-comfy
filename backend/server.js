@@ -92,14 +92,15 @@ app.use(cors({
 }));
 
 // Middleware para forzar HTTPS en producción
-if (process.env.NODE_ENV === "production") {
-  app.use((req, res, next) => {
-    if (req.headers["x-forwarded-proto"] !== "https") {
-      return res.redirect("https://" + req.headers.host + req.url);
-    }
-    next();
-  });
-}
+// DESHABILITADO: Nginx maneja HTTPS, no necesitamos redirigir en Express
+// if (process.env.NODE_ENV === "production") {
+//   app.use((req, res, next) => {
+//     if (req.headers["x-forwarded-proto"] !== "https") {
+//       return res.redirect("https://" + req.headers.host + req.url);
+//     }
+//     next();
+//   });
+// }
 
 // Rate limiting desactivado
 
