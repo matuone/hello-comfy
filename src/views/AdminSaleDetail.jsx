@@ -93,7 +93,7 @@ export default function AdminSaleDetail() {
   // Verificar token y redirigir si falta
   useEffect(() => {
     if (!token) {
-      window.location.href = "/admin/login";
+      window.location.href = "/admin/login"; // Si tienes una ruta de login admin en el frontend, mantenla. Si necesitas redirigir al backend, usa la URL completa.
     }
   }, [token]);
 
