@@ -193,7 +193,7 @@ export function AuthProvider({ children }) {
   // ============================
   async function loginAdmin(email, password) {
     try {
-      const res = await fetch(apiPath("/api/admin/login"), {
+      const res = await fetch(apiPath("/admin/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
