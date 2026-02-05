@@ -4,9 +4,9 @@ import { AuthContext } from "../../context/AuthContext";
 import "../../styles/account/accountpurchases.css";
 
 // Configuración global de API para compatibilidad local/producción
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 function apiPath(path) {
-  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+  return `${API_URL}${path}`;
 }
 
 export default function AccountPurchases() {

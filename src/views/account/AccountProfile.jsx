@@ -34,7 +34,7 @@ export default function AccountProfile() {
     }
     setPasswordLoading(true);
     try {
-      const res = await fetch(`/api/users/${user.id}/password`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.id}/password`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -153,8 +153,8 @@ export default function AccountProfile() {
         return;
       }
 
-      // Enviar PUT a /api/users/{userId}
-      const res = await fetch(`/api/users/${user.id}`, {
+      // Enviar PUT a /users/{userId}
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

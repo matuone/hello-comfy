@@ -39,7 +39,7 @@ export default function AccountHelp() {
     try {
       // Centralización de rutas API
       function apiPath(path) {
-        const base = import.meta.env.VITE_API_URL || "/api";
+        const base = import.meta.env.VITE_API_URL;
         if (path.startsWith("/")) return base + path;
         return base + "/" + path;
       }

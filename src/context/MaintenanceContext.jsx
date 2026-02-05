@@ -18,7 +18,9 @@ export function MaintenanceProvider({ children }) {
 
   const fetchMaintenanceStatus = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/config/maintenance");
+      const API_URL = import.meta.env.VITE_API_URL;
+      const apiPath = (path) => `${API_URL}${path}`;
+      const response = await fetch(apiPath("/config/maintenance"));
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
@@ -46,7 +48,7 @@ export function MaintenanceProvider({ children }) {
 
       console.log("Actualizando modo mantenimiento a:", value);
 
-      const response = await fetch("http://localhost:5000/api/config/maintenance", {
+      const response = await fetch(apiPath("/config/maintenance"), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

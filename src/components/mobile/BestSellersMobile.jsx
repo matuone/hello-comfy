@@ -11,7 +11,7 @@ export default function BestSellersMobile() {
 
   useEffect(() => {
     // Configuración global de API para compatibilidad local/producción
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    const API_URL = import.meta.env.VITE_API_URL;
     function apiPath(path) {
       return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
     }
@@ -25,7 +25,7 @@ export default function BestSellersMobile() {
     addToCart(product, { size, color: product.color, quantity });
   };
   const handleBuy = (product, size, quantity) => {
-    handleAddToCart(product, size, quantity);
+    const API_URL = import.meta.env.VITE_API_URL;
     navigate("/checkout");
   };
   const handleViewMore = (product) => {

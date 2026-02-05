@@ -1,5 +1,6 @@
 // src/services/modoService.js
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL;
+const apiPath = (path) => `${API_URL}${path}`;
 
 /**
  * Crea una intención de pago con Modo
@@ -14,7 +15,7 @@ export async function crearIntencionPagoModo({
   try {
     console.log("🟢 Creando intención de pago con Modo...");
 
-    const response = await fetch(`${API_URL}/modo/create-payment-intent`, {
+    const response = await fetch(apiPath("/modo/create-payment-intent"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export async function crearIntencionPagoModo({
  */
 export async function consultarEstadoPago(paymentId) {
   try {
-    const response = await fetch(`${API_URL}/modo/payment/${paymentId}`);
+    const response = await fetch(apiPath(`/modo/payment/${paymentId}`));
 
     if (!response.ok) {
       throw new Error("Error al consultar estado del pago");

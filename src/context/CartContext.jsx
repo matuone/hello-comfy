@@ -71,7 +71,9 @@ export function CartProvider({ children }) {
   // FETCH REGLAS DE DESCUENTO
   // ============================
   useEffect(() => {
-    fetch("http://localhost:5000/api/discounts")
+    const API_URL = import.meta.env.VITE_API_URL;
+    const apiPath = (path) => `${API_URL}${path}`;
+    fetch(apiPath("/discounts"))
       .then((res) => res.json())
       .then((data) => setDiscountRules(data))
       .catch(() => { });
@@ -203,7 +205,7 @@ export function CartProvider({ children }) {
     if (!promoCode.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/promocodes/validate", {
+      const res = await fetch(apiPath("/promocodes/validate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: promoCode }),

@@ -43,7 +43,7 @@ export default function AccountLayout() {
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const res = await fetch(`/api/users/${user.id}/avatar`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.id}/avatar`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

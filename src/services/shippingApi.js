@@ -1,12 +1,13 @@
 // src/services/shippingApi.js
 
 const API_URL = import.meta.env.VITE_API_URL;
+const apiPath = (path) => `${API_URL}${path}`;
 
 export async function calcularEnvio(postalCode, products) {
   const body = { postalCode, products };
 
   try {
-    const correoRes = await fetch(`${API_URL}/shipping/correo`, {
+    const correoRes = await fetch(apiPath("/shipping/correo"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

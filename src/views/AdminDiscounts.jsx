@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 // Centralización de rutas API
 function apiPath(path) {
-  const base = import.meta.env.VITE_API_URL || "/api";
+  const base = import.meta.env.VITE_API_URL;
   if (path.startsWith("/")) return base + path;
   return base + "/" + path;
 }

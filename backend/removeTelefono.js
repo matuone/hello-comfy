@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Customer from "./models/Customer.js";
 
-const MONGO_URI = "mongodb://localhost:27017/hellocomfy";
+const MONGO_URI = "mongodb+srv://matuone:Eldoc009@hellocomfycluster.mriskvy.mongodb.net/hellocomfy?appName=HelloComfyCluster";
 
 async function removeTelefono() {
   await mongoose.connect(MONGO_URI);

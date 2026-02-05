@@ -6,9 +6,9 @@ import banner3 from "../assets/banner3.png";
 import "../styles/promobanner.css";
 import MarketingMessage from "./MarketingMessage";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 function apiPath(path) {
-  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+  return `${API_URL}${path}`;
 }
 
 export default function PromoBanner(props) {

@@ -6,9 +6,9 @@ import ConfirmModal from "../components/ConfirmModal";
 import "../styles/adminproducts.css";
 
 // Configuración global de API para compatibilidad local/producción
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 function apiPath(path) {
-  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+  return `${API_URL}${path}`;
 }
 
 const ORDEN_TALLES = ["S", "M", "L", "XL", "XXL", "3XL"];
@@ -105,7 +105,7 @@ export default function AdminProducts() {
     setModalEliminar(null);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const res = await fetch(apiPath(`/products/${id}`), {
         method: "DELETE",
       });
 
@@ -133,7 +133,7 @@ export default function AdminProducts() {
     try {
       // 1) Traer el producto completo desde el backend (con descripción, sizeGuide y stockColorId correcto)
       const detalleRes = await fetch(
-        `http://localhost:5000/api/products/${prod.id}`
+        apiPath(`/products/${prod.id}`)
       );
 
       if (!detalleRes.ok) {
@@ -166,7 +166,7 @@ export default function AdminProducts() {
       };
 
       // 3) Crear el nuevo producto
-      const res = await fetch("http://localhost:5000/api/products", {
+      const res = await fetch(apiPath("/products"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -1,8 +1,7 @@
 // src/services/mercadopagoService.js
 
-let API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-// Eliminar cualquier /api o / al final para evitar dobles rutas
-API_URL = API_URL.replace(/\/+$/, "").replace(/\/api$/, "");
+const API_URL = import.meta.env.VITE_API_URL;
+const apiPath = (path) => `${API_URL}${path}`;
 
 /**
  * Crea una preferencia de pago en Mercado Pago
@@ -27,7 +26,7 @@ export async function crearPreferenciaMercadoPago({
       metadata,
     });
 
-    const response = await fetch(`${API_URL}/api/mercadopago/create-preference`, {
+    const response = await fetch(apiPath("/mercadopago/create-preference"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -97,7 +96,7 @@ export function cargarScriptMercadoPago() {
  */
 export async function procesarPagoConfirmado(paymentId, pendingOrderData) {
   try {
-    const response = await fetch(`${API_URL}/api/mercadopago/process-payment`, {
+    const response = await fetch(apiPath("/mercadopago/process-payment"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

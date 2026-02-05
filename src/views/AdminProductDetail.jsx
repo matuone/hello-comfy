@@ -6,9 +6,9 @@ import Notification from "../components/Notification";
 import "../styles/adminproductdetail.css";
 
 // Configuración global de API para compatibilidad local/producción
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 function apiPath(path) {
-  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+  return `${API_URL}${path}`;
 }
 
 export default function AdminProductDetail() {
@@ -181,7 +181,7 @@ export default function AdminProductDetail() {
       const formData = new FormData();
       formData.append("images", archivoComprimido);
 
-      const res = await fetch("http://localhost:5000/api/products/upload", {
+      const res = await fetch(apiPath("/products/upload"), {
         method: "POST",
         body: formData,
       });
@@ -299,8 +299,8 @@ export default function AdminProductDetail() {
 
     try {
       const url = esEdicion
-        ? `http://localhost:5000/api/products/${id}`
-        : `http://localhost:5000/api/products`;
+        ? apiPath(`/products/${id}`)
+        : apiPath("/products");
       const method = esEdicion ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -347,7 +347,7 @@ export default function AdminProductDetail() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/products", {
+      const res = await fetch(apiPath("/products"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -379,7 +379,7 @@ export default function AdminProductDetail() {
     if (!confirm("¿Seguro que querés eliminar este producto?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const res = await fetch(apiPath(`/products/${id}`), {
         method: "DELETE",
       });
 
