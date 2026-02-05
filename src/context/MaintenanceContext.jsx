@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 
 export const MaintenanceContext = createContext();
 
@@ -6,6 +6,7 @@ export function MaintenanceProvider({ children }) {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
+  const lastUpdateRef = useRef(0); // Track last manual update time
   const apiPath = (path) => `${API_URL}${path}`;
 
   // Cargar estado desde el backend
@@ -13,7 +14,13 @@ export function MaintenanceProvider({ children }) {
     fetchMaintenanceStatus();
 
     // Polling cada 30 segundos para mantener actualizado
-    const interval = setInterval(fetchMaintenanceStatus, 30000);
+    const interval = setInterval(() => {
+      // Solo refetch si no hubo cambio manual en los últimos 5 segundos
+      const timeSinceLastUpdate = Date.now() - lastUpdateRef.current;
+      if (timeSinceLastUpdate > 5000) {
+        fetchMaintenanceStatus();
+      }
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
@@ -24,6 +31,7 @@ export function MaintenanceProvider({ children }) {
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
+        console.log("GET /config/maintenance =>", data);
         setIsMaintenanceMode(data.maintenanceMode);
       } else {
         const text = await response.text();
@@ -46,6 +54,9 @@ export function MaintenanceProvider({ children }) {
         return;
       }
 
+      // Actualizar timestamp para evitar polling reverso
+      lastUpdateRef.current = Date.now();
+      
       // Actualizar estado local INMEDIATAMENTE
       setIsMaintenanceMode(value);
       console.log("Toggle local actualizado a:", value);

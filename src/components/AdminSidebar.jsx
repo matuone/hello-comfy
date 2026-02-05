@@ -242,8 +242,8 @@ export default function AdminSidebar({ onNavigate }) {
             <input
               id="maintenance-toggle"
               type="checkbox"
-              checked={isMaintenanceMode}
-              onChange={(e) => toggleMaintenanceMode(e.target.checked)}
+              checked={!isMaintenanceMode}
+              onChange={(e) => toggleMaintenanceMode(!e.target.checked)}
               className="maintenance-toggle"
             />
             <span className={`toggle-switch ${isMaintenanceMode ? "toggle-switch--paused" : ""}`}></span>
