@@ -123,7 +123,7 @@ app.use(
     crossOriginResourcePolicy: { policy: "same-origin" },
     crossOriginEmbedderPolicy: true,
     crossOriginOpenerPolicy: { policy: "same-origin" },
-    hsts: { maxAge: 31536000, includeSubDomains: true },
+    hsts: false,
     xssFilter: true,
     noSniff: true,
     frameguard: { action: "deny" },
