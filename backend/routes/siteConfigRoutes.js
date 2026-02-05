@@ -26,9 +26,15 @@ router.post("/force-stock-alert", verifyAdmin, async (req, res) => {
   }
 });
 
-// Obtener el estado de mantenimiento (público) - FORZADO A FALSE
+// Obtener el estado de mantenimiento (público)
 router.get("/maintenance", async (req, res) => {
-  res.json({ maintenanceMode: false });
+  try {
+    const config = await SiteConfig.findOne({ key: "maintenanceMode" });
+    const maintenanceMode = config ? config.value : false;
+    res.json({ maintenanceMode });
+  } catch (error) {
+    res.json({ maintenanceMode: false });
+  }
 });
 
 // Actualizar el estado de mantenimiento (solo admin)
