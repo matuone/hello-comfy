@@ -13,6 +13,7 @@
     margin: 18px 0 0 0;
     width: 100%;
     padding: 0;
+    overflow: hidden;
   }
 
   .bestsellers-mobile-scroll {
@@ -21,6 +22,7 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     width: 100%;
+    height: 100%;
   }
 
   .bestsellers-mobile-track {
@@ -28,15 +30,17 @@
     flex-direction: row;
     gap: 16px;
     padding: 8px 16px 16px 16px;
+    min-width: min-content;
   }
 
   .bestsellers-mobile-slide {
     flex: 0 0 auto;
     width: 180px;
-    max-width: 240px;
+    max-width: 180px;
     min-width: 180px;
     box-sizing: border-box;
     padding: 0;
+    height: 100%;
   }
 
 
@@ -78,10 +82,11 @@
     max-width: none;
     min-width: 0;
     margin: 0 auto;
-    min-height: 520px;
+    height: 480px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    overflow: hidden;
   }
 
 
