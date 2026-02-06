@@ -336,6 +336,11 @@
     padding: 0 6px;
   }
 
+  .products .productcard__item {
+    height: auto;
+    overflow: visible;
+  }
+
   .skeleton-card {
     min-height: 260px;
   }
@@ -378,6 +383,11 @@
     grid-template-columns: 1fr;
     gap: 8px;
     padding: 0 2px;
+  }
+
+  .products .productcard__item {
+    height: auto;
+    overflow: visible;
   }
 
   .skeleton-card {

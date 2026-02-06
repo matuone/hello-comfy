@@ -55,6 +55,13 @@ export default function ProductDetail() {
   // ⭐ NUEVO — Estados de envío REAL
   const [postalCode, setPostalCode] = useState("");
 
+  // Scroll al top al cargar producto (solo escritorio)
+  useEffect(() => {
+    if (window.innerWidth > 900) {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+  }, [id]);
+
   const {
     loading: loadingShipping,
     result: shippingOptions,

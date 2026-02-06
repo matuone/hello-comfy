@@ -203,14 +203,45 @@ export default function Products() {
     return Object.entries(product.stockColorId.talles).filter(([, qty]) => qty > 0);
   };
 
-  const handleSelectSize = (productId, size) => {
-    setSelectedSizes((prev) => ({ ...prev, [productId]: size }));
+  const getSelectedSize = (product) => {
+    const availableSizes = getAvailableSizes(product);
+    return selectedSizes[product._id] || availableSizes[0]?.[0] || null;
   };
 
-  const handleQuantityChange = (productId, value) => {
+  const getMaxStockForSize = (product, size) => {
+    if (!product?.stockColorId?.talles || !size) return Infinity;
+    const qty = product.stockColorId.talles[size];
+    return typeof qty === "number" ? qty : Infinity;
+  };
+
+  const handleSelectSize = (product, size) => {
+    setSelectedSizes((prev) => ({ ...prev, [product._id]: size }));
+    const maxStock = getMaxStockForSize(product, size);
+    if (Number.isFinite(maxStock)) {
+      setQuantities((prev) => {
+        const current = prev[product._id] || 1;
+        const next = Math.max(1, Math.min(current, maxStock));
+        return { ...prev, [product._id]: next };
+      });
+    }
+  };
+
+  const handleQuantityChange = (product, value) => {
     const parsed = parseInt(value, 10);
     const safeQty = Number.isNaN(parsed) ? 1 : Math.max(1, parsed);
-    setQuantities((prev) => ({ ...prev, [productId]: safeQty }));
+    const maxStock = getMaxStockForSize(product, getSelectedSize(product));
+    const nextQty = Number.isFinite(maxStock) ? Math.min(safeQty, maxStock) : safeQty;
+    setQuantities((prev) => ({ ...prev, [product._id]: nextQty }));
+  };
+
+  const adjustQuantity = (product, delta) => {
+    setQuantities((prev) => {
+      const current = prev[product._id] || 1;
+      const maxStock = getMaxStockForSize(product, getSelectedSize(product));
+      const nextRaw = Math.max(1, current + delta);
+      const next = Number.isFinite(maxStock) ? Math.min(nextRaw, maxStock) : nextRaw;
+      return { ...prev, [product._id]: next };
+    });
   };
 
   const handleAddToCart = (event, product) => {
@@ -219,7 +250,9 @@ export default function Products() {
     const availableSizes = getAvailableSizes(product);
     const fallbackSize = availableSizes[0]?.[0] || null;
     const chosenSize = selectedSizes[product._id] || fallbackSize;
-    const quantity = quantities[product._id] || 1;
+    const maxStock = getMaxStockForSize(product, chosenSize);
+    const baseQty = quantities[product._id] || 1;
+    const quantity = Number.isFinite(maxStock) ? Math.min(baseQty, maxStock) : baseQty;
 
     addToCart(product, { size: chosenSize, color: product.stockColorId?.color, quantity });
   };
@@ -443,7 +476,7 @@ export default function Products() {
                           key={t}
                           type="button"
                           className={`productcard__size-pill productcard__size-pill--button ${selected === t ? "is-selected" : ""}`}
-                          onClick={() => handleSelectSize(p._id, t)}
+                          onClick={() => handleSelectSize(p, t)}
                         >
                           {t}
                         </button>
@@ -457,14 +490,53 @@ export default function Products() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <span className="productcard__qty-label">Cant.</span>
+                  <button
+                    type="button"
+                    className="productcard__qty-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      adjustQuantity(p, -1);
+                    }}
+                    aria-label="Disminuir cantidad"
+                  >
+                    -
+                  </button>
                   <input
                     type="number"
                     min="1"
+                    max={(() => {
+                      const maxStock = getMaxStockForSize(p, getSelectedSize(p));
+                      return Number.isFinite(maxStock) ? maxStock : undefined;
+                    })()}
                     value={quantities[p._id] || 1}
-                    onChange={(e) => handleQuantityChange(p._id, e.target.value)}
+                    onChange={(e) => handleQuantityChange(p, e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="productcard__qty-input"
                     aria-label="Cantidad"
                   />
+                  <button
+                    type="button"
+                    className="productcard__qty-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      adjustQuantity(p, 1);
+                    }}
+                    aria-label="Aumentar cantidad"
+                  >
+                    +
+                  </button>
                 </div>
+                {(() => {
+                  const maxStock = getMaxStockForSize(p, getSelectedSize(p));
+                  const currentQty = quantities[p._id] || 1;
+                  if (!Number.isFinite(maxStock)) return null;
+                  if (currentQty < maxStock) return null;
+                  return (
+                    <p className="productcard__qty-note">
+                      Maximo {maxStock} unidades disponibles
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* ESTRELLAS ALINEADAS */}

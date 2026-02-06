@@ -20,6 +20,8 @@ export default function AdminSaleDetail() {
   // PICKUP NOTIFY MODAL
   // ============================
   const [modalPickup, setModalPickup] = useState(false);
+  // Estado para errores de modal (notificaciones)
+  const [modalError, setModalError] = useState(null);
   const [fechaRetiro, setFechaRetiro] = useState("");
   const [enviandoPickup, setEnviandoPickup] = useState(false);
   const [fechaRetiroFecha, setFechaRetiroFecha] = useState("");
@@ -182,7 +184,17 @@ export default function AdminSaleDetail() {
       });
 
       // Actualizar venta en pantalla
-      setVenta(data.order || data.factura);
+      setVenta((prev) => {
+        if (data.order) return data.order;
+        if (!prev) return prev;
+        return {
+          ...prev,
+          facturaNumero: data.factura?.numero ?? prev.facturaNumero,
+          facturaCae: data.factura?.cae ?? prev.facturaCae,
+          facturaVencimiento:
+            data.factura?.vencimientoCae ?? prev.facturaVencimiento,
+        };
+      });
       setModalFactura(null);
     } catch (err) {
       console.error("Error facturando:", err);
@@ -311,8 +323,6 @@ export default function AdminSaleDetail() {
     }
   }
 
-  const [modalError, setModalError] = useState(null);
-
   if (loading) {
     return (
       <div className="admin-section">
@@ -329,6 +339,12 @@ export default function AdminSaleDetail() {
     );
   }
 
+  const shipping = venta?.shipping || {};
+  const customer = venta?.customer || {};
+  const totals = venta?.totals || {};
+  const items = Array.isArray(venta?.items) ? venta.items : [];
+  const timeline = Array.isArray(venta?.timeline) ? venta.timeline : [];
+
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">Orden: {venta.code}</h2>
@@ -340,7 +356,7 @@ export default function AdminSaleDetail() {
 
       <div className="detalle-actions">
         {/* Enviar mensaje de retiro (Pick Up) */}
-        {venta.shipping.method === "pickup" && (
+        {shipping.method === "pickup" && (
           <button
             className="factura-btn"
             style={{ background: "#4caf50", color: "white" }}
@@ -394,11 +410,11 @@ export default function AdminSaleDetail() {
                 {/* Botón WhatsApp SIEMPRE visible, pero deshabilitado si falta teléfono o fecha/hora */}
                 <a
                   className="factura-modal-btn confirm"
-                  style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 1 : 0.5, pointerEvents: venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 'auto' : 'none' }}
-                  href={venta?.customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${venta.customer.whatsapp.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: venta.customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: venta.shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
+                  style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 1 : 0.5, pointerEvents: customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 'auto' : 'none' }}
+                  href={customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${customer.whatsapp.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title={venta?.customer?.whatsapp ? '' : 'El cliente no tiene WhatsApp'}
+                  title={customer?.whatsapp ? '' : 'El cliente no tiene WhatsApp'}
                 >
                   Enviar WhatsApp
                 </a>
@@ -455,7 +471,7 @@ export default function AdminSaleDetail() {
         <div className="detalle-box">
           <h3 className="detalle-title">Productos</h3>
 
-          {(venta.items && Array.isArray(venta.items)) ? venta.items.map((item, i) => (
+          {items.length ? items.map((item, i) => (
             <div key={i} className="detalle-info-line">
               <strong>{item.name}</strong> — {item.quantity} unid. — $
               {item.price?.toLocaleString("es-AR")}
@@ -463,23 +479,23 @@ export default function AdminSaleDetail() {
           )) : <p className="detalle-info-line">No hay productos en la venta.</p>}
 
           <p className="detalle-info-line">
-            <strong>Total pagado:</strong> ${venta.totals.total.toLocaleString("es-AR")}
+            <strong>Total pagado:</strong> ${(totals.total || 0).toLocaleString("es-AR")}
           </p>
         </div>
 
         {/* CLIENTE */}
         <div className="detalle-box">
           <h3 className="detalle-title">Cliente</h3>
-          <p className="detalle-info-line"><strong>Nombre:</strong> {venta.customer.name}</p>
-          <p className="detalle-info-line"><strong>Email:</strong> {venta.customer.email}</p>
+          <p className="detalle-info-line"><strong>Nombre:</strong> {customer.name}</p>
+          <p className="detalle-info-line"><strong>Email:</strong> {customer.email}</p>
           {/* Teléfono eliminado, solo WhatsApp disponible */}
         </div>
 
         {/* DIRECCIÓN */}
-        {venta.shipping.method === "home" && (
+        {shipping.method === "home" && (
           <div className="detalle-box">
             <h3 className="detalle-title">Dirección</h3>
-            <p className="detalle-info-line">{venta.shipping.address}</p>
+            <p className="detalle-info-line">{shipping.address}</p>
           </div>
         )}
 
@@ -488,15 +504,14 @@ export default function AdminSaleDetail() {
           <h3 className="detalle-title">Envío</h3>
 
           <p className="detalle-info-line">
-            <strong>Método:</strong> {renderMetodo(venta.shipping.method)}
+            <strong>Método:</strong> {renderMetodo(shipping.method)}
           </p>
 
-
-          {venta.shipping.pickPoint && (
+          {shipping.pickPoint && (
             <p className="detalle-info-line">
-              <strong>Pick Up:</strong> {venta.shipping.pickPoint}
+              <strong>Pick Up:</strong> {shipping.pickPoint}
               {(() => {
-                const pick = venta.shipping.pickPoint?.toUpperCase();
+                const pick = shipping.pickPoint?.toUpperCase();
                 if (pick.includes('TEMPERLEY')) {
                   return (
                     <span style={{
@@ -525,13 +540,13 @@ export default function AdminSaleDetail() {
           )}
 
           <p className="detalle-info-line">
-            <strong>ETA:</strong> {venta.shipping.eta}
+            <strong>ETA:</strong> {shipping.eta}
           </p>
 
-          {venta.shipping.tracking && (
+          {shipping.tracking && (
             <>
               <p className="detalle-info-line">
-                <strong>Seguimiento:</strong> {venta.shipping.tracking}
+                <strong>Seguimiento:</strong> {shipping.tracking}
               </p>
               <button className="detalle-copy-btn" onClick={copiarSeguimiento}>
                 Copiar código
@@ -576,7 +591,7 @@ export default function AdminSaleDetail() {
       <div className="detalle-box">
         <h3 className="detalle-title">Historial</h3>
         <ul className="detalle-historial">
-          {venta.timeline.map((item, index) => (
+          {timeline.map((item, index) => (
             <li key={index}>
               <strong>{item.date}:</strong> {item.status}
             </li>

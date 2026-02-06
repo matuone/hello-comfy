@@ -39,7 +39,13 @@ export default function AdminProducts() {
     fetch(apiPath("/products"))
       .then((res) => res.json())
       .then((data) => {
-        const adaptados = data.map((p) => ({
+        // Ordenar por fecha de creación descendente (más reciente primero)
+        const sorted = [...data].sort((a, b) => {
+          const fechaA = new Date(a.createdAt || a.fechaCreacion || 0);
+          const fechaB = new Date(b.createdAt || b.fechaCreacion || 0);
+          return fechaB - fechaA;
+        });
+        const adaptados = sorted.map((p) => ({
           id: p._id,
           nombre: p.name,
           categoria: p.category,
@@ -51,7 +57,6 @@ export default function AdminProducts() {
           stock: p.stockColorId?.talles || {},
           stockColorId: p.stockColorId?._id || null,
         }));
-
         setProductos(adaptados);
       })
       .catch((err) => console.error("Error al cargar productos:", err));
