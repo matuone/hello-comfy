@@ -23,24 +23,62 @@
     scrollbar-width: thin;
     width: 100%;
     height: 100%;
+    padding: 0;
+    box-sizing: border-box;
   }
 
   .bestsellers-mobile-track {
     display: flex;
     flex-direction: row;
-    gap: 16px;
-    padding: 8px 16px 16px 16px;
-    min-width: min-content;
+    gap: 12px;
+    padding: 8px 0 16px 0;
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+    justify-content: flex-start;
+  }
+
+  @media (max-width: 600px) {
+    .bestsellers-mobile-track {
+      justify-content: center;
+    }
+
+    .bestsellers-mobile-scroll {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .bestsellers-mobile-slide {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
+
+  /* Asegurar que en mobile se vean exactamente 2 tarjetas */
+  @media (max-width: 600px) {
+    .bestsellers-mobile-slide {
+      width: calc((100vw - 36px) / 2);
+      max-width: calc((100vw - 36px) / 2);
+      min-width: calc((100vw - 36px) / 2);
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    .bestsellers-mobile-scroll {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
   }
 
   .bestsellers-mobile-slide {
     flex: 0 0 auto;
-    width: 180px;
-    max-width: 180px;
-    min-width: 180px;
+    width: calc((100vw - 12px) / 2);
+    max-width: calc((100vw - 12px) / 2);
+    min-width: calc((100vw - 12px) / 2);
     box-sizing: border-box;
     padding: 0;
-    height: 100%;
+    height: auto;
+    min-height: 550px;
   }
 
 
@@ -49,8 +87,8 @@
   }
 
   .bestsellers-mobile-swiper .slick-list {
-    padding: 0 0px;
-    margin: 0 auto;
+    padding: 0;
+    margin: 0;
     overflow: visible;
     box-sizing: border-box;
   }
@@ -82,16 +120,70 @@
     max-width: none;
     min-width: 0;
     margin: 0 auto;
-    height: 480px;
+    min-height: 550px;
+    height: auto;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
+  }
+
+  /* Asegurar que todos los elementos sean visibles */
+  .productcard__sizes,
+  .productcard__qty,
+  .productcard__stars,
+  .productcard__buttons,
+  .productcard__btn-viewmore {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
 
   .productcard__top {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .productcard__qty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .productcard__qty button {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid #f0b9c9;
+    background: #ffe8f0;
+    color: #d94f7a;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .productcard__qty input {
+    width: 44px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  /* Asegurar altura mínima en móviles pequeños */
+  @media (max-width: 480px) {
+    .productcard__item {
+      min-height: 600px;
+    }
+
+    .bestsellers-mobile-slide {
+      min-height: 600px;
+    }
   }
 
 

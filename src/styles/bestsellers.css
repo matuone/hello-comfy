@@ -65,6 +65,49 @@
   height: 100%;
 }
 
+/* Asegurar que todos los elementos sean visibles en todas las tarjetas de BestSellers */
+.bestsellers .productcard__sizes,
+.bestsellers .productcard__qty,
+.bestsellers .productcard__stars,
+.bestsellers .productcard__buttons,
+.bestsellers .productcard__btn-viewmore {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Asegurar que los slides de swiper no limiten la altura */
+.bestsellers .swiper-slide {
+  height: auto !important;
+}
+
+@media (max-width: 600px) {
+  .bestsellers .productcard__item {
+    min-width: 180px;
+    max-width: 90vw;
+    min-height: 550px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Forzar visibilidad en mobile */
+  .bestsellers .productcard__sizes,
+  .bestsellers .productcard__qty,
+  .bestsellers .productcard__stars,
+  .bestsellers .productcard__buttons,
+  .bestsellers .productcard__btn-viewmore {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .bestsellers .productcard__item {
+    min-height: 600px !important;
+  }
+}
+
 .bestsellers .productcard__image {
   aspect-ratio: 4 / 5.5;
 }

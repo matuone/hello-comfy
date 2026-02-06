@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "../styles/productgrid.css";
 import "../styles/products.css";
+import "../styles/category.css";
 import "../styles/category-filters.css";
 
 // Configuración global de API para compatibilidad local/producción
@@ -264,6 +265,7 @@ export default function Category() {
                     min="1"
                     value={quantities[p._id] || 1}
                     onChange={(e) => handleQuantityChange(p._id, e.target.value)}
+                    className="productcard__qty-input"
                     aria-label="Cantidad"
                   />
                 </div>

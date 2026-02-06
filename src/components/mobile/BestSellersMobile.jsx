@@ -1,9 +1,14 @@
+
 import { useEffect, useState } from "react";
 import ProductCardBestSellersMobile from "../../components/mobile/ProductCardBestSellersMobile";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import OpinionsPopup from "../OpinionsPopup";
 import "../../styles/mobile/bestsellers.mobile.css";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 export default function BestSellersMobile() {
   const [productos, setProductos] = useState([]);
@@ -42,10 +47,16 @@ export default function BestSellersMobile() {
   return (
     <>
       <div className="bestsellers-mobile-swiper">
-        <div className="bestsellers-mobile-scroll">
-          <div className="bestsellers-mobile-track">
-            {productos.map((product) => (
-              <div className="bestsellers-mobile-slide" key={product._id}>
+        <Swiper
+          modules={[Pagination]}
+          pagination={{ clickable: true }}
+          slidesPerView={2}
+          spaceBetween={12}
+          speed={400}
+        >
+          {productos.map((product) => (
+            <SwiperSlide key={product._id}>
+              <div className="bestsellers-mobile-slide">
                 <ProductCardBestSellersMobile
                   product={product}
                   onBuy={handleBuy}
@@ -54,9 +65,9 @@ export default function BestSellersMobile() {
                   onStarsClick={handleStarsClick}
                 />
               </div>
-            ))}
-          </div>
-        </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
       {showOpinions && opinionsProductId && (
         <OpinionsPopup

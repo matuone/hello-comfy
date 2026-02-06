@@ -68,13 +68,48 @@
   margin-right: 0;
 }
 
+/* Asegurar que todos los elementos sean visibles en todas las tarjetas de NewIn */
+.newin .productcard__sizes,
+.newin .productcard__qty,
+.newin .productcard__stars,
+.newin .productcard__buttons,
+.newin .productcard__btn-viewmore {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Asegurar que los slides de swiper no limiten la altura */
+.newin .swiper-slide {
+  height: auto !important;
+}
+
 @media (max-width: 600px) {
   .newin .productcard__item {
     min-width: 180px;
     max-width: 90vw;
     margin-right: 0;
+    min-height: 550px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Forzar visibilidad en mobile */
+  .newin .productcard__sizes,
+  .newin .productcard__qty,
+  .newin .productcard__stars,
+  .newin .productcard__buttons,
+  .newin .productcard__btn-viewmore {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 }
+
+@media (max-width: 480px) {
+  .newin .productcard__item {
+    min-height: 600px !important;
+  }
 }
 
 .newin .productcard__image {

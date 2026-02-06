@@ -189,12 +189,49 @@
 ============================ */
 .products__grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
   max-width: 1400px;
   margin: 0 auto;
   justify-content: center;
   align-items: stretch;
+}
+
+/* Asegurar que las tarjetas en Products muestren todo el contenido */
+.products .productcard__item {
+  min-height: 600px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Asegurar que todos los elementos sean visibles */
+.products .productcard__sizes,
+.products .productcard__qty,
+.products .productcard__stars,
+.products .productcard__buttons,
+.products .productcard__btn-viewmore {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* El bloque top debe poder crecer */
+.products .productcard__top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* En pantallas muy grandes (> 1600px), permitir 5 columnas */
+@media (min-width: 1600px) {
+  .products__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .products .productcard__item {
+    min-height: 550px;
+  }
 }
 
 /* ============================
@@ -295,6 +332,17 @@
 /* ============================
    RESPONSIVE PRODUCTS
 ============================ */
+/* Tablet grande - 3 columnas */
+@media (max-width: 1200px) {
+  .products__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .products .productcard__item {
+    min-height: 550px;
+  }
+}
+
 @media (max-width: 900px) {
   .products {
     padding: 8px 0 0 0;
@@ -337,6 +385,7 @@
   }
 
   .products .productcard__item {
+    min-height: auto;
     height: auto;
     overflow: visible;
   }
@@ -386,6 +435,7 @@
   }
 
   .products .productcard__item {
+    min-height: auto;
     height: auto;
     overflow: visible;
   }
