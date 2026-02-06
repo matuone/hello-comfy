@@ -41,19 +41,21 @@ export default function BestSellersMobile() {
 
   return (
     <>
-      <div className="bestsellers-mobile-swiper bestsellers-mobile-scroll">
-        <div className="bestsellers-mobile-track">
-          {productos.map((product) => (
-            <div className="bestsellers-mobile-slide" key={product._id}>
-              <ProductCardBestSellersMobile
-                product={product}
-                onBuy={handleBuy}
-                onAddToCart={handleAddToCart}
-                onViewMore={handleViewMore}
-                onStarsClick={handleStarsClick}
-              />
-            </div>
-          ))}
+      <div className="bestsellers-mobile-swiper">
+        <div className="bestsellers-mobile-scroll">
+          <div className="bestsellers-mobile-track">
+            {productos.map((product) => (
+              <div className="bestsellers-mobile-slide" key={product._id}>
+                <ProductCardBestSellersMobile
+                  product={product}
+                  onBuy={handleBuy}
+                  onAddToCart={handleAddToCart}
+                  onViewMore={handleViewMore}
+                  onStarsClick={handleStarsClick}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       {showOpinions && opinionsProductId && (

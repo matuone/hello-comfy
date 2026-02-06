@@ -9,33 +9,34 @@
     margin-bottom: 24px;
   }
 
+  .bestsellers-mobile-swiper {
+    margin: 18px 0 0 0;
+    width: 100%;
+    padding: 0;
+  }
+
   .bestsellers-mobile-scroll {
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
+    width: 100%;
   }
 
   .bestsellers-mobile-track {
     display: flex;
     flex-direction: row;
     gap: 16px;
-    padding: 8px 0 16px 0;
+    padding: 8px 16px 16px 16px;
   }
 
   .bestsellers-mobile-slide {
-    flex: 0 0 48%;
+    flex: 0 0 auto;
+    width: 180px;
     max-width: 240px;
     min-width: 180px;
     box-sizing: border-box;
-    width: 100% !important;
     padding: 0;
-  }
-
-  .bestsellers-mobile-swiper {
-    margin: 18px auto 0 auto;
-    width: 100%;
-    max-width: 420px;
-    overflow: visible;
   }
 
 
