@@ -1,14 +1,21 @@
+
 import { useState } from "react";
 
 export default function ProductCardBestSellersMobile({ product, onBuy, onAddToCart, onViewMore, onStarsClick }) {
+  // Lógica igual a ProductCardNewInMobile
   const [selectedSize, setSelectedSize] = useState(() => {
-    const sizes = product.sizes || ["S", "M", "L", "XL", "XXL", "3XL"];
-    return sizes[0] || null;
+    const talles = product?.stockColorId?.talles || {};
+    return Object.keys(talles).find((t) => talles[t] > 0) || null;
   });
   const [quantity, setQuantity] = useState(1);
-  const sizes = product.sizes || ["S", "M", "L", "XL", "XXL", "3XL"];
-  const lowStock = product.stock < 5;
-  const noStock = product.stock === 0;
+
+  const talles = product?.stockColorId?.talles || {};
+  const sizes = Array.isArray(product?.sizes) && product.sizes.length > 0
+    ? product.sizes
+    : Object.keys(talles);
+  const availableSizes = Object.entries(talles).filter(([, qty]) => qty > 0);
+  const lowStock = Object.values(talles).some((qty) => qty > 0 && qty <= 3);
+  const noStock = availableSizes.length === 0;
 
   return (
     <div className="productcard__item" onClick={() => onViewMore(product)}>
@@ -24,26 +31,38 @@ export default function ProductCardBestSellersMobile({ product, onBuy, onAddToCa
             <span className="productcard__nostock">Sin stock</span>
           ) : lowStock ? (
             <span className="productcard__lowstock">¡Pocas unidades!</span>
-          ) : null}
+          ) : (
+            <span className="productcard__instock">Stock disponible</span>
+          )}
         </div>
         <h3 className="productcard__name">{product.name}</h3>
-        <p className="productcard__price">${product.price}</p>
-        <p className="productcard__desc">{product.description}</p>
-        <div className="productcard__sizes productcard__sizes--selectable">
-          {sizes.map((size) => (
-            <button
-              key={size}
-              type="button"
-              className={
-                "productcard__size-pill productcard__size-pill--button" +
-                (selectedSize === size ? " is-selected" : "")
-              }
-              onClick={e => { e.stopPropagation(); setSelectedSize(size); }}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
+        <p className="productcard__price">${product.price?.toLocaleString("es-AR")}</p>
+        <p className="productcard__desc">{product.cardDescription || product.description || "Nuevo producto disponible"}</p>
+        {sizes.length > 0 && (
+          <div className="productcard__sizes productcard__sizes--selectable">
+            {sizes.map((size) => {
+              const qty = talles?.[size] ?? 0;
+              const isDisabled = qty <= 0;
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  className={
+                    "productcard__size-pill productcard__size-pill--button" +
+                    (selectedSize === size ? " is-selected" : "") +
+                    (isDisabled ? " productcard__size-pill--disabled" : "")
+                  }
+                  disabled={isDisabled}
+                  onClick={() => {
+                    if (!isDisabled) setSelectedSize(size);
+                  }}
+                >
+                  {size}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div className="productcard__qty">
           <span className="productcard__qty-label">Cant.</span>
           <button type="button" aria-label="Restar" onClick={e => { e.stopPropagation(); setQuantity(q => Math.max(1, (parseInt(q) || 1) - 1)); }}>-</button>

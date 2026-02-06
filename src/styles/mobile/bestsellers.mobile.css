@@ -32,15 +32,15 @@
     flex-direction: row;
     gap: 12px;
     padding: 8px 0 16px 0;
-    min-width: 0;
-    width: 100%;
+    min-width: 100%;
+    width: auto;
     margin: 0;
     justify-content: flex-start;
   }
 
   @media (max-width: 600px) {
     .bestsellers-mobile-track {
-      justify-content: center;
+      justify-content: flex-start;
     }
 
     .bestsellers-mobile-scroll {
@@ -72,13 +72,16 @@
 
   .bestsellers-mobile-slide {
     flex: 0 0 auto;
-    width: calc((100vw - 12px) / 2);
-    max-width: calc((100vw - 12px) / 2);
-    min-width: calc((100vw - 12px) / 2);
+    width: calc((100vw - 36px) / 2);
+    max-width: calc((100vw - 36px) / 2);
+    min-width: 180px;
     box-sizing: border-box;
     padding: 0;
-    height: auto;
-    min-height: 550px;
+    height: auto !important;
+    min-height: 600px !important;
+    margin-right: 12px;
+    display: flex;
+    align-items: stretch;
   }
 
 
@@ -117,18 +120,23 @@
 
   .productcard__item {
     width: 100%;
-    max-width: none;
-    min-width: 0;
+    max-width: 90vw;
+    min-width: 180px;
     margin: 0 auto;
-    min-height: 550px;
-    height: auto;
+    min-height: 600px !important;
+    height: auto !important;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    overflow: visible;
+    overflow: visible !important;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+    padding: 12px 8px 18px 8px;
+    gap: 0;
   }
 
-  /* Asegurar que todos los elementos sean visibles */
+  /* Asegurar que todos los elementos sean visibles y bien espaciados */
   .productcard__sizes,
   .productcard__qty,
   .productcard__stars,
@@ -137,6 +145,14 @@
     display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .productcard__size-pill--disabled {
+    opacity: 0.45;
+    text-decoration: line-through;
+    cursor: not-allowed;
   }
 
 
@@ -175,14 +191,41 @@
     font-size: 12px;
   }
 
-  /* Asegurar altura mínima en móviles pequeños */
+  /* Asegurar altura mínima y layout en móviles pequeños */
+  @media (max-width: 600px) {
+    .bestsellers-mobile-slide {
+      min-width: 180px;
+      max-width: 90vw;
+      min-height: 600px !important;
+      height: auto !important;
+      margin-right: 12px;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .productcard__item {
+      min-width: 180px;
+      max-width: 90vw;
+      min-height: 600px !important;
+      height: auto !important;
+      overflow: visible !important;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+      padding: 12px 8px 18px 8px;
+      gap: 0;
+    }
+  }
+
   @media (max-width: 480px) {
     .productcard__item {
-      min-height: 600px;
+      min-height: 600px !important;
+      height: auto !important;
     }
 
     .bestsellers-mobile-slide {
-      min-height: 600px;
+      min-height: 600px !important;
+      height: auto !important;
     }
   }
 

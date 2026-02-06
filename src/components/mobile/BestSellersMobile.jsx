@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import OpinionsPopup from "../OpinionsPopup";
 import "../../styles/mobile/bestsellers.mobile.css";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
+
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL;
+function apiPath(path) {
+  return `${API_URL}${path}`;
+}
 
 export default function BestSellersMobile() {
   const [productos, setProductos] = useState([]);
@@ -18,11 +20,6 @@ export default function BestSellersMobile() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    // Configuración global de API para compatibilidad local/producción
-    const API_URL = import.meta.env.VITE_API_URL;
-    function apiPath(path) {
-      return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
-    }
     fetch(apiPath('/products/bestsellers'))
       .then((res) => res.json())
       .then((data) => setProductos(Array.isArray(data) ? data : []))
@@ -46,28 +43,20 @@ export default function BestSellersMobile() {
 
   return (
     <>
-      <div className="bestsellers-mobile-swiper">
-        <Swiper
-          modules={[Pagination]}
-          pagination={{ clickable: true }}
-          slidesPerView={2}
-          spaceBetween={12}
-          speed={400}
-        >
+      <div className="newin-mobile-swiper bestsellers-mobile-scroll">
+        <div className="bestsellers-mobile-track">
           {productos.map((product) => (
-            <SwiperSlide key={product._id}>
-              <div className="bestsellers-mobile-slide">
-                <ProductCardBestSellersMobile
-                  product={product}
-                  onBuy={handleBuy}
-                  onAddToCart={handleAddToCart}
-                  onViewMore={handleViewMore}
-                  onStarsClick={handleStarsClick}
-                />
-              </div>
-            </SwiperSlide>
+            <div className="bestsellers-mobile-slide" key={product._id}>
+              <ProductCardBestSellersMobile
+                product={product}
+                onBuy={handleBuy}
+                onAddToCart={handleAddToCart}
+                onViewMore={handleViewMore}
+                onStarsClick={handleStarsClick}
+              />
+            </div>
           ))}
-        </Swiper>
+        </div>
       </div>
       {showOpinions && opinionsProductId && (
         <OpinionsPopup

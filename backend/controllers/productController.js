@@ -126,7 +126,7 @@ export const getBestSellers = async (req, res) => {
   try {
     let productos = await Product.find()
       .sort({ sold: -1 })
-      .limit(8)
+      .limit(12)
       .populate("stockColorId");
 
     productos = productos.map((p) => {
@@ -147,9 +147,10 @@ export const getBestSellers = async (req, res) => {
 // ============================
 export const getNewProducts = async (req, res) => {
   try {
+    const limit = Number(req.query.limit) || 12;
     let productos = await Product.find()
-      .sort({ createdAt: -1 })
-      .limit(8)
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(limit)
       .populate("stockColorId");
 
     productos = productos.map((p) => {

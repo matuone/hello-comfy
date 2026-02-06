@@ -8,6 +8,9 @@ export default function ProductCardNewInMobile({ product, onBuy, onAddToCart, on
   const [quantity, setQuantity] = useState(1);
 
   const talles = product?.stockColorId?.talles || {};
+  const sizes = Array.isArray(product?.sizes) && product.sizes.length > 0
+    ? product.sizes
+    : Object.keys(talles);
   const availableSizes = Object.entries(talles).filter(([, qty]) => qty > 0);
   const lowStock = Object.values(talles).some((qty) => qty > 0 && qty <= 3);
   const noStock = availableSizes.length === 0;
@@ -33,21 +36,29 @@ export default function ProductCardNewInMobile({ product, onBuy, onAddToCart, on
         <h3 className="productcard__name">{product.name}</h3>
         <p className="productcard__price">${product.price?.toLocaleString("es-AR")}</p>
         <p className="productcard__desc">{product.cardDescription || product.description || "Nuevo producto disponible"}</p>
-        {availableSizes.length > 0 && (
+        {sizes.length > 0 && (
           <div className="productcard__sizes productcard__sizes--selectable">
-            {availableSizes.map(([size]) => (
-              <button
-                key={size}
-                type="button"
-                className={
-                  "productcard__size-pill productcard__size-pill--button" +
-                  (selectedSize === size ? " is-selected" : "")
-                }
-                onClick={() => setSelectedSize(size)}
-              >
-                {size}
-              </button>
-            ))}
+            {sizes.map((size) => {
+              const qty = talles?.[size] ?? 0;
+              const isDisabled = qty <= 0;
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  className={
+                    "productcard__size-pill productcard__size-pill--button" +
+                    (selectedSize === size ? " is-selected" : "") +
+                    (isDisabled ? " productcard__size-pill--disabled" : "")
+                  }
+                  disabled={isDisabled}
+                  onClick={() => {
+                    if (!isDisabled) setSelectedSize(size);
+                  }}
+                >
+                  {size}
+                </button>
+              );
+            })}
           </div>
         )}
         <div className="productcard__qty">

@@ -5,6 +5,12 @@ import { useCart } from "../../context/CartContext";
 import OpinionsPopup from "../OpinionsPopup";
 import "../../styles/mobile/bestsellers.mobile.css";
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL;
+function apiPath(path) {
+  return `${API_URL}${path}`;
+}
+
 export default function NewInMobile() {
   const [productos, setProductos] = useState([]);
   const [showOpinions, setShowOpinions] = useState(false);
@@ -13,14 +19,17 @@ export default function NewInMobile() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   useEffect(() => {
-    // Configuración global de API para compatibilidad local/producción
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-    function apiPath(path) {
-      return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
-    }
-    fetch(apiPath('/products/new'))
+    fetch(apiPath(`/products/new?limit=12&t=${Date.now()}`))
       .then((res) => res.json())
-      .then((data) => setProductos(Array.isArray(data) ? data : []))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [];
+        list.sort((a, b) => {
+          const aKey = a?.createdAt || a?._id || "";
+          const bKey = b?.createdAt || b?._id || "";
+          return aKey < bKey ? 1 : aKey > bKey ? -1 : 0;
+        });
+        setProductos(list);
+      })
       .catch(() => setProductos([]));
   }, []);
 
