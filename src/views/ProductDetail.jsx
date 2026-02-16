@@ -159,6 +159,14 @@ export default function ProductDetail() {
 
   const allSizes = Object.keys(producto.stockColorId?.talles || {});
 
+  // Detectar si el producto es efectivamente talle único:
+  // tiene "Único" como talle y es el único con stock > 0
+  const sizesWithStock = allSizes.filter(
+    (t) => (producto.stockColorId?.talles?.[t] ?? 0) > 0
+  );
+  const isEffectivelyTalleUnico =
+    sizesWithStock.length === 1 && sizesWithStock[0].toLowerCase() === "único";
+
   const stockForSelectedSize =
     selectedSize ? producto.stockColorId?.talles?.[selectedSize] ?? 0 : 0;
 
@@ -393,7 +401,7 @@ export default function ProductDetail() {
 
           {/* TALLES */}
           <div className="pd-sizes">
-            {producto.stockColorId?.talleUnico ? (
+            {producto.stockColorId?.talleUnico || isEffectivelyTalleUnico ? (
               <>
                 <h3>Talles disponibles: <span style={{ color: "#ff4fa2", fontWeight: "700" }}>Talle Único</span></h3>
                 <div style={{ padding: "12px 0", fontSize: "0.95rem", color: "#666" }}>
