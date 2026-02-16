@@ -50,25 +50,26 @@
 
   .modern-menu__link {
     font-size: 13px;
-    /* ...existing code... */
+  }
+}
 
-    .modern-menu__loading {
-      text-align: center;
-      width: 100%;
-      padding: 2rem 0;
-      font-size: 1.2rem;
-      color: #888;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 80px;
-    }
+.modern-menu__loading {
+  text-align: center;
+  width: 100%;
+  padding: 2rem 0;
+  font-size: 1.2rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
 
-    .modern-menu__error {
-      text-align: center;
-      width: 100%;
-      color: #c00;
-      font-size: 1rem;
-      margin-top: 1rem;
-      padding: 0.5rem 0;
-    }
+.modern-menu__error {
+  text-align: center;
+  width: 100%;
+  color: #c00;
+  font-size: 1rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+}
