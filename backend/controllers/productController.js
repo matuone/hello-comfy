@@ -7,7 +7,7 @@ import Subcategory from "../models/Subcategory.js";
 const normalize = (str) => {
   if (!str) return "";
   // Eliminar espacios extras alrededor de caracteres especiales
-  const clean = str.trim().replace(/\s*\/\s*/g, "/");
+  const clean = str.trim().replace(/\s*\/\s*/g, " / ");
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
 
@@ -177,7 +177,7 @@ export const getProductsBySubcategory = async (req, res) => {
   try {
     const rawName = req.params.name;
     // Normalizar el parámetro igual que cuando se guarda
-    const name = normalize(rawName);
+    const name = rawName.trim().replace(/\s*\/\s*/g, " / ");
 
     let productos = await Product.find({
       subcategory: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, "i") }
