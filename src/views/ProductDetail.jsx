@@ -77,8 +77,8 @@ export default function ProductDetail() {
         setProducto(data);
         setSelectedImage(data.images?.[0] || null);
 
-        const allSizes = ["S", "M", "L", "XL", "XXL", "3XL"];
-        const firstAvailable = allSizes.find(
+        const availableTalles = Object.keys(data.stockColorId?.talles || {});
+        const firstAvailable = availableTalles.find(
           (t) => (data.stockColorId?.talles?.[t] ?? 0) > 0
         );
 
@@ -147,7 +147,7 @@ export default function ProductDetail() {
       maximumFractionDigits: 0,
     });
 
-  const allSizes = ["S", "M", "L", "XL", "XXL", "3XL"];
+  const allSizes = Object.keys(producto.stockColorId?.talles || {});
 
   const stockForSelectedSize =
     selectedSize ? producto.stockColorId?.talles?.[selectedSize] ?? 0 : 0;

@@ -3,13 +3,15 @@ import { useState } from "react";
 
 export default function ProductCardBestSellersMobile({ product, onBuy, onAddToCart, onViewMore, onStarsClick }) {
   // Lógica igual a ProductCardNewInMobile
+  const talles = product?.stockColorId?.talles || {};
+  const isTalleUnico = product?.stockColorId?.talleUnico === true;
+
   const [selectedSize, setSelectedSize] = useState(() => {
-    const talles = product?.stockColorId?.talles || {};
+    if (isTalleUnico) return "Único";
     return Object.keys(talles).find((t) => talles[t] > 0) || null;
   });
   const [quantity, setQuantity] = useState(1);
 
-  const talles = product?.stockColorId?.talles || {};
   const sizes = Array.isArray(product?.sizes) && product.sizes.length > 0
     ? product.sizes
     : Object.keys(talles);
@@ -38,30 +40,36 @@ export default function ProductCardBestSellersMobile({ product, onBuy, onAddToCa
         <h3 className="productcard__name">{product.name}</h3>
         <p className="productcard__price">${product.price?.toLocaleString("es-AR")}</p>
         <p className="productcard__desc">{product.cardDescription || product.description || "Nuevo producto disponible"}</p>
-        {sizes.length > 0 && (
-          <div className="productcard__sizes productcard__sizes--selectable">
-            {sizes.map((size) => {
-              const qty = talles?.[size] ?? 0;
-              const isDisabled = qty <= 0;
-              return (
-                <button
-                  key={size}
-                  type="button"
-                  className={
-                    "productcard__size-pill productcard__size-pill--button" +
-                    (selectedSize === size ? " is-selected" : "") +
-                    (isDisabled ? " productcard__size-pill--disabled" : "")
-                  }
-                  disabled={isDisabled}
-                  onClick={() => {
-                    if (!isDisabled) setSelectedSize(size);
-                  }}
-                >
-                  {size}
-                </button>
-              );
-            })}
+        {isTalleUnico ? (
+          <div className="productcard__talle-unico">
+            <span className="productcard__talle-unico-label">Talle Único</span>
           </div>
+        ) : (
+          sizes.length > 0 && (
+            <div className="productcard__sizes productcard__sizes--selectable">
+              {sizes.map((size) => {
+                const qty = talles?.[size] ?? 0;
+                const isDisabled = qty <= 0;
+                return (
+                  <button
+                    key={size}
+                    type="button"
+                    className={
+                      "productcard__size-pill productcard__size-pill--button" +
+                      (selectedSize === size ? " is-selected" : "") +
+                      (isDisabled ? " productcard__size-pill--disabled" : "")
+                    }
+                    disabled={isDisabled}
+                    onClick={() => {
+                      if (!isDisabled) setSelectedSize(size);
+                    }}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
+            </div>
+          )
         )}
         <div className="productcard__qty">
           <span className="productcard__qty-label">Cant.</span>

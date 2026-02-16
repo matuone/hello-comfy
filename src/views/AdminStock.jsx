@@ -7,6 +7,7 @@ export default function AdminStock() {
   const [rows, setRows] = useState([]);
   const [toast, setToast] = useState(null); // { message, type }
   const [modal, setModal] = useState(null); // { message, type, onConfirm }
+  const [talleSelectionModal, setTalleSelectionModal] = useState(false);
 
   function showToast(message, type = "success") {
     setToast({ message, type });
@@ -53,12 +54,15 @@ export default function AdminStock() {
   // ============================
   // AGREGAR COLOR NUEVO
   // ============================
-  async function agregarColor() {
+  async function crearColor(talleUnico) {
     const nuevo = {
       color: "Nuevo color",
       colorHex: "#cccccc",
       paused: false,
-      talles: { S: 0, M: 0, L: 0, XL: 0, XXL: 0, "3XL": 0 },
+      talleUnico: talleUnico,
+      talles: talleUnico
+        ? { "Único": 0 }
+        : { S: 0, M: 0, L: 0, XL: 0, XXL: 0, "3XL": 0 },
     };
 
     const res = await fetch(apiPath("/stock"), {
@@ -81,6 +85,11 @@ export default function AdminStock() {
     ]);
 
     showToast("Color agregado al stock.", "success");
+    setTalleSelectionModal(false);
+  }
+
+  function agregarColor() {
+    setTalleSelectionModal(true);
   }
 
   // ============================
@@ -156,7 +165,8 @@ export default function AdminStock() {
   function editarTalle(index, talle, valor) {
     setRows((prev) => {
       const copia = [...prev];
-      copia[index].data.talles[talle] = valor === "" ? "" : Number(valor);
+      const numValue = valor === "" || valor === undefined ? 0 : Number(valor);
+      copia[index].data.talles[talle] = numValue;
       copia[index].dirty = true;
       return copia;
     });
@@ -228,6 +238,52 @@ export default function AdminStock() {
   return (
     <div className="admin-stock-excel">
 
+      {/* MODAL SELECCIÓN TALLE */}
+      {talleSelectionModal && (
+        <div
+          className="comfy-modal-backdrop"
+          onClick={(e) => {
+            if (e.target.classList.contains("comfy-modal-backdrop")) {
+              setTalleSelectionModal(false);
+            }
+          }}
+        >
+          <div className="comfy-modal animate-in">
+            <div className="modal-icon">👕</div>
+
+            <h3 className="modal-title">Tipo de producto</h3>
+            <p className="modal-message">
+              ¿Este color es para un producto de talle único o múltiples talles?
+            </p>
+
+            <div className="comfy-modal-buttons comfy-modal-buttons--dual">
+              <button
+                className="btn-talle-unico"
+                onClick={() => crearColor(true)}
+              >
+                <span className="btn-label">Talle Único</span>
+                <span className="btn-sublabel">Gorras, accesorios, etc.</span>
+              </button>
+
+              <button
+                className="btn-talle-multiple"
+                onClick={() => crearColor(false)}
+              >
+                <span className="btn-label">Múltiples Talles</span>
+                <span className="btn-sublabel">S, M, L, XL, XXL, 3XL</span>
+              </button>
+            </div>
+
+            <button
+              className="btn-modal-close"
+              onClick={() => setTalleSelectionModal(false)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ============================
           MODAL COMFY
       ============================ */}
@@ -282,95 +338,204 @@ export default function AdminStock() {
         + Agregar color
       </button>
 
-      <div className="excel-table-container">
-        <table className="excel-table">
-          <thead>
-            <tr>
-              <th>Color</th>
-              <th>Hex</th>
-              <th>Pausado</th>
-              {ORDEN_TALLES.map((t) => (
-                <th key={t}>{t}</th>
-              ))}
-              <th>Acciones</th>
-            </tr>
-          </thead>
+      {/* TABLA TALLES MÚLTIPLES */}
+      {rows.some((r) => !r.data.talleUnico) && (
+        <>
+          <h3 className="tabla-subtitulo">🧣 Talles Múltiples (S, M, L, XL, XXL, 3XL)</h3>
+          <div className="excel-table-container">
+            <table className="excel-table">
+              <thead>
+                <tr>
+                  <th>Color</th>
+                  <th>Hex</th>
+                  <th>Pausado</th>
+                  {ORDEN_TALLES.map((t) => (
+                    <th key={t}>{t}</th>
+                  ))}
+                  <th>Acciones</th>
+                </tr>
+              </thead>
 
-          <tbody>
-            {rows.map((row, index) => (
-              <tr
-                key={row.data._id}
-                className={
-                  row.saving
-                    ? "saving-row"
-                    : row.saved
-                      ? "saved-row"
-                      : row.dirty
-                        ? "dirty-row"
-                        : ""
-                }
-              >
-                <td>
-                  <input
-                    value={row.data.color}
-                    onChange={(e) => editar(index, "color", e.target.value)}
-                  />
-                </td>
+              <tbody>
+                {rows
+                  .filter((row) => !row.data.talleUnico)
+                  .map((row, originalIndex) => {
+                    const index = rows.indexOf(row);
+                    return (
+                      <tr
+                        key={row.data._id}
+                        className={
+                          row.saving
+                            ? "saving-row"
+                            : row.saved
+                              ? "saved-row"
+                              : row.dirty
+                                ? "dirty-row"
+                                : ""
+                        }
+                      >
+                        <td>
+                          <input
+                            value={row.data.color}
+                            onChange={(e) => editar(index, "color", e.target.value)}
+                          />
+                        </td>
 
-                <td>
-                  <input
-                    type="color"
-                    value={row.data.colorHex}
-                    onChange={(e) => editar(index, "colorHex", e.target.value)}
-                  />
-                </td>
+                        <td>
+                          <input
+                            type="color"
+                            value={row.data.colorHex}
+                            onChange={(e) => editar(index, "colorHex", e.target.value)}
+                          />
+                        </td>
 
-                {/* TOGGLE PAUSAR */}
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!row.data.paused}
-                      onChange={() => togglePause(index)}
-                    />
-                    <span className="slider"></span>
-                  </label>
-                </td>
+                        {/* TOGGLE PAUSAR */}
+                        <td>
+                          <label className="switch">
+                            <input
+                              type="checkbox"
+                              checked={!row.data.paused}
+                              onChange={() => togglePause(index)}
+                            />
+                            <span className="slider"></span>
+                          </label>
+                        </td>
 
-                {ORDEN_TALLES.map((t) => (
-                  <td key={t}>
-                    <input
-                      type="number"
-                      value={row.data.talles[t]}
-                      onChange={(e) => editarTalle(index, t, e.target.value)}
-                    />
-                  </td>
-                ))}
+                        {ORDEN_TALLES.map((t) => (
+                          <td key={t}>
+                            <input
+                              type="number"
+                              value={row.data.talles[t] ?? 0}
+                              onChange={(e) => editarTalle(index, t, e.target.value)}
+                            />
+                          </td>
+                        ))}
 
-                <td className="acciones">
-                  <button
-                    className="btn-guardar"
-                    disabled={!row.dirty || row.saving}
-                    onClick={() => guardarFila(index)}
-                  >
-                    {row.saving ? "Guardando..." : "Guardar"}
-                  </button>
+                        <td className="acciones">
+                          <button
+                            className="btn-guardar"
+                            disabled={!row.dirty || row.saving}
+                            onClick={() => guardarFila(index)}
+                          >
+                            {row.saving ? "Guardando..." : "Guardar"}
+                          </button>
 
-                  <button
-                    className="btn-eliminar"
-                    onClick={() => eliminarFila(index)}
-                  >
-                    ✕
-                  </button>
+                          <button
+                            className="btn-eliminar"
+                            onClick={() => eliminarFila(index)}
+                          >
+                            ✕
+                          </button>
 
-                  {row.saved && <span className="ok-msg">✔ Guardado</span>}
-                  {row.error && <span className="error-msg">✖ Error</span>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                          {row.saved && <span className="ok-msg">✔ Guardado</span>}
+                          {row.error && <span className="error-msg">✖ Error</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* TABLA TALLES ÚNICOS */}
+      {rows.some((r) => r.data.talleUnico) && (
+        <>
+          <h3 className="tabla-subtitulo">👒 Talles Únicos (Gorras, Accesorios)</h3>
+          <div className="excel-table-container">
+            <table className="excel-table excel-table--unico">
+              <thead>
+                <tr>
+                  <th>Color</th>
+                  <th>Hex</th>
+                  <th>Pausado</th>
+                  <th style={{ textAlign: "center" }}>Stock</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {rows
+                  .filter((row) => row.data.talleUnico)
+                  .map((row, originalIndex) => {
+                    const index = rows.indexOf(row);
+                    return (
+                      <tr
+                        key={row.data._id}
+                        className={
+                          row.saving
+                            ? "saving-row"
+                            : row.saved
+                              ? "saved-row"
+                              : row.dirty
+                                ? "dirty-row"
+                                : ""
+                        }
+                      >
+                        <td>
+                          <input
+                            value={row.data.color}
+                            onChange={(e) => editar(index, "color", e.target.value)}
+                          />
+                        </td>
+
+                        <td>
+                          <input
+                            type="color"
+                            value={row.data.colorHex}
+                            onChange={(e) => editar(index, "colorHex", e.target.value)}
+                          />
+                        </td>
+
+                        {/* TOGGLE PAUSAR */}
+                        <td>
+                          <label className="switch">
+                            <input
+                              type="checkbox"
+                              checked={!row.data.paused}
+                              onChange={() => togglePause(index)}
+                            />
+                            <span className="slider"></span>
+                          </label>
+                        </td>
+
+                        <td style={{ textAlign: "center" }}>
+                          <input
+                            type="number"
+                            value={row.data.talles["Único"] ?? 0}
+                            onChange={(e) => editarTalle(index, "Único", e.target.value)}
+                            style={{ width: "80px", textAlign: "center" }}
+                          />
+                        </td>
+
+                        <td className="acciones">
+                          <button
+                            className="btn-guardar"
+                            disabled={!row.dirty || row.saving}
+                            onClick={() => guardarFila(index)}
+                          >
+                            {row.saving ? "Guardando..." : "Guardar"}
+                          </button>
+
+                          <button
+                            className="btn-eliminar"
+                            onClick={() => eliminarFila(index)}
+                          >
+                            ✕
+                          </button>
+
+                          {row.saved && <span className="ok-msg">✔ Guardado</span>}
+                          {row.error && <span className="error-msg">✖ Error</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

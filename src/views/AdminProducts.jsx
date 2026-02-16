@@ -385,7 +385,7 @@ export default function AdminProducts() {
                     <td>
                       {prod.stock ? (
                         <>
-                          {ORDEN_TALLES.map((talle) => (
+                          {Object.keys(prod.stock).map((talle) => (
                             <span key={talle} style={{ marginRight: "6px" }}>
                               {talle}: {prod.stock[talle] ?? 0}
                             </span>

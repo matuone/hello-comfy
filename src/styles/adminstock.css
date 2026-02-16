@@ -111,6 +111,23 @@
 }
 
 /* ============================
+   SUBTÍTULOS DE TABLAS
+============================ */
+.tabla-subtitulo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ff4fa2;
+  margin-top: 28px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #ffe3f1;
+}
+
+.tabla-subtitulo:first-of-type {
+  margin-top: 0;
+}
+
+/* ============================
    TABLA COMFY
 ============================ */
 .excel-table {
@@ -142,6 +159,14 @@
   font-weight: 700;
   color: #444;
   border-bottom: 2px solid #ffc7e6;
+}
+
+/* ============================
+   TABLA TALLES ÚNICOS
+============================ */
+.excel-table--unico thead th:nth-child(n+4):not(:last-child) {
+  text-align: center;
+  padding-left: 0;
 }
 
 /* ============================
@@ -389,6 +414,7 @@
   font-weight: 500;
   color: #444;
   animation: modalIn 0.25s ease-out;
+  position: relative;
 }
 
 @keyframes modalIn {
@@ -449,4 +475,93 @@
 
 .btn-cancel:hover {
   background: #ddd;
+}
+
+/* ============================
+   MODAL SELECCIÓN TALLE
+============================ */
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ff4fa2;
+  margin-bottom: 8px;
+  margin-top: 8px;
+}
+
+.comfy-modal-buttons--dual {
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-talle-unico,
+.btn-talle-multiple {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 20px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  gap: 6px;
+}
+
+.btn-talle-unico {
+  background: linear-gradient(135deg, #ff4fa2, #ff7bbf);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 79, 162, 0.2);
+}
+
+.btn-talle-unico:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(255, 79, 162, 0.35);
+  background: linear-gradient(135deg, #ff3a90, #ff6aad);
+}
+
+.btn-talle-multiple {
+  background: linear-gradient(135deg, #64b5f6, #42a5f5);
+  color: white;
+  box-shadow: 0 4px 12px rgba(66, 165, 245, 0.2);
+}
+
+.btn-talle-multiple:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(66, 165, 245, 0.35);
+  background: linear-gradient(135deg, #42a5f5, #2196f3);
+}
+
+.btn-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  display: block;
+}
+
+.btn-sublabel {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.95;
+  display: block;
+}
+
+.btn-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.btn-modal-close:hover {
+  background: rgba(255, 79, 162, 0.1);
+  color: #ff4fa2;
 }

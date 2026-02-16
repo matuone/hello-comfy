@@ -242,6 +242,29 @@
   background: #ffe4ee;
 }
 
+/* ============================
+   TALLE ÚNICO
+============================ */
+.productcard__talle-unico {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+  min-height: 28px;
+}
+
+.productcard__talle-unico-label {
+  background: linear-gradient(135deg, #ff4fa2, #ff7bbf);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(255, 79, 162, 0.25);
+}
+
 .productcard__qty {
   display: flex;
   align-items: center;
