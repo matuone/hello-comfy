@@ -2,7 +2,7 @@
 import "../styles/products.css";
 import "../styles/productgrid.css"; // CSS aislado
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import OpinionsPopup from "../components/OpinionsPopup";
 import { useCart } from "../context/CartContext";
 import { useDiscountRules, calcularPrecios } from "../hooks/useDiscountRules";
@@ -15,6 +15,7 @@ function apiPath(path) {
 
 export default function Products() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { addToCart } = useCart();
 
   const [allProducts, setAllProducts] = useState([]);
@@ -36,6 +37,8 @@ export default function Products() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showOpinions, setShowOpinions] = useState(false);
   const [opinionsProductId, setOpinionsProductId] = useState(null);
+
+  const searchTerm = (searchParams.get("search") || "").trim();
 
   // Reglas de descuento del admin
   const discountRules = useDiscountRules();
@@ -115,6 +118,10 @@ export default function Products() {
           params.push(`sort=${encodeURIComponent(sortBy)}`);
         }
 
+        if (searchTerm) {
+          params.push(`search=${encodeURIComponent(searchTerm)}`);
+        }
+
         params.push(`page=${page}`);
         params.push(`limit=12`);
 
@@ -141,12 +148,12 @@ export default function Products() {
     };
 
     fetchProducts();
-  }, [selectedGroup, selectedCategory, sortBy, page]);
+  }, [selectedGroup, selectedCategory, sortBy, page, searchTerm]);
 
   useEffect(() => {
     setPage(1);
     setHasMore(true);
-  }, [selectedGroup, selectedCategory, sortBy]);
+  }, [selectedGroup, selectedCategory, sortBy, searchTerm]);
 
   // ============================
   // INFINITE SCROLL
@@ -620,16 +627,6 @@ export default function Products() {
             </div>
           ))}
 
-          {/* PAGINACIÓN VISUAL */}
-          {hasMore && !loading && (
-            <button
-              className="productcard__loadmore"
-              onClick={() => setPage((prev) => prev + 1)}
-            >
-              Cargar más productos
-            </button>
-          )}
-
           {loading &&
             !initialLoading &&
             Array.from({ length: 6 }).map((_, i) => (
@@ -642,6 +639,12 @@ export default function Products() {
                 <div className="skeleton-line short"></div>
               </div>
             ))}
+
+          {loading && !initialLoading && (
+            <div className="products__loadmore-indicator" aria-live="polite">
+              <span className="products__loadmore-spinner" aria-hidden="true" />
+            </div>
+          )}
         </div>
       )}
 
