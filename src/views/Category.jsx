@@ -84,10 +84,15 @@ export default function Category() {
     }
 
     setLoading(true);
-    const encodedSubcategory = encodeURIComponent(subcategory);
+    const url = `${apiPath("/products")}?subcategory=${encodeURIComponent(subcategory)}`;
 
-    fetch(apiPath(`/products/subcategory/${encodedSubcategory}`))
-      .then((res) => res.json())
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         setProducts(data || []);
         setLoading(false);
