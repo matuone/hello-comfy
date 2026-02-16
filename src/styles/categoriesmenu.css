@@ -1,60 +1,74 @@
-/* Restaurar definición de .mega para revertir el cambio destructivo */
-.mega {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 800px;
-  max-width: 90vw;
+.modern-menu {
+  width: min(900px, 86vw);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 18px 26px;
-  padding: 28px 32px;
-  background: var(--hc-bg);
-  border-radius: 24px;
-  box-shadow: var(--hc-shadow);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
-  z-index: 60;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
-.mega__col {
+.modern-menu__section {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 12px;
 }
 
-.mega__link {
-  display: inline-block;
-  color: var(--hc-text);
-  text-decoration: none;
-  font-size: 13px;
-  line-height: 1.4;
-  padding: 3px 4px;
-  border-radius: 6px;
-  margin: 1px 0;
-}
-
-.mega__link:hover,
-.mega__link:focus {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-.mega__title {
-  font-size: 13px;
-  font-weight: 800;
-  margin-bottom: 8px;
+.modern-menu__title {
+  font-size: 12px;
+  font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-  padding: 0;
-  white-space: normal;
+  color: #d94f7a;
+  margin-bottom: 4px;
 }
 
-.mega__title.mega__link {
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
+.modern-menu__link {
+  display: block;
+  text-decoration: none;
+  color: #111;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 8px 10px;
+  transition: background 0.18s ease, transform 0.12s ease;
 }
+
+.modern-menu__link:hover,
+.modern-menu__link:focus-visible {
+  background: rgba(217, 79, 122, 0.12);
+  transform: translateX(2px);
+  outline: none;
+}
+
+@media (max-width: 1024px) {
+  .modern-menu {
+    width: min(760px, 90vw);
+    gap: 10px;
+  }
+
+  .modern-menu__link {
+    font-size: 13px;
+    /* ...existing code... */
+
+    .modern-menu__loading {
+      text-align: center;
+      width: 100%;
+      padding: 2rem 0;
+      font-size: 1.2rem;
+      color: #888;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80px;
+    }
+
+    .modern-menu__error {
+      text-align: center;
+      width: 100%;
+      color: #c00;
+      font-size: 1rem;
+      margin-top: 1rem;
+      padding: 0.5rem 0;
+    }

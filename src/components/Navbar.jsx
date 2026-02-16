@@ -2,6 +2,7 @@
 
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { Popover, PopoverButton, PopoverPanel, Transition } from "@headlessui/react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import CategoriesMenu from "./CategoriesMenu";
@@ -26,12 +27,10 @@ export default function Navbar() {
 
   const [scrolled, setScrolled] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
 
-  const menuRef = useRef(null);
   const searchRef = useRef(null);
 
   useEffect(() => {
@@ -45,9 +44,6 @@ export default function Navbar() {
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-      }
       if (searchRef.current && !searchRef.current.contains(e.target)) {
         setShowResults(false);
       }
@@ -150,7 +146,7 @@ export default function Navbar() {
             </div>
 
             {/* CENTRO */}
-            <div className="navbar__center" ref={menuRef}>
+            <div className="navbar__center">
               <ul className="navlist">
                 <li className="nav-item">
                   <NavLink
@@ -163,16 +159,44 @@ export default function Navbar() {
                 </li>
 
                 <li className="nav-item nav-item--products">
-                  <NavLink
-                    to="/products"
-                    className="nav-link"
-                    aria-current={pathname === "/products" ? "page" : undefined}
-                  >
-                    Productos
-                  </NavLink>
-                  <div className="mega-wrap">
-                    <CategoriesMenu />
-                  </div>
+                  <Popover className="products-popover">
+                    {({ open, close }) => (
+                      <>
+                        <PopoverButton
+                          className={`nav-link nav-link--btn ${open ? "active" : ""}`}
+                          aria-label="Abrir menú de productos"
+                        >
+                          Productos
+                          <svg
+                            className={`products-popover__chevron ${open ? "is-open" : ""}`}
+                            viewBox="0 0 20 20"
+                            aria-hidden="true"
+                          >
+                            <path d="M5.5 7.5L10 12l4.5-4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                          </svg>
+                        </PopoverButton>
+
+                        <Transition
+                          show={open}
+                          enter="products-popover__enter"
+                          enterFrom="products-popover__enter-from"
+                          enterTo="products-popover__enter-to"
+                          leave="products-popover__leave"
+                          leaveFrom="products-popover__leave-from"
+                          leaveTo="products-popover__leave-to"
+                        >
+                          <PopoverPanel className="products-popover__panel">
+                            <div className="products-popover__header">
+                              <NavLink to="/products" className="products-popover__all" onClick={() => close()}>
+                                Ver todos los productos
+                              </NavLink>
+                            </div>
+                            <CategoriesMenu onSelect={() => close()} />
+                          </PopoverPanel>
+                        </Transition>
+                      </>
+                    )}
+                  </Popover>
                 </li>
 
                 <li className="nav-item">

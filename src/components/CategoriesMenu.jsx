@@ -22,38 +22,64 @@ const catSlug = {
   "Merch": "merch",
 };
 
-export default function CategoriesMenu({ className = "" }) {
-  const [grouped, setGrouped] = useState(FALLBACK);
+export default function CategoriesMenu({ className = "", onSelect }) {
+  const [grouped, setGrouped] = useState(null); // null = loading, object = loaded, FALLBACK = fallback
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
     fetch(apiPath("/products/filters/data"))
       .then((res) => res.json())
       .then((data) => {
-        if (data?.groupedSubcategories) {
-          setGrouped((prev) => ({ ...prev, ...data.groupedSubcategories }));
+        if (mounted) {
+          if (data?.groupedSubcategories) {
+            setGrouped({ ...FALLBACK, ...data.groupedSubcategories });
+          } else {
+            setGrouped(FALLBACK);
+            setError(true);
+          }
         }
       })
-      .catch(() => setGrouped(FALLBACK));
+      .catch(() => {
+        if (mounted) {
+          setGrouped(FALLBACK);
+          setError(true);
+        }
+      });
+    return () => { mounted = false; };
   }, []);
 
   const columns = ["Indumentaria", "Cute items", "Merch"];
 
+  if (grouped === null) {
+    // Loading: show spinner or nothing
+    return (
+      <div className={`modern-menu ${className}`.trim()} role="menu" aria-label="Productos">
+        <div className="modern-menu__loading">Cargando categorías...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`mega ${className}`.trim()} role="menu" aria-label="Productos">
+    <div className={`modern-menu ${className}`.trim()} role="menu" aria-label="Productos">
       {columns.map((cat) => (
-        <div className="mega__col" key={cat}>
-          <span className="mega__title">{cat}</span>
+        <div className="modern-menu__section" key={cat}>
+          <span className="modern-menu__title">{cat}</span>
           {(grouped[cat] || FALLBACK[cat]).map((sub) => (
             <Link
               key={sub}
               to={`/${catSlug[cat]}/${encodeURIComponent(sub)}`}
-              className="mega__link"
+              className="modern-menu__link"
+              onClick={onSelect}
             >
               {sub}
             </Link>
           ))}
         </div>
       ))}
+      {error && (
+        <div className="modern-menu__error">No se pudo cargar categorías en vivo. Mostrando categorías por defecto.</div>
+      )}
     </div>
   );
 }
