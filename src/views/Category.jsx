@@ -77,9 +77,16 @@ export default function Category() {
   };
 
   useEffect(() => {
-    setLoading(true);
+    if (!subcategory) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
 
-    fetch(apiPath(`/products/subcategory/${subcategory}`))
+    setLoading(true);
+    const encodedSubcategory = encodeURIComponent(subcategory);
+
+    fetch(apiPath(`/products/subcategory/${encodedSubcategory}`))
       .then((res) => res.json())
       .then((data) => {
         setProducts(data || []);

@@ -67,11 +67,11 @@ export default function AdminOpinions() {
       />
       <h2>Opiniones de productos</h2>
       {loading ? (
-        <p>Cargando opiniones...</p>
+        <p className="admin-empty-text">Cargando opiniones...</p>
       ) : error ? (
-        <p style={{ color: "red" }}>{error}</p>
+        <p className="admin-empty-text admin-empty-text--error">{error}</p>
       ) : opinions.length === 0 ? (
-        <p>No hay opiniones.</p>
+        <p className="admin-empty-text">No hay opiniones.</p>
       ) : (
         <div style={{ overflowX: 'auto', marginTop: 24 }}>
           <table className="admin-opinions-table" style={{ borderCollapse: 'collapse', minWidth: 900, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px #0001', fontSize: 16 }}>

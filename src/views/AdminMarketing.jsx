@@ -779,7 +779,9 @@ export default function AdminMarketing() {
           )}
 
           {bannerImages.length === 0 ? (
-            <p style={{ color: '#999', fontStyle: 'italic' }}>No hay imágenes. El banner usará las imágenes por defecto.</p>
+            <p className="admin-empty-text admin-empty-text--muted">
+              No hay imágenes. El banner usará las imágenes por defecto.
+            </p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               {bannerImages.map((img, index) => (
@@ -872,7 +874,7 @@ export default function AdminMarketing() {
           Agregá, editá o eliminá los mensajes que se mostrarán en el AnnouncementBar. Podés usar emojis y separar con "•".
         </p>
         {announcementMessages.length === 0 && (
-          <div style={{ color: '#999', fontStyle: 'italic', marginBottom: '10px' }}>
+          <div className="admin-empty-text admin-empty-text--muted" style={{ marginBottom: '10px' }}>
             No hay mensajes guardados. Agregá uno nuevo.
           </div>
         )}

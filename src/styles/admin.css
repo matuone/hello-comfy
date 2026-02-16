@@ -820,6 +820,22 @@
   margin: 0;
   color: #777;
   font-size: 0.9rem;
+  text-align: center;
+}
+
+.admin-empty-text {
+  text-align: center;
+  margin: 16px 0;
+  color: #777;
+}
+
+.admin-empty-text--muted {
+  color: #999;
+  font-style: italic;
+}
+
+.admin-empty-text--error {
+  color: #c62828;
 }
 
 .admin-subcats-row {
