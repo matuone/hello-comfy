@@ -32,6 +32,8 @@ import modoRoutes from "./routes/modoRoutes.js"; // ⭐ NUEVO
 import afipRoutes from "./routes/afipRoutes.js"; // ⭐ NUEVO
 import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CORREO ARG API
 import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
+import feedRoutes from "./routes/feedRoutes.js"; // ⭐ NUEVO FEED
+import instagramRoutes from "./routes/instagramRoutes.js"; // ⭐ SINCRONIZACIÓN INSTAGRAM
 import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
 
 // ============================
@@ -220,6 +222,16 @@ app.use("/api", orderRoutes);
 // RUTAS DE OPINIONES (⭐ NUEVO)
 // ============================
 app.use("/api/opinions", opinionRoutes);
+
+// ============================
+// RUTAS DE FEED (⭐ NUEVO)
+// ============================
+app.use("/api/feed", feedRoutes);
+
+// ============================
+// RUTAS DE INSTAGRAM (⭐ SINCRONIZACIÓN)
+// ============================
+app.use("/api/instagram", instagramRoutes);
 
 // ============================
 // RUTA DE WHATSAPP (NUEVO)

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "../styles/adminmarketing.css";
 import NotificationModal from "../components/NotificationModal";
 import ConfirmModal from "../components/ConfirmModal";
+import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 function apiPath(path) {
@@ -9,6 +10,7 @@ function apiPath(path) {
 }
 
 export default function AdminMarketing() {
+  const { adminFetch } = useAuth();
   const defaultMessage = "Aprovechá hoy 3x2 en remeras 🧸";
   const defaultBearMessage = "HELLOCOMFY10";
 
@@ -96,14 +98,11 @@ export default function AdminMarketing() {
   async function guardar() {
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-
       // Actualizar configuración del banner
-      const bannerResponse = await fetch(apiPath('/promo-banner'), {
+      const bannerResponse = await adminFetch(apiPath('/promo-banner'), {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ message, autoplay, interval })
       });
@@ -111,11 +110,10 @@ export default function AdminMarketing() {
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
 
       // Actualizar home copy
-      const homeCopyResponse = await fetch(apiPath('/config/home-copy'), {
+      const homeCopyResponse = await adminFetch(apiPath('/config/home-copy'), {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ title: homeTitle, description: homeDescription })
       });
@@ -158,7 +156,6 @@ export default function AdminMarketing() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
       const formData = new FormData();
       formData.append('image', newImage);
       const positionCSS = convertPositionToCSS(previewPosition);
@@ -166,11 +163,8 @@ export default function AdminMarketing() {
 
       // Enviando imagen con posición
 
-      const response = await fetch(apiPath('/promo-banner/images'), {
+      const response = await adminFetch(apiPath('/promo-banner/images'), {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
         body: formData
       });
 
@@ -207,12 +201,8 @@ export default function AdminMarketing() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(apiPath(`/promo-banner/images/${imageId}`), {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await adminFetch(apiPath(`/promo-banner/images/${imageId}`), {
+        method: 'DELETE'
       });
 
       if (!response.ok) throw new Error('Error al eliminar imagen');
@@ -231,12 +221,10 @@ export default function AdminMarketing() {
   async function handleUpdatePosition(imageId, position) {
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(apiPath(`/promo-banner/images/${imageId}/position`), {
+      const response = await adminFetch(apiPath(`/promo-banner/images/${imageId}/position`), {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ objectPosition: position })
       });
@@ -311,12 +299,10 @@ export default function AdminMarketing() {
   async function handleSaveHome() {
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(apiPath('/config/home-copy'), {
+      const response = await adminFetch(apiPath('/config/home-copy'), {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ title: homeTitle, description: homeDescription })
       });
@@ -379,14 +365,12 @@ export default function AdminMarketing() {
 
     // Actualizar orden en el backend
     try {
-      const token = localStorage.getItem('adminToken');
       const imageIds = newImages.map(img => img._id);
 
-      const response = await fetch(apiPath('/promo-banner/images/reorder'), {
+      const response = await adminFetch(apiPath('/promo-banner/images/reorder'), {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ imageIds })
       });
@@ -465,12 +449,10 @@ export default function AdminMarketing() {
   async function saveAnnouncementMessages() {
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      await fetch(`${API_URL}/config/announcement-bar-messages`, {
+      await adminFetch(`${API_URL}/config/announcement-bar-messages`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ messages: announcementMessages })
       });

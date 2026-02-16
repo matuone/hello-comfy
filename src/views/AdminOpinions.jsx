@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ComfyModal from "../components/ComfyModal";
+import { useAuth } from "../context/AuthContext";
 
 
 // Centralización de rutas API
@@ -10,6 +11,7 @@ function apiPath(path) {
 }
 
 export default function AdminOpinions() {
+  const { adminFetch } = useAuth();
   const [opinions, setOpinions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,10 +26,7 @@ export default function AdminOpinions() {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem("adminToken");
-      const res = await fetch(apiPath("/opinions"), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await adminFetch(apiPath("/opinions"));
       const data = await res.json();
       const sorted = (data.opinions || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setOpinions(sorted);
@@ -46,10 +45,8 @@ export default function AdminOpinions() {
     setDeleting(id);
     setModal({ open: false, id: null });
     try {
-      const token = localStorage.getItem("adminToken");
-      await fetch(apiPath(`/opinions/${id}`), {
+      await adminFetch(apiPath(`/opinions/${id}`), {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
       setOpinions(opinions.filter((op) => op._id !== id));
     } finally {

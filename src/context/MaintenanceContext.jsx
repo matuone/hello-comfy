@@ -56,7 +56,7 @@ export function MaintenanceProvider({ children }) {
 
       // Actualizar timestamp para evitar polling reverso
       lastUpdateRef.current = Date.now();
-      
+
       // Actualizar estado local INMEDIATAMENTE
       setIsMaintenanceMode(value);
       console.log("Toggle local actualizado a:", value);
@@ -69,6 +69,17 @@ export function MaintenanceProvider({ children }) {
         },
         body: JSON.stringify({ maintenanceMode: value }),
       });
+
+      // Si recibimos 401, el token es inválido/expirado
+      if (response.status === 401) {
+        localStorage.removeItem("authUser");
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("userToken");
+        console.error("Token expirado, sesión cerrada");
+        // Revertir estado local
+        setIsMaintenanceMode(!value);
+        throw new Error("Sesión expirada");
+      }
 
       if (response.ok) {
         const data = await response.json();

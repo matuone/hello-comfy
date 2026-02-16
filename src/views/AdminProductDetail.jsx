@@ -22,7 +22,7 @@ export default function AdminProductDetail() {
   const [producto, setProducto] = useState({
     nombre: "",
     categoria: "Indumentaria",
-    subcategoria: "Remeras",
+    subcategoria: "",  // ⭐ CAMBIO: Vacía inicialmente para que el usuario seleccione dinámicamente
     precio: "",
     stockColorId: "",
     imagenes: [],
@@ -38,12 +38,21 @@ export default function AdminProductDetail() {
   const [errores, setErrores] = useState({});
   const [noti, setNoti] = useState(null);
   const [sizeTables, setSizeTables] = useState([]);
+  const [groupedSubcategories, setGroupedSubcategories] = useState({}); // ⭐ NUEVO: subcategorías dinámicas
 
   const loadingGlobal = subiendoImagen;
 
   // ============================
-  // CARGAR TABLAS DE TALLES
+  // CARGAR SUBCATEGORÍAS DINÁMICAMENTE
   // ============================
+  useEffect(() => {
+    fetch(apiPath("/products/filters/data"))
+      .then((res) => res.json())
+      .then((data) => {
+        setGroupedSubcategories(data.groupedSubcategories || {});
+      })
+      .catch((err) => console.error("Error cargando subcategorías:", err));
+  }, []);
   useEffect(() => {
     fetch(apiPath("/sizetables"))
       .then((res) => res.json())
@@ -74,13 +83,13 @@ export default function AdminProductDetail() {
     fetch(apiPath(`/products/${id}`))
       .then((res) => res.json())
       .then((data) => {
-        const categoriasValidas = ["Indumentaria", "Cute Items", "Merch"];
+        const categoriasValidas = ["Indumentaria", "Cute items", "Merch"]; // ⭐ ARREGLADO: "Cute items" con i minúscula
         let categoriaNormalizada = (data.category || "").trim();
 
         if (!categoriasValidas.includes(categoriaNormalizada)) {
           const lower = categoriaNormalizada.toLowerCase();
           if (lower === "indumentaria") categoriaNormalizada = "Indumentaria";
-          else if (lower === "cute items") categoriaNormalizada = "Cute Items";
+          else if (lower === "cute items" || lower === "cute items") categoriaNormalizada = "Cute items"; // ⭐ ARREGLADO
           else if (lower === "merch") categoriaNormalizada = "Merch";
           else categoriaNormalizada = "Indumentaria";
         }
@@ -137,15 +146,20 @@ export default function AdminProductDetail() {
     setErrores((prev) => ({ ...prev, [campo]: "" }));
 
     if (campo === "categoria") {
-      let sub = "";
-      if (valor === "Indumentaria") sub = "Remeras";
-      else if (valor === "Cute Items") sub = "Vasos";
-      else if (valor === "Merch") sub = "Artistas nacionales";
+      // Cuando cambias de categoría, queremos que el usuario seleccione una subcategoría explícitamente
+      // Solo sugerimos la primera disponible si la subcategoría actual no es válida
+      const subsDisponibles = groupedSubcategories[valor] || [];
+      let nuevaSub = producto.subcategoria;
+
+      // Si la subcategoría actual no existe en la nueva categoría, limpiamos
+      if (!subsDisponibles.includes(producto.subcategoria)) {
+        nuevaSub = "";
+      }
 
       setProducto((prev) => ({
         ...prev,
         categoria: valor,
-        subcategoria: sub,
+        subcategoria: nuevaSub,
       }));
     } else {
       setProducto((prev) => ({ ...prev, [campo]: valor }));
@@ -453,7 +467,7 @@ export default function AdminProductDetail() {
             onChange={(e) => actualizarCampo("categoria", e.target.value)}
           >
             <option>Indumentaria</option>
-            <option>Cute Items</option>
+            <option>Cute items</option>
             <option>Merch</option>
           </select>
           {errores.categoria && (
@@ -467,23 +481,12 @@ export default function AdminProductDetail() {
             value={producto.subcategoria}
             onChange={(e) => actualizarCampo("subcategoria", e.target.value)}
           >
-            {producto.categoria === "Indumentaria" && (
-              <>
-                <option>Remeras</option>
-                <option>Buzos</option>
-                <option>Pijamas</option>
-                <option>Shorts</option>
-                <option>Totes</option>
-                <option>Outlet</option>
-              </>
-            )}
-            {producto.categoria === "Cute Items" && <option>Vasos</option>}
-            {producto.categoria === "Merch" && (
-              <>
-                <option>Artistas nacionales</option>
-                <option>Artistas internacionales</option>
-              </>
-            )}
+            <option value="">Seleccionar subcategoría...</option>
+            {(groupedSubcategories[producto.categoria] || []).map((sub) => (
+              <option key={sub} value={sub}>
+                {sub}
+              </option>
+            ))}
           </select>
           {errores.subcategoria && (
             <p className="input-error-text">{errores.subcategoria}</p>

@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 import ConfirmModal from "../components/ConfirmModal";
 import "../styles/admin/sizetables.css";
 
@@ -12,6 +13,7 @@ function apiPath(path) {
 }
 
 export default function AdminSizeTables() {
+  const { adminFetch } = useAuth();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingTable, setEditingTable] = useState(null);
@@ -38,12 +40,7 @@ export default function AdminSizeTables() {
 
   const fetchTables = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch(apiPath("/sizetables/all"), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await adminFetch(apiPath("/sizetables/all"));
       const data = await response.json();
       setTables(data);
     } catch (error) {
@@ -62,30 +59,18 @@ export default function AdminSizeTables() {
     }
 
     try {
-      const token = localStorage.getItem("adminToken");
-      const measurementsWithMaps = formData.measurements.map((m) => ({
-        name: m.name,
-        values: Object.fromEntries(Object.entries(m.values)),
-      }));
-
-      const payload = {
-        ...formData,
-        measurements: measurementsWithMaps,
-      };
-
       const url = editingTable
         ? apiPath(`/sizetables/${editingTable._id}`)
         : apiPath("/sizetables");
 
       const method = editingTable ? "PUT" : "POST";
 
-      const response = await fetch(url, {
+      const response = await adminFetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
@@ -129,12 +114,8 @@ export default function AdminSizeTables() {
 
   const confirmDelete = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch(apiPath(`/sizetables/${tableToDelete}`), {
+      const response = await adminFetch(apiPath(`/sizetables/${tableToDelete}`), {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (response.ok) {
@@ -157,12 +138,10 @@ export default function AdminSizeTables() {
 
   const handleReorder = async (newOrderIds) => {
     try {
-      const token = localStorage.getItem("adminToken");
-      await fetch(apiPath("/sizetables/reorder/all"), {
+      await adminFetch(apiPath("/sizetables/reorder/all"), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ order: newOrderIds }),
       });

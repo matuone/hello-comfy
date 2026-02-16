@@ -1,0 +1,296 @@
+/* ============================
+   INSTAGRAM FEED STYLES - SWIPER
+   ============================ */
+
+.instagram-feed-container {
+  width: 100%;
+  padding: 40px 20px;
+  background: #fff;
+}
+
+.feed-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.feed-header h2 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.feed-header p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ============================
+   SWIPER ESTILOS
+   ============================ */
+
+.instagram-swiper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.swiper-slide-custom {
+  height: auto;
+}
+
+/* Item del feed */
+.feed-item-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.feed-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  aspect-ratio: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.feed-item:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+.feed-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.feed-item:hover .feed-image {
+  transform: scale(1.05);
+}
+
+/* Overlay en hover */
+.feed-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feed-item:hover .feed-overlay {
+  opacity: 1;
+}
+
+.feed-caption {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  word-break: break-word;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+.feed-instagram-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px 16px;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.feed-instagram-badge span {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Estado de carga */
+.feed-loading,
+.feed-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.feed-loading::after {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  border: 3px solid #f0f0f0;
+  border-radius: 50%;
+  border-top-color: #000;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================
+   SWIPER NAVIGATION Y PAGINATION
+   ============================ */
+
+/* Botones de navegación */
+.swiper-button-next,
+.swiper-button-prev {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Pagination dots */
+.swiper-pagination-bullet {
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background: rgba(0, 0, 0, 0.8);
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ============================
+   RESPONSIVE DESIGN
+   ============================ */
+
+@media (max-width: 768px) {
+  .instagram-feed-container {
+    padding: 30px 15px;
+  }
+
+  .feed-header {
+    margin-bottom: 30px;
+  }
+
+  .feed-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .feed-header p {
+    font-size: 0.95rem;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 36px;
+    height: 36px;
+  }
+
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
+    font-size: 16px;
+  }
+
+  .feed-caption {
+    font-size: 0.85rem;
+  }
+
+  .feed-instagram-badge span {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .instagram-feed-container {
+    padding: 20px 10px;
+  }
+
+  .feed-header {
+    margin-bottom: 20px;
+  }
+
+  .feed-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .feed-header p {
+    font-size: 0.9rem;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 32px;
+    height: 32px;
+  }
+
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
+    font-size: 14px;
+  }
+
+  .feed-overlay {
+    padding: 15px;
+  }
+
+  .feed-caption {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+  }
+
+  .feed-instagram-badge span {
+    font-size: 0.7rem;
+  }
+
+  .swiper-pagination {
+    bottom: 10px;
+  }
+
+  .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    margin: 0 4px;
+  }
+
+  .swiper-pagination-bullet-active {
+    width: 18px;
+  }
+}

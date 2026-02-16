@@ -1,5 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, useRef } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 // Configuración global de API para compatibilidad local/producción
 const API_URL = import.meta.env.VITE_API_URL;
@@ -79,10 +80,79 @@ function InactivityModal({ open, onClose }) {
   );
 }
 
+// ============================
+// MODAL DE SESIÓN EXPIRADA
+// ============================
+function TokenExpiredModal({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0,0,0,0.4)",
+        zIndex: 10000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%)",
+          color: "#fff",
+          borderRadius: 16,
+          padding: "40px 32px",
+          boxShadow: "0 12px 48px rgba(0,0,0,0.25)",
+          textAlign: "center",
+          maxWidth: 360,
+          fontFamily: "inherit",
+          position: "relative",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 style={{ marginBottom: 12, fontWeight: 700, fontSize: "1.3rem" }}>
+          ⏰ Sesión Expirada
+        </h2>
+        <p style={{ fontSize: "1rem", marginBottom: 28, lineHeight: "1.5" }}>
+          Tu sesión de administrador ha expirado por seguridad.
+          <br />
+          Por favor, vuelve a iniciar sesión para continuar.
+        </p>
+        <button
+          style={{
+            background: "#fff",
+            color: "#ff6b6b",
+            border: "none",
+            borderRadius: 8,
+            padding: "12px 32px",
+            fontWeight: 600,
+            fontSize: "1rem",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            transition: "transform 0.2s",
+          }}
+          onClick={onClose}
+          onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
+          onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+        >
+          Iniciar Sesión
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [showInactivityModal, setShowInactivityModal] = useState(false);
+  const [showTokenExpiredModal, setShowTokenExpiredModal] = useState(false);
+  const [isValidatingAdminToken, setIsValidatingAdminToken] = useState(false);
   const logoutTimer = useRef(null);
   const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 minutos en ms
 
@@ -132,10 +202,38 @@ export function AuthProvider({ children }) {
     // Si hay usuario y token, refrescar datos desde la API (solo usuarios normales, no admins)
     if (savedUser && tokenToUse) {
       const parsedUser = JSON.parse(savedUser);
-      // Si es admin, solo setear el usuario y token desde localStorage, nunca forzar logout ni fetch
+      // Si es admin, validar que el token sea válido antes de restaurar la sesión
       if (parsedUser.isAdmin) {
-        setUser(parsedUser);
-        setToken(tokenToUse);
+        // Mostrar spinner mientras se valida
+        setIsValidatingAdminToken(true);
+
+        // Validar el token del admin
+        fetch(apiPath("/admin/verify"), {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${tokenToUse}`,
+          },
+        })
+          .then((res) => {
+            if (res.ok) {
+              setUser(parsedUser);
+              setToken(tokenToUse);
+              setIsValidatingAdminToken(false);
+            } else {
+              // Token expirado o inválido, hacer logout
+              localStorage.removeItem("authUser");
+              localStorage.removeItem("adminToken");
+              localStorage.removeItem("userToken");
+              setIsValidatingAdminToken(false);
+            }
+          })
+          .catch(() => {
+            // Error al validar, hacer logout por seguridad
+            localStorage.removeItem("authUser");
+            localStorage.removeItem("adminToken");
+            localStorage.removeItem("userToken");
+            setIsValidatingAdminToken(false);
+          });
         return;
       }
       // Si no hay id válido, forzar logout y no hacer fetch
@@ -289,6 +387,33 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("userToken");
   }
 
+  // ============================
+  // HELPER: FETCH CON MANEJO DE 401 PARA ADMIN
+  // ============================
+  async function adminFetch(url, options = {}) {
+    const adminToken = localStorage.getItem("adminToken");
+
+    const headers = {
+      ...options.headers,
+      "Authorization": `Bearer ${adminToken}`,
+    };
+
+    try {
+      const res = await fetch(url, { ...options, headers });
+
+      // Si recibimos 401, el token es inválido/expirado
+      if (res.status === 401) {
+        setShowTokenExpiredModal(true);
+        logout();
+        throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
+      }
+
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -296,16 +421,34 @@ export function AuthProvider({ children }) {
         token,
         loginAdmin,
         loginUser,
-        loginAfterRegister, // ⭐ NUEVO
+        loginAfterRegister,
         updateUserAvatar,
         logout,
+        adminFetch,
         isAdmin: user?.isAdmin === true,
+        isValidatingAdminToken,
       }}
     >
       {children}
+
+      {/* Spinner mientras se valida token del admin */}
+      <LoadingSpinner
+        visible={isValidatingAdminToken}
+        message="Validando sesión..."
+        fullScreen={true}
+      />
+
       <InactivityModal
         open={showInactivityModal}
         onClose={() => setShowInactivityModal(false)}
+      />
+
+      <TokenExpiredModal
+        open={showTokenExpiredModal}
+        onClose={() => {
+          setShowTokenExpiredModal(false);
+          window.location.href = "/admin";
+        }}
       />
     </AuthContext.Provider>
   );

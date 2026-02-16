@@ -162,6 +162,22 @@ export default function AdminSidebar({ onNavigate }) {
         </li>
 
         {/* ============================
+            FEED
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/feed"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+            onClick={handleNavLink}
+          >
+            Feed
+          </NavLink>
+        </li>
+
+        {/* ============================
             DESCUENTOS
         ============================ */}
         <li>

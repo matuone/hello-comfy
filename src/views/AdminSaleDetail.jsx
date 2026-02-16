@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 
 // Centralización de rutas API
 function apiPath(path) {
@@ -15,6 +16,7 @@ import "../styles/admin/facturamodal.css";
 
 export default function AdminSaleDetail() {
   const { id } = useParams();
+  const { adminFetch } = useAuth();
 
   // ============================
   // PICKUP NOTIFY MODAL
@@ -39,11 +41,10 @@ export default function AdminSaleDetail() {
       const fechaStr = fecha.toLocaleDateString('es-AR', opciones);
       let horaStr = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true });
       const fechaHoraFinal = `${fechaStr} a las ${horaStr}`;
-      const res = await fetch(apiPath(`/admin/orders/${id}/pickup-notify`), {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/pickup-notify`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ fechaRetiro: fechaHoraFinal }),
       });
@@ -91,25 +92,13 @@ export default function AdminSaleDetail() {
   const appsRef = useRef(null);
   const moreRef = useRef(null);
 
-  const token = localStorage.getItem("adminToken");
-  // Verificar token y redirigir si falta
-  useEffect(() => {
-    if (!token) {
-      window.location.href = "/admin/login"; // Si tienes una ruta de login admin en el frontend, mantenla. Si necesitas redirigir al backend, usa la URL completa.
-    }
-  }, [token]);
-
   // ============================
   // CARGAR VENTA DESDE BACKEND
   // ============================
   useEffect(() => {
     async function fetchVenta() {
       try {
-        const res = await fetch(apiPath(`/admin/orders/${id}`), {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await adminFetch(apiPath(`/admin/orders/${id}`));
 
         const data = await res.json();
         setVenta(data);
@@ -121,7 +110,7 @@ export default function AdminSaleDetail() {
     }
 
     fetchVenta();
-  }, [id, token]);
+  }, [id]);
 
   // ============================
   // FACTURAR ESTA VENTA
@@ -156,13 +145,12 @@ export default function AdminSaleDetail() {
       const body = { tipoFactura };
       if (cuitCliente) body.cuitCliente = cuitCliente;
 
-      const res = await fetch(
+      const res = await adminFetch(
         apiPath(`/afip/generar-factura/${id}`),
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(body),
         }
@@ -215,9 +203,8 @@ export default function AdminSaleDetail() {
         return;
       }
       const url = apiPath(`/afip/factura-pdf/${venta._id}`);
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('No se pudo descargar el PDF');
       const blob = await res.blob();
@@ -304,11 +291,10 @@ export default function AdminSaleDetail() {
   async function guardarComentario() {
     setGuardandoComentario(true);
     try {
-      const res = await fetch(apiPath(`/admin/orders/${id}/comentario`), {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/comentario`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ comentario: comentarioEditado }),
       });
