@@ -946,4 +946,48 @@
   .pd-shipping-form {
     flex-direction: column;
   }
+
+  .pd-size-guide {
+    margin: 20px 12px 0;
+    padding: 16px 12px;
+  }
+
+  .pd-size-guide .size-table {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .pd-size-guide .size-table::before,
+  .pd-size-guide .size-table::after {
+    content: "";
+    position: sticky;
+    top: 0;
+    width: 24px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .pd-size-guide .size-table::before {
+    left: 0;
+    background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .pd-size-guide .size-table::after {
+    right: 0;
+    background: linear-gradient(270deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .pd-size-guide .size-table table {
+    min-width: 520px;
+    margin: 0 auto;
+  }
+
+  .pd-size-guide .size-table th,
+  .pd-size-guide .size-table td {
+    white-space: nowrap;
+    padding: 8px 10px;
+  }
 }

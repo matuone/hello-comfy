@@ -165,8 +165,8 @@ export default function AdminStock() {
   function editarTalle(index, talle, valor) {
     setRows((prev) => {
       const copia = [...prev];
-      const numValue = valor === "" || valor === undefined ? 0 : Number(valor);
-      copia[index].data.talles[talle] = numValue;
+      const numValue = valor === "" || valor === undefined ? "" : Number(valor);
+      copia[index].data.talles[talle] = Number.isNaN(numValue) ? "" : numValue;
       copia[index].dirty = true;
       return copia;
     });
@@ -185,12 +185,21 @@ export default function AdminStock() {
     });
 
     const row = rows[index].data;
+    const payload = {
+      ...row,
+      talles: Object.fromEntries(
+        Object.entries(row.talles || {}).map(([talle, cantidad]) => [
+          talle,
+          cantidad === "" || cantidad === undefined ? 0 : Number(cantidad),
+        ])
+      ),
+    };
 
     try {
       const res = await fetch(apiPath(`/stock/${row._id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(row),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error();
@@ -405,8 +414,13 @@ export default function AdminStock() {
                           <td key={t}>
                             <input
                               type="number"
-                              value={row.data.talles[t] ?? 0}
+                              value={row.data.talles[t] ?? ""}
                               onChange={(e) => editarTalle(index, t, e.target.value)}
+                              onBlur={(e) => {
+                                if (e.target.value === "") {
+                                  editarTalle(index, t, 0);
+                                }
+                              }}
                             />
                           </td>
                         ))}
@@ -503,8 +517,13 @@ export default function AdminStock() {
                         <td style={{ textAlign: "center" }}>
                           <input
                             type="number"
-                            value={row.data.talles["Único"] ?? 0}
+                            value={row.data.talles["Único"] ?? ""}
                             onChange={(e) => editarTalle(index, "Único", e.target.value)}
+                            onBlur={(e) => {
+                              if (e.target.value === "") {
+                                editarTalle(index, "Único", 0);
+                              }
+                            }}
                             style={{ width: "80px", textAlign: "center" }}
                           />
                         </td>
