@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "./OpinionsPopup";
 import { useCart } from "../context/CartContext";
+import { useDiscountRules, calcularPrecios } from "../hooks/useDiscountRules";
 
 // Configuración global de API para compatibilidad local/producción
 const API_URL = import.meta.env.VITE_API_URL;
@@ -28,6 +29,9 @@ export default function NewIn() {
   const [selectedSizes, setSelectedSizes] = useState({});
   const [quantities, setQuantities] = useState({});
 
+  // Reglas de descuento del admin
+  const discountRules = useDiscountRules();
+
   useEffect(() => {
     fetch(apiPath("/products/new"))
       .then((res) => res.json())
@@ -37,7 +41,7 @@ export default function NewIn() {
 
   const getAvailableSizes = (product) => {
     if (!product?.stockColorId?.talles) return [];
-    return Object.entries(product.stockColorId.talles).filter(([, qty]) => qty > 0);
+    return Object.entries(product.stockColorId.talles);
   };
 
 
@@ -105,9 +109,9 @@ export default function NewIn() {
                 )}
 
                 <div className="productcard__top">
-                  {p.stockColorId?.talles && (
-                    <div className="productcard__stock">
-                      {Object.entries(p.stockColorId.talles).every(
+                  <div className="productcard__stock">
+                    {p.stockColorId?.talles && (
+                      Object.entries(p.stockColorId.talles).every(
                         ([, qty]) => qty === 0
                       ) ? (
                         <span className="productcard__nostock">Sin stock</span>
@@ -121,19 +125,49 @@ export default function NewIn() {
                         <span className="productcard__instock">
                           Stock disponible
                         </span>
-                      )}
-                    </div>
-                  )}
+                      )
+                    )}
+                  </div>
 
                   <h3 className="productcard__name">{p.name}</h3>
 
-                  <p className="productcard__price">
-                    ${p.price?.toLocaleString("es-AR")}
-                  </p>
-
-                  <p className="productcard__desc">
-                    {p.cardDescription || p.description || "Nuevo producto disponible"}
-                  </p>
+                  {/* Sección de precios con descuento */}
+                  {(() => {
+                    const { precioOriginal, descuento, precioFinal, precioTransferencia, precioCuota } = calcularPrecios(p, discountRules);
+                    return (
+                      <div className="productcard__pricing">
+                        {descuento > 0 ? (
+                          <>
+                            <div className="productcard__price-original">
+                              ${precioOriginal?.toLocaleString("es-AR")}
+                            </div>
+                            <div className="productcard__price-discounted">
+                              ${precioFinal?.toLocaleString("es-AR")}
+                              <span className="productcard__discount-badge">{descuento}% OFF</span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="productcard__price">
+                            ${precioOriginal?.toLocaleString("es-AR")}
+                          </div>
+                        )}
+                        <div className="productcard__payment-options">
+                          <div className="payment-option payment-option--transfer">
+                            <span className="payment-option__label">Transferencia</span>
+                            <span className="payment-option__price">
+                              ${precioTransferencia?.toLocaleString("es-AR")}
+                            </span>
+                          </div>
+                          <div className="payment-option payment-option--installment">
+                            <span className="payment-option__label">3 cuotas sin interés</span>
+                            <span className="payment-option__price">
+                              ${precioCuota?.toLocaleString("es-AR")}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {p.stockColorId?.talles && (
                     <div
@@ -141,19 +175,25 @@ export default function NewIn() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       {(() => {
-                        const availableSizes = getAvailableSizes(p);
-                        const selected = selectedSizes[p._id] || availableSizes[0]?.[0];
+                        const allSizes = getAvailableSizes(p);
+                        const inStockSizes = allSizes.filter(([, qty]) => qty > 0);
+                        const selected = selectedSizes[p._id] || inStockSizes[0]?.[0] || allSizes[0]?.[0];
 
-                        return availableSizes.map(([t]) => (
-                          <button
-                            key={t}
-                            type="button"
-                            className={`productcard__size-pill productcard__size-pill--button ${selected === t ? "is-selected" : ""}`}
-                            onClick={() => handleSelectSize(p._id, t)}
-                          >
-                            {t}
-                          </button>
-                        ));
+                        return allSizes.map(([t, qty]) => {
+                          const isNoStock = qty <= 0;
+                          return (
+                            <button
+                              key={t}
+                              type="button"
+                              className={`productcard__size-pill productcard__size-pill--button ${selected === t ? "is-selected" : ""
+                                } ${isNoStock ? "productcard__size-pill--disabled" : ""}`}
+                              disabled={isNoStock}
+                              onClick={() => !isNoStock && handleSelectSize(p._id, t)}
+                            >
+                              {t}
+                            </button>
+                          );
+                        });
                       })()}
                     </div>
                   )}

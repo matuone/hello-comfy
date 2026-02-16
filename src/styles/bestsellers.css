@@ -65,6 +65,12 @@
   height: 100%;
 }
 
+/* Forzar que todos los slides del swiper tengan la misma altura */
+.bestsellers .swiper-wrapper {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
 /* Asegurar que todos los elementos sean visibles en todas las tarjetas de BestSellers */
 .bestsellers .productcard__sizes,
 .bestsellers .productcard__qty,
@@ -79,6 +85,8 @@
 /* Asegurar que los slides de swiper no limiten la altura */
 .bestsellers .swiper-slide {
   height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 @media (max-width: 600px) {

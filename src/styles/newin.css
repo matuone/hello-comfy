@@ -68,7 +68,13 @@
   margin-right: 0;
 }
 
-/* Asegurar que todos los elementos sean visibles en todas las tarjetas de NewIn */
+/* Forzar que todos los slides del swiper tengan la misma altura */
+.newin .swiper-wrapper {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+/* Asegurar que todos los elementos sean visibles en todas las tarjetas de New In */
 .newin .productcard__sizes,
 .newin .productcard__qty,
 .newin .productcard__stars,
@@ -82,6 +88,8 @@
 /* Asegurar que los slides de swiper no limiten la altura */
 .newin .swiper-slide {
   height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 @media (max-width: 600px) {

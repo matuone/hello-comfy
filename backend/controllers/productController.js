@@ -59,7 +59,7 @@ export const getAllProducts = async (req, res) => {
         .populate("stockColorId");
 
       products = products.map((p) => {
-        p = p.toObject();
+        p = p.toObject({ flattenMaps: true });
         p.sizes = extraerSizes(p);
         return p;
       });
@@ -83,7 +83,7 @@ export const getAllProducts = async (req, res) => {
     ]);
 
     products = products.map((p) => {
-      p = p.toObject();
+      p = p.toObject({ flattenMaps: true });
       p.sizes = extraerSizes(p);
       return p;
     });
@@ -109,7 +109,7 @@ export const getProductById = async (req, res) => {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
-    product = product.toObject();
+    product = product.toObject({ flattenMaps: true });
     product.sizes = extraerSizes(product);
 
     res.json(product);
@@ -130,7 +130,7 @@ export const getBestSellers = async (req, res) => {
       .populate("stockColorId");
 
     productos = productos.map((p) => {
-      p = p.toObject();
+      p = p.toObject({ flattenMaps: true });
       p.sizes = extraerSizes(p);
       return p;
     });
@@ -154,7 +154,7 @@ export const getNewProducts = async (req, res) => {
       .populate("stockColorId");
 
     productos = productos.map((p) => {
-      p = p.toObject();
+      p = p.toObject({ flattenMaps: true });
       p.sizes = extraerSizes(p);
       return p;
     });
@@ -178,7 +178,7 @@ export const getProductsBySubcategory = async (req, res) => {
     }).populate("stockColorId");
 
     productos = productos.map((p) => {
-      p = p.toObject();
+      p = p.toObject({ flattenMaps: true });
       p.sizes = extraerSizes(p);
       return p;
     });

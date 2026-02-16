@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { calcularPrecios } from "../../hooks/useDiscountRules";
 
-export default function ProductCardNewInMobile({ product, onBuy, onAddToCart, onViewMore, onStarsClick }) {
+export default function ProductCardNewInMobile({ product, discountRules = [], onBuy, onAddToCart, onViewMore, onStarsClick }) {
   const talles = product?.stockColorId?.talles || {};
   const isTalleUnico = product?.stockColorId?.talleUnico === true;
 
@@ -16,6 +17,9 @@ export default function ProductCardNewInMobile({ product, onBuy, onAddToCart, on
   const availableSizes = Object.entries(talles).filter(([, qty]) => qty > 0);
   const lowStock = Object.values(talles).some((qty) => qty > 0 && qty <= 3);
   const noStock = availableSizes.length === 0;
+
+  // Calcular precios usando reglas de descuento del admin
+  const { precioOriginal, descuento, precioFinal, precioTransferencia, precioCuota } = calcularPrecios(product, discountRules);
 
   return (
     <div className="productcard__item" onClick={() => onViewMore(product)}>
@@ -36,8 +40,37 @@ export default function ProductCardNewInMobile({ product, onBuy, onAddToCart, on
           )}
         </div>
         <h3 className="productcard__name">{product.name}</h3>
-        <p className="productcard__price">${product.price?.toLocaleString("es-AR")}</p>
-        <p className="productcard__desc">{product.cardDescription || product.description || "Nuevo producto disponible"}</p>
+
+        {/* Pricing section with discount info */}
+        <div className="productcard__pricing-mobile">
+          {descuento > 0 ? (
+            <>
+              <div className="productcard__price-original">
+                ${precioOriginal?.toLocaleString("es-AR")}
+              </div>
+              <div className="productcard__price-discounted">
+                ${precioFinal?.toLocaleString("es-AR")}
+                <span className="productcard__discount-badge">{descuento}% OFF</span>
+              </div>
+            </>
+          ) : (
+            <div className="productcard__price">
+              ${precioOriginal?.toLocaleString("es-AR")}
+            </div>
+          )}
+
+          {/* Transfer and instalment info */}
+          <div className="productcard__payment-options-mobile">
+            <div className="payment-option payment-option--transfer">
+              <span className="payment-option__label">Transferencia</span>
+              <span className="payment-option__price">${precioTransferencia?.toLocaleString("es-AR")}</span>
+            </div>
+            <div className="payment-option payment-option--installment">
+              <span className="payment-option__label">3 cuotas sin interés</span>
+              <span className="payment-option__price">${precioCuota?.toLocaleString("es-AR")}</span>
+            </div>
+          </div>
+        </div>
         {isTalleUnico ? (
           <div className="productcard__talle-unico">
             <span className="productcard__talle-unico-label">Talle Único</span>

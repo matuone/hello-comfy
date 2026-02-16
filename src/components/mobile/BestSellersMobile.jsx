@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ProductCardBestSellersMobile from "../../components/mobile/ProductCardBestSellersMobile";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useDiscountRules } from "../../hooks/useDiscountRules";
 import OpinionsPopup from "../OpinionsPopup";
 import "../../styles/mobile/bestsellers.mobile.css";
 
@@ -18,6 +19,7 @@ export default function BestSellersMobile() {
   const [opinionsProductId, setOpinionsProductId] = useState(null);
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const discountRules = useDiscountRules();
 
   useEffect(() => {
     fetch(apiPath('/products/bestsellers'))
@@ -49,6 +51,7 @@ export default function BestSellersMobile() {
             <div className="bestsellers-mobile-slide" key={product._id}>
               <ProductCardBestSellersMobile
                 product={product}
+                discountRules={discountRules}
                 onBuy={handleBuy}
                 onAddToCart={handleAddToCart}
                 onViewMore={handleViewMore}

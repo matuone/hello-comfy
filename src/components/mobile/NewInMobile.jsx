@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductCardNewInMobile from "../../components/mobile/ProductCardNewInMobile";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useDiscountRules } from "../../hooks/useDiscountRules";
 import OpinionsPopup from "../OpinionsPopup";
 import "../../styles/mobile/bestsellers.mobile.css";
 
@@ -18,6 +19,7 @@ export default function NewInMobile() {
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const discountRules = useDiscountRules();
   useEffect(() => {
     fetch(apiPath(`/products/new?limit=12&t=${Date.now()}`))
       .then((res) => res.json())
@@ -56,6 +58,7 @@ export default function NewInMobile() {
             <div className="bestsellers-mobile-slide" key={product._id}>
               <ProductCardNewInMobile
                 product={product}
+                discountRules={discountRules}
                 onBuy={handleBuy}
                 onAddToCart={handleAddToCart}
                 onViewMore={handleViewMore}

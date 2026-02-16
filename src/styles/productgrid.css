@@ -72,12 +72,86 @@
    PRECIO
 ============================ */
 .productcard__price {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #d94f7a;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   min-height: 24px;
   text-align: center;
+}
+
+/* ============================
+   PRICING SECTION (CON DESCUENTO)
+============================ */
+.productcard__pricing {
+  margin-bottom: 12px;
+  text-align: center;
+  /* ⭐ Altura fija para que todas las tarjetas sean iguales */
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.productcard__price-original {
+  font-size: 14px;
+  color: #888;
+  text-decoration: line-through;
+  margin-bottom: 2px;
+}
+
+.productcard__price-discounted {
+  font-size: 20px;
+  font-weight: 700;
+  color: #d94f7a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.productcard__discount-badge {
+  background: #ff4444;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ============================
+   PAYMENT OPTIONS
+============================ */
+.productcard__payment-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.payment-option {
+  background: #f9f9f9;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  border: 1px solid #f0f0f0;
+  text-align: center;
+}
+
+.payment-option__label {
+  display: block;
+  color: #666;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.payment-option__price {
+  display: block;
+  color: #d94f7a;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 /* ============================
@@ -120,10 +194,11 @@
 ============================ */
 .productcard__buttons {
   margin-top: auto;
-  /* ⭐ Empuja los botones al fondo */
+  /* ⭐ Empuja los botones al fondo de la tarjeta */
   display: flex;
   gap: 8px;
   justify-content: center;
+  padding-top: 8px;
 }
 
 .productcard__btn-buy,
@@ -174,6 +249,11 @@
 .productcard__stock {
   margin-bottom: 6px;
   text-align: center;
+  min-height: 24px;
+  /* Reservar espacio para alinear tarjetas */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .productcard__instock {
@@ -240,6 +320,15 @@
   border-color: #d94f7a;
   color: #c63f6a;
   background: #ffe4ee;
+}
+
+.productcard__size-pill--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: line-through;
+  background: #f0f0f0;
+  color: #aaa;
+  border-color: #eee;
 }
 
 /* ============================

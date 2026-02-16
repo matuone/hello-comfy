@@ -10,6 +10,7 @@ import ImageModal from "../components/ImageModal";
 
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useDiscountRules, calcularPrecios } from "../hooks/useDiscountRules";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useRef } from "react";
@@ -39,6 +40,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const discountRules = useDiscountRules();
 
   const [producto, setProducto] = useState(null);
   const [showOpinionsPopup, setShowOpinionsPopup] = useState(false);
@@ -134,12 +136,20 @@ export default function ProductDetail() {
 
   // Ya no se usa ProductDetailMobile. El layout se adapta con CSS y condicionales.
 
-  const hasDiscount = producto.discount > 0;
+  const {
+    precioOriginal,
+    descuento,
+    precioFinal,
+    precioTransferencia,
+    precioCuota,
+  } = calcularPrecios(producto, discountRules);
 
-  const cleanPrice = Number(producto.price);
-  const discountedPrice = hasDiscount
-    ? Number(producto.price - (producto.price * producto.discount) / 100)
-    : cleanPrice;
+  const hasDiscount = descuento > 0;
+
+  const cleanPrice = Number(precioOriginal ?? producto.price ?? 0);
+  const discountedPrice = Number(precioFinal ?? cleanPrice);
+  const transferPrice = Number(precioTransferencia ?? discountedPrice);
+  const installmentPrice = Number(precioCuota ?? discountedPrice);
 
   const formatPrice = (num) =>
     Number(num).toLocaleString("es-AR", {
@@ -348,7 +358,7 @@ export default function ProductDetail() {
           {/* PRECIO */}
           <div className="pd-price-block">
             {hasDiscount && (
-              <span className="pd-discount-tag">-{producto.discount}% OFF</span>
+              <span className="pd-discount-tag">-{descuento}% OFF</span>
             )}
 
             <div className="pd-prices">
@@ -365,9 +375,16 @@ export default function ProductDetail() {
                 <p className="pd-no-stock-msg">Sin stock para este talle</p>
               )}
 
-            <p className="pd-secondary-text">
-              ${formatPrice(discountedPrice)} pagando con transferencia o
-              depósito bancario.
+            <p className="pd-secondary-text pd-secondary-text--highlight">
+              ${formatPrice(transferPrice)} pagando con transferencia.
+            </p>
+            <p className="pd-secondary-text pd-secondary-text--installments">
+              <span className="pd-installment-pill pd-installment-pill--mp">Mercado Pago</span>
+              3 cuotas sin interés de: <span className="pd-installment-price">${formatPrice(installmentPrice)}</span>.
+            </p>
+            <p className="pd-secondary-text pd-secondary-text--installments">
+              <span className="pd-installment-pill pd-installment-pill--gc">GoCuotas</span>
+              3 cuotas sin interés de: <span className="pd-installment-price">${formatPrice(installmentPrice)}</span>.
             </p>
           </div>
 
@@ -508,11 +525,15 @@ export default function ProductDetail() {
               </div>
 
               <ul className="pd-list">
-                <li>3 cuotas sin interés en productos seleccionados.</li>
+                <li>
+                  3 cuotas sin interés con Mercado Pago o GoCuotas de{" "}
+                  <strong>${formatPrice(installmentPrice)}</strong>.
+                </li>
                 <li>
                   {hasDiscount
-                    ? "10% de descuento pagando con transferencia o depósito."
-                    : "Beneficios extra pagando con transferencia o depósito."}
+                    ? "Transferencia con descuento: "
+                    : "Transferencia: "}
+                  <strong>${formatPrice(transferPrice)}</strong>
                 </li>
                 <li>
                   Total estimado:{" "}
@@ -644,9 +665,9 @@ export default function ProductDetail() {
                     )}
 
                     <div className="productcard__top">
-                      {p.stockColorId?.talles && (
-                        <div className="productcard__stock">
-                          {Object.entries(p.stockColorId.talles).every(
+                      <div className="productcard__stock">
+                        {p.stockColorId?.talles && (
+                          Object.entries(p.stockColorId.talles).every(
                             ([, qty]) => qty === 0
                           ) ? (
                             <span className="productcard__nostock">Sin stock</span>
@@ -658,19 +679,49 @@ export default function ProductDetail() {
                             </span>
                           ) : (
                             <span className="productcard__instock">Stock disponible</span>
-                          )}
-                        </div>
-                      )}
+                          )
+                        )}
+                      </div>
 
                       <h3 className="productcard__name">{p.name}</h3>
 
-                      <p className="productcard__price">
-                        ${p.price?.toLocaleString("es-AR")}
-                      </p>
-
-                      <p className="productcard__desc">
-                        {p.cardDescription || p.description || "Producto disponible"}
-                      </p>
+                      {/* Sección de precios con descuento */}
+                      {(() => {
+                        const { precioOriginal, descuento, precioFinal, precioTransferencia, precioCuota } = calcularPrecios(p, discountRules);
+                        return (
+                          <div className="productcard__pricing">
+                            {descuento > 0 ? (
+                              <>
+                                <div className="productcard__price-original">
+                                  ${precioOriginal?.toLocaleString("es-AR")}
+                                </div>
+                                <div className="productcard__price-discounted">
+                                  ${precioFinal?.toLocaleString("es-AR")}
+                                  <span className="productcard__discount-badge">{descuento}% OFF</span>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="productcard__price">
+                                ${precioOriginal?.toLocaleString("es-AR")}
+                              </div>
+                            )}
+                            <div className="productcard__payment-options">
+                              <div className="payment-option payment-option--transfer">
+                                <span className="payment-option__label">Transferencia</span>
+                                <span className="payment-option__price">
+                                  ${precioTransferencia?.toLocaleString("es-AR")}
+                                </span>
+                              </div>
+                              <div className="payment-option payment-option--installment">
+                                <span className="payment-option__label">3 cuotas sin interés</span>
+                                <span className="payment-option__price">
+                                  ${precioCuota?.toLocaleString("es-AR")}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {p.sizes?.length > 0 && (
                         <div className="productcard__sizes">
