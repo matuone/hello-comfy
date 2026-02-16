@@ -36,7 +36,10 @@ export const getAllProducts = async (req, res) => {
     const filtros = {};
 
     if (category) filtros.category = category;
-    if (subcategory) filtros.subcategory = { $regex: `^${subcategory.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: "i" };
+    if (subcategory) {
+      const normalizedSubcategory = normalize(subcategory);
+      filtros.subcategory = { $regex: `^${normalizedSubcategory.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: "i" };
+    }
 
     // Búsqueda por nombre o descripción
     if (search) {
@@ -172,10 +175,12 @@ export const getNewProducts = async (req, res) => {
 // ============================
 export const getProductsBySubcategory = async (req, res) => {
   try {
-    const name = req.params.name;
+    const rawName = req.params.name;
+    // Normalizar el parámetro igual que cuando se guarda
+    const name = normalize(rawName);
 
     let productos = await Product.find({
-      subcategory: { $regex: new RegExp(`^${name}$`, "i") }
+      subcategory: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, "i") }
     }).populate("stockColorId");
 
     productos = productos.map((p) => {
