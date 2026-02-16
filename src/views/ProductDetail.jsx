@@ -376,34 +376,44 @@ export default function ProductDetail() {
 
           {/* TALLES */}
           <div className="pd-sizes">
-            <h3>Talles disponibles</h3>
+            {producto.stockColorId?.talleUnico ? (
+              <>
+                <h3>Talles disponibles: <span style={{ color: "#ff4fa2", fontWeight: "700" }}>Talle Único</span></h3>
+                <div style={{ padding: "12px 0", fontSize: "0.95rem", color: "#666" }}>
+                  Este producto tiene una única medida disponible.
+                </div>
+              </>
+            ) : (
+              <>
+                <h3>Talles disponibles</h3>
+                <div className="pd-sizes-row">
+                  {allSizes.map((talle) => {
+                    const stockForSize = producto.stockColorId?.talles?.[talle] ?? 0;
+                    const isOut = stockForSize <= 0;
 
-            <div className="pd-sizes-row">
-              {allSizes.map((talle) => {
-                const stockForSize = producto.stockColorId?.talles?.[talle] ?? 0;
-                const isOut = stockForSize <= 0;
-
-                return (
-                  <button
-                    key={talle}
-                    className={`pd-size-btn 
+                    return (
+                      <button
+                        key={talle}
+                        className={`pd-size-btn 
             ${selectedSize === talle ? "active" : ""} 
             ${isOut ? "out-of-stock" : ""}`}
-                    onClick={() => {
-                      if (isOut) {
-                        toast.error("Este talle no tiene stock disponible");
-                        return;
-                      }
-                      setSelectedSize(talle);
-                      setQuantity(1);
-                    }}
-                    disabled={isOut}
-                  >
-                    {talle}
-                  </button>
-                );
-              })}
-            </div>
+                        onClick={() => {
+                          if (isOut) {
+                            toast.error("Este talle no tiene stock disponible");
+                            return;
+                          }
+                          setSelectedSize(talle);
+                          setQuantity(1);
+                        }}
+                        disabled={isOut}
+                      >
+                        {talle}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
           {/* ⭐ COLOR COMO CIRCULITO */}
@@ -470,7 +480,7 @@ export default function ProductDetail() {
           </div>
 
           {/* GUÍA DE TALLES */}
-          {producto.sizeGuide !== "none" && (
+          {producto.sizeGuide !== "none" && !producto.stockColorId?.talleUnico && (
             <div className="pd-size-guide">
               <h3>Guía de talles</h3>
 
