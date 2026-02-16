@@ -6,7 +6,8 @@ import Subcategory from "../models/Subcategory.js";
 // ============================
 const normalize = (str) => {
   if (!str) return "";
-  const clean = str.trim();
+  // Eliminar espacios extras alrededor de caracteres especiales
+  const clean = str.trim().replace(/\s*\/\s*/g, "/");
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
 
@@ -35,7 +36,7 @@ export const getAllProducts = async (req, res) => {
     const filtros = {};
 
     if (category) filtros.category = category;
-    if (subcategory) filtros.subcategory = subcategory;
+    if (subcategory) filtros.subcategory = { $regex: `^${subcategory.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: "i" };
 
     // Búsqueda por nombre o descripción
     if (search) {

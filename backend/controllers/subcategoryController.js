@@ -1,7 +1,7 @@
 import Subcategory from "../models/Subcategory.js";
 
 const normalize = (str = "") => {
-  const clean = str.trim();
+  const clean = str.trim().replace(/\s*\/\s*/g, "/");
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
 
