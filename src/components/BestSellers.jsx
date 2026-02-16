@@ -165,18 +165,26 @@ export default function BestSellers() {
                     );
                   })()}
 
-                  {p.stockColorId?.talles && (
-                    <div
-                      className="productcard__sizes productcard__sizes--selectable"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {(() => {
-                        const allSizes = getAvailableSizes(p);
-                        const inStockSizes = allSizes.filter(([, qty]) => qty > 0);
-                        // Seleccionar por defecto el primero CON stock, o el primero de la lista si no hay stock
-                        const selected = selectedSizes[p._id] || inStockSizes[0]?.[0] || allSizes[0]?.[0];
+                  {p.stockColorId?.talles && (() => {
+                    const allSizes = getAvailableSizes(p);
+                    const inStockSizes = allSizes.filter(([, qty]) => qty > 0);
+                    const effectivelyTalleUnico = p.stockColorId?.talleUnico || (inStockSizes.length === 1 && inStockSizes[0][0].toLowerCase() === "único");
 
-                        return allSizes.map(([t, qty]) => {
+                    if (effectivelyTalleUnico) {
+                      return (
+                        <div className="productcard__sizes productcard__sizes--selectable">
+                          <span className="productcard__talle-unico-label">Único</span>
+                        </div>
+                      );
+                    }
+
+                    const selected = selectedSizes[p._id] || inStockSizes[0]?.[0] || allSizes[0]?.[0];
+                    return (
+                      <div
+                        className="productcard__sizes productcard__sizes--selectable"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {allSizes.map(([t, qty]) => {
                           const isNoStock = qty <= 0;
                           return (
                             <button
@@ -190,10 +198,10 @@ export default function BestSellers() {
                               {t}
                             </button>
                           );
-                        });
-                      })()}
-                    </div>
-                  )}
+                        })}
+                      </div>
+                    );
+                  })()}
 
                   <div
                     className="productcard__qty"

@@ -5,7 +5,10 @@ import { calcularPrecios } from "../../hooks/useDiscountRules";
 export default function ProductCardBestSellersMobile({ product, discountRules = [], onBuy, onAddToCart, onViewMore, onStarsClick }) {
   // Lógica igual a ProductCardNewInMobile
   const talles = product?.stockColorId?.talles || {};
-  const isTalleUnico = product?.stockColorId?.talleUnico === true;
+  const flagTalleUnico = product?.stockColorId?.talleUnico === true;
+  // Detectar talle único efectivo: solo "Único" tiene stock > 0
+  const sizesWithStock = Object.entries(talles).filter(([, qty]) => qty > 0);
+  const isTalleUnico = flagTalleUnico || (sizesWithStock.length === 1 && sizesWithStock[0][0].toLowerCase() === "único");
 
   const [selectedSize, setSelectedSize] = useState(() => {
     if (isTalleUnico) return "Único";
@@ -13,9 +16,11 @@ export default function ProductCardBestSellersMobile({ product, discountRules = 
   });
   const [quantity, setQuantity] = useState(1);
 
-  const sizes = Array.isArray(product?.sizes) && product.sizes.length > 0
-    ? product.sizes
-    : Object.keys(talles);
+  const sizes = isTalleUnico
+    ? []
+    : (Array.isArray(product?.sizes) && product.sizes.length > 0
+      ? product.sizes
+      : Object.keys(talles));
   const availableSizes = Object.entries(talles).filter(([, qty]) => qty > 0);
   const lowStock = Object.values(talles).some((qty) => qty > 0 && qty <= 3);
   const noStock = availableSizes.length === 0;
@@ -74,8 +79,8 @@ export default function ProductCardBestSellersMobile({ product, discountRules = 
           </div>
         </div>
         {isTalleUnico ? (
-          <div className="productcard__talle-unico">
-            <span className="productcard__talle-unico-label">Talle Único</span>
+          <div className="productcard__sizes productcard__sizes--selectable">
+            <span className="productcard__talle-unico-label">Único</span>
           </div>
         ) : (
           sizes.length > 0 && (

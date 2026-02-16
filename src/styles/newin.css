@@ -85,9 +85,8 @@
   visibility: visible !important;
 }
 
-/* Asegurar que los slides de swiper no limiten la altura */
+/* Asegurar que los slides de swiper igualen la altura del más alto */
 .newin .swiper-slide {
-  height: auto !important;
   display: flex !important;
   flex-direction: column !important;
 }

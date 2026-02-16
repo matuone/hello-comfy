@@ -292,6 +292,8 @@
   margin-bottom: 8px;
   flex-wrap: wrap;
   justify-content: center;
+  min-height: 26px;
+  align-items: center;
   /* ⭐ Esto los centra */
 }
 
@@ -332,26 +334,17 @@
 }
 
 /* ============================
-   TALLE ÚNICO
+   TALLE ÚNICO (badge dentro de .productcard__sizes)
 ============================ */
-.productcard__talle-unico {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 8px;
-  min-height: 28px;
-}
-
 .productcard__talle-unico-label {
   background: linear-gradient(135deg, #ff4fa2, #ff7bbf);
   color: white;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(255, 79, 162, 0.25);
 }
 
 .productcard__qty {
