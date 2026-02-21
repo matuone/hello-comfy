@@ -134,11 +134,11 @@ router.get("/orders/private/:id", authMiddleware, async (req, res) => {
 ============================================================ */
 router.post("/orders/create-transfer", async (req, res) => {
   try {
-    const { userId, formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
+    const { userId, formData, items, paymentProof, paymentProofName } = req.body;
 
     const paymentMethod = formData?.paymentMethod || "transfer";
 
-    if (!formData || !items || !totalPrice) {
+    if (!formData || !items) {
       return res.status(400).json({ error: "Datos incompletos" });
     }
 

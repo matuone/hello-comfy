@@ -14,6 +14,12 @@ function apiPath(path) {
   return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
 }
 
+// Solo guardar datos mínimos en localStorage (sin precios ni nombres)
+const stripItemsForStorage = (items) =>
+  items.map(({ productId, size, color, quantity }) => ({
+    productId, size, color, quantity: parseInt(quantity) || 1,
+  }));
+
 export default function Step4({ formData, items, totalPrice, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
   const { clearCart } = useCart();
@@ -70,8 +76,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         localStorage.setItem("pendingOrder", JSON.stringify({
           userId: user?.id || null,
           formData,
-          items,
-          totalPrice,
+          items: stripItemsForStorage(items),
           createdAt: new Date().toISOString(),
         }));
         window.location.href = paymentIntent.paymentIntent.checkout_url;
@@ -132,8 +137,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         localStorage.setItem("pendingOrder", JSON.stringify({
           userId: user?.id || null,
           formData,
-          items,
-          totalPrice,
+          items: stripItemsForStorage(items),
           createdAt: new Date().toISOString(),
         }));
         window.location.href = checkout.url_init;
@@ -191,8 +195,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         localStorage.setItem("pendingOrder", JSON.stringify({
           userId: user?.id || null,
           formData,
-          items,
-          totalPrice,
+          items: stripItemsForStorage(items),
           createdAt: new Date().toISOString(),
         }));
         redirigirAMercadoPago(preferencia.init_point);
@@ -210,12 +213,11 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
   // ⭐ Crear orden en el backend
   const crearOrden = async (proofBase64) => {
     try {
-      // Guardar orden con o sin comprobante
+      // Guardar orden (solo datos mínimos, sin precios)
       localStorage.setItem("pendingOrder", JSON.stringify({
         userId: user?.id || null,
         formData,
-        items,
-        totalPrice: finalPrice,
+        items: stripItemsForStorage(items),
         paymentProof: proofBase64,
         paymentProofName: proofFile?.name || null,
         createdAt: new Date().toISOString(),
@@ -232,8 +234,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         body: JSON.stringify({
           userId: user?.id || null,
           formData,
-          items,
-          totalPrice: finalPrice,
+          items: stripItemsForStorage(items),
           paymentProof: proofBase64,
           paymentProofName: proofFile?.name || null,
         }),

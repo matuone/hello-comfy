@@ -2,8 +2,14 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
 
+// Campos mínimos que se guardan en localStorage (sin precios ni nombres)
+const CART_STORAGE_FIELDS = ["key", "productId", "size", "color", "quantity"];
+const stripSensitive = (item) =>
+  CART_STORAGE_FIELDS.reduce((obj, k) => { if (item[k] !== undefined) obj[k] = item[k]; return obj; }, {});
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
+  const [cartLoading, setCartLoading] = useState(true);
 
   // ⭐ Reglas de descuento por categoría/subcategoría
   const [discountRules, setDiscountRules] = useState([]);
@@ -14,22 +20,11 @@ export function CartProvider({ children }) {
   const [promoCodeError, setPromoCodeError] = useState("");
 
   // ============================
-  // LOCALSTORAGE - Cargar al iniciar
+  // LOCALSTORAGE - Cargar al iniciar + hidratar desde API
+  // Solo se guardan IDs y cantidades; precios vienen SIEMPRE del servidor
   // ============================
   useEffect(() => {
-    const savedCart = localStorage.getItem("hc_cart");
     const savedPromo = localStorage.getItem("hc_promo");
-
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        setItems(parsedCart);
-      } catch (err) {
-        console.error("Error al cargar carrito desde localStorage:", err);
-        localStorage.removeItem("hc_cart");
-      }
-    }
-
     if (savedPromo) {
       try {
         const parsedPromo = JSON.parse(savedPromo);
@@ -40,20 +35,34 @@ export function CartProvider({ children }) {
         localStorage.removeItem("hc_promo");
       }
     }
-  }, []);
 
-  // ============================
-  // ⭐ REFRESCAR PRECIOS DESDE LA BD
-  // Al cargar el carrito, validar que los precios no fueron manipulados
-  // ============================
-  useEffect(() => {
-    if (items.length === 0) return;
+    const savedCart = localStorage.getItem("hc_cart");
+    if (!savedCart) {
+      setCartLoading(false);
+      return;
+    }
 
+    let minimalItems;
+    try {
+      minimalItems = JSON.parse(savedCart);
+    } catch (err) {
+      console.error("Error al cargar carrito desde localStorage:", err);
+      localStorage.removeItem("hc_cart");
+      setCartLoading(false);
+      return;
+    }
+
+    if (!Array.isArray(minimalItems) || minimalItems.length === 0) {
+      setCartLoading(false);
+      return;
+    }
+
+    // Hidratar precios/nombres desde la API (NUNCA desde localStorage)
     const API_URL = import.meta.env.VITE_API_URL;
     const apiPath = (path) =>
       API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
 
-    const productIds = [...new Set(items.map((item) => item.productId))];
+    const productIds = [...new Set(minimalItems.map((i) => i.productId))];
 
     Promise.all(
       productIds.map((id) =>
@@ -61,50 +70,48 @@ export function CartProvider({ children }) {
           .then((res) => (res.ok ? res.json() : null))
           .catch(() => null)
       )
-    ).then((products) => {
-      const productMap = {};
-      products.forEach((p) => {
-        if (p && p._id) productMap[p._id] = p;
-      });
-
-      // Si no se pudo obtener ningún producto, no actualizar
-      if (Object.keys(productMap).length === 0) return;
-
-      setItems((prev) => {
-        let changed = false;
-        const updated = prev.map((item) => {
-          const dbProduct = productMap[item.productId];
-          if (!dbProduct) return item;
-
-          if (
-            item.price !== dbProduct.price ||
-            item.discount !== (dbProduct.discount || 0)
-          ) {
-            changed = true;
-            return {
-              ...item,
-              price: dbProduct.price,
-              discount: dbProduct.discount || 0,
-              name: dbProduct.name,
-              category: dbProduct.category,
-              subcategory: dbProduct.subcategory,
-            };
-          }
-          return item;
+    )
+      .then((products) => {
+        const productMap = {};
+        products.forEach((p) => {
+          if (p && p._id) productMap[p._id] = p;
         });
 
-        return changed ? updated : prev;
-      });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length]);
+        const hydrated = minimalItems
+          .filter((item) => productMap[item.productId]) // quitar productos eliminados de la BD
+          .map((item) => {
+            const db = productMap[item.productId];
+            return {
+              key: item.key,
+              productId: item.productId,
+              name: db.name,
+              category: db.category,
+              subcategory: db.subcategory,
+              price: db.price,
+              discount: db.discount || 0,
+              image: db.images?.[0] || "",
+              size: item.size || null,
+              color: item.color || null,
+              quantity: Math.max(1, parseInt(item.quantity) || 1),
+            };
+          });
+
+        setItems(hydrated);
+      })
+      .catch((err) => {
+        console.error("Error hidratando carrito desde API:", err);
+        // Dejar items vacíos si no se puede contactar la API
+      })
+      .finally(() => setCartLoading(false));
+  }, []);
 
   // ============================
-  // LOCALSTORAGE - Guardar cuando cambia el carrito
+  // LOCALSTORAGE - Guardar solo datos mínimos (sin precios ni nombres)
   // ============================
   useEffect(() => {
     if (items.length > 0) {
-      localStorage.setItem("hc_cart", JSON.stringify(items));
+      const minimal = items.map(stripSensitive);
+      localStorage.setItem("hc_cart", JSON.stringify(minimal));
     } else {
       localStorage.removeItem("hc_cart");
     }
@@ -344,6 +351,9 @@ export function CartProvider({ children }) {
         clearCart,
         totalItems,
         totalPrice,
+
+        // estado de carga
+        cartLoading,
 
         // códigos promocionales
         promoCode,

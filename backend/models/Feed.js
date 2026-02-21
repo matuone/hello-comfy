@@ -61,7 +61,5 @@ const feedSchema = new mongoose.Schema(
 
 // Índice para ordenamiento
 feedSchema.index({ order: 1, createdAt: -1 });
-// Índice para externalId (para búsqueda rápida)
-feedSchema.index({ externalId: 1 });
 
 export default mongoose.model("Feed", feedSchema);
