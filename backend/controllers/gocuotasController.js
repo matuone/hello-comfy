@@ -5,6 +5,7 @@ import {
   actualizarEstadoPago,
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
+import { validateCartPrices } from "../services/validateCartPrices.js";
 
 // ============================
 // CONFIG
@@ -175,13 +176,27 @@ export const webhookGocuotas = async (req, res) => {
 
     if (status === "approved") {
       try {
+        // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
+        let validatedItems = orderData.items;
+        let validatedTotal = orderData.totalPrice;
+        try {
+          const validation = await validateCartPrices(orderData.items);
+          validatedItems = validation.validatedItems;
+          validatedTotal = validation.totals.total;
+          if (validation.warnings.length > 0) {
+            console.warn("⚠️ Advertencias de validación de carrito (GoCuotas webhook):", validation.warnings);
+          }
+        } catch (valErr) {
+          console.error("❌ Error validando precios (GoCuotas webhook):", valErr.message);
+        }
+
         const newOrder = await crearOrdenDesdePago({
           paymentMethod: "gocuotas",
           paymentId: checkout_id,
           orderReference: order_reference_id,
           customerData: orderData.customerData,
-          items: orderData.items,
-          totalPrice: orderData.totalPrice,
+          items: validatedItems,
+          totalPrice: validatedTotal,
           shippingCost: orderData.shippingCost,
           status: "completed",
           installments: installments || 1,
@@ -237,13 +252,27 @@ export const processPayment = async (req, res) => {
       return res.status(400).json({ error: "No se encontraron datos de la orden" });
     }
 
+    // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
+    let validatedItems = orderData.items;
+    let validatedTotal = orderData.totalPrice;
+    try {
+      const validation = await validateCartPrices(orderData.items);
+      validatedItems = validation.validatedItems;
+      validatedTotal = validation.totals.total;
+      if (validation.warnings.length > 0) {
+        console.warn("⚠️ Advertencias de validación de carrito (GoCuotas):", validation.warnings);
+      }
+    } catch (valErr) {
+      console.error("❌ Error validando precios (GoCuotas):", valErr.message);
+    }
+
     const newOrder = await crearOrdenDesdePago({
       paymentMethod: "gocuotas",
       paymentId: checkoutId,
       orderReference,
       customerData: orderData.customerData,
-      items: orderData.items,
-      totalPrice: orderData.totalPrice,
+      items: validatedItems,
+      totalPrice: validatedTotal,
       shippingCost: orderData.shippingCost,
       status: "completed",
       installments: checkoutStatus.installments || 1,

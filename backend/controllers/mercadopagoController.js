@@ -5,6 +5,7 @@ import {
   actualizarEstadoPago,
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
+import { validateCartPrices } from "../services/validateCartPrices.js";
 
 /**
  * POST /api/mercadopago/create-preference
@@ -241,7 +242,22 @@ export const processPayment = async (req, res) => {
     // Crear orden en BD
     let order = null;
     if (pendingOrderData) {
-      // console.log("✅ Creando orden con pendingOrderData");
+      // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
+      try {
+        const { validatedItems, totals, warnings } = await validateCartPrices(
+          pendingOrderData.items,
+          { promoCode: pendingOrderData.formData?.promoCode || null }
+        );
+        if (warnings.length > 0) {
+          console.warn("⚠️ Advertencias de validación de carrito (MP):", warnings);
+        }
+        pendingOrderData.items = validatedItems;
+        pendingOrderData.totalPrice = totals.total;
+      } catch (validationError) {
+        console.error("❌ Error validando precios del carrito:", validationError.message);
+        return res.status(400).json({ error: "Error validando productos del carrito" });
+      }
+
       order = await crearOrdenDesdePago(paymentData, pendingOrderData);
     } else {
       console.warn("⚠️ No hay pendingOrderData, intentando actualizar estado de pago existente");

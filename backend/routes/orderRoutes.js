@@ -4,6 +4,7 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { crearOrdenDesdePago } from "../services/orderService.js";
+import { validateCartPrices } from "../services/validateCartPrices.js";
 
 /* ============================================================
    ⭐ RUTA PRIVADA — Mis órdenes (usuario autenticado)
@@ -136,12 +137,6 @@ router.post("/orders/create-transfer", async (req, res) => {
     const { userId, formData, items, totalPrice, paymentProof, paymentProofName } = req.body;
 
     const paymentMethod = formData?.paymentMethod || "transfer";
-    // console.log("📝 create-payment request recibido");
-    // console.log("📋 Payment Method:", paymentMethod);
-    // console.log("📋 FormData email:", formData?.email);
-    // console.log("📋 UserId:", userId || "invitado");
-    // console.log("📋 Items count:", items?.length);
-    // console.log("📋 PaymentProof length:", paymentProof?.length || 0);
 
     if (!formData || !items || !totalPrice) {
       return res.status(400).json({ error: "Datos incompletos" });
@@ -151,11 +146,24 @@ router.post("/orders/create-transfer", async (req, res) => {
       return res.status(400).json({ error: "Email y nombre requeridos" });
     }
 
+    // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
+    const { validatedItems, totals, warnings } = await validateCartPrices(items, {
+      promoCode: formData.promoCode || null,
+      paymentMethod,
+    });
+
+    if (warnings.length > 0) {
+      console.warn("⚠️ Advertencias de validación de carrito:", warnings);
+    }
+
+    // Usar el total validado por el servidor, NO el del frontend
+    const validatedTotal = totals.total;
+
     // Crear datos simulados de pago para crearOrdenDesdePago
     const paymentData = {
       id: `${paymentMethod}_${Date.now()}`,
       status: "pending", // Para transferencias/cuentadni es pending hasta que admin confirme
-      transaction_amount: totalPrice,
+      transaction_amount: validatedTotal,
       payer: {
         email: formData.email,
         name: formData.name,
@@ -165,16 +173,13 @@ router.post("/orders/create-transfer", async (req, res) => {
     const pendingOrderData = {
       userId: userId || null,
       formData,
-      items,
-      totalPrice,
+      items: validatedItems, // ← items con precios validados
+      totalPrice: validatedTotal, // ← total recalculado desde BD
       paymentProof: paymentProof || null,
       paymentProofName: paymentProofName || null,
     };
 
-    // console.log("📝 Iniciando crearOrdenDesdePago");
-    // Crear orden usando el servicio existente
     const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
-    // console.log("✅ Orden creada:", order.code);
 
     res.json({
       success: true,

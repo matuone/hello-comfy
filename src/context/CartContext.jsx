@@ -43,6 +43,63 @@ export function CartProvider({ children }) {
   }, []);
 
   // ============================
+  // ⭐ REFRESCAR PRECIOS DESDE LA BD
+  // Al cargar el carrito, validar que los precios no fueron manipulados
+  // ============================
+  useEffect(() => {
+    if (items.length === 0) return;
+
+    const API_URL = import.meta.env.VITE_API_URL;
+    const apiPath = (path) =>
+      API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+
+    const productIds = [...new Set(items.map((item) => item.productId))];
+
+    Promise.all(
+      productIds.map((id) =>
+        fetch(apiPath(`/products/${id}`))
+          .then((res) => (res.ok ? res.json() : null))
+          .catch(() => null)
+      )
+    ).then((products) => {
+      const productMap = {};
+      products.forEach((p) => {
+        if (p && p._id) productMap[p._id] = p;
+      });
+
+      // Si no se pudo obtener ningún producto, no actualizar
+      if (Object.keys(productMap).length === 0) return;
+
+      setItems((prev) => {
+        let changed = false;
+        const updated = prev.map((item) => {
+          const dbProduct = productMap[item.productId];
+          if (!dbProduct) return item;
+
+          if (
+            item.price !== dbProduct.price ||
+            item.discount !== (dbProduct.discount || 0)
+          ) {
+            changed = true;
+            return {
+              ...item,
+              price: dbProduct.price,
+              discount: dbProduct.discount || 0,
+              name: dbProduct.name,
+              category: dbProduct.category,
+              subcategory: dbProduct.subcategory,
+            };
+          }
+          return item;
+        });
+
+        return changed ? updated : prev;
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
+  // ============================
   // LOCALSTORAGE - Guardar cuando cambia el carrito
   // ============================
   useEffect(() => {

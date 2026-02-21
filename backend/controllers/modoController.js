@@ -5,6 +5,7 @@ import {
   actualizarEstadoPago,
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
+import { validateCartPrices } from "../services/validateCartPrices.js";
 
 /**
  * POST /api/modo/create-payment-intent
@@ -127,6 +128,22 @@ export const confirmPayment = async (req, res) => {
     // console.log("✅ Confirmando pago de Modo Test:", reference);
 
     if (status === "approved") {
+      // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
+      try {
+        const { validatedItems, totals, warnings } = await validateCartPrices(
+          pendingOrderData.items,
+          { promoCode: pendingOrderData.formData?.promoCode || null }
+        );
+        if (warnings.length > 0) {
+          console.warn("⚠️ Advertencias de validación de carrito (Modo):", warnings);
+        }
+        pendingOrderData.items = validatedItems;
+        pendingOrderData.totalPrice = totals.total;
+      } catch (validationError) {
+        console.error("❌ Error validando precios del carrito:", validationError.message);
+        return res.status(400).json({ error: "Error validando productos del carrito" });
+      }
+
       // Crear datos de pago simulados
       const paymentData = {
         id: reference,
