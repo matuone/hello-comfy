@@ -38,21 +38,39 @@ export const createPaymentIntent = async (req, res) => {
       });
     }
 
-    // Calcular total
-    const total = parseFloat(totalPrice) + parseFloat(shippingCost);
+    // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
+    let validatedItems, totals, validationWarnings;
+    try {
+      const validation = await validateCartPrices(items, {
+        promoCode: metadata?.promoCode || null,
+      });
+      validatedItems = validation.validatedItems;
+      totals = validation.totals;
+      validationWarnings = validation.warnings;
+
+      if (validationWarnings.length > 0) {
+        console.warn("⚠️ Advertencias de validación de carrito (Modo create-intent):", validationWarnings);
+      }
+    } catch (validationError) {
+      console.error("❌ Error validando precios del carrito:", validationError.message);
+      return res.status(400).json({ error: "Error validando productos del carrito" });
+    }
+
+    // Calcular total con precios validados
+    const total = totals.total + parseFloat(shippingCost);
     const externalReference = `modo_test_${Date.now()}`;
 
     // URLs de callback
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const backendUrl = process.env.API_URL || "http://localhost:5000";
 
-    // Preparar payload para Modo
+    // Preparar payload para Modo con PRECIOS VALIDADOS
     const modoPayload = {
       store_id: MODO_STORE_ID,
       external_reference: externalReference,
       amount: Math.round(total * 100), // Modo espera el monto en centavos
       currency: "ARS",
-      description: `Compra en Hello-Comfy - ${items.length} producto(s)`,
+      description: `Compra en Hello-Comfy - ${validatedItems.length} producto(s)`,
       customer: {
         email: customerData.email,
         name: customerData.name,
@@ -63,12 +81,20 @@ export const createPaymentIntent = async (req, res) => {
       },
       callback_url: `${backendUrl}/api/modo/webhook`,
       return_url: `${frontendUrl}/payment/modo-return?reference=${externalReference}`,
-      items: items.map(item => ({
-        title: item.title,
-        description: item.description || "",
-        quantity: item.quantity,
-        unit_price: Math.round(parseFloat(item.unit_price) * 100)
-      }))
+      items: validatedItems.map(item => {
+        const base = item.price;
+        const discountPercent = item.discount || 0;
+        const finalPrice = discountPercent > 0
+          ? Math.round((base - (base * discountPercent) / 100) * 100) / 100
+          : base;
+
+        return {
+          title: item.name || "Producto",
+          description: `${item.category || ""}${item.subcategory ? " - " + item.subcategory : ""}`,
+          quantity: item.quantity,
+          unit_price: Math.round(finalPrice * 100)
+        };
+      })
     };
 
     // console.log("📤 Enviando request a Modo:", JSON.stringify(modoPayload, null, 2)); // No loggear payloads completos en producción
@@ -156,6 +182,9 @@ export const confirmPayment = async (req, res) => {
         payment_method_id: "modo",
         payment_type_id: "digital_wallet"
       };
+
+      // ⭐ VERIFICAR que el monto sea coherente (para cuando Modo esté en producción)
+      // En test el monto viene de paymentData que ya usa el total validado
 
       // Crear orden en la base de datos
       const order = await crearOrdenDesdePago(paymentData, pendingOrderData);

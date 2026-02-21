@@ -59,14 +59,41 @@ export const createCheckout = async (req, res) => {
       return res.status(400).json({ error: "Email del cliente requerido" });
     }
 
+    // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
+    let validatedItems, totals, validationWarnings;
+    try {
+      const validation = await validateCartPrices(items, {
+        promoCode: metadata?.promoCode || null,
+      });
+      validatedItems = validation.validatedItems;
+      totals = validation.totals;
+      validationWarnings = validation.warnings;
+
+      if (validationWarnings.length > 0) {
+        console.warn("⚠️ Advertencias de validación de carrito (GoCuotas create-checkout):", validationWarnings);
+      }
+    } catch (validationError) {
+      console.error("❌ Error validando precios del carrito:", validationError.message);
+      return res.status(400).json({ error: "Error validando productos del carrito" });
+    }
+
     const token = hasApiKey ? null : await getGocuotasToken();
 
-    const totalPriceInCents = Math.round((Number(totalPrice) || 0) * 100);
-    const gocuotasItems = items.map((item) => ({
-      title: item.title || item.name || "Producto",
-      unit_price_in_cents: Math.round((Number(item.unit_price ?? item.price ?? 0)) * 100),
-      quantity: parseInt(item.quantity) || 1,
-    }));
+    // Usar precios validados de la BD
+    const totalPriceInCents = Math.round(totals.total * 100);
+    const gocuotasItems = validatedItems.map((item) => {
+      const base = item.price;
+      const discountPercent = item.discount || 0;
+      const finalPrice = discountPercent > 0
+        ? Math.round((base - (base * discountPercent) / 100) * 100) / 100
+        : base;
+
+      return {
+        title: item.name || "Producto",
+        unit_price_in_cents: Math.round(finalPrice * 100),
+        quantity: item.quantity,
+      };
+    });
 
     const phoneNumber = (customerData.phone || "").replace(/[^0-9]/g, "");
     const areaCode = phoneNumber.substring(0, 2) || "11";
@@ -110,8 +137,8 @@ export const createCheckout = async (req, res) => {
     global.gocuotasOrders[response.data.id] = {
       orderReference,
       customerData,
-      items,
-      totalPrice,
+      items: validatedItems, // ← items con precios validados de BD
+      totalPrice: totals.total, // ← total recalculado desde BD
       shippingCost,
       metadata,
       createdAt: new Date(),
@@ -177,8 +204,7 @@ export const webhookGocuotas = async (req, res) => {
     if (status === "approved") {
       try {
         // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
-        let validatedItems = orderData.items;
-        let validatedTotal = orderData.totalPrice;
+        let validatedItems, validatedTotal;
         try {
           const validation = await validateCartPrices(orderData.items);
           validatedItems = validation.validatedItems;
@@ -188,6 +214,17 @@ export const webhookGocuotas = async (req, res) => {
           }
         } catch (valErr) {
           console.error("❌ Error validando precios (GoCuotas webhook):", valErr.message);
+          return res.status(200).json({ received: true, error: "Validación de precios falló" });
+        }
+
+        // ⭐ VERIFICAR que el monto cobrado coincida con el validado
+        const montoValidadoCents = Math.round((validatedTotal + (orderData.shippingCost || 0)) * 100);
+        const toleranciaCents = 100; // $1 de tolerancia
+        if (amount_in_cents && Math.abs(amount_in_cents - montoValidadoCents) > toleranciaCents) {
+          console.error(
+            `❌ MONTO MANIPULADO (GoCuotas webhook): cobrado ${amount_in_cents}¢, validado ${montoValidadoCents}¢`
+          );
+          return res.status(200).json({ received: true, error: "Monto no coincide" });
         }
 
         const newOrder = await crearOrdenDesdePago({
@@ -253,8 +290,7 @@ export const processPayment = async (req, res) => {
     }
 
     // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
-    let validatedItems = orderData.items;
-    let validatedTotal = orderData.totalPrice;
+    let validatedItems, validatedTotal;
     try {
       const validation = await validateCartPrices(orderData.items);
       validatedItems = validation.validatedItems;
@@ -263,7 +299,19 @@ export const processPayment = async (req, res) => {
         console.warn("⚠️ Advertencias de validación de carrito (GoCuotas):", validation.warnings);
       }
     } catch (valErr) {
-      console.error("❌ Error validando precios (GoCuotas):", valErr.message);
+      console.error("❌ Error validando precios (GoCuotas process-payment):", valErr.message);
+      return res.status(400).json({ error: "Error validando productos del carrito" });
+    }
+
+    // ⭐ VERIFICAR que el monto cobrado coincida con el validado
+    const montoValidadoCents = Math.round((validatedTotal + (orderData.shippingCost || 0)) * 100);
+    const montoCobradoCents = checkoutStatus.amount_in_cents;
+    const toleranciaCents = 100; // $1 de tolerancia
+    if (montoCobradoCents && Math.abs(montoCobradoCents - montoValidadoCents) > toleranciaCents) {
+      console.error(
+        `❌ MONTO MANIPULADO (GoCuotas): cobrado ${montoCobradoCents}¢, validado ${montoValidadoCents}¢`
+      );
+      return res.status(400).json({ error: "El monto cobrado no coincide con el precio real" });
     }
 
     const newOrder = await crearOrdenDesdePago({
