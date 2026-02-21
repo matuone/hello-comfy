@@ -44,19 +44,54 @@ export const createPreference = async (req, res) => {
       });
     }
 
-    // Construir items para Mercado Pago
-    const mercadopagoItems = items.map((item) => ({
-      title: item.title || "Producto",
-      description: item.description || "",
-      picture_url: item.picture_url || "",
-      quantity: parseInt(item.quantity) || 1,
-      unit_price: parseFloat(item.unit_price) || 0,
-      currency_id: "ARS",
-    }));
+    // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
+    let validatedItems, totals, warnings;
+    try {
+      const validation = await validateCartPrices(items, {
+        promoCode: metadata?.promoCode || null,
+      });
+      validatedItems = validation.validatedItems;
+      totals = validation.totals;
+      warnings = validation.warnings;
 
-    // console.log("📦 Items para Mercado Pago:", mercadopagoItems); // No loggear items completos en producción
+      if (warnings.length > 0) {
+        console.warn("⚠️ Advertencias de validación de carrito (MP create-preference):", warnings);
+      }
+    } catch (validationError) {
+      console.error("❌ Error validando precios del carrito:", validationError.message);
+      return res.status(400).json({ error: "Error validando productos del carrito" });
+    }
 
-    // Crear la preferencia
+    // Construir items para Mercado Pago con PRECIOS VALIDADOS de la BD
+    const mercadopagoItems = validatedItems.map((item) => {
+      const base = item.price;
+      const discountPercent = item.discount || 0;
+      const finalPrice = discountPercent > 0
+        ? Math.round((base - (base * discountPercent) / 100) * 100) / 100
+        : base;
+
+      return {
+        title: item.name || "Producto",
+        description: `${item.category || ""}${item.subcategory ? " - " + item.subcategory : ""}`,
+        picture_url: item.image || "",
+        quantity: item.quantity,
+        unit_price: finalPrice,
+        currency_id: "ARS",
+      };
+    });
+
+    // Agregar envío como item si corresponde
+    if (shippingCost > 0) {
+      mercadopagoItems.push({
+        title: "Costo de envío",
+        description: "Envío",
+        quantity: 1,
+        unit_price: parseFloat(shippingCost),
+        currency_id: "ARS",
+      });
+    }
+
+    // Crear la preferencia con precios validados
     const preference = {
       items: mercadopagoItems,
       payer: {
@@ -256,6 +291,20 @@ export const processPayment = async (req, res) => {
       } catch (validationError) {
         console.error("❌ Error validando precios del carrito:", validationError.message);
         return res.status(400).json({ error: "Error validando productos del carrito" });
+      }
+
+      // ⭐ VERIFICAR que el monto pagado en MP coincida con el total validado
+      const montoValidado = pendingOrderData.totalPrice + (pendingOrderData.shippingCost || 0);
+      const montoPagado = paymentData.transaction_amount;
+      const tolerancia = 1; // $1 de tolerancia por redondeos
+
+      if (Math.abs(montoPagado - montoValidado) > tolerancia) {
+        console.error(
+          `❌ MONTO MANIPULADO: pagado $${montoPagado}, validado $${montoValidado}`
+        );
+        return res.status(400).json({
+          error: "El monto pagado no coincide con el precio real de los productos",
+        });
       }
 
       order = await crearOrdenDesdePago(paymentData, pendingOrderData);
