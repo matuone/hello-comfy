@@ -75,8 +75,7 @@ export default function InstagramFeed() {
   return (
     <div className="instagram-feed-container">
       <div className="feed-header">
-        <h2>📸 Galería</h2>
-        <p>Últimos momentos de HelloComfy</p>
+        <p>SEGUINOS EN INSTAGRAM — <a href="https://www.instagram.com/itscomfy.ind/" target="_blank" rel="noopener noreferrer">@ITSCOMFY.IND</a></p>
       </div>
 
       <Swiper
