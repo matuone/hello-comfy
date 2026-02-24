@@ -104,8 +104,12 @@ export default function Checkout() {
       trackAbandoned(nextStep);
       return nextStep;
     });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  const back = () => setStep((s) => s - 1);
+  const back = () => {
+    setStep((s) => s - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Función para limpiar el checkout (llamar después de pago exitoso)
   const clearCheckout = () => {
