@@ -130,6 +130,22 @@ export default function AdminSidebar({ onNavigate }) {
           </NavLink>
         </li>
         {/* ============================
+            CARRITOS ABANDONADOS
+        ============================ */}
+        <li>
+          <NavLink
+            to="/admin/abandoned-carts"
+            className={({ isActive }) =>
+              "admin-sidebar-link" +
+              (isActive ? " admin-sidebar-link--active" : "")
+            }
+            onClick={handleNavLink}
+          >
+            Carritos abandonados
+          </NavLink>
+        </li>
+
+        {/* ============================
             ESTADÍSTICAS
         ============================ */}
         <li>

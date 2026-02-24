@@ -35,6 +35,7 @@ import correoArgentinoRoutes from "./routes/correoArgentinoRoutes.js"; // ⭐ CO
 import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
 import feedRoutes from "./routes/feedRoutes.js"; // ⭐ NUEVO FEED
 import instagramRoutes from "./routes/instagramRoutes.js"; // ⭐ SINCRONIZACIÓN INSTAGRAM
+import abandonedCartRoutes from "./routes/abandonedCartRoutes.js"; // ⭐ CARRITOS ABANDONADOS
 import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
 
 // ============================
@@ -238,6 +239,11 @@ app.use("/api/feed", feedRoutes);
 // RUTAS DE INSTAGRAM (⭐ SINCRONIZACIÓN)
 // ============================
 app.use("/api/instagram", instagramRoutes);
+
+// ============================
+// RUTAS DE CARRITOS ABANDONADOS (⭐ NUEVO)
+// ============================
+app.use("/api/abandoned-carts", abandonedCartRoutes);
 
 // ============================
 // RUTA DE WHATSAPP (NUEVO)

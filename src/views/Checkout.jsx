@@ -64,7 +64,47 @@ export default function Checkout() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const next = () => setStep((s) => s + 1);
+  // ============================
+  // TRACKING DE CARRITO ABANDONADO
+  // ============================
+  const API_URL = import.meta.env.VITE_API_URL;
+  const trackAbandoned = (nextStep) => {
+    // Solo trackear si ya tenemos email e items
+    if (formData.email && items.length > 0) {
+      const trackItems = items.map((i) => ({
+        productId: i.productId,
+        name: i.name,
+        image: i.image,
+        price: i.price,
+        size: i.size,
+        color: i.color,
+        quantity: i.quantity,
+      }));
+      fetch(`${API_URL}/abandoned-carts/track`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name || "",
+          phone: formData.phone || "",
+          userId: user?.id || null,
+          items: trackItems,
+          checkoutStep: nextStep,
+          totalEstimado: totalPrice,
+          type: user ? "registered" : "guest",
+        }),
+      }).catch(() => { }); // Silencioso, no debe bloquear
+    }
+  };
+
+  const next = () => {
+    setStep((s) => {
+      const nextStep = s + 1;
+      // Si avanza del paso 1 al 2, trackear (ya tenemos email)
+      trackAbandoned(nextStep);
+      return nextStep;
+    });
+  };
   const back = () => setStep((s) => s - 1);
 
   // Función para limpiar el checkout (llamar después de pago exitoso)

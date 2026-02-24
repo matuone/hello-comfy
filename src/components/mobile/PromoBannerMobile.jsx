@@ -105,6 +105,7 @@ export default function PromoBannerMobile(props) {
   var savedMessage = localStorage.getItem("promoMessage");
   var backendMessage = bannerData?.message;
   var finalMessage = backendMessage || savedMessage || "Aprovechá hoy 3x2 en remeras 🧸";
+  var mobileFontSize = bannerData?.mobileFontSize || 28;
 
   if (loading) return null;
 

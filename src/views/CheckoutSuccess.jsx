@@ -35,6 +35,22 @@ export default function CheckoutSuccess() {
     // Limpiar carrito
     clearCart();
 
+    // Marcar carrito abandonado como recuperado
+    const savedForm = localStorage.getItem("checkoutFormData");
+    if (savedForm) {
+      try {
+        const fd = JSON.parse(savedForm);
+        if (fd.email) {
+          const API_URL = import.meta.env.VITE_API_URL;
+          fetch(`${API_URL}/abandoned-carts/recover`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: fd.email }),
+          }).catch(() => { });
+        }
+      } catch (_) { }
+    }
+
     // Limpiar checkout del localStorage al llegar a la página de éxito
     localStorage.removeItem("checkoutStep");
     localStorage.removeItem("checkoutFormData");

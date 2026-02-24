@@ -64,6 +64,7 @@ import AdminSubcategories from "../views/AdminSubcategories";
 import AdminDiscounts from "../views/AdminDiscounts";
 import AdminPromoCodes from "../views/AdminPromoCodes";
 import AdminSizeTables from "../views/AdminSizeTables";
+import AdminAbandonedCarts from "../views/AdminAbandonedCarts";
 // Protección admin
 import AdminRoute from "./AdminRoute";
 
@@ -157,6 +158,7 @@ export default function AppRouter() {
         <Route path="/admin/subcategories" element={<AdminSubcategories />} />
         <Route path="/admin/sizetables" element={<AdminSizeTables />} />
         <Route path="/admin/opinions" element={<AdminOpinions />} />
+        <Route path="/admin/abandoned-carts" element={<AdminAbandonedCarts />} />
       </Route>
 
       {/* Área de cliente */}

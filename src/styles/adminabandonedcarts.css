@@ -1,0 +1,524 @@
+/* ============================
+   ADMIN ABANDONED CARTS
+============================ */
+
+.admin-abandoned {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0;
+}
+
+.admin-abandoned__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* ============================
+   STATS
+============================ */
+.admin-abandoned__stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-abandoned__stat-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.admin-abandoned__stat-card .stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+.admin-abandoned__stat-card--recovered .stat-number {
+  color: #27ae60;
+}
+
+.admin-abandoned__stat-card--total .stat-number {
+  color: #e67e22;
+  font-size: 1.2rem;
+}
+
+.admin-abandoned__stat-card .stat-label {
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* ============================
+   TABS
+============================ */
+.admin-abandoned__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-abandoned__tab {
+  padding: 8px 18px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.admin-abandoned__tab:hover {
+  border-color: #d94f7a;
+  color: #d94f7a;
+}
+
+.admin-abandoned__tab.active {
+  background: #d94f7a;
+  color: #fff;
+  border-color: #d94f7a;
+}
+
+.admin-abandoned__toggle-recovered {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.admin-abandoned__toggle-recovered input {
+  accent-color: #d94f7a;
+}
+
+/* ============================
+   LOADING / EMPTY
+============================ */
+.admin-abandoned__loading {
+  text-align: center;
+  color: #888;
+  padding: 40px;
+}
+
+.admin-abandoned__empty {
+  text-align: center;
+  color: #999;
+  padding: 48px 20px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px dashed #ddd;
+}
+
+/* ============================
+   CARD LIST
+============================ */
+.admin-abandoned__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-abandoned__card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s;
+}
+
+.admin-abandoned__card:hover {
+  border-color: #d94f7a;
+}
+
+.admin-abandoned__card--recovered {
+  opacity: 0.65;
+  border-left: 4px solid #27ae60;
+}
+
+/* HEADER */
+.admin-abandoned__card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-abandoned__card-info {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-abandoned__type-badge {
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.admin-abandoned__type-badge--registered {
+  background: #eaf4ff;
+  color: #2980b9;
+}
+
+.admin-abandoned__type-badge--guest {
+  background: #fdf2e9;
+  color: #e67e22;
+}
+
+.admin-abandoned__recovered-badge {
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #eafaf1;
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.admin-abandoned__step-badge {
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  color: #666;
+}
+
+.admin-abandoned__time {
+  font-size: 0.82rem;
+  color: #999;
+}
+
+/* BODY */
+.admin-abandoned__card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-abandoned__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-abandoned__email {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.admin-abandoned__name,
+.admin-abandoned__phone {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.admin-abandoned__summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.admin-abandoned__item-count {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.admin-abandoned__total {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+/* TOGGLE ITEMS */
+.admin-abandoned__toggle-items {
+  background: none;
+  border: none;
+  color: #d94f7a;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 8px 0 4px;
+  font-weight: 500;
+}
+
+.admin-abandoned__toggle-items:hover {
+  text-decoration: underline;
+}
+
+/* ITEMS LIST */
+.admin-abandoned__items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 6px;
+}
+
+.admin-abandoned__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-abandoned__item-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.admin-abandoned__item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-abandoned__item-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.admin-abandoned__item-details {
+  font-size: 0.78rem;
+  color: #999;
+}
+
+.admin-abandoned__item-price {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* EMAILS SENT */
+.admin-abandoned__emails-sent {
+  padding: 6px 0;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+/* ACTIONS */
+.admin-abandoned__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.admin-abandoned__btn-email {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #d94f7a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-abandoned__btn-email:hover {
+  background: #c44069;
+}
+
+.admin-abandoned__btn-delete {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #999;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-abandoned__btn-delete:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+/* ============================
+   MODAL EMAIL
+============================ */
+.admin-abandoned__modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.admin-abandoned__modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.admin-abandoned__modal h3 {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.admin-abandoned__modal-to {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.admin-abandoned__modal-field {
+  margin-bottom: 14px;
+}
+
+.admin-abandoned__modal-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.admin-abandoned__modal-field input,
+.admin-abandoned__modal-field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.admin-abandoned__modal-field input:focus,
+.admin-abandoned__modal-field textarea:focus {
+  outline: none;
+  border-color: #d94f7a;
+}
+
+.admin-abandoned__modal-preview {
+  background: #fdf4f7;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.admin-abandoned__modal-preview small {
+  color: #d94f7a;
+  font-size: 0.82rem;
+}
+
+.admin-abandoned__modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.admin-abandoned__btn-cancel {
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.admin-abandoned__btn-send {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #d94f7a;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.admin-abandoned__btn-send:hover:not(:disabled) {
+  background: #c44069;
+}
+
+.admin-abandoned__btn-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================
+   RESPONSIVE
+============================ */
+@media (max-width: 768px) {
+  .admin-abandoned {
+    padding: 14px;
+  }
+
+  .admin-abandoned__stats {
+    gap: 8px;
+  }
+
+  .admin-abandoned__stat-card {
+    padding: 10px 14px;
+    min-width: 80px;
+  }
+
+  .admin-abandoned__stat-card .stat-number {
+    font-size: 1.2rem;
+  }
+
+  .admin-abandoned__card {
+    padding: 14px;
+  }
+
+  .admin-abandoned__card-body {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .admin-abandoned__summary {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .admin-abandoned__modal {
+    padding: 20px;
+  }
+}
