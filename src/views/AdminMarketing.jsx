@@ -631,8 +631,8 @@ export default function AdminMarketing() {
         />
 
         {/* Estilos del título */}
-        <div style={{ display: 'flex', gap: '12px', marginTop: '10px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1', minWidth: '120px' }}>
+        <div style={{ display: 'flex', gap: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
+          <div style={{ minWidth: '100px', maxWidth: '150px' }}>
             <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Ancho máx. (px)</label>
             <input
               type="number"
@@ -644,19 +644,19 @@ export default function AdminMarketing() {
               style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
             />
           </div>
-          <div style={{ flex: '1', minWidth: '120px' }}>
-            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Tamaño fuente (px)</label>
+          <div style={{ minWidth: '100px', maxWidth: '150px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Fuente (px)</label>
             <input
               type="number"
               className="marketing-textarea"
               value={titleStyles.fontSize}
               onChange={(e) => setTitleStyles({ ...titleStyles, fontSize: e.target.value })}
-              placeholder="Default"
+              placeholder="Actual: 32"
               disabled={!isEditingHome}
               style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
             />
           </div>
-          <div style={{ flex: '1', minWidth: '120px' }}>
+          <div style={{ minWidth: '100px', maxWidth: '180px' }}>
             <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Color</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
@@ -672,7 +672,7 @@ export default function AdminMarketing() {
                 value={titleStyles.color || '#333333'}
                 onChange={(e) => setTitleStyles({ ...titleStyles, color: e.target.value })}
                 disabled={!isEditingHome}
-                style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px', flex: 1 }}
+                style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px', width: '90px' }}
               />
             </div>
           </div>
@@ -690,32 +690,32 @@ export default function AdminMarketing() {
         />
 
         {/* Estilos de la descripción */}
-        <div style={{ display: 'flex', gap: '12px', marginTop: '10px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1', minWidth: '120px' }}>
+        <div style={{ display: 'flex', gap: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
+          <div style={{ minWidth: '100px', maxWidth: '150px' }}>
             <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Ancho máx. (px)</label>
             <input
               type="number"
               className="marketing-textarea"
               value={descriptionStyles.maxWidth}
               onChange={(e) => setDescriptionStyles({ ...descriptionStyles, maxWidth: e.target.value })}
-              placeholder="Sin límite"
+              placeholder="Actual: 1000"
               disabled={!isEditingHome}
               style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
             />
           </div>
-          <div style={{ flex: '1', minWidth: '120px' }}>
-            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Tamaño fuente (px)</label>
+          <div style={{ minWidth: '100px', maxWidth: '150px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Fuente (px)</label>
             <input
               type="number"
               className="marketing-textarea"
               value={descriptionStyles.fontSize}
               onChange={(e) => setDescriptionStyles({ ...descriptionStyles, fontSize: e.target.value })}
-              placeholder="Default"
+              placeholder="Actual: 16"
               disabled={!isEditingHome}
               style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
             />
           </div>
-          <div style={{ flex: '1', minWidth: '120px' }}>
+          <div style={{ minWidth: '100px', maxWidth: '180px' }}>
             <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Color</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
@@ -731,7 +731,7 @@ export default function AdminMarketing() {
                 value={descriptionStyles.color || '#666666'}
                 onChange={(e) => setDescriptionStyles({ ...descriptionStyles, color: e.target.value })}
                 disabled={!isEditingHome}
-                style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px', flex: 1 }}
+                style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px', width: '90px' }}
               />
             </div>
           </div>
