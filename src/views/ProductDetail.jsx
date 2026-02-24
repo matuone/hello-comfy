@@ -587,6 +587,7 @@ export default function ProductDetail() {
               result={shippingOptions}
               selected={selectedShipping}
               onSelect={(id) => setSelectedShipping(id)}
+              postalCode={postalCode}
             />
             {/* ⭐ PICK UP POINT */}
             <div className="pd-pickup">

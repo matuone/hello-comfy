@@ -20,7 +20,7 @@ const stripItemsForStorage = (items) =>
     productId, size, color, quantity: parseInt(quantity) || 1,
   }));
 
-export default function Step4({ formData, items, totalPrice, back, clearCheckout, updateField }) {
+export default function Step4({ formData, items, totalPrice, shippingPrice = 0, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const { user } = useAuth();
@@ -28,9 +28,13 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
   const [proofFile, setProofFile] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // Calcular descuento por transferencia
+  // Costo de envío (pickup = gratis)
+  const envio = formData.shippingMethod === "pickup" ? 0 : shippingPrice;
+  const totalConEnvio = totalPrice + envio;
+
+  // Calcular descuento por transferencia (solo sobre productos, no envío)
   const discount = (formData.paymentMethod === "transfer" ? totalPrice * 0.1 : 0);
-  const finalPrice = totalPrice - discount;
+  const finalPrice = totalConEnvio - discount;
 
   // ⭐ Pagar con Modo
   const handlePagarModo = async () => {
@@ -65,7 +69,7 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
           postalCode: formData.postalCode || "",
           province: formData.province || "",
         },
-        shippingCost: 0,
+        shippingCost: envio,
         metadata: {
           orderType: "checkout",
           shippingMethod: formData.shippingMethod,
@@ -370,6 +374,9 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
             <p><strong>Código postal:</strong> {formData.postalCode}</p>
             <p><strong>Provincia:</strong> {formData.province}</p>
             <p><strong>Localidad:</strong> {formData.localidad}</p>
+            {formData.selectedAgency && (
+              <p><strong>Sucursal:</strong> {formData.selectedAgency.name} — {formData.selectedAgency.address}, {formData.selectedAgency.locality}</p>
+            )}
           </>
         )}
 
@@ -396,19 +403,31 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
 
         <h3>Total</h3>
         <div>
-          <p style={{ fontWeight: 700, fontSize: "1.1rem" }}>
-            ${totalPrice.toLocaleString("es-AR")}
+          <p style={{ fontSize: "0.95rem", color: "#555" }}>
+            Subtotal productos: ${totalPrice.toLocaleString("es-AR")}
           </p>
+
+          {envio > 0 && (
+            <p style={{ fontSize: "0.95rem", color: "#555", marginTop: "4px" }}>
+              Envío ({formData.shippingMethod === "correo-branch" ? "Sucursal" : "Domicilio"}): ${envio.toLocaleString("es-AR")}
+            </p>
+          )}
+
+          {formData.shippingMethod === "pickup" && (
+            <p style={{ fontSize: "0.95rem", color: "#2e7d32", marginTop: "4px" }}>
+              Envío: Gratis (Retiro)
+            </p>
+          )}
+
           {discount > 0 && (
             <p style={{ color: "#d94f7a", fontWeight: 600, marginTop: "8px" }}>
-              -10% descuento: -${discount.toLocaleString("es-AR")}
+              -10% descuento transferencia: -${discount.toLocaleString("es-AR")}
             </p>
           )}
-          {discount > 0 && (
-            <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#d94f7a", marginTop: "8px" }}>
-              Total a pagar: ${finalPrice.toLocaleString("es-AR")}
-            </p>
-          )}
+
+          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#d94f7a", marginTop: "10px" }}>
+            Total a pagar: ${finalPrice.toLocaleString("es-AR")}
+          </p>
         </div>
       </div>
 

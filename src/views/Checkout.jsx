@@ -32,6 +32,8 @@ export default function Checkout() {
       province: "",
       localidad: "",
       shippingMethod: "",
+      shippingPrice: 0,
+      selectedAgency: null,
       pickPoint: "",
       paymentMethod: "",
       paymentProof: "",
@@ -80,6 +82,8 @@ export default function Checkout() {
       province: "",
       localidad: "",
       shippingMethod: "",
+      shippingPrice: 0,
+      selectedAgency: null,
       pickPoint: "",
       paymentMethod: "",
       paymentProof: "",
@@ -89,6 +93,9 @@ export default function Checkout() {
       giftMessage: "",
     });
   };
+
+  // Costo de envío guardado desde el carrito
+  const shippingPrice = formData.shippingPrice || 0;
 
   return (
     <div className="checkout-container">
@@ -128,6 +135,7 @@ export default function Checkout() {
           formData={formData}
           items={items}
           totalPrice={totalPrice}
+          shippingPrice={shippingPrice}
           back={back}
           clearCheckout={clearCheckout}
         />

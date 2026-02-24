@@ -186,6 +186,7 @@ const ProductDetailMobile = ({ product, similares }) => {
             result={shippingOptions}
             selected={selectedShipping}
             onSelect={(id) => setSelectedShipping(id)}
+            postalCode={postalCode}
           />
         </div>
       </div>

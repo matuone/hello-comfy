@@ -168,13 +168,16 @@ export default function Cart() {
   }, 0);
 
   // ============================
-  // TOTAL FINAL CON CÓDIGO PROMO
+  // TOTAL FINAL CON CÓDIGO PROMO + ENVÍO
   // ============================
   let total = subtotal;
 
   if (promoData) {
     total = total - (total * promoData.discount) / 100;
   }
+
+  // Agregar costo de envío si hay opción seleccionada
+  const totalConEnvio = total + (selectedShipping ? shippingPrice : 0);
 
   const handleCheckout = () => {
     // Guardar datos de regalo + envío seleccionado en localStorage para el checkout
@@ -185,9 +188,13 @@ export default function Cart() {
     // Propagar la selección de envío del carrito al checkout
     if (selectedShipping) {
       checkoutFormData.shippingMethod = selectedShipping; // "correo-home" o "correo-branch"
+      checkoutFormData.shippingPrice = shippingPrice;
     }
     if (postalCode) {
       checkoutFormData.postalCode = postalCode;
+    }
+    if (selectedAgency) {
+      checkoutFormData.selectedAgency = selectedAgency;
     }
 
     localStorage.setItem("checkoutFormData", JSON.stringify(checkoutFormData));
@@ -225,6 +232,8 @@ export default function Cart() {
   // ============================
   const [postalCode, setPostalCode] = useState("");
   const [selectedShipping, setSelectedShipping] = useState(null);
+  const [shippingPrice, setShippingPrice] = useState(0);
+  const [selectedAgency, setSelectedAgency] = useState(null);
 
   const {
     loading: loadingShipping,
@@ -490,7 +499,13 @@ export default function Cart() {
             <ShippingOptions
               result={shippingOptions}
               selected={selectedShipping}
-              onSelect={(id) => setSelectedShipping(id)}
+              onSelect={(id, opt, agency) => {
+                setSelectedShipping(id);
+                setShippingPrice(opt?.data?.price || 0);
+                if (agency) setSelectedAgency(agency);
+                else if (id !== "correo-branch") setSelectedAgency(null);
+              }}
+              postalCode={postalCode}
             />
 
             {/* ⭐ PICK UP POINT */}
@@ -542,11 +557,18 @@ export default function Cart() {
           </div>
 
           {/* ============================
-              TOTAL FINAL
+              ENVÍO + TOTAL FINAL
           ============================ */}
+          {selectedShipping && shippingPrice > 0 && (
+            <div className="cart-summary-row">
+              <span>Envío ({selectedShipping === "correo-branch" ? "Sucursal" : "Domicilio"})</span>
+              <span>${shippingPrice.toLocaleString("es-AR")}</span>
+            </div>
+          )}
+
           <div className="cart-summary-row cart-summary-total">
-            <span>Total estimado</span>
-            <span>${total.toLocaleString("es-AR")}</span>
+            <span>Total{selectedShipping ? "" : " estimado"}</span>
+            <span>${totalConEnvio.toLocaleString("es-AR")}</span>
           </div>
 
           {/* PAGOS */}

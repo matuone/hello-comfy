@@ -57,6 +57,131 @@ router.get("/correo-argentino/agencies", async (req, res) => {
 });
 
 /**
+ * Mapa de rangos de código postal → código de provincia (letra ISO)
+ * Fuente: Correo Argentino — tabla oficial de códigos postales
+ */
+const cpToProvinceCode = (cp) => {
+  const n = parseInt(cp);
+  if (isNaN(n)) return null;
+  // CABA
+  if (n >= 1000 && n <= 1499) return "C";
+  // Buenos Aires
+  if (n >= 1500 && n <= 1999) return "B";
+  if (n >= 2800 && n <= 2999) return "B";
+  if (n >= 6000 && n <= 8199) return "B";
+  // Catamarca
+  if (n >= 4700 && n <= 4751) return "K";
+  // Chaco
+  if (n >= 3500 && n <= 3749) return "H";
+  // Chubut
+  if (n >= 9000 && n <= 9220) return "U";
+  // Córdoba
+  if (n >= 5000 && n <= 5999) return "X";
+  // Corrientes
+  if (n >= 3400 && n <= 3499) return "W";
+  // Entre Ríos
+  if (n >= 3100 && n <= 3299) return "E";
+  // Formosa
+  if (n >= 3600 && n <= 3699) return "P";
+  // Jujuy
+  if (n >= 4600 && n <= 4699) return "Y";
+  // La Pampa
+  if (n >= 6200 && n <= 6399) return "L";
+  // La Rioja
+  if (n >= 5300 && n <= 5399) return "F";
+  // Mendoza
+  if (n >= 5500 && n <= 5699) return "M";
+  // Misiones
+  if (n >= 3300 && n <= 3399) return "N";
+  // Neuquén
+  if (n >= 8300 && n <= 8399) return "Q";
+  // Río Negro
+  if (n >= 8400 && n <= 8599) return "R";
+  // Salta
+  if (n >= 4400 && n <= 4599) return "A";
+  // San Juan
+  if (n >= 5400 && n <= 5499) return "J";
+  // San Luis
+  if (n >= 5700 && n <= 5799) return "D";
+  // Santa Cruz
+  if (n >= 9300 && n <= 9499) return "Z";
+  // Santa Fe
+  if (n >= 2000 && n <= 2699) return "S";
+  if (n >= 3000 && n <= 3099) return "S";
+  // Santiago del Estero
+  if (n >= 4200 && n <= 4399) return "G";
+  // Tierra del Fuego
+  if (n >= 9400 && n <= 9499) return "V";
+  if (n >= 9410 && n <= 9420) return "V";
+  // Tucumán
+  if (n >= 4000 && n <= 4199) return "T";
+  // Fallback Buenos Aires (rango general)
+  if (n >= 1500 && n < 2000) return "B";
+  return null;
+};
+
+/**
+ * GET /api/correo-argentino/agencies-by-cp
+ * Obtener sucursales cercanas a un código postal
+ */
+router.get("/correo-argentino/agencies-by-cp", async (req, res) => {
+  try {
+    const { postalCode } = req.query;
+
+    if (!postalCode || postalCode.length < 4) {
+      return res.status(400).json({ error: "Se requiere código postal válido" });
+    }
+
+    const provinceCode = cpToProvinceCode(postalCode);
+    if (!provinceCode) {
+      return res.status(400).json({ error: "No se pudo determinar la provincia para ese CP" });
+    }
+
+    const allAgencies = await getAgencies(provinceCode);
+
+    // Filtrar solo las activas con servicio de retiro
+    const active = allAgencies.filter(a =>
+      a.status === "ACTIVE" &&
+      a.services?.pickupAvailability
+    );
+
+    // Buscar las que cubren el CP exacto
+    const exact = active.filter(a =>
+      a.nearByPostalCode?.split(",").map(c => c.trim()).includes(postalCode)
+    );
+
+    // Si hay coincidencias exactas, devolver esas; sino devolver las primeras 20 de la provincia
+    const result = exact.length > 0 ? exact : active.slice(0, 20);
+
+    // Formatear respuesta para el frontend
+    const formatted = result.map(a => ({
+      code: a.code,
+      name: a.name,
+      address: `${a.location?.address?.streetName || ""} ${a.location?.address?.streetNumber || ""}`.trim(),
+      locality: a.location?.address?.locality || a.location?.address?.city || "",
+      postalCode: a.location?.address?.postalCode || "",
+      phone: a.phone || "",
+      hours: a.hours,
+      latitude: a.location?.latitude,
+      longitude: a.location?.longitude,
+    }));
+
+    res.json({
+      provinceCode,
+      total: formatted.length,
+      exactMatch: exact.length > 0,
+      agencies: formatted
+    });
+  } catch (error) {
+    console.error("Error obteniendo sucursales por CP:", error);
+    res.status(500).json({
+      error: "Error al obtener sucursales",
+      message: error.message
+    });
+  }
+});
+
+/**
  * POST /api/correo-argentino/import/:orderId
  * Registrar orden en Correo Argentino (requiere autenticación admin)
  */

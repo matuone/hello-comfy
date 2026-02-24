@@ -21,3 +21,20 @@ export async function calcularEnvio(postalCode, products) {
     throw error;
   }
 }
+
+/**
+ * Obtener sucursales de Correo Argentino cercanas a un código postal
+ */
+export async function fetchAgenciesByCP(postalCode) {
+  try {
+    const res = await fetch(apiPath(`/correo-argentino/agencies-by-cp?postalCode=${postalCode}`));
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Error obteniendo sucursales");
+
+    return data.agencies || [];
+  } catch (error) {
+    console.error("Error obteniendo sucursales:", error);
+    return [];
+  }
+}
