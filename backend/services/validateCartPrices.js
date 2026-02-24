@@ -169,6 +169,16 @@ export async function validateCartPrices(clientItems, options = {}) {
   // Asegurar que el total no sea negativo
   total = Math.max(0, Math.round(total * 100) / 100);
 
+  // 9) Detectar reglas de envío gratis
+  const freeShippingRules = discountRules.filter((r) => r.type === "free_shipping");
+  const hasFreeShipping = validatedItems.some((item) =>
+    freeShippingRules.some(
+      (r) =>
+        r.category === item.category &&
+        (r.subcategory === item.subcategory || r.subcategory === "none")
+    )
+  );
+
   return {
     validatedItems,
     totals: {
@@ -179,6 +189,7 @@ export async function validateCartPrices(clientItems, options = {}) {
       shipping: 0,
       total,
     },
+    hasFreeShipping,
     warnings,
   };
 }

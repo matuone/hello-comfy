@@ -13,7 +13,13 @@ import { cotizarCorreo } from "./shipping/correo.js";
  * @param {Number} params.clientShippingCost - El costo que dice el frontend (solo para logging)
  * @returns {Object} { shippingCost, source, method }
  */
-export async function validateShippingCost({ shippingMethod, postalCode, items, clientShippingCost = 0 }) {
+export async function validateShippingCost({ shippingMethod, postalCode, items, clientShippingCost = 0, hasFreeShipping = false }) {
+  // Envío gratis por regla de descuento — validado contra la BD
+  if (hasFreeShipping) {
+    console.log("✅ validateShippingCost: envío gratis por regla de descuento");
+    return { shippingCost: 0, source: "free_shipping_rule", method: shippingMethod || "free" };
+  }
+
   // Pickup / retiro en punto = envío gratis
   if (!shippingMethod || shippingMethod === "pickup" || shippingMethod.startsWith("retiro")) {
     return { shippingCost: 0, source: "free", method: shippingMethod || "pickup" };

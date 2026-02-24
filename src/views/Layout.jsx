@@ -1,4 +1,5 @@
 // src/views/Layout.jsx
+import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useMaintenance } from "../context/MaintenanceContext";
 import { useAuth } from "../context/AuthContext";
@@ -15,10 +16,27 @@ import FloatingBear from "../components/FloatingBear"; // ← AGREGADO
 import Maintenance from "./Maintenance";
 import "../styles/layout.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Layout() {
   const location = useLocation();
   const { isMaintenanceMode } = useMaintenance();
   const { user } = useAuth();
+
+  // Cargar estilo badge descuento como CSS variables globales
+  useEffect(() => {
+    async function loadBadgeStyle() {
+      try {
+        const res = await fetch(`${API_URL}/config/discount-badge-style`);
+        const data = await res.json();
+        if (data.background) document.documentElement.style.setProperty("--badge-bg", data.background);
+        if (data.color) document.documentElement.style.setProperty("--badge-color", data.color);
+      } catch {
+        // usar defaults de CSS
+      }
+    }
+    loadBadgeStyle();
+  }, []);
 
   const esAdmin = location.pathname.startsWith("/admin");
   const isAdminUser = user?.isAdmin;

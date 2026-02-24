@@ -40,14 +40,14 @@ export const createPaymentIntent = async (req, res) => {
     }
 
     // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
-    let validatedItems, totals, validationWarnings;
+    let validatedItems, totals, validationWarnings, cartValidation;
     try {
-      const validation = await validateCartPrices(items, {
+      cartValidation = await validateCartPrices(items, {
         promoCode: metadata?.promoCode || null,
       });
-      validatedItems = validation.validatedItems;
-      totals = validation.totals;
-      validationWarnings = validation.warnings;
+      validatedItems = cartValidation.validatedItems;
+      totals = cartValidation.totals;
+      validationWarnings = cartValidation.warnings;
 
       if (validationWarnings.length > 0) {
         console.warn("⚠️ Advertencias de validación de carrito (Modo create-intent):", validationWarnings);
@@ -63,6 +63,7 @@ export const createPaymentIntent = async (req, res) => {
       postalCode: customerData?.postalCode,
       items: validatedItems,
       clientShippingCost: shippingCost,
+      hasFreeShipping: cartValidation.hasFreeShipping,
     });
     const total = totals.total + validatedShipping;
     const externalReference = `modo_test_${Date.now()}`;
@@ -162,16 +163,18 @@ export const confirmPayment = async (req, res) => {
 
     if (status === "approved") {
       // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
+      let validatedItems, cartValidation;
       try {
-        const { validatedItems, totals, warnings } = await validateCartPrices(
+        cartValidation = await validateCartPrices(
           pendingOrderData.items,
           { promoCode: pendingOrderData.formData?.promoCode || null }
         );
-        if (warnings.length > 0) {
-          console.warn("⚠️ Advertencias de validación de carrito (Modo):", warnings);
+        validatedItems = cartValidation.validatedItems;
+        if (cartValidation.warnings.length > 0) {
+          console.warn("⚠️ Advertencias de validación de carrito (Modo):", cartValidation.warnings);
         }
         pendingOrderData.items = validatedItems;
-        pendingOrderData.totalPrice = totals.total;
+        pendingOrderData.totalPrice = cartValidation.totals.total;
       } catch (validationError) {
         console.error("❌ Error validando precios del carrito:", validationError.message);
         return res.status(400).json({ error: "Error validando productos del carrito" });
@@ -183,6 +186,7 @@ export const confirmPayment = async (req, res) => {
         postalCode: pendingOrderData.formData?.postalCode,
         items: validatedItems,
         clientShippingCost: pendingOrderData.shippingCost,
+        hasFreeShipping: cartValidation.hasFreeShipping,
       });
       pendingOrderData.shippingCost = validatedShipping;
 

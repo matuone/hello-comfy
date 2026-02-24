@@ -71,3 +71,21 @@ export function calcularPrecios(product, discountRules) {
     precioCuota
   };
 }
+
+/**
+ * Verifica si algún producto del carrito tiene una regla de envío gratis.
+ * @param {Array} items - Items del carrito (cada uno con category y subcategory)
+ * @param {Array} discountRules - Reglas de descuento
+ * @returns {Boolean}
+ */
+export function hasFreeShippingRule(items, discountRules) {
+  if (!items || !discountRules) return false;
+  return items.some((item) =>
+    discountRules.some(
+      (r) =>
+        r.type === "free_shipping" &&
+        r.category === item.category &&
+        (r.subcategory === "none" || r.subcategory === item.subcategory)
+    )
+  );
+}

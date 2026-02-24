@@ -342,8 +342,8 @@
   }
 
   .pd-discount-tag {
-    background: #d94f7a;
-    color: white;
+    background: var(--badge-bg, #d94f7a);
+    color: var(--badge-color, #ffffff);
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 0.9rem;

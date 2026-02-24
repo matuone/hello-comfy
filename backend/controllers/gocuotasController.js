@@ -206,13 +206,13 @@ export const webhookGocuotas = async (req, res) => {
     if (status === "approved") {
       try {
         // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
-        let validatedItems, validatedTotal;
+        let validatedItems, validatedTotal, gcValidation;
         try {
-          const validation = await validateCartPrices(orderData.items);
-          validatedItems = validation.validatedItems;
-          validatedTotal = validation.totals.total;
-          if (validation.warnings.length > 0) {
-            console.warn("⚠️ Advertencias de validación de carrito (GoCuotas webhook):", validation.warnings);
+          gcValidation = await validateCartPrices(orderData.items);
+          validatedItems = gcValidation.validatedItems;
+          validatedTotal = gcValidation.totals.total;
+          if (gcValidation.warnings.length > 0) {
+            console.warn("⚠️ Advertencias de validación de carrito (GoCuotas webhook):", gcValidation.warnings);
           }
         } catch (valErr) {
           console.error("❌ Error validando precios (GoCuotas webhook):", valErr.message);
@@ -224,6 +224,7 @@ export const webhookGocuotas = async (req, res) => {
           shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod,
           postalCode: orderData.postalCode || orderData.customerData?.postalCode,
           items: validatedItems,
+          hasFreeShipping: gcValidation.hasFreeShipping,
         });
         const montoValidadoCents = Math.round((validatedTotal + validatedShipping) * 100);
         const toleranciaCents = 100; // $1 de tolerancia
@@ -297,13 +298,13 @@ export const processPayment = async (req, res) => {
     }
 
     // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
-    let validatedItems, validatedTotal;
+    let validatedItems, validatedTotal, gcValidation;
     try {
-      const validation = await validateCartPrices(orderData.items);
-      validatedItems = validation.validatedItems;
-      validatedTotal = validation.totals.total;
-      if (validation.warnings.length > 0) {
-        console.warn("⚠️ Advertencias de validación de carrito (GoCuotas):", validation.warnings);
+      gcValidation = await validateCartPrices(orderData.items);
+      validatedItems = gcValidation.validatedItems;
+      validatedTotal = gcValidation.totals.total;
+      if (gcValidation.warnings.length > 0) {
+        console.warn("⚠️ Advertencias de validación de carrito (GoCuotas):", gcValidation.warnings);
       }
     } catch (valErr) {
       console.error("❌ Error validando precios (GoCuotas process-payment):", valErr.message);
@@ -315,6 +316,7 @@ export const processPayment = async (req, res) => {
       shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod,
       postalCode: orderData.postalCode || orderData.customerData?.postalCode,
       items: validatedItems,
+      hasFreeShipping: gcValidation.hasFreeShipping,
     });
     const montoValidadoCents = Math.round((validatedTotal + validatedShippingProc) * 100);
     const montoCobradoCents = checkoutStatus.amount_in_cents;

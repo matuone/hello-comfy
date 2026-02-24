@@ -8,10 +8,10 @@ const discountRuleSchema = new mongoose.Schema(
     // Subcategoría (puede ser "none" si aplica a toda la categoría)
     subcategory: { type: String, default: "none" },
 
-    // Tipo de descuento: porcentaje o promoción 3x2
+    // Tipo de descuento: porcentaje, promoción 3x2 o envío gratis
     type: {
       type: String,
-      enum: ["percentage", "3x2"],
+      enum: ["percentage", "3x2", "free_shipping"],
       required: true
     },
 

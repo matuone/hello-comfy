@@ -405,6 +405,10 @@ export default function AdminMarketing() {
   const [announcementMessages, setAnnouncementMessages] = useState([]);
   const [newAnnouncementMessage, setNewAnnouncementMessage] = useState("");
 
+  // Discount badge style
+  const [badgeBg, setBadgeBg] = useState("#ff4444");
+  const [badgeColor, setBadgeColor] = useState("#ffffff");
+
   useEffect(() => {
     async function fetchAnnouncementMessages() {
       try {
@@ -432,6 +436,37 @@ export default function AdminMarketing() {
     }
     fetchAnnouncementMessages();
   }, []);
+
+  // Cargar estilo badge descuento
+  useEffect(() => {
+    async function fetchBadgeStyle() {
+      try {
+        const res = await fetch(`${API_URL}/config/discount-badge-style`);
+        const data = await res.json();
+        if (data.background) setBadgeBg(data.background);
+        if (data.color) setBadgeColor(data.color);
+      } catch (err) {
+        // usar defaults
+      }
+    }
+    fetchBadgeStyle();
+  }, []);
+
+  async function saveBadgeStyle() {
+    setLoading(true);
+    try {
+      await adminFetch(`${API_URL}/config/discount-badge-style`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ background: badgeBg, color: badgeColor })
+      });
+      setNotification({ mensaje: "Estilo del badge de descuento guardado", tipo: "success" });
+    } catch (err) {
+      setNotification({ mensaje: "Error al guardar estilo del badge", tipo: "error" });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleAddAnnouncementMessage() {
     if (newAnnouncementMessage.trim()) {
@@ -901,6 +936,72 @@ export default function AdminMarketing() {
         </div>
         <button className="btn-guardar" onClick={saveAnnouncementMessages} disabled={loading}>
           {loading ? 'Guardando...' : 'Guardar mensajes AnnouncementBar'}
+        </button>
+      </div>
+
+      {/* Estilo badge descuento ("X% OFF") */}
+      <div className="marketing-box" style={{ marginTop: '30px' }}>
+        <h3 style={{ marginBottom: '15px', color: '#333' }}>Badge de Descuento (“X% OFF”)</h3>
+        <p style={{ fontSize: '13px', color: '#666', marginBottom: '15px' }}>
+          Configurá el color de fondo y el color del texto del badge de descuento que aparece en las tarjetas de productos y en el detalle del producto.
+        </p>
+
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '14px', fontWeight: 600, color: '#444' }}>Color de fondo</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="color"
+                value={badgeBg}
+                onChange={e => setBadgeBg(e.target.value)}
+                style={{ width: '48px', height: '36px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', padding: '2px' }}
+              />
+              <input
+                type="text"
+                value={badgeBg}
+                onChange={e => setBadgeBg(e.target.value)}
+                style={{ width: '90px', padding: '6px 8px', borderRadius: '6px', border: '1px solid #ddd', fontFamily: 'monospace', fontSize: '13px' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '14px', fontWeight: 600, color: '#444' }}>Color del texto</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="color"
+                value={badgeColor}
+                onChange={e => setBadgeColor(e.target.value)}
+                style={{ width: '48px', height: '36px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', padding: '2px' }}
+              />
+              <input
+                type="text"
+                value={badgeColor}
+                onChange={e => setBadgeColor(e.target.value)}
+                style={{ width: '90px', padding: '6px 8px', borderRadius: '6px', border: '1px solid #ddd', fontFamily: 'monospace', fontSize: '13px' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '14px', fontWeight: 600, color: '#444' }}>Vista previa</label>
+            <span style={{
+              background: badgeBg,
+              color: badgeColor,
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 700,
+              display: 'inline-block',
+              marginTop: '2px'
+            }}>
+              10% OFF
+            </span>
+          </div>
+        </div>
+
+        <button className="btn-guardar" onClick={saveBadgeStyle} disabled={loading}>
+          {loading ? 'Guardando...' : 'Guardar estilo badge'}
         </button>
       </div>
 

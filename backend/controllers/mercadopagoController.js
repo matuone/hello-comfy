@@ -46,14 +46,14 @@ export const createPreference = async (req, res) => {
     }
 
     // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
-    let validatedItems, totals, warnings;
+    let validatedItems, totals, warnings, cartValidation;
     try {
-      const validation = await validateCartPrices(items, {
+      cartValidation = await validateCartPrices(items, {
         promoCode: metadata?.promoCode || null,
       });
-      validatedItems = validation.validatedItems;
-      totals = validation.totals;
-      warnings = validation.warnings;
+      validatedItems = cartValidation.validatedItems;
+      totals = cartValidation.totals;
+      warnings = cartValidation.warnings;
 
       if (warnings.length > 0) {
         console.warn("⚠️ Advertencias de validación de carrito (MP create-preference):", warnings);
@@ -87,6 +87,7 @@ export const createPreference = async (req, res) => {
       postalCode: customerData?.postalCode,
       items: validatedItems,
       clientShippingCost: shippingCost,
+      hasFreeShipping: cartValidation.hasFreeShipping,
     });
 
     if (validatedShipping > 0) {
@@ -286,16 +287,18 @@ export const processPayment = async (req, res) => {
     let order = null;
     if (pendingOrderData) {
       // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
+      let validatedItems, cartValidation;
       try {
-        const { validatedItems, totals, warnings } = await validateCartPrices(
+        cartValidation = await validateCartPrices(
           pendingOrderData.items,
           { promoCode: pendingOrderData.formData?.promoCode || null }
         );
-        if (warnings.length > 0) {
-          console.warn("⚠️ Advertencias de validación de carrito (MP):", warnings);
+        validatedItems = cartValidation.validatedItems;
+        if (cartValidation.warnings.length > 0) {
+          console.warn("⚠️ Advertencias de validación de carrito (MP):", cartValidation.warnings);
         }
         pendingOrderData.items = validatedItems;
-        pendingOrderData.totalPrice = totals.total;
+        pendingOrderData.totalPrice = cartValidation.totals.total;
       } catch (validationError) {
         console.error("❌ Error validando precios del carrito:", validationError.message);
         return res.status(400).json({ error: "Error validando productos del carrito" });
@@ -307,6 +310,7 @@ export const processPayment = async (req, res) => {
         postalCode: pendingOrderData.formData?.postalCode,
         items: validatedItems,
         clientShippingCost: pendingOrderData.shippingCost,
+        hasFreeShipping: cartValidation.hasFreeShipping,
       });
       pendingOrderData.shippingCost = validatedShipping;
 

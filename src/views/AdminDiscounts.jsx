@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 // Centralización de rutas API
 function apiPath(path) {
@@ -8,7 +9,11 @@ function apiPath(path) {
   return base + "/" + path;
 }
 
+// Categorías fijas del sistema (deben coincidir con ALLOWED_CATEGORIES del backend)
+const ALLOWED_CATEGORIES = ["Indumentaria", "Cute items", "Merch"];
+
 export default function AdminDiscounts() {
+  const { adminFetch } = useAuth();
   const [rules, setRules] = useState([]);
   const [products, setProducts] = useState([]);
 
@@ -37,18 +42,20 @@ export default function AdminDiscounts() {
 
   // Normalizar visualmente (por si quedó algo mal en la base)
   const normalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
+    str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 
-  // Extraer categorías únicas
-  const categories = [...new Set(products.map((p) => normalize(p.category)))];
+  // Usar categorías fijas del sistema
+  const categories = ALLOWED_CATEGORIES;
 
   // Extraer subcategorías únicas según categoría seleccionada
+  // Comparación case-insensitive para que "Cute items" / "cute items" etc. matcheen
   const subcategories = form.category
     ? [
       ...new Set(
         products
-          .filter((p) => normalize(p.category) === form.category)
+          .filter((p) => (p.category || "").toLowerCase() === form.category.toLowerCase())
           .map((p) => normalize(p.subcategory))
+          .filter(Boolean)
       ),
     ]
     : [];
@@ -64,7 +71,7 @@ export default function AdminDiscounts() {
 
     const method = editingId ? "PUT" : "POST";
 
-    await fetch(url, {
+    await adminFetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -78,9 +85,8 @@ export default function AdminDiscounts() {
     });
     setEditingId(null);
 
-    const updated = await fetch(apiPath("/discounts")).then(
-      (res) => res.json()
-    );
+    const res = await fetch(apiPath("/discounts"));
+    const updated = await res.json();
     setRules(updated);
   };
 
@@ -95,7 +101,7 @@ export default function AdminDiscounts() {
   };
 
   const handleDelete = async (id) => {
-    await fetch(apiPath(`/discounts/${id}`), {
+    await adminFetch(apiPath(`/discounts/${id}`), {
       method: "DELETE",
     });
 
@@ -164,6 +170,7 @@ export default function AdminDiscounts() {
               >
                 <option value="percentage">Porcentaje</option>
                 <option value="3x2">3x2</option>
+                <option value="free_shipping">Envío Gratis</option>
               </select>
             </div>
 
@@ -210,7 +217,7 @@ export default function AdminDiscounts() {
                     <td>{r.category}</td>
                     <td>{r.subcategory}</td>
                     <td>{r.type}</td>
-                    <td>{r.type === "percentage" ? `${r.discount}%` : "3x2"}</td>
+                    <td>{r.type === "percentage" ? `${r.discount}%` : r.type === "3x2" ? "3x2" : "Envío Gratis"}</td>
                     <td>
                       <button
                         className="table-btn"

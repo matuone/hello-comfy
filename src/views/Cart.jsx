@@ -149,6 +149,18 @@ export default function Cart() {
   }
 
   // ============================
+  // ENVÍO GRATIS POR REGLA DE DESCUENTO
+  // ============================
+  const freeShipping = items.some((item) =>
+    discountRules.some(
+      (r) =>
+        r.type === "free_shipping" &&
+        r.category === item.category &&
+        (r.subcategory === "none" || r.subcategory === item.subcategory)
+    )
+  );
+
+  // ============================
   // FUNCIÓN: 3x2 REAL
   // ============================
   function apply3x2(price, qty) {
@@ -190,8 +202,9 @@ export default function Cart() {
     total = total - (total * promoData.discount) / 100;
   }
 
-  // Agregar costo de envío si hay opción seleccionada
-  const totalConEnvio = total + (selectedShipping ? shippingPrice : 0);
+  // Agregar costo de envío si hay opción seleccionada (gratis si hay regla free_shipping)
+  const effectiveShippingPrice = freeShipping ? 0 : shippingPrice;
+  const totalConEnvio = total + (selectedShipping ? effectiveShippingPrice : 0);
 
   const handleCheckout = () => {
     // Guardar datos de regalo + envío seleccionado en localStorage para el checkout
@@ -202,7 +215,8 @@ export default function Cart() {
     // Propagar la selección de envío del carrito al checkout
     if (selectedShipping) {
       checkoutFormData.shippingMethod = selectedShipping; // "correo-home" o "correo-branch"
-      checkoutFormData.shippingPrice = shippingPrice;
+      checkoutFormData.shippingPrice = effectiveShippingPrice;
+      checkoutFormData.freeShipping = freeShipping;
     }
     if (postalCode) {
       checkoutFormData.postalCode = postalCode;
@@ -590,7 +604,13 @@ export default function Cart() {
           {/* ============================
               ENVÍO + TOTAL FINAL
           ============================ */}
-          {selectedShipping && shippingPrice > 0 && (
+          {freeShipping && selectedShipping && (
+            <div className="cart-summary-row" style={{ color: '#2e7d32', fontWeight: 600 }}>
+              <span>Envío ({selectedShipping === "correo-branch" ? "Sucursal" : "Domicilio"})</span>
+              <span>GRATIS 🎉</span>
+            </div>
+          )}
+          {!freeShipping && selectedShipping && shippingPrice > 0 && (
             <div className="cart-summary-row">
               <span>Envío ({selectedShipping === "correo-branch" ? "Sucursal" : "Domicilio"})</span>
               <span>${shippingPrice.toLocaleString("es-AR")}</span>

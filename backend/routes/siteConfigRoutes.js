@@ -149,4 +149,45 @@ router.put("/announcement-bar-messages", verifyAdmin, async (req, res) => {
   }
 });
 
+// ============================
+// Discount Badge Style
+// ============================
+router.get("/discount-badge-style", async (req, res) => {
+  try {
+    let config = await SiteConfig.findOne({ key: "discountBadgeStyle" });
+    if (!config) {
+      config = await SiteConfig.create({
+        key: "discountBadgeStyle",
+        value: {
+          background: "#ff4444",
+          color: "#ffffff",
+        },
+      });
+    }
+    res.json(config.value);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener estilo de badge de descuento" });
+  }
+});
+
+router.put("/discount-badge-style", verifyAdmin, async (req, res) => {
+  try {
+    const { background, color } = req.body;
+    let config = await SiteConfig.findOne({ key: "discountBadgeStyle" });
+    if (!config) {
+      config = await SiteConfig.create({
+        key: "discountBadgeStyle",
+        value: { background, color },
+      });
+    } else {
+      config.value = { background, color };
+      config.updatedAt = Date.now();
+      await config.save();
+    }
+    res.json(config.value);
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar estilo de badge de descuento" });
+  }
+});
+
 export default router;

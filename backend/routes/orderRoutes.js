@@ -148,7 +148,7 @@ router.post("/orders/create-transfer", async (req, res) => {
     }
 
     // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
-    const { validatedItems, totals, warnings } = await validateCartPrices(items, {
+    const { validatedItems, totals, warnings, hasFreeShipping } = await validateCartPrices(items, {
       promoCode: formData.promoCode || null,
       paymentMethod,
     });
@@ -165,6 +165,7 @@ router.post("/orders/create-transfer", async (req, res) => {
       shippingMethod: formData.shippingMethod,
       postalCode: formData.postalCode,
       items: validatedItems,
+      hasFreeShipping,
     });
 
     // Crear datos simulados de pago para crearOrdenDesdePago
