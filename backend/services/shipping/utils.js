@@ -13,8 +13,11 @@ export function calculatePackage(products) {
 
   products.forEach(p => {
     const qty = p.quantity || 1;
-    const weight = p.weight || 0.3; // fallback 300g
-    const { width = 20, height = 5, length = 30 } = p.dimensions || {};
+    const weight = (p.weight > 0) ? p.weight : 0.3; // fallback 300g
+    const dims = p.dimensions || {};
+    const width = (dims.width > 0) ? dims.width : 20;
+    const height = (dims.height > 0) ? dims.height : 5;
+    const length = (dims.length > 0) ? dims.length : 30;
 
     totalWeight += weight * qty;
     totalHeight += height * qty;        // apilamos los productos

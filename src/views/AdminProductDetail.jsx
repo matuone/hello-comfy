@@ -29,6 +29,10 @@ export default function AdminProductDetail() {
     description: "",
     cardDescription: "", // ⭐ NUEVO (para cards)
     sizeGuide: "remeras",
+    weight: "",
+    dimHeight: "",
+    dimWidth: "",
+    dimLength: "",
   });
 
   const [colores, setColores] = useState([]);
@@ -104,6 +108,10 @@ export default function AdminProductDetail() {
           description: data.description || "",
           cardDescription: data.cardDescription || "", // ⭐ NUEVO
           sizeGuide: data.sizeGuide || "remeras",
+          weight: data.weight || "",
+          dimHeight: data.dimensions?.height || "",
+          dimWidth: data.dimensions?.width || "",
+          dimLength: data.dimensions?.length || "",
         });
       })
       .catch((err) => console.error("Error cargando producto:", err));
@@ -309,6 +317,12 @@ export default function AdminProductDetail() {
       description: producto.description || "",
       cardDescription: producto.cardDescription || "", // ⭐ NUEVO
       sizeGuide: producto.sizeGuide,
+      weight: producto.weight ? Number(producto.weight) : 0,
+      dimensions: {
+        height: producto.dimHeight ? Number(producto.dimHeight) : 0,
+        width: producto.dimWidth ? Number(producto.dimWidth) : 0,
+        length: producto.dimLength ? Number(producto.dimLength) : 0,
+      },
     };
 
     try {
@@ -358,6 +372,12 @@ export default function AdminProductDetail() {
       description: producto.description,
       cardDescription: producto.cardDescription || "", // ⭐ NUEVO
       sizeGuide: producto.sizeGuide,
+      weight: producto.weight ? Number(producto.weight) : 0,
+      dimensions: {
+        height: producto.dimHeight ? Number(producto.dimHeight) : 0,
+        width: producto.dimWidth ? Number(producto.dimWidth) : 0,
+        length: producto.dimLength ? Number(producto.dimLength) : 0,
+      },
     };
 
     try {
@@ -540,6 +560,59 @@ export default function AdminProductDetail() {
             onChange={(e) => actualizarCampo("description", e.target.value)}
             placeholder="Descripción detallada del producto..."
           />
+
+          {/* PESO Y DIMENSIONES (ENVÍO) */}
+          <h4 style={{ marginTop: '20px', marginBottom: '10px', color: '#555', fontSize: '14px', fontWeight: 600 }}>📦 Envío — Peso y dimensiones</h4>
+          <div style={{ display: 'flex', gap: '24px', marginBottom: '12px', maxWidth: '520px' }}>
+            <div>
+              <label className="input-label">Peso (kg)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                className="input-field"
+                value={producto.weight}
+                onChange={(e) => actualizarCampo("weight", e.target.value)}
+                placeholder="0.3"
+              />
+            </div>
+            <div>
+              <label className="input-label">Alto (cm)</label>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                className="input-field"
+                value={producto.dimHeight}
+                onChange={(e) => actualizarCampo("dimHeight", e.target.value)}
+                placeholder="5"
+              />
+            </div>
+            <div>
+              <label className="input-label">Ancho (cm)</label>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                className="input-field"
+                value={producto.dimWidth}
+                onChange={(e) => actualizarCampo("dimWidth", e.target.value)}
+                placeholder="20"
+              />
+            </div>
+            <div>
+              <label className="input-label">Largo (cm)</label>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                className="input-field"
+                value={producto.dimLength}
+                onChange={(e) => actualizarCampo("dimLength", e.target.value)}
+                placeholder="30"
+              />
+            </div>
+          </div>
 
           {/* GUIA DE TALLES */}
           <label className="input-label">Guía de talles</label>

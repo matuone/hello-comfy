@@ -72,6 +72,8 @@ export async function validateCartPrices(clientItems, options = {}) {
       size: clientItem.size || null,
       color: clientItem.color || null,
       quantity: Math.max(1, parseInt(clientItem.quantity) || 1),
+      weight: dbProduct.weight || 0,
+      dimensions: dbProduct.dimensions || { height: 0, width: 0, length: 0 },
     });
   }
 

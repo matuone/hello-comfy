@@ -32,11 +32,18 @@ export async function validateShippingCost({ shippingMethod, postalCode, items, 
   }
 
   // Preparar productos para cotización
-  const products = items.map(item => ({
-    quantity: item.quantity || 1,
-    weight: item.weight || 0.3,
-    dimensions: item.dimensions || { width: 20, height: 5, length: 30 },
-  }));
+  const products = items.map(item => {
+    const dims = item.dimensions || {};
+    return {
+      quantity: item.quantity || 1,
+      weight: (item.weight > 0) ? item.weight : 0.3,
+      dimensions: {
+        width: (dims.width > 0) ? dims.width : 20,
+        height: (dims.height > 0) ? dims.height : 5,
+        length: (dims.length > 0) ? dims.length : 30,
+      },
+    };
+  });
 
   // Intentar cotizar con API real
   const apiResult = await cotizarCorreoArgentino({ postalCode, products });
