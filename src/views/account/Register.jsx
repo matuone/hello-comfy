@@ -32,6 +32,7 @@ export default function Register() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -81,13 +82,45 @@ export default function Register() {
         return;
       }
 
-      // Registro exitoso → redirigir al login
-      navigate("/mi-cuenta");
+      // Registro exitoso → mostrar mensaje de verificación
+      setSuccess(true);
+      setLoading(false);
     } catch (err) {
       console.error("Error en registro:", err);
       setError("Error interno del servidor");
       setLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <div className="register-container" style={{ textAlign: "center", paddingTop: "60px" }}>
+        <h2 style={{ color: "#2e7d32" }}>📧 Revisá tu email</h2>
+        <p style={{ color: "#555", marginTop: "12px", fontSize: "16px", maxWidth: "400px", margin: "12px auto 0" }}>
+          Te enviamos un enlace de verificación a <strong>{form.email}</strong>.
+          Hacé click en el enlace para activar tu cuenta.
+        </p>
+        <p style={{ color: "#999", marginTop: "16px", fontSize: "13px" }}>
+          ¿No lo encontrás? Revisá la carpeta de spam.
+        </p>
+        <button
+          onClick={() => navigate("/mi-cuenta")}
+          style={{
+            marginTop: "24px",
+            background: "#d94f7a",
+            color: "#fff",
+            border: "none",
+            padding: "14px 32px",
+            borderRadius: "10px",
+            fontSize: "15px",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Ir a iniciar sesión
+        </button>
+      </div>
+    );
   }
 
   return (

@@ -8,6 +8,11 @@ import avatar from "../assets/avatar/avatar.png";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL;
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function AccountPopup(props) {
   function togglePassword() {
     setShowPassword((prev) => !prev);
@@ -27,6 +32,10 @@ export default function AccountPopup(props) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [resendMsg, setResendMsg] = useState("");
+  const [resending, setResending] = useState(false);
 
   const { user, logout, isAdmin, loginAdmin, loginUser } = useAuth();
   const navigate = useNavigate();
@@ -72,6 +81,10 @@ export default function AccountPopup(props) {
       } else {
         navigate("/");
       }
+    } else if (result.needsVerification) {
+      setNeedsVerification(true);
+      setVerificationEmail(result.email);
+      setError("");
     } else {
       setError("Email o contraseña incorrectos");
     }
@@ -164,6 +177,36 @@ export default function AccountPopup(props) {
               </div>
 
               {error && <p className="popup__error">{error}</p>}
+
+              {needsVerification && (
+                <div className="popup__verification-notice">
+                  <p>📧 Tu email aún no fue verificado.</p>
+                  <button
+                    type="button"
+                    className="popup__btn popup__btn--secondary"
+                    disabled={resending}
+                    onClick={async () => {
+                      setResending(true);
+                      setResendMsg("");
+                      try {
+                        const res = await fetch(apiPath("/auth/resend-verification"), {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ email: verificationEmail }),
+                        });
+                        const data = await res.json();
+                        setResendMsg(data.message || "Email enviado");
+                      } catch {
+                        setResendMsg("Error al reenviar.");
+                      }
+                      setResending(false);
+                    }}
+                  >
+                    {resending ? "Enviando..." : "Reenviar email"}
+                  </button>
+                  {resendMsg && <p className="popup__resend-msg">{resendMsg}</p>}
+                </div>
+              )}
 
               {/* Botones */}
               <div className="popup__buttons">

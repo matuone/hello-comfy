@@ -763,3 +763,56 @@ export async function enviarFacturaEmail(order, pdfBuffer) {
     return false;
   }
 }
+
+/**
+ * Enviar email de verificación de cuenta
+ * @param {String} email - Email del usuario
+ * @param {String} name - Nombre del usuario
+ * @param {String} token - Token de verificación
+ */
+export async function enviarEmailVerificacion(email, name, token) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email de verificación");
+      return false;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const verifyUrl = `${frontendUrl}/verify-email?token=${token}`;
+
+    const html = `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 520px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+        <div style="background: linear-gradient(135deg, #d94f7a 0%, #e8789a 100%); padding: 32px 24px; text-align: center;">
+          <h1 style="color: #fff; margin: 0; font-size: 24px; font-weight: 700;">Hello Comfy 🧸</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">Verificá tu email para activar tu cuenta</p>
+        </div>
+        <div style="padding: 32px 24px; text-align: center;">
+          <p style="color: #333; font-size: 16px; margin: 0 0 8px 0;">¡Hola <strong>${name}</strong>!</p>
+          <p style="color: #555; font-size: 15px; margin: 0 0 24px 0;">Gracias por registrarte. Hacé click en el botón para verificar tu email y activar tu cuenta.</p>
+          <a href="${verifyUrl}" style="display: inline-block; background: #d94f7a; color: #fff; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px;">Verificar mi email</a>
+          <p style="color: #999; font-size: 12px; margin: 24px 0 0 0;">Este enlace expira en 24 horas.<br>Si no creaste esta cuenta, podés ignorar este email.</p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: '"Hello Comfy" <hellocomfyind@gmail.com>',
+      to: email,
+      subject: "Verificá tu email — Hello Comfy 🧸",
+      html,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando email de verificación:", error.message);
+    return false;
+  }
+}

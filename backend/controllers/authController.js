@@ -34,12 +34,14 @@ export async function changeUserPassword(req, res) {
   }
 }
 // controllers/authController.js
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
 import cloudinary from "../config/cloudinary.js";
+import { enviarEmailVerificacion } from "../services/emailService.js";
 
 // ===============================
 // REGISTRO DE USUARIO
@@ -86,7 +88,10 @@ export async function registerUser(req, res) {
     // Hash de contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear usuario
+    // Crear usuario (sin verificar)
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+
     const newUser = await User.create({
       name: validator.escape(name),
       email: validator.normalizeEmail(email),
@@ -103,47 +108,32 @@ export async function registerUser(req, res) {
         postalCode: validator.escape(address.postalCode),
       },
       method: "email",
+      emailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
     });
 
     // Vincular órdenes previas del mismo email a esta cuenta
     try {
-      const result = await Order.updateMany(
+      await Order.updateMany(
         {
           "customer.email": newUser.email.toLowerCase(),
-          userId: null // Solo vincular órdenes que aún no tienen usuario
+          userId: null
         },
         {
           $set: { userId: newUser._id }
         }
       );
-
-      // No loggear emails ni datos sensibles en producción
     } catch (linkError) {
       // Error no crítico al vincular órdenes previas
     }
 
-    // Generar token
-    // 30 minutos para usuarios normales, 2h para admin
-    const expiresIn = newUser.isAdmin ? "2h" : "30m";
-    const token = jwt.sign(
-      { id: newUser._id, isAdmin: newUser.isAdmin },
-      process.env.JWT_SECRET,
-      { expiresIn }
-    );
+    // Enviar email de verificación
+    await enviarEmailVerificacion(newUser.email, newUser.name, verificationToken);
 
     return res.status(201).json({
-      token,
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        avatar: newUser.avatar,
-        isAdmin: newUser.isAdmin,
-        dni: newUser.dni,
-        whatsapp: newUser.whatsapp,
-        birthdate: newUser.birthdate,
-        address: newUser.address,
-      },
+      message: "Cuenta creada. Revisá tu email para verificar tu cuenta.",
+      needsVerification: true,
     });
 
   } catch (err) {
@@ -169,6 +159,15 @@ export async function loginUser(req, res) {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: "Email o contraseña incorrectos" });
+    }
+
+    // Bloquear login si el email no está verificado
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        error: "Tu email aún no fue verificado. Revisá tu bandeja de entrada.",
+        needsVerification: true,
+        email: user.email,
+      });
     }
 
     // Actualizar lastLogin
@@ -324,6 +323,75 @@ export async function updateUserAvatar(req, res) {
 
   } catch (err) {
     console.error("Error actualizando avatar");
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+// ===============================
+// VERIFICAR EMAIL
+// ===============================
+export async function verifyEmail(req, res) {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token de verificación requerido" });
+    }
+
+    const user = await User.findOne({
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Token inválido o expirado" });
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpires = null;
+    await user.save();
+
+    res.json({ message: "Email verificado correctamente. Ya podés iniciar sesión." });
+  } catch (err) {
+    console.error("Error verificando email:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+}
+
+// ===============================
+// REENVIAR EMAIL DE VERIFICACIÓN
+// ===============================
+export async function resendVerification(req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email requerido" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      // No revelar si el email existe o no
+      return res.json({ message: "Si el email existe, se envió un nuevo enlace de verificación." });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ error: "Este email ya está verificado" });
+    }
+
+    // Generar nuevo token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    user.emailVerificationToken = verificationToken;
+    user.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await user.save();
+
+    await enviarEmailVerificacion(user.email, user.name, verificationToken);
+
+    res.json({ message: "Se envió un nuevo enlace de verificación a tu email." });
+  } catch (err) {
+    console.error("Error reenviando verificación:", err);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }

@@ -86,6 +86,42 @@
   background: #c23f6a;
 }
 
+/* Verificación de email */
+.verification-notice {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6d4c00;
+  margin-bottom: 4px;
+}
+
+.verification-notice p {
+  margin: 0 0 10px 0;
+}
+
+.account-btn--secondary {
+  background: transparent;
+  color: #d94f7a;
+  border: 1.5px solid #d94f7a;
+  font-size: 0.85rem;
+  padding: 7px 14px;
+  min-height: 34px;
+  width: auto;
+}
+
+.account-btn--secondary:hover {
+  background: #fdf0f4;
+}
+
+.resend-msg {
+  margin: 8px 0 0 0;
+  font-size: 0.82rem;
+  color: #388e3c;
+}
+
 .account-link {
   display: block;
   margin-top: 20px;

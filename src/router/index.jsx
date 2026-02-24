@@ -23,6 +23,7 @@ import Wishlist from "../views/Wishlist";
 
 // ⭐ NUEVO: Registro
 import Register from "../views/account/Register";
+import VerifyEmail from "../views/VerifyEmail";
 
 // Checkout
 import Checkout from "../views/Checkout";
@@ -102,6 +103,7 @@ export default function AppRouter() {
 
         {/* ⭐ NUEVA RUTA DE REGISTRO */}
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />

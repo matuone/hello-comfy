@@ -2,7 +2,7 @@
 
 import express from "express";
 import { body, validationResult } from "express-validator";
-import { loginUser, registerUser } from "../controllers/authController.js";
+import { loginUser, registerUser, verifyEmail, resendVerification } from "../controllers/authController.js";
 // Rate limiting desactivado para login y register
 import { forgotPassword } from "../controllers/forgotPasswordController.js";
 import { resetPassword } from "../controllers/resetPasswordController.js";
@@ -75,5 +75,11 @@ router.post(
 
 // POST /api/auth/forgot-password
 router.post("/forgot-password", forgotPassword);
+
+// GET /api/auth/verify-email?token=xxx
+router.get("/verify-email", verifyEmail);
+
+// POST /api/auth/resend-verification
+router.post("/resend-verification", resendVerification);
 
 export default router;

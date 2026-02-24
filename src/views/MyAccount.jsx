@@ -10,12 +10,21 @@ export default function MyAccount() {
   const { loginAdmin, loginUser, user } = useAuth();
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_URL;
+  function apiPath(path) {
+    return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+  }
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [showForgot, setShowForgot] = useState(false);
   const [opinionsPopup, setOpinionsPopup] = useState(null);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [resendMsg, setResendMsg] = useState("");
+  const [resending, setResending] = useState(false);
 
   // Si el usuario ya está logueado, redirigir al perfil
   useEffect(() => {
@@ -48,6 +57,9 @@ export default function MyAccount() {
       } else {
         navigate("/");
       }
+    } else if (result.needsVerification) {
+      setNeedsVerification(true);
+      setVerificationEmail(result.email);
     } else {
       setError("Email o contraseña incorrectos.");
     }
@@ -99,6 +111,36 @@ export default function MyAccount() {
             </div>
 
             {error && <div className="login-error">{error}</div>}
+
+            {needsVerification && (
+              <div className="verification-notice">
+                <p>📧 Tu email aún no fue verificado. Revisá tu bandeja de entrada.</p>
+                <button
+                  type="button"
+                  className="account-btn account-btn--secondary"
+                  disabled={resending}
+                  onClick={async () => {
+                    setResending(true);
+                    setResendMsg("");
+                    try {
+                      const res = await fetch(apiPath("/auth/resend-verification"), {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: verificationEmail }),
+                      });
+                      const data = await res.json();
+                      setResendMsg(data.message || "Email enviado");
+                    } catch {
+                      setResendMsg("Error al reenviar. Intentá de nuevo.");
+                    }
+                    setResending(false);
+                  }}
+                >
+                  {resending ? "Enviando..." : "Reenviar email de verificación"}
+                </button>
+                {resendMsg && <p className="resend-msg">{resendMsg}</p>}
+              </div>
+            )}
 
             <button type="submit" className="account-btn">
               Iniciar sesión

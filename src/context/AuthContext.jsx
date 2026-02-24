@@ -336,6 +336,11 @@ export function AuthProvider({ children }) {
 
       const data = await res.json();
 
+      // Email no verificado
+      if (!res.ok && data.needsVerification) {
+        return { success: false, needsVerification: true, email: data.email };
+      }
+
       if (!res.ok || !data.token || !data.user) {
         return { success: false };
       }
