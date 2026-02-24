@@ -446,10 +446,18 @@
     color: #444;
     margin: 20px 0;
     line-height: 1.7;
+    overflow-wrap: break-word;
+    word-break: normal;
   }
 
   .pd-description p {
     margin: 0 0 0.8em 0;
+  }
+
+  .pd-description p:empty,
+  .pd-description p br:only-child {
+    display: block;
+    min-height: 1em;
   }
 
   .pd-description strong {

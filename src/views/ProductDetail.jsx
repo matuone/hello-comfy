@@ -420,7 +420,7 @@ export default function ProductDetail() {
           {producto.description && (
             <div
               className="pd-description"
-              dangerouslySetInnerHTML={{ __html: producto.description }}
+              dangerouslySetInnerHTML={{ __html: producto.description.replace(/&nbsp;/g, " ") }}
             />
           )}
 
