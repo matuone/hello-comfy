@@ -217,8 +217,12 @@ export default function Products() {
   };
 
   const getSelectedSize = (product) => {
-    const availableSizes = getAvailableSizes(product);
-    return selectedSizes[product._id] || availableSizes[0]?.[0] || null;
+    if (selectedSizes[product._id]) return selectedSizes[product._id];
+    const allSizes = getAvailableSizes(product);
+    const hasUnico = allSizes.some(([t]) => t === 'Único');
+    const sizesToShow = hasUnico ? allSizes.filter(([t]) => t === 'Único') : allSizes;
+    const inStock = sizesToShow.filter(([, qty]) => qty > 0);
+    return inStock[0]?.[0] || sizesToShow[0]?.[0] || null;
   };
 
   const getMaxStockForSize = (product, size) => {
@@ -490,9 +494,12 @@ export default function Products() {
                           </div>
                         </>
                       ) : (
-                        <div className="productcard__price">
-                          ${precioOriginal?.toLocaleString("es-AR")}
-                        </div>
+                        <>
+                          <div className="productcard__price-original" style={{ visibility: 'hidden' }}>&nbsp;</div>
+                          <div className="productcard__price">
+                            ${precioOriginal?.toLocaleString("es-AR")}
+                          </div>
+                        </>
                       )}
                       <div className="productcard__payment-options">
                         <div className="payment-option payment-option--transfer">
@@ -520,10 +527,12 @@ export default function Products() {
                   >
                     {(() => {
                       const allSizes = getAvailableSizes(p);
-                      const inStockSizes = allSizes.filter(([, qty]) => qty > 0);
-                      const selected = selectedSizes[p._id] || inStockSizes[0]?.[0] || allSizes[0]?.[0];
+                      const hasUnico = allSizes.some(([t]) => t === 'Único');
+                      const sizesToShow = hasUnico ? allSizes.filter(([t]) => t === 'Único') : allSizes;
+                      const inStockSizes = sizesToShow.filter(([, qty]) => qty > 0);
+                      const selected = selectedSizes[p._id] || inStockSizes[0]?.[0] || sizesToShow[0]?.[0];
 
-                      return allSizes.map(([t, qty]) => {
+                      return sizesToShow.map(([t, qty]) => {
                         const isNoStock = qty <= 0;
                         return (
                           <button
@@ -626,15 +635,6 @@ export default function Products() {
                 </button>
               </div>
 
-              <button
-                className="productcard__btn-viewmore"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/products/${p._id}`);
-                }}
-              >
-                Ver más
-              </button>
             </div>
           ))}
 

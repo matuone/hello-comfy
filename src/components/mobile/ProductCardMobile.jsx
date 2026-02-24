@@ -59,7 +59,6 @@ export default function ProductCardMobile({ product }) {
         <button className="productcard__btn-buy">Comprar</button>
         <button className="productcard__btn-cart">Agregar al carrito</button>
       </div>
-      <button className="productcard__btn-viewmore">Ver más</button>
     </div>
   );
 }

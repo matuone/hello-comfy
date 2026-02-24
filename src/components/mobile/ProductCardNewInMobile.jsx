@@ -151,7 +151,6 @@ export default function ProductCardNewInMobile({ product, discountRules = [], on
         <button className="productcard__btn-buy" onClick={e => { e.stopPropagation(); onBuy(product, selectedSize, quantity); }} disabled={noStock}>Comprar</button>
         <button className="productcard__btn-cart" onClick={e => { e.stopPropagation(); onAddToCart(product, selectedSize, quantity); }} disabled={noStock}>Agregar al carrito</button>
       </div>
-      <button className="productcard__btn-viewmore" onClick={e => { e.stopPropagation(); onViewMore(product); }}>Ver más</button>
     </div>
   );
 }

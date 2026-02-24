@@ -803,15 +803,6 @@ export default function ProductDetail() {
                       </button>
                     </div>
 
-                    <button
-                      className="productcard__btn-viewmore"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/products/${p._id}`);
-                      }}
-                    >
-                      Ver más
-                    </button>
                   </div>
                 </SwiperSlide>
               ))}

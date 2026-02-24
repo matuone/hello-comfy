@@ -369,15 +369,6 @@ export default function Category() {
                 </button>
               </div>
 
-              <button
-                className="productcard__btn-viewmore"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/products/${p._id}`);
-                }}
-              >
-                Ver más
-              </button>
             </div>
           ))}
 
