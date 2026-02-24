@@ -18,6 +18,7 @@ router.post("/force-stock-alert", verifyAdmin, async (req, res) => {
       config = new SiteConfig({ key: "lastStockAlert", value: new Date().toISOString() });
     } else {
       config.value = new Date().toISOString();
+      config.markModified("value");
     }
     await config.save();
     res.json({ ok: true, message: "Email de bajo stock enviado" });

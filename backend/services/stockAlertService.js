@@ -19,7 +19,17 @@ async function getLastAlertDate() {
 }
 
 // Devuelve true si la alerta ya fue enviada hoy
-function isToday(dateStr) {
+function isToday(value) {
+  // value puede ser un string ISO, un Date object, o cualquier cosa
+  let dateStr;
+  if (value instanceof Date) {
+    dateStr = value.toISOString();
+  } else if (typeof value === "string") {
+    dateStr = value;
+  } else {
+    // Valor inesperado, asumir que no se envió hoy
+    return false;
+  }
   const today = new Date().toISOString().slice(0, 10);
   return dateStr.slice(0, 10) === today;
 }
@@ -89,13 +99,20 @@ async function sendStockAlertEmail(lista) {
 cron.schedule(ALERT_CRON, async () => {
   try {
     const config = await getLastAlertDate();
-    if (isToday(config.value)) return; // Ya se envió hoy
+    if (isToday(config.value)) {
+      return;
+    }
     const lista = await getLowStockList();
-    if (lista.length === 0) return;
+    if (lista.length === 0) {
+      console.log("[StockAlert] Sin productos con bajo stock, no se envía email");
+      return;
+    }
+    console.log(`[StockAlert] Enviando email con ${lista.length} items de bajo stock...`);
     await sendStockAlertEmail(lista);
     config.value = new Date().toISOString();
+    config.markModified("value"); // Forzar que Mongoose detecte el cambio en campo Mixed
     await config.save();
-    console.log("[StockAlert] Email enviado");
+    console.log("[StockAlert] Email enviado correctamente");
   } catch (err) {
     console.error("[StockAlert] Error:", err);
   }
