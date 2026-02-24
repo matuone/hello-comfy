@@ -8,7 +8,10 @@ const BASE_URLS = {
   prod: "https://api.correoargentino.com.ar/micorreo/v1"
 };
 
-const BASE_URL = BASE_URLS[process.env.CORREO_ARG_ENV || "test"];
+/** Resuelve la URL base en cada llamada (no al importar el módulo) */
+function getBaseUrl() {
+  return BASE_URLS[process.env.CORREO_ARG_ENV || "test"];
+}
 
 /**
  * Obtener token JWT de autenticación
@@ -24,11 +27,11 @@ async function getAuthToken() {
   try {
     const auth = Buffer.from(`${user}:${password}`).toString("base64");
 
-    // console.log(`📡 Intentando autenticar en ${BASE_URL}/token`);
+    // console.log(`📡 Intentando autenticar en ${getBaseUrl()}/token`);
     // console.log(`   Usuario: ${user}`);
     // console.log(`   Ambiente: ${process.env.CORREO_ARG_ENV || "test"}`);
     const response = await axios.post(
-      `${BASE_URL}/token`,
+      `${getBaseUrl()}/token`,
       {},
       {
         headers: {
@@ -76,8 +79,9 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
       length: Math.min(150, Math.ceil(length))
     };
 
+    // Pedir ambas cotizaciones (domicilio y sucursal) omitiendo deliveredType
     const response = await axios.post(
-      `${BASE_URL}/rates`,
+      `${getBaseUrl()}/rates`,
       {
         customerId,
         postalCodeOrigin: originCP,
@@ -105,26 +109,61 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
       validTo: response.data.validTo
     };
 
-    // Procesar tarifas
+    // Procesar tarifas — la API devuelve deliveredType, productType, productName, price,
+    // deliveryTimeMin y deliveryTimeMax.
+    // Puede haber múltiples productos (Clásico CP y Expreso EP) por tipo de entrega.
+    // Tomamos el más barato (Clásico) para home/branch y guardamos todos en allRates.
+    result.allRates = rates;
+
     rates.forEach(rate => {
       const eta = `${rate.deliveryTimeMin} a ${rate.deliveryTimeMax} días hábiles`;
 
       if (rate.deliveredType === "D") {
-        result.home = {
-          price: rate.price,
-          eta,
-          productName: rate.productName,
-          available: true
-        };
+        // Si aún no hay tarifa domicilio, o esta es más barata, usarla como principal
+        if (!result.home || !result.home.available || rate.price < result.home.price) {
+          result.home = {
+            price: rate.price,
+            eta,
+            productName: rate.productName,
+            productType: rate.productType,
+            available: true
+          };
+        }
+        // Guardar expreso por separado si existe
+        if (rate.productType === "EP") {
+          result.homeExpress = {
+            price: rate.price,
+            eta,
+            productName: rate.productName,
+            productType: rate.productType,
+            available: true
+          };
+        }
       } else if (rate.deliveredType === "S") {
-        result.branch = {
-          price: rate.price,
-          eta,
-          productName: rate.productName,
-          available: true
-        };
+        if (!result.branch || !result.branch.available || rate.price < result.branch.price) {
+          result.branch = {
+            price: rate.price,
+            eta,
+            productName: rate.productName,
+            productType: rate.productType,
+            available: true
+          };
+        }
+        if (rate.productType === "EP") {
+          result.branchExpress = {
+            price: rate.price,
+            eta,
+            productName: rate.productName,
+            productType: rate.productType,
+            available: true
+          };
+        }
       }
     });
+
+    // Asegurar que home y branch existan aunque no vengan
+    if (!result.home) result.home = { available: false };
+    if (!result.branch) result.branch = { available: false };
 
     return result;
   } catch (error) {
@@ -152,7 +191,7 @@ export async function getAgencies(provinceCode) {
   try {
     const token = await getAuthToken();
 
-    const response = await axios.get(`${BASE_URL}/agencies`, {
+    const response = await axios.get(`${getBaseUrl()}/agencies`, {
       params: {
         customerId,
         provinceCode
@@ -182,15 +221,31 @@ export async function importShipping(orderData) {
   try {
     const token = await getAuthToken();
 
+    const isHome = orderData.shipping.method === "home";
+    const deliveryType = isHome ? "D" : "S";
+
+    // Construir dirección de envío
+    // Para domicilio (D): los campos de dirección son obligatorios
+    // Para sucursal (S): los campos de dirección NO son obligatorios
+    const shippingAddress = {
+      streetName: orderData.shipping.streetName || "",
+      streetNumber: orderData.shipping.streetNumber || "",
+      floor: (orderData.shipping.floor || "").substring(0, 3),       // API trunca a 3 chars
+      apartment: (orderData.shipping.apartment || "").substring(0, 3), // API trunca a 3 chars
+      city: orderData.shipping.city || "",
+      provinceCode: orderData.shipping.provinceCode || "",
+      postalCode: orderData.shipping.postalCode || ""
+    };
+
     const payload = {
       customerId,
-      extOrderId: orderData.code, // Código único de la orden
-      orderNumber: orderData.code,
+      extOrderId: String(orderData.code),
+      orderNumber: String(orderData.code),
       sender: {
         name: process.env.CORREO_ARG_SENDER_NAME || "Hello Comfy",
-        phone: process.env.CORREO_ARG_SENDER_PHONE || "",
-        cellPhone: process.env.CORREO_ARG_SENDER_CELL || "",
-        email: process.env.CORREO_ARG_SENDER_EMAIL || "",
+        phone: process.env.CORREO_ARG_SENDER_PHONE || null,
+        cellPhone: process.env.CORREO_ARG_SENDER_CELL || null,
+        email: process.env.CORREO_ARG_SENDER_EMAIL || null,
         originAddress: {
           streetName: process.env.CORREO_ARG_ORIGIN_STREET || null,
           streetNumber: process.env.CORREO_ARG_ORIGIN_NUMBER || null,
@@ -208,28 +263,19 @@ export async function importShipping(orderData) {
         email: orderData.customer.email
       },
       shipping: {
-        deliveryType: orderData.shipping.method === "home" ? "D" : "S",
-        productType: "CP",
-        agency: orderData.shipping.method === "pickup" ? orderData.shipping.agency : null,
-        address: orderData.shipping.method === "home" ? {
-          streetName: orderData.shipping.streetName,
-          streetNumber: orderData.shipping.streetNumber,
-          floor: orderData.shipping.floor || "",
-          apartment: orderData.shipping.apartment || "",
-          city: orderData.shipping.city,
-          provinceCode: orderData.shipping.provinceCode,
-          postalCode: orderData.shipping.postalCode
-        } : null,
-        weight: orderData.shipping.weight || 1000, // gramos
+        deliveryType,
+        agency: !isHome ? (orderData.shipping.agency || null) : null,
+        address: shippingAddress,
+        weight: Math.max(1, Math.round(orderData.shipping.weight || 1000)), // gramos, entero, min 1g
         declaredValue: orderData.totals.total,
-        height: orderData.shipping.height || 20,
-        length: orderData.shipping.length || 30,
-        width: orderData.shipping.width || 20
+        height: Math.min(255, Math.max(1, Math.round(orderData.shipping.height || 20))),
+        length: Math.min(255, Math.max(1, Math.round(orderData.shipping.length || 30))),
+        width: Math.min(255, Math.max(1, Math.round(orderData.shipping.width || 20)))
       }
     };
 
     const response = await axios.post(
-      `${BASE_URL}/shipping/import`,
+      `${getBaseUrl()}/shipping/import`,
       payload,
       {
         headers: {
@@ -239,10 +285,11 @@ export async function importShipping(orderData) {
       }
     );
 
+    // La API solo devuelve createdAt. El extOrderId sirve como referencia.
     return {
       success: true,
       createdAt: response.data.createdAt,
-      trackingNumber: orderData.code // Correo usa el extOrderId para tracking
+      extOrderId: String(orderData.code)
     };
   } catch (error) {
     console.error("Error importando envío a Correo Argentino:", error.response?.data || error.message);
@@ -252,6 +299,9 @@ export async function importShipping(orderData) {
 
 /**
  * Obtener tracking de un envío
+ * NOTA: Este endpoint (/shipping/tracking) no está documentado en la API oficial
+ * de MiCorreo v1. Puede no existir o requerir parámetros diferentes.
+ * Mantener como referencia para futuras versiones de la API.
  */
 export async function getTracking(shippingId) {
   if (!process.env.CORREO_ARG_USER) {
@@ -261,7 +311,7 @@ export async function getTracking(shippingId) {
   try {
     const token = await getAuthToken();
 
-    const response = await axios.get(`${BASE_URL}/shipping/tracking`, {
+    const response = await axios.get(`${getBaseUrl()}/shipping/tracking`, {
       params: {
         shippingId
       },

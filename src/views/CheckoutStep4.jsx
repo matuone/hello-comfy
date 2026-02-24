@@ -327,7 +327,9 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
   const shippingLabel =
     formData.shippingMethod === "pickup"
       ? "Retiro en Pick Up Point"
-      : "Envío a domicilio";
+      : formData.shippingMethod === "correo-branch"
+        ? "Envío a sucursal (Correo Argentino)"
+        : "Envío a domicilio (Correo Argentino)";
 
   const paymentLabel =
     formData.paymentMethod === "transfer"
@@ -355,11 +357,19 @@ export default function Step4({ formData, items, totalPrice, back, clearCheckout
         <h3>Envío</h3>
         <p><strong>Método:</strong> {shippingLabel}</p>
 
-        {formData.shippingMethod === "home" && (
+        {(formData.shippingMethod === "correo-home" || formData.shippingMethod === "home") && (
           <>
             <p><strong>Dirección:</strong> {formData.address}</p>
             <p><strong>Código postal:</strong> {formData.postalCode}</p>
             <p><strong>Provincia:</strong> {formData.province}</p>
+          </>
+        )}
+
+        {formData.shippingMethod === "correo-branch" && (
+          <>
+            <p><strong>Código postal:</strong> {formData.postalCode}</p>
+            <p><strong>Provincia:</strong> {formData.province}</p>
+            <p><strong>Localidad:</strong> {formData.localidad}</p>
           </>
         )}
 

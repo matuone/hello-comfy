@@ -21,26 +21,88 @@
 }
 
 .shipopt-item {
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
   border-radius: 10px;
-  border: 1px solid #f0d3df;
+  border: 2px solid #f0d3df;
   background: #fff7fb;
   width: 100%;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+
+.shipopt-item:hover {
+  border-color: #d94f7a;
+  background: #fff0f5;
+}
+
+.shipopt-item--selected {
+  border-color: #d94f7a;
+  background: #fff0f5;
+  box-shadow: 0 0 0 1px #d94f7a;
+}
+
+/* Radio dot */
+.shipopt-radio {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+
+.shipopt-item--selected .shipopt-radio,
+.shipopt-item:hover .shipopt-radio {
+  border-color: #d94f7a;
+}
+
+.shipopt-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.2s;
+}
+
+.shipopt-dot--active {
+  background: #d94f7a;
+}
+
+/* Info */
+.shipopt-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .shipopt-carrier {
   font-size: 0.95rem;
-  color: #444;
+  color: #333;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.shipopt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .shipopt-price {
-  margin: 4px 0;
+  margin: 0;
   font-size: 1rem;
   font-weight: 700;
   color: #d94f7a;
 }
 
 .shipopt-eta {
-  color: #666;
-  font-size: 0.85rem;
+  color: #888;
+  font-size: 0.82rem;
 }

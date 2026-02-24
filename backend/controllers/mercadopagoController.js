@@ -6,6 +6,7 @@ import {
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
+import { validateShippingCost } from "../services/validateShippingCost.js";
 
 /**
  * POST /api/mercadopago/create-preference
@@ -80,13 +81,20 @@ export const createPreference = async (req, res) => {
       };
     });
 
-    // Agregar envío como item si corresponde
-    if (shippingCost > 0) {
+    // Agregar envío como item si corresponde — RECALCULADO desde la API
+    const { shippingCost: validatedShipping } = await validateShippingCost({
+      shippingMethod: metadata?.shippingMethod,
+      postalCode: customerData?.postalCode,
+      items: validatedItems,
+      clientShippingCost: shippingCost,
+    });
+
+    if (validatedShipping > 0) {
       mercadopagoItems.push({
         title: "Costo de envío",
         description: "Envío",
         quantity: 1,
-        unit_price: parseFloat(shippingCost),
+        unit_price: validatedShipping,
         currency_id: "ARS",
       });
     }
@@ -293,8 +301,17 @@ export const processPayment = async (req, res) => {
         return res.status(400).json({ error: "Error validando productos del carrito" });
       }
 
+      // ⭐ VALIDAR COSTO DE ENVÍO contra la API — nunca confiar en el frontend
+      const { shippingCost: validatedShipping } = await validateShippingCost({
+        shippingMethod: pendingOrderData.formData?.shippingMethod,
+        postalCode: pendingOrderData.formData?.postalCode,
+        items: validatedItems,
+        clientShippingCost: pendingOrderData.shippingCost,
+      });
+      pendingOrderData.shippingCost = validatedShipping;
+
       // ⭐ VERIFICAR que el monto pagado en MP coincida con el total validado
-      const montoValidado = pendingOrderData.totalPrice + (pendingOrderData.shippingCost || 0);
+      const montoValidado = pendingOrderData.totalPrice + validatedShipping;
       const montoPagado = paymentData.transaction_amount;
       const tolerancia = 1; // $1 de tolerancia por redondeos
 

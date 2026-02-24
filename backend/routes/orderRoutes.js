@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { crearOrdenDesdePago } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
+import { validateShippingCost } from "../services/validateShippingCost.js";
 
 /* ============================================================
    ⭐ RUTA PRIVADA — Mis órdenes (usuario autenticado)
@@ -159,11 +160,18 @@ router.post("/orders/create-transfer", async (req, res) => {
     // Usar el total validado por el servidor, NO el del frontend
     const validatedTotal = totals.total;
 
+    // ⭐ VALIDAR COSTO DE ENVÍO contra la API — nunca confiar en el frontend
+    const { shippingCost: validatedShipping } = await validateShippingCost({
+      shippingMethod: formData.shippingMethod,
+      postalCode: formData.postalCode,
+      items: validatedItems,
+    });
+
     // Crear datos simulados de pago para crearOrdenDesdePago
     const paymentData = {
       id: `${paymentMethod}_${Date.now()}`,
       status: "pending", // Para transferencias/cuentadni es pending hasta que admin confirme
-      transaction_amount: validatedTotal,
+      transaction_amount: validatedTotal + validatedShipping,
       payer: {
         email: formData.email,
         name: formData.name,

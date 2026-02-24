@@ -6,6 +6,7 @@ import {
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
+import { validateShippingCost } from "../services/validateShippingCost.js";
 
 /**
  * POST /api/modo/create-payment-intent
@@ -56,8 +57,14 @@ export const createPaymentIntent = async (req, res) => {
       return res.status(400).json({ error: "Error validando productos del carrito" });
     }
 
-    // Calcular total con precios validados
-    const total = totals.total + parseFloat(shippingCost);
+    // Calcular total con precios validados + envío recalculado desde API
+    const { shippingCost: validatedShipping } = await validateShippingCost({
+      shippingMethod: metadata?.shippingMethod,
+      postalCode: customerData?.postalCode,
+      items: validatedItems,
+      clientShippingCost: shippingCost,
+    });
+    const total = totals.total + validatedShipping;
     const externalReference = `modo_test_${Date.now()}`;
 
     // URLs de callback
@@ -170,11 +177,20 @@ export const confirmPayment = async (req, res) => {
         return res.status(400).json({ error: "Error validando productos del carrito" });
       }
 
+      // ⭐ VALIDAR COSTO DE ENVÍO contra la API
+      const { shippingCost: validatedShipping } = await validateShippingCost({
+        shippingMethod: pendingOrderData.formData?.shippingMethod,
+        postalCode: pendingOrderData.formData?.postalCode,
+        items: validatedItems,
+        clientShippingCost: pendingOrderData.shippingCost,
+      });
+      pendingOrderData.shippingCost = validatedShipping;
+
       // Crear datos de pago simulados
       const paymentData = {
         id: reference,
         status: "approved",
-        transaction_amount: pendingOrderData.totalPrice + (pendingOrderData.shippingCost || 0),
+        transaction_amount: pendingOrderData.totalPrice + validatedShipping,
         payer: {
           email: pendingOrderData.formData.email,
           name: pendingOrderData.formData.name

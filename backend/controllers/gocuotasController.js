@@ -6,6 +6,7 @@ import {
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
+import { validateShippingCost } from "../services/validateShippingCost.js";
 
 // ============================
 // CONFIG
@@ -139,7 +140,8 @@ export const createCheckout = async (req, res) => {
       customerData,
       items: validatedItems, // ← items con precios validados de BD
       totalPrice: totals.total, // ← total recalculado desde BD
-      shippingCost,
+      shippingMethod: metadata?.shippingMethod || null,
+      postalCode: customerData?.postalCode || null,
       metadata,
       createdAt: new Date(),
     };
@@ -218,7 +220,12 @@ export const webhookGocuotas = async (req, res) => {
         }
 
         // ⭐ VERIFICAR que el monto cobrado coincida con el validado
-        const montoValidadoCents = Math.round((validatedTotal + (orderData.shippingCost || 0)) * 100);
+        const { shippingCost: validatedShipping } = await validateShippingCost({
+          shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod,
+          postalCode: orderData.postalCode || orderData.customerData?.postalCode,
+          items: validatedItems,
+        });
+        const montoValidadoCents = Math.round((validatedTotal + validatedShipping) * 100);
         const toleranciaCents = 100; // $1 de tolerancia
         if (amount_in_cents && Math.abs(amount_in_cents - montoValidadoCents) > toleranciaCents) {
           console.error(
@@ -234,7 +241,7 @@ export const webhookGocuotas = async (req, res) => {
           customerData: orderData.customerData,
           items: validatedItems,
           totalPrice: validatedTotal,
-          shippingCost: orderData.shippingCost,
+          shippingCost: validatedShipping,
           status: "completed",
           installments: installments || 1,
           metadata: {
@@ -304,7 +311,12 @@ export const processPayment = async (req, res) => {
     }
 
     // ⭐ VERIFICAR que el monto cobrado coincida con el validado
-    const montoValidadoCents = Math.round((validatedTotal + (orderData.shippingCost || 0)) * 100);
+    const { shippingCost: validatedShippingProc } = await validateShippingCost({
+      shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod,
+      postalCode: orderData.postalCode || orderData.customerData?.postalCode,
+      items: validatedItems,
+    });
+    const montoValidadoCents = Math.round((validatedTotal + validatedShippingProc) * 100);
     const montoCobradoCents = checkoutStatus.amount_in_cents;
     const toleranciaCents = 100; // $1 de tolerancia
     if (montoCobradoCents && Math.abs(montoCobradoCents - montoValidadoCents) > toleranciaCents) {
@@ -321,7 +333,7 @@ export const processPayment = async (req, res) => {
       customerData: orderData.customerData,
       items: validatedItems,
       totalPrice: validatedTotal,
-      shippingCost: orderData.shippingCost,
+      shippingCost: validatedShippingProc,
       status: "completed",
       installments: checkoutStatus.installments || 1,
       metadata: {

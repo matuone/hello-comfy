@@ -1,30 +1,41 @@
 export default function Step2({ formData, updateField, next, back }) {
+  const needsAddress = formData.shippingMethod === "correo-home" || formData.shippingMethod === "home";
+  const needsPostalCode = formData.shippingMethod === "correo-home" || formData.shippingMethod === "correo-branch"
+    || formData.shippingMethod === "home";
+
   const isValid =
     formData.shippingMethod === "pickup" ||
-    ((formData.address || "").trim().length > 3 &&
+    (needsAddress &&
+      (formData.address || "").trim().length > 3 &&
       (formData.postalCode || "").trim().length >= 4 &&
       (formData.province || "").trim().length > 2 &&
-      (formData.localidad || "").trim().length > 2 &&
-      formData.shippingMethod === "home");
+      (formData.localidad || "").trim().length > 2) ||
+    (formData.shippingMethod === "correo-branch" &&
+      (formData.postalCode || "").trim().length >= 4 &&
+      (formData.province || "").trim().length > 2 &&
+      (formData.localidad || "").trim().length > 2);
 
   return (
     <div className="checkout-step">
       <h2>Dirección de envío</h2>
 
       {/* ============================
-          CAMPOS SOLO SI ES ENVÍO A DOMICILIO
+          CAMPOS SEGÚN MÉTODO DE ENVÍO
       ============================ */}
       {formData.shippingMethod !== "pickup" && (
         <>
-          <div className="form-group">
-            <label>Dirección</label>
-            <input
-              type="text"
-              placeholder="Ej: Av. Siempreviva 742"
-              value={formData.address}
-              onChange={(e) => updateField("address", e.target.value)}
-            />
-          </div>
+          {/* Dirección solo para envío a domicilio */}
+          {needsAddress && (
+            <div className="form-group">
+              <label>Dirección</label>
+              <input
+                type="text"
+                placeholder="Ej: Av. Siempreviva 742"
+                value={formData.address}
+                onChange={(e) => updateField("address", e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label>Código postal</label>
@@ -75,15 +86,26 @@ export default function Step2({ formData, updateField, next, back }) {
           Retiro en Pick Up Point
         </label>
 
-        {/* ⭐ ENVÍO A DOMICILIO */}
+        {/* ⭐ ENVÍO A DOMICILIO — Correo Argentino */}
         <label>
           <input
             type="radio"
             name="shipping"
-            checked={formData.shippingMethod === "home"}
-            onChange={() => updateField("shippingMethod", "home")}
+            checked={formData.shippingMethod === "correo-home" || formData.shippingMethod === "home"}
+            onChange={() => updateField("shippingMethod", "correo-home")}
           />
-          Envío a domicilio
+          Envío a domicilio (Correo Argentino)
+        </label>
+
+        {/* ⭐ ENVÍO A SUCURSAL — Correo Argentino */}
+        <label>
+          <input
+            type="radio"
+            name="shipping"
+            checked={formData.shippingMethod === "correo-branch"}
+            onChange={() => updateField("shippingMethod", "correo-branch")}
+          />
+          Envío a sucursal (Correo Argentino)
         </label>
       </div>
 

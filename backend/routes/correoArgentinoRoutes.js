@@ -108,8 +108,9 @@ router.post("/correo-argentino/import/:orderId", verifyAdmin, async (req, res) =
     // Registrar en Correo Argentino
     const result = await importShipping(orderData);
 
-    // Actualizar orden con tracking
-    order.correoArgentinoTracking = result.trackingNumber;
+    // Actualizar orden con referencia de Correo Argentino
+    // La API no devuelve tracking number — usamos extOrderId como referencia
+    order.correoArgentinoTracking = result.extOrderId;
     order.correoArgentinoRegisteredAt = result.createdAt;
     order.timeline.push({
       status: "Registrado en Correo Argentino",
@@ -120,7 +121,7 @@ router.post("/correo-argentino/import/:orderId", verifyAdmin, async (req, res) =
     res.json({
       success: true,
       message: "Orden registrada exitosamente en Correo Argentino",
-      tracking: result.trackingNumber,
+      extOrderId: result.extOrderId,
       createdAt: result.createdAt
     });
   } catch (error) {
@@ -213,7 +214,8 @@ router.post("/correo-argentino/import-batch", verifyAdmin, async (req, res) => {
 
         const result = await importShipping(orderData);
 
-        order.correoArgentinoTracking = result.trackingNumber;
+        // La API no devuelve tracking — usamos extOrderId como referencia
+        order.correoArgentinoTracking = result.extOrderId;
         order.correoArgentinoRegisteredAt = result.createdAt;
         order.timeline.push({
           status: "Registrado en Correo Argentino",
@@ -224,7 +226,7 @@ router.post("/correo-argentino/import-batch", verifyAdmin, async (req, res) => {
         results.push({
           orderId,
           code: order.code,
-          tracking: result.trackingNumber
+          extOrderId: result.extOrderId
         });
       } catch (error) {
         errors.push({

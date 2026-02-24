@@ -177,10 +177,19 @@ export default function Cart() {
   }
 
   const handleCheckout = () => {
-    // Guardar datos de regalo en localStorage para el checkout
+    // Guardar datos de regalo + envío seleccionado en localStorage para el checkout
     const checkoutFormData = JSON.parse(localStorage.getItem("checkoutFormData") || "{}");
     checkoutFormData.isGift = isGift;
     checkoutFormData.giftMessage = giftMessage;
+
+    // Propagar la selección de envío del carrito al checkout
+    if (selectedShipping) {
+      checkoutFormData.shippingMethod = selectedShipping; // "correo-home" o "correo-branch"
+    }
+    if (postalCode) {
+      checkoutFormData.postalCode = postalCode;
+    }
+
     localStorage.setItem("checkoutFormData", JSON.stringify(checkoutFormData));
 
     navigate("/checkout");
@@ -215,6 +224,7 @@ export default function Cart() {
   // ENVÍO REAL
   // ============================
   const [postalCode, setPostalCode] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState(null);
 
   const {
     loading: loadingShipping,
@@ -476,8 +486,12 @@ export default function Cart() {
               </p>
             )}
 
-            {/* ⭐ Muestra Andreani + Correo */}
-            <ShippingOptions result={shippingOptions} />
+            {/* ⭐ Opciones de envío seleccionables */}
+            <ShippingOptions
+              result={shippingOptions}
+              selected={selectedShipping}
+              onSelect={(id) => setSelectedShipping(id)}
+            />
 
             {/* ⭐ PICK UP POINT */}
             <div className="cart-pickup">

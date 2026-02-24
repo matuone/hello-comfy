@@ -12,6 +12,7 @@ const ProductDetailMobile = ({ product, similares }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [postalCode, setPostalCode] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const {
     loading: loadingShipping,
@@ -181,7 +182,11 @@ const ProductDetailMobile = ({ product, similares }) => {
             </button>
           </div>
           {shippingError && <p className="pdm-shipping-error">{shippingError}</p>}
-          <ShippingOptions result={shippingOptions} />
+          <ShippingOptions
+            result={shippingOptions}
+            selected={selectedShipping}
+            onSelect={(id) => setSelectedShipping(id)}
+          />
         </div>
       </div>
 

@@ -56,6 +56,7 @@ export default function ProductDetail() {
 
   // ⭐ NUEVO — Estados de envío REAL
   const [postalCode, setPostalCode] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState(null);
 
   // Scroll al top al cargar producto (solo escritorio)
   useEffect(() => {
@@ -556,8 +557,7 @@ export default function ProductDetail() {
             <h3>Envíos</h3>
 
             <p className="pd-shipping-text">
-              Ingresá tu código postal para ver las opciones de envío con
-              Andreani y Correo Argentino.
+              Ingresá tu código postal para ver las opciones de envío.
             </p>
 
             <div className="pd-shipping-form">
@@ -582,8 +582,12 @@ export default function ProductDetail() {
               <p className="pd-shipping-error">{shippingError}</p>
             )}
 
-            {/* ⭐ NUEVO — Componente con las 4 opciones reales */}
-            <ShippingOptions result={shippingOptions} />
+            {/* ⭐ Opciones de envío seleccionables */}
+            <ShippingOptions
+              result={shippingOptions}
+              selected={selectedShipping}
+              onSelect={(id) => setSelectedShipping(id)}
+            />
             {/* ⭐ PICK UP POINT */}
             <div className="pd-pickup">
               <h4 style={{ marginTop: "1.5rem" }}>Pick Up Point</h4>
