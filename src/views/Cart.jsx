@@ -228,6 +228,7 @@ export default function Cart() {
     localStorage.setItem("checkoutFormData", JSON.stringify(checkoutFormData));
 
     navigate("/checkout");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // ============================
