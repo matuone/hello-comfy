@@ -27,6 +27,14 @@ export default function Cart() {
   console.log("🛒 Cart component rendered with items:", items);
 
   // ============================
+  // ENVÍO REAL
+  // ============================
+  const [postalCode, setPostalCode] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState(null);
+  const [shippingPrice, setShippingPrice] = useState(0);
+  const [selectedAgency, setSelectedAgency] = useState(null);
+
+  // ============================
   // REGLAS DE DESCUENTO DEL ADMIN
   // ============================
   const [discountRules, setDiscountRules] = useState([]);
@@ -228,13 +236,8 @@ export default function Cart() {
   };
 
   // ============================
-  // ENVÍO REAL
+  // ENVÍO - CALCULADORA
   // ============================
-  const [postalCode, setPostalCode] = useState("");
-  const [selectedShipping, setSelectedShipping] = useState(null);
-  const [shippingPrice, setShippingPrice] = useState(0);
-  const [selectedAgency, setSelectedAgency] = useState(null);
-
   const {
     loading: loadingShipping,
     result: shippingOptions,
