@@ -581,29 +581,50 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           )}
 
           {formData.paymentMethod === "cuentadni" && (
-            <div style={{ background: "#e8f5f0", borderRadius: "10px", padding: "16px", marginBottom: "16px", textAlign: "center" }}>
-              <p style={{ fontSize: "0.95rem", color: "#333", marginBottom: "12px", fontWeight: 600 }}>
+            <div style={{ background: "#e8f5f0", borderRadius: "10px", padding: "16px", marginBottom: "16px" }}>
+              <p style={{ fontSize: "0.95rem", color: "#333", marginBottom: "12px", fontWeight: 600, textAlign: "center" }}>
                 Escaneá el código QR para realizar el pago
               </p>
-              <img
-                src={qrCuentaDNI}
-                alt="QR Cuenta DNI"
-                onClick={() => setShowQRModal(true)}
-                style={{
-                  maxWidth: "250px",
-                  height: "auto",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  transition: "transform 0.2s ease",
-                }}
-                onMouseEnter={(e) => { e.target.style.transform = "scale(1.05)"; }}
-                onMouseLeave={(e) => { e.target.style.transform = "scale(1)"; }}
-              />
-              <p style={{ fontSize: "0.88rem", color: "#666", margin: "12px 0 0 0" }}>
+              <div style={{ textAlign: "center" }}>
+                <img
+                  src={qrCuentaDNI}
+                  alt="QR Cuenta DNI"
+                  onClick={() => setShowQRModal(true)}
+                  style={{
+                    maxWidth: "250px",
+                    height: "auto",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    transition: "transform 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => { e.target.style.transform = "scale(1.05)"; }}
+                  onMouseLeave={(e) => { e.target.style.transform = "scale(1)"; }}
+                />
+              </div>
+
+              <div style={{ marginTop: "16px", padding: "14px", background: "#f0faf5", borderRadius: "8px", border: "1px solid #c8e6d8", lineHeight: "1.8" }}>
+                <p style={{ fontSize: "0.88rem", color: "#555", margin: "0 0 2px 0" }}>
+                  <strong>Titular:</strong> Nicole Carolina Castells Zweifel
+                </p>
+                <p style={{ fontSize: "0.88rem", color: "#555", margin: "0 0 2px 0" }}>
+                  <strong>Nro. de cuenta:</strong> 5004 552835-6
+                </p>
+                <p style={{ fontSize: "0.88rem", color: "#555", margin: "0 0 2px 0" }}>
+                  <strong>Tipo de cuenta:</strong> Caja de ahorros en pesos
+                </p>
+                <p style={{ fontSize: "0.88rem", color: "#555", margin: "0 0 2px 0" }}>
+                  <strong>CBU:</strong> 0140061803500455283560
+                </p>
+                <p style={{ fontSize: "0.88rem", color: "#555", margin: 0 }}>
+                  <strong>Alias:</strong> HELLOCOMFY.DNI
+                </p>
+              </div>
+
+              <p style={{ fontSize: "0.92rem", color: "#666", margin: "12px 0 0 0", textAlign: "center" }}>
                 <strong>Total a pagar:</strong>{" "}
-                <span style={{ color: "#00a86b", fontWeight: 700 }}>${finalPrice.toLocaleString("es-AR")}</span>
+                <span style={{ color: "#00a86b", fontWeight: 700, fontSize: "1.05rem" }}>${finalPrice.toLocaleString("es-AR")}</span>
               </p>
-              <p style={{ fontSize: "0.82rem", color: "#888", margin: "8px 0 0 0", fontStyle: "italic" }}>
+              <p style={{ fontSize: "0.82rem", color: "#888", margin: "8px 0 0 0", fontStyle: "italic", textAlign: "center" }}>
                 ℹ️ Las promociones de Cuenta DNI son propias de su plataforma. Los reintegros se realizan de forma automática.
               </p>
             </div>
