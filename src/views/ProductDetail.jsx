@@ -412,9 +412,11 @@ export default function ProductDetail() {
           <div className="pd-sizes">
             {producto.stockColorId?.talleUnico || isEffectivelyTalleUnico ? (
               <>
-                <h3>Talles disponibles: <span style={{ color: "#ff4fa2", fontWeight: "700" }}>Talle Único</span></h3>
-                <div style={{ padding: "12px 0", fontSize: "0.95rem", color: "#666" }}>
-                  Este producto tiene una única medida disponible.
+                <h3>Talles disponibles</h3>
+                <div className="pd-sizes-row">
+                  <button className="pd-size-btn active">
+                    Único
+                  </button>
                 </div>
               </>
             ) : (
