@@ -426,6 +426,52 @@
     font-size: 1rem;
     color: #444;
     margin: 20px 0;
+    line-height: 1.7;
+  }
+
+  .pd-description p {
+    margin: 0 0 0.8em 0;
+  }
+
+  .pd-description strong {
+    font-weight: 700;
+  }
+
+  .pd-description em {
+    font-style: italic;
+  }
+
+  .pd-description u {
+    text-decoration: underline;
+  }
+
+  .pd-description ul,
+  .pd-description ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+
+  .pd-description li {
+    margin-bottom: 0.3em;
+  }
+
+  .pd-description h1,
+  .pd-description h2,
+  .pd-description h3 {
+    margin: 0.8em 0 0.4em 0;
+    color: #333;
+  }
+
+  .pd-description h1 {
+    font-size: 1.4em;
+  }
+
+  .pd-description h2 {
+    font-size: 1.2em;
+  }
+
+  .pd-description h3 {
+    font-size: 1.1em;
   }
 
   /* ============================

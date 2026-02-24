@@ -135,6 +135,7 @@ export default function PromoBanner(props) {
   var savedMessage = localStorage.getItem("promoMessage");
   var backendMessage = bannerData?.message;
   var finalMessage = backendMessage || savedMessage || "Aprovechá hoy 3x2 en remeras 🧸";
+  var bannerFontSize = bannerData?.fontSize || 64;
 
   if (loading) {
     return null; // O un skeleton loader
@@ -147,7 +148,7 @@ export default function PromoBanner(props) {
       className={`promoBanner ${props.fullBleed ? "fullBleed" : ""}`}
     >
       {/* TEXTO SUPERPUESTO */}
-      <div className="promoBanner__message">
+      <div className="promoBanner__message" style={{ fontSize: `${bannerFontSize}px` }}>
         <MarketingMessage message={finalMessage} />
       </div>
 

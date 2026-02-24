@@ -37,6 +37,7 @@ export default function AdminMarketing() {
   const [loading, setLoading] = useState(false);
   const [autoplay, setAutoplay] = useState(true);
   const [interval, setInterval] = useState(5000);
+  const [bannerFontSize, setBannerFontSize] = useState(64);
 
   // Estado para preview de imagen
   const [imagePreview, setImagePreview] = useState(null);
@@ -77,6 +78,7 @@ export default function AdminMarketing() {
         if (data.message) setMessage(data.message);
         setAutoplay(data.autoplay !== undefined ? data.autoplay : true);
         setInterval(data.interval || 5000);
+        setBannerFontSize(data.fontSize || 64);
       }
     } catch (error) {
       // Error cargando configuración del banner
@@ -116,7 +118,7 @@ export default function AdminMarketing() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, autoplay, interval })
+        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize })
       });
 
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
@@ -539,10 +541,32 @@ export default function AdminMarketing() {
           rows={3}
         />
 
+        {/* Tamaño de fuente del banner */}
+        <label className="marketing-label" style={{ marginTop: '15px' }}>Tamaño de fuente del banner (px)</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <input
+            type="range"
+            min="20"
+            max="120"
+            value={bannerFontSize}
+            onChange={(e) => setBannerFontSize(Number(e.target.value))}
+            style={{ flex: 1 }}
+          />
+          <input
+            type="number"
+            min="20"
+            max="120"
+            value={bannerFontSize}
+            onChange={(e) => setBannerFontSize(Number(e.target.value))}
+            style={{ width: '70px', padding: '5px', textAlign: 'center', borderRadius: '6px', border: '1px solid #ccc' }}
+          />
+          <span style={{ color: '#888', fontSize: '13px' }}>{bannerFontSize}px</span>
+        </div>
+
         {/* Vista previa del mensaje */}
         <div style={{ marginTop: '15px' }}>
           <h3 style={{ marginBottom: '10px', fontSize: '16px', color: '#555' }}>Vista previa del mensaje</h3>
-          <div className="marketing-preview-box">{message}</div>
+          <div className="marketing-preview-box" style={{ fontSize: `${Math.min(bannerFontSize, 40)}px`, fontWeight: 900, lineHeight: 1.1 }}>{message}</div>
         </div>
 
         {/* Mensaje del osito */}

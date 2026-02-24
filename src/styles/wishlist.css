@@ -12,6 +12,7 @@
   font-weight: 700;
   color: var(--hc-text, #333);
   margin-bottom: 4px;
+  text-align: center;
 }
 
 .wishlist-count {

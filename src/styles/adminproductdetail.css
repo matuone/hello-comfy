@@ -60,6 +60,31 @@
   box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.2);
 }
 
+/* Quill editor (Descripción larga) */
+.admin-shell .quill {
+  max-width: 520px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.admin-shell .quill .ql-toolbar {
+  border-radius: 10px 10px 0 0;
+  border-color: #ccc;
+  background: #fafafa;
+}
+
+.admin-shell .quill .ql-container {
+  border-radius: 0 0 10px 10px;
+  border-color: #ccc;
+  min-height: 150px;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.admin-shell .quill .ql-editor {
+  min-height: 150px;
+}
+
 /* Estado de error en input */
 .admin-shell .input-error {
   border-color: #e57373 !important;

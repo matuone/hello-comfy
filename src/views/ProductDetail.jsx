@@ -407,7 +407,12 @@ export default function ProductDetail() {
           </div>
 
           {/* DESCRIPCIÓN */}
-          <p className="pd-description">{producto.description}</p>
+          {producto.description && (
+            <div
+              className="pd-description"
+              dangerouslySetInnerHTML={{ __html: producto.description }}
+            />
+          )}
 
           {/* TALLES */}
           <div className="pd-sizes">

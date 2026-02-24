@@ -2,6 +2,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import imageCompression from "browser-image-compression";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import Notification from "../components/Notification";
 import "../styles/adminproductdetail.css";
 
@@ -554,11 +556,19 @@ export default function AdminProductDetail() {
 
           {/* DESCRIPCIÓN LARGA */}
           <label className="input-label">Descripción larga</label>
-          <textarea
-            className="input-field textarea-field"
-            value={producto.description}
-            onChange={(e) => actualizarCampo("description", e.target.value)}
+          <ReactQuill
+            theme="snow"
+            value={producto.description || ""}
+            onChange={(value) => actualizarCampo("description", value)}
             placeholder="Descripción detallada del producto..."
+            modules={{
+              toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ["bold", "italic", "underline"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                ["clean"],
+              ],
+            }}
           />
 
           {/* PESO Y DIMENSIONES (ENVÍO) */}

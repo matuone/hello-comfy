@@ -32,6 +32,7 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.4",
     "react-hot-toast": "^2.6.0",
+    "react-quill-new": "^3.8.3",
     "react-router-dom": "^7.9.4",
     "react-slick": "^0.31.0",
     "slick-carousel": "^1.8.1",

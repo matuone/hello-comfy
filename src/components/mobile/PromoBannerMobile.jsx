@@ -132,7 +132,7 @@ export default function PromoBannerMobile(props) {
         })}
         <div className="promoBannerMobile__overlay-blur" />
         <div className="promoBannerMobile__message-overlay">
-          <div className="promoBannerMobile__message">
+          <div className="promoBannerMobile__message" style={{ fontSize: `${mobileFontSize}px` }}>
             <MarketingMessage message={finalMessage} />
           </div>
         </div>

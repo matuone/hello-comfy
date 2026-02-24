@@ -13,6 +13,7 @@ export const getBanner = async (req, res) => {
         message: 'Aprovechá hoy 3x2 en remeras 🧸',
         autoplay: true,
         interval: 5000,
+        fontSize: 64,
         active: true
       });
       await banner.save();
@@ -28,7 +29,7 @@ export const getBanner = async (req, res) => {
 // Actualizar configuración del banner
 export const updateBanner = async (req, res) => {
   try {
-    const { message, autoplay, interval } = req.body;
+    const { message, autoplay, interval, fontSize } = req.body;
 
     let banner = await PromoBanner.findOne({ active: true });
 
@@ -37,12 +38,14 @@ export const updateBanner = async (req, res) => {
         message,
         autoplay,
         interval,
+        fontSize,
         active: true
       });
     } else {
       if (message !== undefined) banner.message = message;
       if (autoplay !== undefined) banner.autoplay = autoplay;
       if (interval !== undefined) banner.interval = interval;
+      if (fontSize !== undefined) banner.fontSize = fontSize;
     }
 
     await banner.save();

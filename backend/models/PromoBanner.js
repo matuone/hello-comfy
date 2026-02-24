@@ -27,6 +27,10 @@ const promoBannerSchema = new mongoose.Schema({
     type: Number,
     default: 5000
   },
+  fontSize: {
+    type: Number,
+    default: 64
+  },
   active: {
     type: Boolean,
     default: true

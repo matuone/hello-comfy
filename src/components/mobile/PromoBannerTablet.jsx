@@ -27,12 +27,15 @@ export default function PromoBannerTablet(props) {
   var savedMessage = localStorage.getItem("promoMessage");
   var backendMessage = bannerData?.message;
   var finalMessage = backendMessage || savedMessage || "Aprovechá hoy 3x2 en remeras 🧸";
+  var bannerFontSize = bannerData?.fontSize || 64;
+  // En tablet el tamaño se escala al 40% del desktop
+  var tabletFontSize = Math.max(16, Math.round(bannerFontSize * 0.4));
 
   if (loading) return null;
 
   return (
     <section className="promoBannerTablet">
-      <div className="promoBannerTablet__message">
+      <div className="promoBannerTablet__message" style={{ fontSize: `${tabletFontSize}px` }}>
         <MarketingMessage message={finalMessage} />
       </div>
       {/* Aquí puedes agregar un slider o imagen para tablet si lo deseas */}
