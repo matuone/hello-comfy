@@ -167,7 +167,7 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
 
     return result;
   } catch (error) {
-    // console.log("⚠️ No se pudo conectar a API de Correo Argentino, usando tarifas locales");
+    console.error("⚠️ Error en cotización Correo Argentino:", error.response?.status, error.response?.data || error.message);
 
     // Fallback silencioso a tarifas locales si la API falla
     return {
