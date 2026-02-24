@@ -33,6 +33,8 @@ const OrderSchema = new mongoose.Schema({
   customer: {
     email: { type: String, required: true },
     name: { type: String },
+    phone: { type: String },
+    dni: { type: String },
   },
 
   status: {
@@ -99,6 +101,9 @@ const OrderSchema = new mongoose.Schema({
   shipping: {
     method: { type: String, enum: ["home", "pickup", "correo-home", "correo-branch"], required: true },
     address: { type: String },
+    postalCode: { type: String },
+    province: { type: String },
+    localidad: { type: String },
     pickPoint: { type: String },
     eta: { type: String },
 

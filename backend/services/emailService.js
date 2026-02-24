@@ -180,10 +180,24 @@ export async function enviarEmailConfirmacionOrden(order) {
       .join("");
 
     // Información de envío
-    const shippingInfo =
-      order.shipping?.method === "pickup"
-        ? `<strong>Retiro en Pick Up Point</strong><br>${order.shipping?.pickPoint || ""}`
-        : `<strong>Envío a domicilio</strong><br>${order.shipping?.address || ""}`;
+    const shippingMethodLabels = {
+      "home": "Envío a domicilio",
+      "correo-home": "Envío a domicilio (Correo Argentino)",
+      "correo-branch": "Envío a sucursal (Correo Argentino)",
+      "pickup": "Retiro en Pick Up Point",
+    };
+    const shippingLabel = shippingMethodLabels[order.shipping?.method] || "Envío";
+    let shippingInfo;
+    if (order.shipping?.method === "pickup") {
+      shippingInfo = `<strong>${shippingLabel}</strong><br>${order.shipping?.pickPoint || ""}`;
+    } else {
+      const parts = [];
+      if (order.shipping?.address) parts.push(`<strong>Dirección:</strong> ${order.shipping.address}`);
+      if (order.shipping?.localidad) parts.push(`<strong>Localidad:</strong> ${order.shipping.localidad}`);
+      if (order.shipping?.province) parts.push(`<strong>Provincia:</strong> ${order.shipping.province}`);
+      if (order.shipping?.postalCode) parts.push(`<strong>Código postal:</strong> ${order.shipping.postalCode}`);
+      shippingInfo = `<strong>${shippingLabel}</strong><br>${parts.join("<br>") || "Sin datos de dirección"}`;
+    }
 
     // Mapeo de métodos de pago
     const paymentMethodLabels = {
@@ -450,10 +464,24 @@ export async function enviarEmailAlAdmin(order) {
       )
       .join("");
 
-    const shippingInfo =
-      order.shipping?.method === "pickup"
-        ? `<strong>Punto de retiro:</strong> ${order.shipping?.pickPoint || ""}`
-        : `<strong>Dirección:</strong> ${order.shipping?.address || ""}`;
+    const adminShippingMethodLabels = {
+      "home": "Envío a domicilio",
+      "correo-home": "Envío a domicilio (Correo Argentino)",
+      "correo-branch": "Envío a sucursal (Correo Argentino)",
+      "pickup": "Retiro en Pick Up Point",
+    };
+    const adminShippingLabel = adminShippingMethodLabels[order.shipping?.method] || "Envío";
+    let shippingInfo;
+    if (order.shipping?.method === "pickup") {
+      shippingInfo = `<strong>Método:</strong> ${adminShippingLabel}<br><strong>Punto de retiro:</strong> ${order.shipping?.pickPoint || ""}`;
+    } else {
+      const parts = [`<strong>Método:</strong> ${adminShippingLabel}`];
+      if (order.shipping?.address) parts.push(`<strong>Dirección:</strong> ${order.shipping.address}`);
+      if (order.shipping?.localidad) parts.push(`<strong>Localidad:</strong> ${order.shipping.localidad}`);
+      if (order.shipping?.province) parts.push(`<strong>Provincia:</strong> ${order.shipping.province}`);
+      if (order.shipping?.postalCode) parts.push(`<strong>Código postal:</strong> ${order.shipping.postalCode}`);
+      shippingInfo = parts.join("<br>") || "Sin datos de dirección";
+    }
 
     const paymentMethodLabels = {
       mercadopago: "Mercado Pago",
@@ -513,8 +541,8 @@ export async function enviarEmailAlAdmin(order) {
           <div style="background: #f8f8f8; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
             <p style="margin: 0 0 8px 0; color: #555;"><strong>Email:</strong> ${order.customer?.email}</p>
             <p style="margin: 0 0 8px 0; color: #555;"><strong>Nombre completo:</strong> ${order.customer?.name}</p>
-            <p style="margin: 0 0 8px 0; color: #555;"><strong>DNI:</strong> Sin información</p>
-            <p style="margin: 0; color: #555;"><strong>Teléfono:</strong> Sin información</p>
+            <p style="margin: 0 0 8px 0; color: #555;"><strong>DNI:</strong> ${order.customer?.dni || 'Sin información'}</p>
+            <p style="margin: 0; color: #555;"><strong>Teléfono:</strong> ${order.customer?.phone || 'Sin información'}</p>
           </div>
 
           <!-- Información de Envío -->

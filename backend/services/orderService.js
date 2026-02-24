@@ -57,6 +57,8 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       customer: {
         email: paymentData.payer?.email || pendingOrderData.formData?.email,
         name: paymentData.payer?.name || pendingOrderData.formData?.name,
+        phone: pendingOrderData.formData?.phone || null,
+        dni: pendingOrderData.formData?.dni || null,
       },
       status: "recibido",
       pagoEstado: paymentData.status === "approved" ? "recibido" : "pendiente",
@@ -67,6 +69,9 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       shipping: {
         method: pendingOrderData.formData?.shippingMethod || "home",
         address: pendingOrderData.formData?.address,
+        postalCode: pendingOrderData.formData?.postalCode || null,
+        province: pendingOrderData.formData?.province || null,
+        localidad: pendingOrderData.formData?.localidad || null,
         pickPoint: pendingOrderData.formData?.pickPoint,
       },
       isGift: pendingOrderData.formData?.isGift || false,
