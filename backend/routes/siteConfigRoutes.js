@@ -90,17 +90,24 @@ router.get("/home-copy", async (req, res) => {
 // Actualizar configuración de home copy (solo admin)
 router.put("/home-copy", verifyAdmin, async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, titleStyles, descriptionStyles } = req.body;
 
     let config = await SiteConfig.findOne({ key: "homeCopy" });
+
+    const newValue = {
+      title,
+      description,
+      titleStyles: titleStyles || {},
+      descriptionStyles: descriptionStyles || {},
+    };
 
     if (!config) {
       config = await SiteConfig.create({
         key: "homeCopy",
-        value: { title, description },
+        value: newValue,
       });
     } else {
-      config.value = { title, description };
+      config.value = newValue;
       config.updatedAt = Date.now();
       await config.save();
     }

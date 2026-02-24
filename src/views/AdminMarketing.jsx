@@ -24,6 +24,12 @@ export default function AdminMarketing() {
   const [originalHomeTitle, setOriginalHomeTitle] = useState("");
   const [originalHomeDescription, setOriginalHomeDescription] = useState("");
 
+  // Estado para estilos del home copy
+  const [titleStyles, setTitleStyles] = useState({ maxWidth: "", fontSize: "", color: "#333333" });
+  const [descriptionStyles, setDescriptionStyles] = useState({ maxWidth: "1000", fontSize: "", color: "#666666" });
+  const [originalTitleStyles, setOriginalTitleStyles] = useState({ maxWidth: "", fontSize: "", color: "#333333" });
+  const [originalDescriptionStyles, setOriginalDescriptionStyles] = useState({ maxWidth: "1000", fontSize: "", color: "#666666" });
+
   // Estado para gestión de imágenes del banner
   const [bannerImages, setBannerImages] = useState([]);
   const [newImage, setNewImage] = useState(null);
@@ -85,10 +91,16 @@ export default function AdminMarketing() {
       if (data) {
         const title = data.title || "Bienvenid@ a Hello-Comfy";
         const description = data.description || "";
+        const ts = data.titleStyles || { maxWidth: "", fontSize: "", color: "#333333" };
+        const ds = data.descriptionStyles || { maxWidth: "1000", fontSize: "", color: "#666666" };
         setHomeTitle(title);
         setHomeDescription(description);
         setOriginalHomeTitle(title);
         setOriginalHomeDescription(description);
+        setTitleStyles(ts);
+        setDescriptionStyles(ds);
+        setOriginalTitleStyles(ts);
+        setOriginalDescriptionStyles(ds);
       }
     } catch (error) {
       // Error cargando home copy
@@ -115,7 +127,7 @@ export default function AdminMarketing() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ title: homeTitle, description: homeDescription })
+        body: JSON.stringify({ title: homeTitle, description: homeDescription, titleStyles, descriptionStyles })
       });
 
       if (!homeCopyResponse.ok) throw new Error('Error al actualizar home copy');
@@ -304,7 +316,7 @@ export default function AdminMarketing() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ title: homeTitle, description: homeDescription })
+        body: JSON.stringify({ title: homeTitle, description: homeDescription, titleStyles, descriptionStyles })
       });
 
       if (!response.ok) throw new Error('Error al actualizar home copy');
@@ -312,6 +324,8 @@ export default function AdminMarketing() {
       // Actualizar valores originales
       setOriginalHomeTitle(homeTitle);
       setOriginalHomeDescription(homeDescription);
+      setOriginalTitleStyles({ ...titleStyles });
+      setOriginalDescriptionStyles({ ...descriptionStyles });
       setIsEditingHome(false);
 
       // Notificar al home que el copy cambió
@@ -328,6 +342,8 @@ export default function AdminMarketing() {
   function handleCancelHome() {
     setHomeTitle(originalHomeTitle);
     setHomeDescription(originalHomeDescription);
+    setTitleStyles({ ...originalTitleStyles });
+    setDescriptionStyles({ ...originalDescriptionStyles });
     setIsEditingHome(false);
   }
 
@@ -614,6 +630,54 @@ export default function AdminMarketing() {
           style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed' }}
         />
 
+        {/* Estilos del título */}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '10px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1', minWidth: '120px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Ancho máx. (px)</label>
+            <input
+              type="number"
+              className="marketing-textarea"
+              value={titleStyles.maxWidth}
+              onChange={(e) => setTitleStyles({ ...titleStyles, maxWidth: e.target.value })}
+              placeholder="Sin límite"
+              disabled={!isEditingHome}
+              style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '120px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Tamaño fuente (px)</label>
+            <input
+              type="number"
+              className="marketing-textarea"
+              value={titleStyles.fontSize}
+              onChange={(e) => setTitleStyles({ ...titleStyles, fontSize: e.target.value })}
+              placeholder="Default"
+              disabled={!isEditingHome}
+              style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '120px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Color</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="color"
+                value={titleStyles.color || '#333333'}
+                onChange={(e) => setTitleStyles({ ...titleStyles, color: e.target.value })}
+                disabled={!isEditingHome}
+                style={{ width: '36px', height: '36px', border: '1px solid #ddd', borderRadius: '6px', cursor: isEditingHome ? 'pointer' : 'not-allowed', padding: '2px' }}
+              />
+              <input
+                type="text"
+                className="marketing-textarea"
+                value={titleStyles.color || '#333333'}
+                onChange={(e) => setTitleStyles({ ...titleStyles, color: e.target.value })}
+                disabled={!isEditingHome}
+                style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px', flex: 1 }}
+              />
+            </div>
+          </div>
+        </div>
+
         <label className="marketing-label" style={{ marginTop: '20px' }}>Descripción</label>
         <textarea
           className="marketing-textarea"
@@ -624,6 +688,54 @@ export default function AdminMarketing() {
           disabled={!isEditingHome}
           style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed' }}
         />
+
+        {/* Estilos de la descripción */}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '10px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1', minWidth: '120px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Ancho máx. (px)</label>
+            <input
+              type="number"
+              className="marketing-textarea"
+              value={descriptionStyles.maxWidth}
+              onChange={(e) => setDescriptionStyles({ ...descriptionStyles, maxWidth: e.target.value })}
+              placeholder="Sin límite"
+              disabled={!isEditingHome}
+              style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '120px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Tamaño fuente (px)</label>
+            <input
+              type="number"
+              className="marketing-textarea"
+              value={descriptionStyles.fontSize}
+              onChange={(e) => setDescriptionStyles({ ...descriptionStyles, fontSize: e.target.value })}
+              placeholder="Default"
+              disabled={!isEditingHome}
+              style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px' }}
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '120px' }}>
+            <label className="marketing-label" style={{ fontSize: '12px', color: '#888' }}>Color</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="color"
+                value={descriptionStyles.color || '#666666'}
+                onChange={(e) => setDescriptionStyles({ ...descriptionStyles, color: e.target.value })}
+                disabled={!isEditingHome}
+                style={{ width: '36px', height: '36px', border: '1px solid #ddd', borderRadius: '6px', cursor: isEditingHome ? 'pointer' : 'not-allowed', padding: '2px' }}
+              />
+              <input
+                type="text"
+                className="marketing-textarea"
+                value={descriptionStyles.color || '#666666'}
+                onChange={(e) => setDescriptionStyles({ ...descriptionStyles, color: e.target.value })}
+                disabled={!isEditingHome}
+                style={{ opacity: isEditingHome ? 1 : 0.7, cursor: isEditingHome ? 'text' : 'not-allowed', padding: '8px 12px', flex: 1 }}
+              />
+            </div>
+          </div>
+        </div>
 
         {isEditingHome && (
           <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
@@ -673,9 +785,20 @@ export default function AdminMarketing() {
 
         <div style={{ marginTop: '15px' }}>
           <h3 style={{ marginBottom: '10px', fontSize: '16px', color: '#555' }}>Vista previa</h3>
-          <div style={{ padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#fafafa' }}>
-            <h1 style={{ margin: '0 0 15px 0', fontSize: '24px', color: '#333' }}>{homeTitle}</h1>
-            <p style={{ margin: 0, fontSize: '14px', color: '#666', lineHeight: '1.6' }}>{homeDescription}</p>
+          <div style={{ padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#fafafa', textAlign: 'center' }}>
+            <h1 style={{
+              margin: '0 auto 15px auto',
+              fontSize: titleStyles.fontSize ? `${titleStyles.fontSize}px` : '24px',
+              color: titleStyles.color || '#333',
+              maxWidth: titleStyles.maxWidth ? `${titleStyles.maxWidth}px` : 'none',
+            }}>{homeTitle}</h1>
+            <p style={{
+              margin: '0 auto',
+              fontSize: descriptionStyles.fontSize ? `${descriptionStyles.fontSize}px` : '14px',
+              color: descriptionStyles.color || '#666',
+              lineHeight: '1.6',
+              maxWidth: descriptionStyles.maxWidth ? `${descriptionStyles.maxWidth}px` : 'none',
+            }}>{homeDescription}</p>
           </div>
         </div>
       </div>

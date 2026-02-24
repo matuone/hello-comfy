@@ -63,6 +63,17 @@ body {
   padding: 40px 16px;
 }
 
+.home-copy p {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-copy h1 {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ======================================
    RESPONSIVE
 ====================================== */

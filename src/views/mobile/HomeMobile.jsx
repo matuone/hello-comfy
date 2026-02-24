@@ -15,6 +15,8 @@ function apiPath(path) {
 export default function HomeMobile() {
   const [homeTitle, setHomeTitle] = useState("Bienvenid@ a Hello-Comfy");
   const [homeDescription, setHomeDescription] = useState("");
+  const [titleStyles, setTitleStyles] = useState({});
+  const [descriptionStyles, setDescriptionStyles] = useState({});
 
   useEffect(() => {
     loadHomeCopy();
@@ -37,6 +39,8 @@ export default function HomeMobile() {
       if (data) {
         setHomeTitle(data.title || "Bienvenid@ a Hello-Comfy");
         setHomeDescription(data.description || "");
+        setTitleStyles(data.titleStyles || {});
+        setDescriptionStyles(data.descriptionStyles || {});
       }
     } catch (error) {
       console.error('Error cargando home copy:', error);
@@ -46,8 +50,16 @@ export default function HomeMobile() {
   return (
     <>
       <section className="home-copy">
-        <h1>{homeTitle}</h1>
-        <p>{homeDescription}</p>
+        <h1 style={{
+          ...(titleStyles.maxWidth ? { maxWidth: `${titleStyles.maxWidth}px` } : {}),
+          ...(titleStyles.fontSize ? { fontSize: `${titleStyles.fontSize}px` } : {}),
+          ...(titleStyles.color ? { color: titleStyles.color } : {}),
+        }}>{homeTitle}</h1>
+        <p style={{
+          ...(descriptionStyles.maxWidth ? { maxWidth: `${descriptionStyles.maxWidth}px` } : {}),
+          ...(descriptionStyles.fontSize ? { fontSize: `${descriptionStyles.fontSize}px` } : {}),
+          ...(descriptionStyles.color ? { color: descriptionStyles.color } : {}),
+        }}>{homeDescription}</p>
         <h2 className="bestsellers__title">Los más vendidos:</h2>
         <BestSellersMobile />
         <h2 className="newin__title">Nuevos ingresos:</h2>
