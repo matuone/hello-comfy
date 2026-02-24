@@ -27,6 +27,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [proofFile, setProofFile] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showProofStep, setShowProofStep] = useState(false);
 
   // Costo de envío (pickup = gratis)
   const envio = formData.shippingMethod === "pickup" ? 0 : shippingPrice;
@@ -431,70 +432,6 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         </div>
       </div>
 
-      {/* ⭐ SECCIÓN DE TRANSFERENCIA */}
-      {formData.paymentMethod === "transfer" && (
-        <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
-          <h3 style={{ color: "#d94f7a" }}>Comprobante de transferencia</h3>
-          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
-            Adjunta tu comprobante de transferencia para procesar tu pedido
-          </p>
-          <input
-            type="file"
-            accept="image/*,.pdf"
-            onChange={handleFileChange}
-            style={{
-              padding: "12px",
-              border: "2px solid #d94f7a",
-              borderRadius: "8px",
-              width: "100%",
-              background: "#fff7fb",
-              color: "#666",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease",
-            }}
-          />
-          {proofFile && (
-            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
-              ✓ {proofFile.name}
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* ⭐ SECCIÓN DE CUENTA DNI */}
-      {formData.paymentMethod === "cuentadni" && (
-        <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
-          <h3 style={{ color: "#d94f7a" }}>Comprobante de Cuenta DNI</h3>
-          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
-            Adjunta tu comprobante de pago Cuenta DNI para procesar tu pedido
-          </p>
-          <input
-            type="file"
-            accept="image/*,.pdf"
-            onChange={handleFileChange}
-            style={{
-              padding: "12px",
-              border: "2px solid #d94f7a",
-              borderRadius: "8px",
-              width: "100%",
-              background: "#fff7fb",
-              color: "#666",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease",
-            }}
-          />
-          {proofFile && (
-            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
-              ✓ {proofFile.name}
-            </p>
-          )}
-        </div>
-      )}
-
       <div className="checkout-nav">
         <button className="checkout-btn-secondary" onClick={back}>
           Volver
@@ -530,10 +467,10 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           </button>
         )}
 
-        {formData.paymentMethod === "transfer" && (
+        {formData.paymentMethod === "transfer" && !showProofStep && (
           <button
             className="checkout-btn-transfer"
-            onClick={handleTransfer}
+            onClick={() => setShowProofStep(true)}
             disabled={loadingPayment}
             style={{
               padding: "12px 24px",
@@ -558,14 +495,14 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
               e.target.style.transform = "translateY(0)";
             }}
           >
-            {loadingPayment ? "Procesando..." : "Confirmar compra"}
+            Confirmar compra
           </button>
         )}
 
-        {formData.paymentMethod === "cuentadni" && (
+        {formData.paymentMethod === "cuentadni" && !showProofStep && (
           <button
             className="checkout-btn-cuentadni"
-            onClick={handleTransfer}
+            onClick={() => setShowProofStep(true)}
             disabled={loadingPayment}
             style={{
               padding: "12px 24px",
@@ -590,7 +527,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
               e.target.style.transform = "translateY(0)";
             }}
           >
-            {loadingPayment ? "Procesando..." : "Confirmar transferencia"}
+            Confirmar transferencia
           </button>
         )}
 
@@ -603,6 +540,96 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           </button>
         )}
       </div>
+
+      {/* ⭐ SECCIÓN DE COMPROBANTE (aparece después de confirmar) */}
+      {showProofStep && (formData.paymentMethod === "transfer" || formData.paymentMethod === "cuentadni") && (
+        <div className="review-box" style={{ marginTop: "20px", borderTop: "2px solid #d94f7a" }}>
+          <h3 style={{ color: "#d94f7a" }}>
+            {formData.paymentMethod === "transfer" ? "Comprobante de transferencia" : "Comprobante de Cuenta DNI"}
+          </h3>
+
+          <div style={{ background: "#fff7fb", borderRadius: "10px", padding: "16px", marginBottom: "16px" }}>
+            <p style={{ fontSize: "0.92rem", color: "#555", margin: "0 0 6px 0", fontWeight: 600 }}>
+              Datos para la transferencia:
+            </p>
+            <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
+              <strong>CBU:</strong> 0000003100092928616012
+            </p>
+            <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
+              <strong>Alias:</strong> HELLO.COMFY.IND
+            </p>
+            <p style={{ fontSize: "0.88rem", color: "#666", margin: 0 }}>
+              <strong>Total a transferir:</strong>{" "}
+              <span style={{ color: "#d94f7a", fontWeight: 700 }}>${finalPrice.toLocaleString("es-AR")}</span>
+            </p>
+          </div>
+
+          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
+            Podés adjuntar tu comprobante ahora o enviarlo después por WhatsApp
+          </p>
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            onChange={handleFileChange}
+            style={{
+              padding: "12px",
+              border: "2px solid #d94f7a",
+              borderRadius: "8px",
+              width: "100%",
+              background: "#fff7fb",
+              color: "#666",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+          />
+          {proofFile && (
+            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "8px" }}>
+              ✓ {proofFile.name}
+            </p>
+          )}
+
+          <div style={{ display: "flex", gap: "12px", marginTop: "20px", flexWrap: "wrap" }}>
+            <button
+              onClick={handleTransfer}
+              disabled={loadingPayment}
+              style={{
+                flex: 1,
+                padding: "12px 24px",
+                background: loadingPayment ? "#e0e0e0" : "#d94f7a",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: loadingPayment ? "not-allowed" : "pointer",
+                transition: "all 0.3s ease",
+                minWidth: "180px",
+              }}
+            >
+              {loadingPayment ? "Procesando..." : proofFile ? "Enviar pedido con comprobante" : "Enviar pedido sin comprobante"}
+            </button>
+            {!loadingPayment && (
+              <button
+                onClick={() => setShowProofStep(false)}
+                style={{
+                  padding: "12px 24px",
+                  background: "transparent",
+                  color: "#888",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  fontSize: "0.9rem",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                Volver
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Modal para confirmar compra sin comprobante */}
       <ConfirmProofModal
