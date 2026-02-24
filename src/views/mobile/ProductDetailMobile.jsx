@@ -50,6 +50,13 @@ const ProductDetailMobile = ({ product, similares }) => {
       alert("Ingresá un código postal válido");
       return;
     }
+    localStorage.setItem("shippingSelection", JSON.stringify({
+      postalCode,
+      selectedShipping: null,
+      shippingPrice: 0,
+      selectedAgency: null,
+    }));
+
     calcularEnvio(postalCode, [
       {
         productId: product._id,
@@ -185,7 +192,14 @@ const ProductDetailMobile = ({ product, similares }) => {
           <ShippingOptions
             result={shippingOptions}
             selected={selectedShipping}
-            onSelect={(id) => setSelectedShipping(id)}
+            onSelect={(id, opt, agency) => {
+              setSelectedShipping(id);
+              const saved = JSON.parse(localStorage.getItem("shippingSelection") || "{}");
+              saved.selectedShipping = id;
+              saved.shippingPrice = opt?.data?.price || 0;
+              saved.selectedAgency = agency || null;
+              localStorage.setItem("shippingSelection", JSON.stringify(saved));
+            }}
             postalCode={postalCode}
           />
         </div>

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { fetchAgenciesByCP } from "../services/shippingApi";
 import "../styles/shippingoptions.css";
 
-export default function ShippingOptions({ result, selected, onSelect, postalCode }) {
+export default function ShippingOptions({ result, selected, onSelect, postalCode, initialAgency }) {
   if (!result) return null;
 
   const { correo } = result;
@@ -37,6 +37,11 @@ export default function ShippingOptions({ result, selected, onSelect, postalCode
       fetchAgenciesByCP(postalCode)
         .then((data) => {
           setAgencies(data);
+          // Restaurar sucursal guardada si existe
+          if (initialAgency?.code) {
+            const match = data.find((a) => a.code === initialAgency.code);
+            if (match) { setSelectedAgency(match); return; }
+          }
           // Si hay solo una, autoseleccionarla
           if (data.length === 1) setSelectedAgency(data[0]);
         })

@@ -252,6 +252,14 @@ export default function ProductDetail() {
       return;
     }
 
+    // Guardar CP en localStorage para persistir al carrito
+    localStorage.setItem("shippingSelection", JSON.stringify({
+      postalCode,
+      selectedShipping: null,
+      shippingPrice: 0,
+      selectedAgency: null,
+    }));
+
     calcularEnvio(postalCode, [
       {
         productId: producto._id,
@@ -586,7 +594,15 @@ export default function ProductDetail() {
             <ShippingOptions
               result={shippingOptions}
               selected={selectedShipping}
-              onSelect={(id) => setSelectedShipping(id)}
+              onSelect={(id, opt, agency) => {
+                setSelectedShipping(id);
+                // Persistir selección para el carrito
+                const saved = JSON.parse(localStorage.getItem("shippingSelection") || "{}");
+                saved.selectedShipping = id;
+                saved.shippingPrice = opt?.data?.price || 0;
+                saved.selectedAgency = agency || null;
+                localStorage.setItem("shippingSelection", JSON.stringify(saved));
+              }}
               postalCode={postalCode}
             />
             {/* ⭐ PICK UP POINT */}

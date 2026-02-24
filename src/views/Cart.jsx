@@ -27,12 +27,18 @@ export default function Cart() {
   console.log("🛒 Cart component rendered with items:", items);
 
   // ============================
-  // ENVÍO REAL
+  // ENVÍO REAL — Restaurar selección del ProductDetail
   // ============================
-  const [postalCode, setPostalCode] = useState("");
-  const [selectedShipping, setSelectedShipping] = useState(null);
-  const [shippingPrice, setShippingPrice] = useState(0);
-  const [selectedAgency, setSelectedAgency] = useState(null);
+  const savedShipping = (() => {
+    try { return JSON.parse(localStorage.getItem("shippingSelection") || "{}"); }
+    catch { return {}; }
+  })();
+
+  const [postalCode, setPostalCode] = useState(savedShipping.postalCode || "");
+  const [selectedShipping, setSelectedShipping] = useState(savedShipping.selectedShipping || null);
+  const [shippingPrice, setShippingPrice] = useState(savedShipping.shippingPrice || 0);
+  const [selectedAgency, setSelectedAgency] = useState(savedShipping.selectedAgency || null);
+  const [shippingRestored, setShippingRestored] = useState(false);
 
   // ============================
   // REGLAS DE DESCUENTO DEL ADMIN
@@ -260,6 +266,20 @@ export default function Cart() {
 
     calcularEnvio(postalCode, products);
   };
+
+  // Auto-calcular envío si hay CP guardado del producto
+  useEffect(() => {
+    if (postalCode && postalCode.length >= 4 && items.length > 0 && !shippingRestored) {
+      setShippingRestored(true);
+      const products = items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        weight: item.weight,
+        dimensions: item.dimensions,
+      }));
+      calcularEnvio(postalCode, products);
+    }
+  }, [items.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ============================
   // PICK UP POINT
@@ -502,11 +522,19 @@ export default function Cart() {
             <ShippingOptions
               result={shippingOptions}
               selected={selectedShipping}
+              initialAgency={selectedAgency}
               onSelect={(id, opt, agency) => {
                 setSelectedShipping(id);
                 setShippingPrice(opt?.data?.price || 0);
                 if (agency) setSelectedAgency(agency);
                 else if (id !== "correo-branch") setSelectedAgency(null);
+                // Persistir selección
+                localStorage.setItem("shippingSelection", JSON.stringify({
+                  postalCode,
+                  selectedShipping: id,
+                  shippingPrice: opt?.data?.price || 0,
+                  selectedAgency: agency || null,
+                }));
               }}
               postalCode={postalCode}
             />
