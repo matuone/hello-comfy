@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import AppRouter from "./router";
+import ScrollToTop from "./components/ScrollToTop";
 import { ShopProvider } from "./context/ShopContext";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <BrowserRouter>
             <AuthProvider>
               <WishlistProvider>
+                <ScrollToTop />
                 <AppRouter />
 
                 {/* ⭐ TOASTER GLOBAL */}

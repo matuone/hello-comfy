@@ -58,13 +58,6 @@ export default function ProductDetail() {
   const [postalCode, setPostalCode] = useState("");
   const [selectedShipping, setSelectedShipping] = useState(null);
 
-  // Scroll al top al cargar producto (solo escritorio)
-  useEffect(() => {
-    if (window.innerWidth > 900) {
-      window.scrollTo({ top: 0, behavior: "auto" });
-    }
-  }, [id]);
-
   const {
     loading: loadingShipping,
     result: shippingOptions,
