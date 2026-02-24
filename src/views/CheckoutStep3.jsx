@@ -266,6 +266,7 @@ export default function Step3({ formData, updateField, next, back }) {
               maxWidth: "90vw",
               maxHeight: "90vh",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -276,10 +277,13 @@ export default function Step3({ formData, updateField, next, back }) {
               alt="QR Cuenta DNI Ampliado"
               style={{
                 maxWidth: "100%",
-                maxHeight: "80vh",
+                maxHeight: "70vh",
                 borderRadius: "8px",
               }}
             />
+            <p style={{ margin: "14px 0 0 0", fontSize: "1rem", color: "#333", textAlign: "center" }}>
+              También podés abonar con nuestro Alias: <strong style={{ color: "#00a86b" }}>HELLOCOMFY.DNI</strong>
+            </p>
             <button
               onClick={() => setShowQRModal(false)}
               style={{
