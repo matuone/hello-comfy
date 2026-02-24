@@ -2,6 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/register.css";
 
+const PROVINCIAS_AR = [
+  "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba",
+  "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja",
+  "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan",
+  "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero",
+  "Tierra del Fuego", "Tucumán",
+];
 
 export default function Register() {
   const navigate = useNavigate();
@@ -46,6 +53,12 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (!form.email.includes("@")) {
+      setError("Ingresá un email válido (debe contener @)");
+      setLoading(false);
+      return;
+    }
 
     if (form.password !== form.confirmPassword) {
       setError("Las contraseñas no coinciden");
@@ -224,14 +237,17 @@ export default function Register() {
           required
         />
 
-        <input
-          type="text"
+        <select
           name="address.province"
-          placeholder="Provincia"
           value={form.address.province}
           onChange={handleChange}
           required
-        />
+        >
+          <option value="">Seleccionar provincia...</option>
+          {PROVINCIAS_AR.map((prov) => (
+            <option key={prov} value={prov}>{prov}</option>
+          ))}
+        </select>
 
         <input
           type="text"
