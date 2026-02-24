@@ -276,34 +276,39 @@ export default function ProductDetail() {
         {/* IMÁGENES */}
         <div className="pd-images">
           {isMobile ? (
-            <Swiper
-              modules={[Pagination]}
-              pagination={{ clickable: true }}
-              slidesPerView={1}
-              spaceBetween={0}
-              style={{ width: "100vw", height: "70vh" }}
-            >
-              {producto.images?.map((img, i) => (
-                <SwiperSlide key={i}>
-                  <div style={{ width: "100vw", height: "70vh", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", margin: 0, padding: 0 }}>
-                    <img
-                      src={img}
-                      alt={producto.name}
-                      className="pd-main-img"
-                      style={{ width: "100vw", height: "70vh", objectFit: "cover", borderRadius: 0, margin: 0, padding: 0 }}
-                      onClick={() => setIsImageModalOpen(true)}
-                    />
+            <>
+              <div style={{ position: 'relative' }}>
+                <Swiper
+                  slidesPerView={1}
+                  spaceBetween={0}
+                  style={{ width: "100vw", height: "70vh" }}
+                >
+                  {producto.images?.map((img, i) => (
+                    <SwiperSlide key={i}>
+                      <div style={{ width: "100vw", height: "70vh", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", margin: 0, padding: 0 }}>
+                        <img
+                          src={img}
+                          alt={producto.name}
+                          className="pd-main-img"
+                          style={{ width: "100vw", height: "70vh", objectFit: "cover", borderRadius: 0, margin: 0, padding: 0 }}
+                          onClick={() => setIsImageModalOpen(true)}
+                        />
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+                {producto.images?.length > 1 && (
+                  <div className="pd-carousel-hint">
+                    <span className="hand-icon">🤚</span> Arrastrá para ver más
                   </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                )}
+              </div>
+            </>
           ) : (
             <div className="pd-main-img-wrapper">
               <div style={{ position: 'relative', width: 480, height: 480 }}>
                 <Swiper
                   slidesPerView={1}
-                  navigation
-                  pagination={{ clickable: true }}
                   style={{ width: 480, height: 480 }}
                   onSwiper={swiper => { swiperRef.current = swiper; }}
                 >
@@ -319,6 +324,11 @@ export default function ProductDetail() {
                     </SwiperSlide>
                   ))}
                 </Swiper>
+                {producto.images?.length > 1 && (
+                  <div className="pd-carousel-hint">
+                    <span className="hand-icon">🤚</span> Arrastrá para ver más
+                  </div>
+                )}
                 <button
                   className="pd-wishlist-floating"
                   style={{ top: 16, right: 16, zIndex: 10 }}
