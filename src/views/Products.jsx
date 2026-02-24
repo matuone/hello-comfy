@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import OpinionsPopup from "../components/OpinionsPopup";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import { useDiscountRules, calcularPrecios } from "../hooks/useDiscountRules";
 
 // Configuración global de API para compatibilidad local/producción
@@ -17,6 +18,7 @@ export default function Products() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [allProducts, setAllProducts] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -426,6 +428,15 @@ export default function Products() {
               className="productcard__item"
               onClick={() => navigate(`/products/${p._id}`)}
             >
+              <button
+                className={`productcard__wishlist-btn${isInWishlist(p._id) ? " is-active" : ""}`}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p._id); }}
+                aria-label={isInWishlist(p._id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={isInWishlist(p._id) ? "#d94f7a" : "none"} stroke="#d94f7a" strokeWidth="2">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+              </button>
               <img
                 src={p.images?.[0] || "https://via.placeholder.com/300"}
                 alt={p.name}

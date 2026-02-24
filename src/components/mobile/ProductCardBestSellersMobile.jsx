@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { calcularPrecios } from "../../hooks/useDiscountRules";
+import { useWishlist } from "../../context/WishlistContext";
 
 export default function ProductCardBestSellersMobile({ product, discountRules = [], onBuy, onAddToCart, onViewMore, onStarsClick }) {
   // Lógica igual a ProductCardNewInMobile
@@ -27,9 +28,19 @@ export default function ProductCardBestSellersMobile({ product, discountRules = 
 
   // Calcular precios usando reglas de descuento del admin
   const { precioOriginal, descuento, precioFinal, precioTransferencia, precioCuota } = calcularPrecios(product, discountRules);
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   return (
     <div className="productcard__item" onClick={() => onViewMore(product)}>
+      <button
+        className={`productcard__wishlist-btn${isInWishlist(product._id) ? " is-active" : ""}`}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product._id); }}
+        aria-label={isInWishlist(product._id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill={isInWishlist(product._id) ? "#d94f7a" : "none"} stroke="#d94f7a" strokeWidth="2">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      </button>
       <img
         alt={product.name}
         className="productcard__image"

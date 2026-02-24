@@ -6,6 +6,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
 import CategoriesMenuMobile from "./CategoriesMenuMobile";
 import logoBear from "../../assets/logo.png";
 import "../../styles/mobile/navbar.css";
@@ -25,6 +26,7 @@ export default function NavbarMobile() {
   const navigate = useNavigate();
   const { items } = useCart();
   const count = items.reduce((total, item) => total + item.quantity, 0);
+  const { wishlistCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -149,6 +151,14 @@ export default function NavbarMobile() {
           <Link to="/mi-cuenta" className="navbar-mobile__icon-btn" aria-label="Mi cuenta">
             <span className="navbar-mobile__icon-user">
               <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="#e57373" strokeWidth="1.7" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#e57373" strokeWidth="1.7" /></svg>
+            </span>
+          </Link>
+          <Link to="/wishlist" className="navbar-mobile__icon-btn" aria-label="Lista de deseos">
+            <span className="navbar-mobile__icon-wishlist">
+              <svg width="26" height="26" fill="none" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#e57373" strokeWidth="1.7" fill="none" />
+              </svg>
+              {wishlistCount > 0 && <span className="navbar-mobile__cart-badge">{wishlistCount}</span>}
             </span>
           </Link>
           <Link to="/cart" className="navbar-mobile__icon-btn" aria-label="Carrito">

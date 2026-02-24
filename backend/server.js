@@ -22,6 +22,7 @@ import authRoutes from "./routes/authRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js"; // ⭐ NUEVO
 import userRoutes from "./routes/userRoutes.js"; // ⭐ NUEVO
 import customerRoutes from "./routes/customerRoutes.js"; // ⭐ NUEVO
+import wishlistRoutes from "./routes/wishlistRoutes.js";
 import mercadopagoRoutes from "./routes/mercadopagoRoutes.js"; // ⭐ NUEVO
 import gocuotasRoutes from "./routes/gocuotasRoutes.js"; // ⭐ NUEVO
 import subcategoryRoutes from "./routes/subcategoryRoutes.js"; // ⭐ NUEVO
@@ -147,6 +148,11 @@ app.use("/api/admin", adminAuthRoutes);
 // RUTA DE LOGIN CLIENTE
 // ============================
 app.use("/api/auth", authRoutes);
+
+// ============================
+// RUTA DE WISHLIST
+// ============================
+app.use("/api/wishlist", wishlistRoutes);
 
 // ============================
 // RUTA DE SOPORTE (NUEVA)

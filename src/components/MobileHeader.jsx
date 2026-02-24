@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
+import { useWishlist } from "../context/WishlistContext";
 import "../styles/mobile-header.css";
 
 // Configuración global de API para compatibilidad local/producción
@@ -13,6 +14,7 @@ function apiPath(path) {
 export default function MobileHeader() {
   const { cart } = (typeof useShop === "function" ? useShop() : {}) ?? { cart: [] };
   const count = (cart || []).reduce((a, i) => a + (i.qty ?? 0), 0);
+  const { wishlistCount } = useWishlist();
 
   const [open, setOpen] = useState(false);       // drawer
   const [offsetTop, setOffsetTop] = useState(0); // altura announcement bar
@@ -139,6 +141,12 @@ export default function MobileHeader() {
         <div className="mheader__side mheader__side--right">
           <Link to="/mi-cuenta" className="mheader__iconbtn" aria-label="Mi cuenta">
             <span className="mh-icon is-user" aria-hidden="true" />
+          </Link>
+          <Link to="/wishlist" className="mheader__iconbtn mheader__iconbtn--wishlist" aria-label="Lista de deseos">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" strokeWidth="1.7" />
+            </svg>
+            {wishlistCount > 0 && <span className="mh-badge">{wishlistCount}</span>}
           </Link>
           <Link to="/cart" className="mheader__iconbtn" aria-label={`Carrito (${count})`}>
             <span className="mh-icon is-bag" aria-hidden="true" />
