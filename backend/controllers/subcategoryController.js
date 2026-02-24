@@ -1,7 +1,8 @@
 import Subcategory from "../models/Subcategory.js";
+import Product from "../models/Product.js";
 
 const normalize = (str = "") => {
-  const clean = str.trim().replace(/\s*\/\s*/g, "/");
+  const clean = str.trim().replace(/\s*\/\s*/g, " / ");
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
 
@@ -93,15 +94,55 @@ export const updateSubcategory = async (req, res) => {
 export const deleteSubcategory = async (req, res) => {
   try {
     const { id } = req.params;
+    const sub = await Subcategory.findByIdAndUpdate(
+      id,
+      { hidden: true },
+      { new: true }
+    );
+
+    if (!sub) {
+      return res.status(404).json({ error: "Subcategoría no encontrada" });
+    }
+
+    res.json({ message: "Subcategoría oculta del menú" });
+  } catch (err) {
+    console.error("Error al ocultar subcategoría");
+    res.status(500).json({ error: "Error al ocultar subcategoría" });
+  }
+};
+
+export const restoreSubcategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sub = await Subcategory.findByIdAndUpdate(
+      id,
+      { hidden: false },
+      { new: true }
+    );
+
+    if (!sub) {
+      return res.status(404).json({ error: "Subcategoría no encontrada" });
+    }
+
+    res.json({ message: "Subcategoría restaurada", subcategory: sub });
+  } catch (err) {
+    console.error("Error al restaurar subcategoría");
+    res.status(500).json({ error: "Error al restaurar subcategoría" });
+  }
+};
+
+export const permanentDeleteSubcategory = async (req, res) => {
+  try {
+    const { id } = req.params;
     const deleted = await Subcategory.findByIdAndDelete(id);
 
     if (!deleted) {
       return res.status(404).json({ error: "Subcategoría no encontrada" });
     }
 
-    res.json({ message: "Subcategoría eliminada" });
+    res.json({ message: "Subcategoría eliminada permanentemente" });
   } catch (err) {
-    console.error("Error al eliminar subcategoría");
+    console.error("Error al eliminar subcategoría permanentemente");
     res.status(500).json({ error: "Error al eliminar subcategoría" });
   }
 };
@@ -133,5 +174,70 @@ export const reorderSubcategories = async (req, res) => {
   } catch (err) {
     console.error("Error al reordenar subcategorías");
     res.status(500).json({ error: "Error al reordenar subcategorías" });
+  }
+};
+
+/**
+ * Sincroniza subcategorías: crea documentos Subcategory para
+ * cualquier subcategoría que exista en productos pero no en la colección.
+ */
+export const syncSubcategories = async (_req, res) => {
+  try {
+    const productos = await Product.find({}, "category subcategory");
+    const existentes = await Subcategory.find();
+
+    // Mapa de existentes: "Categoria||Nombre" => true
+    const existenteSet = new Set(
+      existentes.map((s) => `${s.category}||${s.name}`)
+    );
+
+    // Recopilar pares únicos de productos
+    const pairsMap = new Map();
+    productos.forEach((p) => {
+      if (p.category && p.subcategory) {
+        const cat = p.category;
+        const sub = normalize(p.subcategory);
+        if (ALLOWED_CATEGORIES.includes(cat)) {
+          const key = `${cat}||${sub}`;
+          if (!existenteSet.has(key) && !pairsMap.has(key)) {
+            pairsMap.set(key, { category: cat, name: sub });
+          }
+        }
+      }
+    });
+
+    // Obtener el siguiente order por categoría
+    const maxOrders = {};
+    for (const cat of ALLOWED_CATEGORIES) {
+      const last = await Subcategory.find({ category: cat })
+        .sort({ order: -1 })
+        .limit(1);
+      maxOrders[cat] = last[0]?.order ?? 0;
+    }
+
+    // Crear las que faltan
+    const toCreate = [];
+    for (const [, pair] of pairsMap) {
+      maxOrders[pair.category] += 1;
+      toCreate.push({
+        category: pair.category,
+        name: pair.name,
+        order: maxOrders[pair.category],
+      });
+    }
+
+    let created = [];
+    if (toCreate.length > 0) {
+      created = await Subcategory.insertMany(toCreate, { ordered: false });
+    }
+
+    res.json({
+      message: `Sincronización completa. ${created.length} subcategorías nuevas creadas.`,
+      created: created.length,
+      nuevas: created.map((s) => `${s.category}: ${s.name}`),
+    });
+  } catch (err) {
+    console.error("Error al sincronizar subcategorías:", err);
+    res.status(500).json({ error: "Error al sincronizar subcategorías" });
   }
 };

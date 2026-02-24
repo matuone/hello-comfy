@@ -10,12 +10,6 @@ function apiPath(path) {
   return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
 }
 
-const FALLBACK = {
-  "Indumentaria": ["Remeras", "Buzos", "Pijamas", "Shorts", "Totes", "Outlet"],
-  "Cute items": ["Vasos"],
-  "Merch": ["Artistas nacionales", "Artistas internacionales"],
-};
-
 const catSlug = {
   "Indumentaria": "indumentaria",
   "Cute items": "cute-items",
@@ -23,7 +17,7 @@ const catSlug = {
 };
 
 export default function CategoriesMenu({ className = "", onSelect }) {
-  const [grouped, setGrouped] = useState(null); // null = loading, object = loaded, FALLBACK = fallback
+  const [grouped, setGrouped] = useState(null); // null = loading
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -33,16 +27,14 @@ export default function CategoriesMenu({ className = "", onSelect }) {
       .then((data) => {
         if (mounted) {
           if (data?.groupedSubcategories) {
-            setGrouped({ ...FALLBACK, ...data.groupedSubcategories });
+            setGrouped(data.groupedSubcategories);
           } else {
-            setGrouped(FALLBACK);
             setError(true);
           }
         }
       })
       .catch(() => {
         if (mounted) {
-          setGrouped(FALLBACK);
           setError(true);
         }
       });
@@ -51,8 +43,7 @@ export default function CategoriesMenu({ className = "", onSelect }) {
 
   const columns = ["Indumentaria", "Cute items", "Merch"];
 
-  if (grouped === null) {
-    // Loading: show spinner or nothing
+  if (grouped === null && !error) {
     return (
       <div className={`modern-menu ${className}`.trim()} role="menu" aria-label="Productos">
         <div className="modern-menu__loading">Cargando categorías...</div>
@@ -60,26 +51,35 @@ export default function CategoriesMenu({ className = "", onSelect }) {
     );
   }
 
+  if (error || !grouped) {
+    return (
+      <div className={`modern-menu ${className}`.trim()} role="menu" aria-label="Productos">
+        <div className="modern-menu__loading" style={{ color: '#999' }}>No se pudieron cargar las categorías.</div>
+      </div>
+    );
+  }
+
   return (
     <div className={`modern-menu ${className}`.trim()} role="menu" aria-label="Productos">
-      {columns.map((cat) => (
-        <div className="modern-menu__section" key={cat}>
-          <span className="modern-menu__title">{cat}</span>
-          {(grouped[cat] || FALLBACK[cat]).map((sub) => (
-            <Link
-              key={sub}
-              to={`/${catSlug[cat]}/${encodeURIComponent(sub)}`}
-              className="modern-menu__link"
-              onClick={onSelect}
-            >
-              {sub}
-            </Link>
-          ))}
-        </div>
-      ))}
-      {error && (
-        <div className="modern-menu__error">No se pudo cargar categorías en vivo. Mostrando categorías por defecto.</div>
-      )}
+      {columns.map((cat) => {
+        const subs = grouped[cat];
+        if (!subs || subs.length === 0) return null;
+        return (
+          <div className="modern-menu__section" key={cat}>
+            <span className="modern-menu__title">{cat}</span>
+            {subs.map((sub) => (
+              <Link
+                key={sub}
+                to={`/${catSlug[cat]}/${encodeURIComponent(sub)}`}
+                className="modern-menu__link"
+                onClick={onSelect}
+              >
+                {sub}
+              </Link>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 }

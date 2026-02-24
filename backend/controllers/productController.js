@@ -295,27 +295,43 @@ export const getCategoriesAndSubcategories = async (req, res) => {
       grouped[cat] = [];
     });
 
-    const [productos, subsManual] = await Promise.all([
+    const [productos, subsManual, subsHidden] = await Promise.all([
       Product.find(),
-      Subcategory.find().sort({ category: 1, order: 1, name: 1 }),
+      Subcategory.find({ hidden: { $ne: true } }).sort({ category: 1, order: 1, name: 1 }),
+      Subcategory.find({ hidden: true }),
     ]);
 
+    // Set de subcategorías ocultas para excluirlas
+    const hiddenSet = new Set(
+      subsHidden.map((s) => `${s.category}||${s.name}`)
+    );
+
+    // Recopilar subcategorías únicas de productos
+    const productSubsMap = {}; // { category: Set<name> }
     productos.forEach((p) => {
       if (p.category && p.subcategory) {
         const sub = normalize(p.subcategory);
-        if (!grouped[p.category].includes(sub)) {
-          grouped[p.category].push(sub);
-        }
+        if (!productSubsMap[p.category]) productSubsMap[p.category] = new Set();
+        productSubsMap[p.category].add(sub);
       }
     });
 
-    subsManual.forEach((sub) => {
-      const cat = sub.category;
-      if (!grouped[cat]) grouped[cat] = [];
-      // Usar el nombre tal cual está guardado, sin normalizar
-      if (!grouped[cat].includes(sub.name)) {
-        grouped[cat].push(sub.name);
-      }
+    // Construir resultado: primero las manuales (respetando order), luego las de productos no registradas ni ocultas
+    categorias.forEach((cat) => {
+      const manualNames = subsManual
+        .filter((s) => s.category === cat)
+        .map((s) => s.name);
+
+      // Empezar con las manuales en su orden
+      grouped[cat] = [...manualNames];
+
+      // Agregar las de productos que no estén ya en manuales ni ocultas
+      const fromProducts = productSubsMap[cat] || new Set();
+      fromProducts.forEach((sub) => {
+        if (!grouped[cat].includes(sub) && !hiddenSet.has(`${cat}||${sub}`)) {
+          grouped[cat].push(sub);
+        }
+      });
     });
 
     res.json({

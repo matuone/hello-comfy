@@ -24,6 +24,12 @@ const fetchSubcategories = async () => {
   return res.json();
 };
 
+const syncSubcategories = async () => {
+  const res = await fetch(apiPath("/subcategories/sync"), { method: "POST" });
+  if (!res.ok) throw new Error("No se pudo sincronizar subcategorías");
+  return res.json();
+};
+
 export default function AdminSubcategories() {
   const [categoria, setCategoria] = useState("Indumentaria");
   const [nombre, setNombre] = useState("");
@@ -37,6 +43,9 @@ export default function AdminSubcategories() {
   const [editingId, setEditingId] = useState(null);
   const [editingCat, setEditingCat] = useState("Indumentaria");
   const [editingName, setEditingName] = useState("");
+
+  // Estado para los modales de confirmación
+  const [confirmModal, setConfirmModal] = useState({ open: false, id: null, name: "", action: "hide" });
 
   const loadData = async () => {
     try {
@@ -53,7 +62,10 @@ export default function AdminSubcategories() {
   };
 
   useEffect(() => {
-    loadData();
+    // Sincronizar una sola vez al montar el componente, luego cargar datos
+    syncSubcategories()
+      .catch(() => { })
+      .finally(() => loadData());
   }, []);
 
   const handleSubmit = async (e) => {
@@ -122,7 +134,6 @@ export default function AdminSubcategories() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar esta subcategoría?")) return;
     setMessage("");
     setError("");
     try {
@@ -130,12 +141,49 @@ export default function AdminSubcategories() {
         method: "DELETE",
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "No se pudo eliminar");
-      setMessage(data.message || "Subcategoría eliminada");
+      if (!res.ok) throw new Error(data.error || "No se pudo ocultar");
+      setMessage(data.message || "Subcategoría oculta del menú");
       if (editingId === id) cancelEdit();
+      setConfirmModal({ open: false, id: null, name: "", action: "hide" });
+      await loadData();
+    } catch (err) {
+      setError(err.message || "Error al ocultar");
+      setConfirmModal({ open: false, id: null, name: "", action: "hide" });
+    }
+  };
+
+  const handleRestore = async (id) => {
+    setMessage("");
+    setError("");
+    try {
+      const res = await fetch(apiPath(`/subcategories/${id}/restore`), {
+        method: "PUT",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo restaurar");
+      setMessage(data.message || "Subcategoría restaurada");
+      await loadData();
+    } catch (err) {
+      setError(err.message || "Error al restaurar");
+    }
+  };
+
+  const handlePermanentDelete = async (id) => {
+    setMessage("");
+    setError("");
+    try {
+      const res = await fetch(apiPath(`/subcategories/${id}/permanent`), {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo eliminar");
+      setMessage(data.message || "Subcategoría eliminada permanentemente");
+      if (editingId === id) cancelEdit();
+      setConfirmModal({ open: false, id: null, name: "", action: "hide" });
       await loadData();
     } catch (err) {
       setError(err.message || "Error al eliminar");
+      setConfirmModal({ open: false, id: null, name: "", action: "hide" });
     }
   };
 
@@ -153,7 +201,15 @@ export default function AdminSubcategories() {
   };
 
   const groupManualByCat = CATEGORY_OPTIONS.reduce((acc, opt) => {
-    acc[opt.value] = manualSubs.filter((s) => s.category === opt.value);
+    acc[opt.value] = manualSubs
+      .filter((s) => s.category === opt.value && !s.hidden)
+      .sort((a, b) => a.order - b.order);
+    return acc;
+  }, {});
+
+  const groupHiddenByCat = CATEGORY_OPTIONS.reduce((acc, opt) => {
+    acc[opt.value] = manualSubs
+      .filter((s) => s.category === opt.value && s.hidden);
     return acc;
   }, {});
 
@@ -216,16 +272,16 @@ export default function AdminSubcategories() {
           ))}
         </div>
 
-        {manualSubs.length > 0 && (
-          <details className="admin-details">
-            <summary>Subcategorías creadas manualmente (editar / borrar / ordenar)</summary>
+        {CATEGORY_OPTIONS.some((opt) => (groupManualByCat[opt.value] || []).length > 0) && (
+          <details className="admin-details" open>
+            <summary>Subcategorías visibles (editar / ocultar / ordenar)</summary>
             <div className="admin-subcats-list">
               {CATEGORY_OPTIONS.map((opt) => {
                 const list = groupManualByCat[opt.value] || [];
                 return (
                   <div key={opt.value} className="admin-subcats-group">
                     <div className="admin-subcats-group-header">{opt.label}</div>
-                    {list.length === 0 && <p className="admin-subcats-empty">Sin subcategorías manuales</p>}
+                    {list.length === 0 && <p className="admin-subcats-empty">Sin subcategorías</p>}
                     {list.map((s, idx) => (
                       <div
                         key={s._id}
@@ -261,9 +317,56 @@ export default function AdminSubcategories() {
                           <button
                             type="button"
                             className="admin-btn admin-btn-ghost"
-                            onClick={() => handleDelete(s._id)}
+                            onClick={() => setConfirmModal({ open: true, id: s._id, name: s.name, action: "hide" })}
                           >
-                            Borrar
+                            Ocultar
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-danger"
+                            onClick={() => setConfirmModal({ open: true, id: s._id, name: s.name, action: "delete" })}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </details>
+        )}
+
+        {CATEGORY_OPTIONS.some((opt) => (groupHiddenByCat[opt.value] || []).length > 0) && (
+          <details className="admin-details">
+            <summary>Subcategorías ocultas</summary>
+            <div className="admin-subcats-list">
+              {CATEGORY_OPTIONS.map((opt) => {
+                const list = groupHiddenByCat[opt.value] || [];
+                if (list.length === 0) return null;
+                return (
+                  <div key={opt.value} className="admin-subcats-group">
+                    <div className="admin-subcats-group-header">{opt.label}</div>
+                    {list.map((s) => (
+                      <div key={s._id} className="admin-subcats-row admin-subcats-row--hidden">
+                        <div className="admin-subcats-info">
+                          <span className="pill pill--name pill--hidden">{s.name}</span>
+                        </div>
+                        <div className="admin-subcats-actions">
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-secondary"
+                            onClick={() => handleRestore(s._id)}
+                          >
+                            Restaurar
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-danger"
+                            onClick={() => setConfirmModal({ open: true, id: s._id, name: s.name, action: "delete" })}
+                          >
+                            Eliminar
                           </button>
                         </div>
                       </div>
@@ -322,6 +425,61 @@ export default function AdminSubcategories() {
             >
               Cancelar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación personalizado */}
+      {confirmModal.open && (
+        <div className="admin-confirm-overlay" onClick={() => setConfirmModal({ open: false, id: null, name: "", action: "hide" })}>
+          <div className="admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            {confirmModal.action === "hide" ? (
+              <>
+                <h3>¿Ocultar subcategoría?</h3>
+                <p>
+                  La subcategoría <strong>&ldquo;{confirmModal.name}&rdquo;</strong> dejará de aparecer en el menú desplegable del sitio. Podés restaurarla en cualquier momento.
+                </p>
+                <div className="admin-confirm-actions">
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-primary"
+                    onClick={() => handleDelete(confirmModal.id)}
+                  >
+                    Sí, ocultar
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-ghost"
+                    onClick={() => setConfirmModal({ open: false, id: null, name: "", action: "hide" })}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3>¿Eliminar subcategoría?</h3>
+                <p>
+                  La subcategoría <strong>&ldquo;{confirmModal.name}&rdquo;</strong> se eliminará permanentemente de la base de datos. Esta acción no se puede deshacer.
+                </p>
+                <div className="admin-confirm-actions">
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-danger"
+                    onClick={() => handlePermanentDelete(confirmModal.id)}
+                  >
+                    Sí, eliminar
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-ghost"
+                    onClick={() => setConfirmModal({ open: false, id: null, name: "", action: "hide" })}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

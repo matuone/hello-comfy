@@ -88,36 +88,34 @@ export default function MobileHeader() {
 
   const navAndClose = () => { setCatsOpen(false); close(); };
 
-  const FALLBACK = {
-    "Indumentaria": ["Remeras", "Buzos", "Pijamas", "Shorts", "Totes", "Outlet"],
-    "Cute items": ["Vasos"],
-    "Merch": ["Artistas nacionales", "Artistas internacionales"],
-  };
-
   const catSlug = {
     "Indumentaria": "indumentaria",
     "Cute items": "cute-items",
     "Merch": "merch",
   };
 
-  const [grouped, setGrouped] = useState(FALLBACK);
+  const [grouped, setGrouped] = useState(null);
 
   useEffect(() => {
     fetch(apiPath("/products/filters/data"))
       .then((res) => res.json())
       .then((data) => {
         if (data?.groupedSubcategories) {
-          setGrouped((prev) => ({ ...prev, ...data.groupedSubcategories }));
+          setGrouped(data.groupedSubcategories);
         }
       })
-      .catch(() => setGrouped(FALLBACK));
+      .catch(() => { });
   }, []);
 
-  const COLS = Object.keys(catSlug).map((cat) => ({
-    title: [cat.toUpperCase(), catSlug[cat]],
-    base: catSlug[cat],
-    items: (grouped[cat] || FALLBACK[cat]).map((sub) => [sub, sub]),
-  }));
+  const COLS = grouped
+    ? Object.keys(catSlug)
+      .filter((cat) => grouped[cat] && grouped[cat].length > 0)
+      .map((cat) => ({
+        title: [cat.toUpperCase(), catSlug[cat]],
+        base: catSlug[cat],
+        items: grouped[cat].map((sub) => [sub, sub]),
+      }))
+    : [];
 
   return (
     <>

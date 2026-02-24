@@ -724,6 +724,17 @@
   background: #fff0f6;
 }
 
+.admin-btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.admin-btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+  color: #fff;
+}
+
 .form-error {
   color: #c0392b;
   background: #fdecea;
@@ -896,4 +907,60 @@
 
 .admin-form--inline {
   margin-top: 16px;
+}
+
+/* ============================
+   MODAL DE CONFIRMACIÓN
+============================ */
+.admin-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.admin-confirm-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.admin-confirm-modal h3 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  color: #333;
+}
+
+.admin-confirm-modal p {
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.admin-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ============================
+   SUBCATEGORÍAS OCULTAS
+============================ */
+.admin-subcats-row--hidden {
+  opacity: 0.55;
+}
+
+.pill--hidden {
+  text-decoration: line-through;
 }
