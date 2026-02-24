@@ -2,16 +2,6 @@ import { useState } from "react";
 
 export default function Step3({ formData, updateField, next, back }) {
   const isValid = (formData.paymentMethod || "") !== "";
-  const [expandTransfer, setExpandTransfer] = useState(false);
-
-  const bankInfo = {
-    banco: "Banco Santander",
-    cuenta: "CAJA DE AHORRO EN PESOS 000-642556/6",
-    cbu: "0720000788000064255668",
-    alias: "GRANO.PLAYA.PRISMA",
-    titular: "CASTELLS ZWEIFEL NICOLE CAROLINA",
-    cuit: "CUIT 27391049802",
-  };
 
   return (
     <div className="checkout-step">
@@ -33,58 +23,9 @@ export default function Step3({ formData, updateField, next, back }) {
           </label>
 
           {formData.paymentMethod === "transfer" && (
-            <>
-              <button
-                type="button"
-                className="payment-expand-btn"
-                onClick={() => setExpandTransfer(!expandTransfer)}
-                style={{
-                  marginLeft: "24px",
-                  marginTop: "12px",
-                  padding: "10px 16px",
-                  background: "#fff7fb",
-                  color: "#d94f7a",
-                  border: "2px solid #d94f7a",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                  fontWeight: "600",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "#d94f7a";
-                  e.target.style.color = "white";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "#fff7fb";
-                  e.target.style.color = "#d94f7a";
-                }}
-              >
-                {expandTransfer ? "▼ Ocultar datos" : "▶ Ver datos bancarios"}
-              </button>
-
-              {expandTransfer && (
-                <div
-                  style={{
-                    marginLeft: "24px",
-                    marginTop: "12px",
-                    padding: "12px",
-                    background: "#f9f9f9",
-                    border: "1px solid #eee",
-                    borderRadius: "6px",
-                    fontSize: "0.9rem",
-                    lineHeight: "1.8",
-                  }}
-                >
-                  <p><strong>{bankInfo.banco}</strong></p>
-                  <p>Cuenta: {bankInfo.cuenta}</p>
-                  <p>CBU: {bankInfo.cbu}</p>
-                  <p>Alias: <strong>{bankInfo.alias}</strong></p>
-                  <p>Titular: {bankInfo.titular}</p>
-                  <p>{bankInfo.cuit}</p>
-                </div>
-              )}
-            </>
+            <p style={{ fontSize: "0.85rem", color: "#666", marginLeft: "24px", marginTop: "8px", fontStyle: "italic" }}>
+              ℹ️ Los datos bancarios se mostrarán en el siguiente paso.
+            </p>
           )}
         </div>
 

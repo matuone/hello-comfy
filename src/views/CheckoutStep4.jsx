@@ -551,19 +551,31 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           </h3>
 
           {formData.paymentMethod === "transfer" && (
-            <div style={{ background: "#fff7fb", borderRadius: "10px", padding: "16px", marginBottom: "16px" }}>
-              <p style={{ fontSize: "0.92rem", color: "#555", margin: "0 0 6px 0", fontWeight: 600 }}>
+            <div style={{ background: "#fff7fb", borderRadius: "10px", padding: "16px", marginBottom: "16px", lineHeight: "1.8" }}>
+              <p style={{ fontSize: "0.92rem", color: "#555", margin: "0 0 8px 0", fontWeight: 600 }}>
                 Datos para la transferencia:
               </p>
-              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
-                <strong>CBU:</strong> 0000003100092928616012
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 2px 0" }}>
+                <strong>Banco:</strong> Banco Santander
               </p>
-              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
-                <strong>Alias:</strong> HELLO.COMFY.IND
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 2px 0" }}>
+                <strong>Cuenta:</strong> CAJA DE AHORRO EN PESOS 000-642556/6
               </p>
-              <p style={{ fontSize: "0.88rem", color: "#666", margin: 0 }}>
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 2px 0" }}>
+                <strong>CBU:</strong> 0720000788000064255668
+              </p>
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 2px 0" }}>
+                <strong>Alias:</strong> GRANO.PLAYA.PRISMA
+              </p>
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 2px 0" }}>
+                <strong>Titular:</strong> CASTELLS ZWEIFEL NICOLE CAROLINA
+              </p>
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 10px 0" }}>
+                <strong>CUIT:</strong> 27391049802
+              </p>
+              <p style={{ fontSize: "0.92rem", color: "#666", margin: 0 }}>
                 <strong>Total a transferir:</strong>{" "}
-                <span style={{ color: "#d94f7a", fontWeight: 700 }}>${finalPrice.toLocaleString("es-AR")}</span>
+                <span style={{ color: "#d94f7a", fontWeight: 700, fontSize: "1.05rem" }}>${finalPrice.toLocaleString("es-AR")}</span>
               </p>
             </div>
           )}
