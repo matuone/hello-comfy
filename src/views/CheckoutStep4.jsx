@@ -7,6 +7,7 @@ import { createGocuotasCheckout } from "../services/gocuotasService";
 import { crearIntencionPagoModo } from "../services/modoService";
 import { toast } from "react-hot-toast";
 import ConfirmProofModal from "../components/ConfirmProofModal";
+import qrCuentaDNI from "../assets/qrcuentaDNI.jpeg";
 
 // Configuración global de API para compatibilidad local/producción
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -28,6 +29,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
   const [proofFile, setProofFile] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showProofStep, setShowProofStep] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Costo de envío (pickup = gratis)
   const envio = formData.shippingMethod === "pickup" ? 0 : shippingPrice;
@@ -548,21 +550,52 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
             {formData.paymentMethod === "transfer" ? "Comprobante de transferencia" : "Comprobante de Cuenta DNI"}
           </h3>
 
-          <div style={{ background: "#fff7fb", borderRadius: "10px", padding: "16px", marginBottom: "16px" }}>
-            <p style={{ fontSize: "0.92rem", color: "#555", margin: "0 0 6px 0", fontWeight: 600 }}>
-              Datos para la transferencia:
-            </p>
-            <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
-              <strong>CBU:</strong> 0000003100092928616012
-            </p>
-            <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
-              <strong>Alias:</strong> HELLO.COMFY.IND
-            </p>
-            <p style={{ fontSize: "0.88rem", color: "#666", margin: 0 }}>
-              <strong>Total a transferir:</strong>{" "}
-              <span style={{ color: "#d94f7a", fontWeight: 700 }}>${finalPrice.toLocaleString("es-AR")}</span>
-            </p>
-          </div>
+          {formData.paymentMethod === "transfer" && (
+            <div style={{ background: "#fff7fb", borderRadius: "10px", padding: "16px", marginBottom: "16px" }}>
+              <p style={{ fontSize: "0.92rem", color: "#555", margin: "0 0 6px 0", fontWeight: 600 }}>
+                Datos para la transferencia:
+              </p>
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
+                <strong>CBU:</strong> 0000003100092928616012
+              </p>
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "0 0 4px 0" }}>
+                <strong>Alias:</strong> HELLO.COMFY.IND
+              </p>
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: 0 }}>
+                <strong>Total a transferir:</strong>{" "}
+                <span style={{ color: "#d94f7a", fontWeight: 700 }}>${finalPrice.toLocaleString("es-AR")}</span>
+              </p>
+            </div>
+          )}
+
+          {formData.paymentMethod === "cuentadni" && (
+            <div style={{ background: "#e8f5f0", borderRadius: "10px", padding: "16px", marginBottom: "16px", textAlign: "center" }}>
+              <p style={{ fontSize: "0.95rem", color: "#333", marginBottom: "12px", fontWeight: 600 }}>
+                Escaneá el código QR para realizar el pago
+              </p>
+              <img
+                src={qrCuentaDNI}
+                alt="QR Cuenta DNI"
+                onClick={() => setShowQRModal(true)}
+                style={{
+                  maxWidth: "250px",
+                  height: "auto",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease",
+                }}
+                onMouseEnter={(e) => { e.target.style.transform = "scale(1.05)"; }}
+                onMouseLeave={(e) => { e.target.style.transform = "scale(1)"; }}
+              />
+              <p style={{ fontSize: "0.88rem", color: "#666", margin: "12px 0 0 0" }}>
+                <strong>Total a pagar:</strong>{" "}
+                <span style={{ color: "#00a86b", fontWeight: 700 }}>${finalPrice.toLocaleString("es-AR")}</span>
+              </p>
+              <p style={{ fontSize: "0.82rem", color: "#888", margin: "8px 0 0 0", fontStyle: "italic" }}>
+                ℹ️ Las promociones de Cuenta DNI son propias de su plataforma. Los reintegros se realizan de forma automática.
+              </p>
+            </div>
+          )}
 
           <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>
             Podés adjuntar tu comprobante ahora o enviarlo después por WhatsApp
@@ -627,6 +660,63 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
                 Volver
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal para ampliar QR Cuenta DNI */}
+      {showQRModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            cursor: "pointer",
+          }}
+          onClick={() => setShowQRModal(false)}
+        >
+          <div
+            style={{
+              position: "relative",
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "12px",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={qrCuentaDNI}
+              alt="QR Cuenta DNI Ampliado"
+              style={{ maxWidth: "100%", maxHeight: "80vh", borderRadius: "8px" }}
+            />
+            <button
+              onClick={() => setShowQRModal(false)}
+              style={{
+                position: "absolute",
+                top: "10px", right: "10px",
+                background: "#d94f7a",
+                color: "white",
+                border: "none",
+                borderRadius: "50%",
+                width: "40px", height: "40px",
+                fontSize: "24px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}
