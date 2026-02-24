@@ -97,7 +97,7 @@ const OrderSchema = new mongoose.Schema({
   ],
 
   shipping: {
-    method: { type: String, enum: ["home", "pickup"], required: true },
+    method: { type: String, enum: ["home", "pickup", "correo-home", "correo-branch"], required: true },
     address: { type: String },
     pickPoint: { type: String },
     eta: { type: String },
