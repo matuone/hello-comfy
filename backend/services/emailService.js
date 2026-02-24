@@ -190,13 +190,21 @@ export async function enviarEmailConfirmacionOrden(order) {
     let shippingInfo;
     if (order.shipping?.method === "pickup") {
       shippingInfo = `<strong>${shippingLabel}</strong><br>${order.shipping?.pickPoint || ""}`;
+    } else if (order.shipping?.method === "correo-branch") {
+      const parts = [`<strong>${shippingLabel}</strong>`];
+      if (order.shipping?.branchName) parts.push(`<strong>Sucursal:</strong> ${order.shipping.branchName}`);
+      if (order.shipping?.branchAddress) parts.push(`<strong>Dirección sucursal:</strong> ${order.shipping.branchAddress}`);
+      if (order.shipping?.localidad) parts.push(`<strong>Localidad:</strong> ${order.shipping.localidad}`);
+      if (order.shipping?.province) parts.push(`<strong>Provincia:</strong> ${order.shipping.province}`);
+      if (order.shipping?.postalCode) parts.push(`<strong>Código postal:</strong> ${order.shipping.postalCode}`);
+      shippingInfo = parts.join("<br>");
     } else {
-      const parts = [];
+      const parts = [`<strong>${shippingLabel}</strong>`];
       if (order.shipping?.address) parts.push(`<strong>Dirección:</strong> ${order.shipping.address}`);
       if (order.shipping?.localidad) parts.push(`<strong>Localidad:</strong> ${order.shipping.localidad}`);
       if (order.shipping?.province) parts.push(`<strong>Provincia:</strong> ${order.shipping.province}`);
       if (order.shipping?.postalCode) parts.push(`<strong>Código postal:</strong> ${order.shipping.postalCode}`);
-      shippingInfo = `<strong>${shippingLabel}</strong><br>${parts.join("<br>") || "Sin datos de dirección"}`;
+      shippingInfo = parts.join("<br>") || "Sin datos de dirección";
     }
 
     // Mapeo de métodos de pago
@@ -474,6 +482,14 @@ export async function enviarEmailAlAdmin(order) {
     let shippingInfo;
     if (order.shipping?.method === "pickup") {
       shippingInfo = `<strong>Método:</strong> ${adminShippingLabel}<br><strong>Punto de retiro:</strong> ${order.shipping?.pickPoint || ""}`;
+    } else if (order.shipping?.method === "correo-branch") {
+      const parts = [`<strong>Método:</strong> ${adminShippingLabel}`];
+      if (order.shipping?.branchName) parts.push(`<strong>Sucursal:</strong> ${order.shipping.branchName}`);
+      if (order.shipping?.branchAddress) parts.push(`<strong>Dirección sucursal:</strong> ${order.shipping.branchAddress}`);
+      if (order.shipping?.localidad) parts.push(`<strong>Localidad:</strong> ${order.shipping.localidad}`);
+      if (order.shipping?.province) parts.push(`<strong>Provincia:</strong> ${order.shipping.province}`);
+      if (order.shipping?.postalCode) parts.push(`<strong>Código postal:</strong> ${order.shipping.postalCode}`);
+      shippingInfo = parts.join("<br>");
     } else {
       const parts = [`<strong>Método:</strong> ${adminShippingLabel}`];
       if (order.shipping?.address) parts.push(`<strong>Dirección:</strong> ${order.shipping.address}`);

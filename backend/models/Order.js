@@ -105,6 +105,8 @@ const OrderSchema = new mongoose.Schema({
     province: { type: String },
     localidad: { type: String },
     pickPoint: { type: String },
+    branchName: { type: String },
+    branchAddress: { type: String },
     eta: { type: String },
 
     // ⭐ Código de seguimiento
