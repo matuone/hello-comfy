@@ -860,3 +860,206 @@ export async function enviarEmailVerificacion(email, name, token) {
     return false;
   }
 }
+
+/**
+ * Enviar email al cliente cuando el admin marca el pago como recibido
+ */
+export async function enviarEmailPagoRecibido(order) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado");
+      return false;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const productosHtml = order.items
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #fce4ec;">
+            <strong style="color: #333;">${item.name}</strong><br>
+            <small style="color: #888;">
+              Cantidad: ${item.quantity}
+              ${item.size ? ` · Talle: ${item.size}` : ""}
+              ${item.color ? ` · Color: ${item.color}` : ""}
+            </small>
+          </td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #fce4ec; text-align: right; color: #d94f7a; font-weight: 600;">
+            $${(item.price * item.quantity).toLocaleString("es-AR")}
+          </td>
+        </tr>
+      `
+      )
+      .join("");
+
+    const emailHtml = `
+      <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%); padding: 32px 24px; text-align: center;">
+          <p style="font-size: 48px; margin: 0 0 8px 0;">🧸✅</p>
+          <h1 style="color: white; margin: 0; font-size: 26px; font-weight: 700;">¡Recibimos tu pago!</h1>
+          <p style="color: rgba(255,255,255,0.95); margin: 8px 0 0 0; font-size: 15px;">Orden #${order.code}</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 32px 24px;">
+          <p style="color: #333; font-size: 16px; margin: 0 0 20px 0; line-height: 1.6;">
+            ¡Hola <strong>${order.customer?.name || ""}!</strong> 🎉<br><br>
+            Te confirmamos que <strong>recibimos tu pago</strong> correctamente. ¡Ya estamos preparando tu pedido con mucho cariño!
+          </p>
+
+          <!-- Productos -->
+          <div style="background: #fff5f7; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #fce4ec;">
+            <h3 style="color: #d94f7a; font-size: 16px; margin: 0 0 12px 0;">🛍️ Tus productos</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              ${productosHtml}
+            </table>
+            <div style="text-align: right; padding-top: 12px; border-top: 2px solid #d94f7a; margin-top: 8px;">
+              <strong style="color: #d94f7a; font-size: 18px;">Total: $${order.totals?.total?.toLocaleString("es-AR") || "0"}</strong>
+            </div>
+          </div>
+
+          <!-- Próximos pasos -->
+          <div style="background: #f0f9ff; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #bae6fd;">
+            <h3 style="color: #0284c7; font-size: 16px; margin: 0 0 8px 0;">📦 ¿Qué sigue?</h3>
+            <p style="color: #555; font-size: 14px; margin: 0; line-height: 1.6;">
+              Estamos preparando tu pedido. <strong>Próximamente vas a recibir otro email con el número de seguimiento</strong> para que puedas rastrear tu envío en todo momento.
+            </p>
+          </div>
+
+          <p style="color: #888; font-size: 14px; margin: 0; text-align: center; line-height: 1.5;">
+            ¡Gracias por confiar en nosotros! 🧸💕
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #fdf2f4; padding: 24px; text-align: center; border-top: 1px solid #fce4ec;">
+          <p style="color: #999; font-size: 13px; margin: 0 0 4px 0;">¿Tenés alguna consulta?</p>
+          <p style="color: #d94f7a; font-size: 14px; margin: 0; font-weight: 600;">hellocomfyind@gmail.com</p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: "Hello Comfy 🧸 <hellocomfyind@gmail.com>",
+      to: order.customer?.email,
+      subject: `🧸 ¡Recibimos tu pago! — Orden #${order.code}`,
+      html: emailHtml,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando email de pago recibido:", error.message);
+    return false;
+  }
+}
+
+/**
+ * Enviar email al cliente cuando se agrega número de seguimiento
+ */
+export async function enviarEmailSeguimiento(order, tracking) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado");
+      return false;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const productosHtml = order.items
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding: 10px 16px; border-bottom: 1px solid #fce4ec;">
+            <strong style="color: #333;">${item.name}</strong>
+            <small style="color: #888; display: block;">
+              Cant: ${item.quantity}${item.size ? ` · ${item.size}` : ""}${item.color ? ` · ${item.color}` : ""}
+            </small>
+          </td>
+        </tr>
+      `
+      )
+      .join("");
+
+    const trackingUrl = "https://www.correoargentino.com.ar/formularios/e-commerce";
+
+    const emailHtml = `
+      <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%); padding: 32px 24px; text-align: center;">
+          <p style="font-size: 48px; margin: 0 0 8px 0;">🧸📦</p>
+          <h1 style="color: white; margin: 0; font-size: 26px; font-weight: 700;">¡Tu pedido está en camino!</h1>
+          <p style="color: rgba(255,255,255,0.95); margin: 8px 0 0 0; font-size: 15px;">Orden #${order.code}</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 32px 24px;">
+          <p style="color: #333; font-size: 16px; margin: 0 0 20px 0; line-height: 1.6;">
+            ¡Hola <strong>${order.customer?.name || ""}!</strong> 🎉<br><br>
+            ¡Qué emoción! Tu pedido ya fue despachado y está viajando hacia vos. 🚚💨
+          </p>
+
+          <!-- Tracking -->
+          <div style="background: #fff5f7; border: 2px solid #d94f7a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
+            <p style="color: #666; font-size: 14px; margin: 0 0 8px 0;">Tu número de seguimiento es:</p>
+            <p style="color: #d94f7a; font-size: 28px; font-weight: 800; margin: 0 0 16px 0; letter-spacing: 1px;">${tracking}</p>
+            <a href="${trackingUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #d94f7a 0%, #e76f93 100%); color: #fff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(217,79,122,0.3);">
+              📍 Rastrear mi envío
+            </a>
+          </div>
+
+          <!-- Productos -->
+          <div style="background: #f8f8f8; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+            <h3 style="color: #555; font-size: 14px; margin: 0 0 8px 0;">Productos en tu paquete:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              ${productosHtml}
+            </table>
+          </div>
+
+          <!-- Info -->
+          <div style="background: #f0f9ff; border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid #bae6fd;">
+            <p style="color: #555; font-size: 14px; margin: 0; line-height: 1.6;">
+              💡 <strong>Tip:</strong> Podés hacer seguimiento de tu envío ingresando el número de tracking en
+              <a href="${trackingUrl}" style="color: #d94f7a; font-weight: 600;">correoargentino.com.ar/formularios/e-commerce</a>
+            </p>
+          </div>
+
+          <p style="color: #888; font-size: 14px; margin: 0; text-align: center; line-height: 1.5;">
+            ¡Esperamos que lo disfrutes mucho! 🧸💕
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #fdf2f4; padding: 24px; text-align: center; border-top: 1px solid #fce4ec;">
+          <p style="color: #999; font-size: 13px; margin: 0 0 4px 0;">¿Tenés alguna consulta sobre tu envío?</p>
+          <p style="color: #d94f7a; font-size: 14px; margin: 0; font-weight: 600;">hellocomfyind@gmail.com</p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: "Hello Comfy 🧸 <hellocomfyind@gmail.com>",
+      to: order.customer?.email,
+      subject: `📦 ¡Tu pedido está en camino! — Seguimiento #${tracking}`,
+      html: emailHtml,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando email de seguimiento:", error.message);
+    return false;
+  }
+}

@@ -4,7 +4,7 @@ import express from "express";
 const router = express.Router();
 import Order from "../models/Order.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
-import { enviarEmailRetiroPickup } from "../services/emailService.js";
+import { enviarEmailRetiroPickup, enviarEmailPagoRecibido, enviarEmailSeguimiento } from "../services/emailService.js";
 
 /* ============================================================
    ⭐ Notificar retiro listo (Pick Up)
@@ -134,6 +134,13 @@ router.patch("/admin/orders/:id/payment", verifyAdmin, async (req, res) => {
 
     await order.save();
 
+    // Si se marca como recibido, enviar email al cliente
+    if (pagoEstado === "recibido") {
+      enviarEmailPagoRecibido(order).catch((err) =>
+        console.error("Error enviando email pago recibido:", err.message)
+      );
+    }
+
     res.json({ message: "Estado de pago actualizado", order });
   } catch (err) {
     console.error("Error actualizando pago:", err);
@@ -175,6 +182,13 @@ router.patch("/admin/orders/:id/shipping", verifyAdmin, async (req, res) => {
     }
 
     await order.save();
+
+    // Si se agregó seguimiento, enviar email al cliente
+    if (seguimiento) {
+      enviarEmailSeguimiento(order, seguimiento).catch((err) =>
+        console.error("Error enviando email seguimiento:", err.message)
+      );
+    }
 
     res.json({
       message: "Datos de envío actualizados",
