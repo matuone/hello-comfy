@@ -4,6 +4,8 @@
 .shipopt-container {
   margin-top: 1rem;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .shipopt-title {
@@ -29,6 +31,8 @@
   border: 2px solid #f0d3df;
   background: #fff7fb;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   user-select: none;
@@ -117,6 +121,9 @@
   border-radius: 8px;
   background: #fff7fb;
   border: 1px solid #f0d3df;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .shipopt-agency-label {
@@ -129,6 +136,7 @@
 
 .shipopt-agency-select {
   width: 100%;
+  max-width: 100%;
   padding: 10px 12px;
   border: 2px solid #f0d3df;
   border-radius: 8px;
@@ -138,6 +146,9 @@
   cursor: pointer;
   transition: border-color 0.2s;
   appearance: auto;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .shipopt-agency-select:focus {

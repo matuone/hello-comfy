@@ -145,13 +145,51 @@ router.get("/correo-argentino/agencies-by-cp", async (req, res) => {
       a.services?.pickupAvailability
     );
 
-    // Buscar las que cubren el CP exacto
-    const exact = active.filter(a =>
-      a.nearByPostalCode?.split(",").map(c => c.trim()).includes(postalCode)
-    );
+    const cpNum = parseInt(postalCode);
 
-    // Si hay coincidencias exactas, devolver esas; sino devolver las primeras 20 de la provincia
-    const result = exact.length > 0 ? exact : active.slice(0, 20);
+    // Extraer el CP numérico de un CPA (ej: "B1834FPU" → 1834)
+    const extractCPFromCPA = (cpa) => {
+      if (!cpa || typeof cpa !== "string") return NaN;
+      const match = cpa.match(/\d{4}/);
+      return match ? parseInt(match[0]) : NaN;
+    };
+
+    // Obtener todos los CPs asociados a una sucursal:
+    // 1. nearByPostalCode (comma-separated list de CPs numéricos)
+    // 2. postalCode del domicilio de la sucursal (formato CPA → extraer 4 dígitos)
+    const getAgencyAllCPs = (a) => {
+      const cps = [];
+      if (a.nearByPostalCode) {
+        a.nearByPostalCode.split(",").forEach(c => {
+          const n = parseInt(c.trim());
+          if (!isNaN(n)) cps.push(n);
+        });
+      }
+      const ownCP = extractCPFromCPA(a.location?.address?.postalCode);
+      if (!isNaN(ownCP) && !cps.includes(ownCP)) cps.push(ownCP);
+      return cps;
+    };
+
+    // Buscar sucursales cercanas: rango ±50 del CP consultado
+    const nearby = active.filter(a => {
+      const agencyCPs = getAgencyAllCPs(a);
+      return agencyCPs.some(cp => Math.abs(cp - cpNum) <= 50);
+    });
+
+    // Ordenar: primero las que tienen el CP exacto, luego por cercanía
+    nearby.sort((a, b) => {
+      const aCPs = getAgencyAllCPs(a);
+      const bCPs = getAgencyAllCPs(b);
+      const aExact = aCPs.includes(cpNum) ? 0 : 1;
+      const bExact = bCPs.includes(cpNum) ? 0 : 1;
+      if (aExact !== bExact) return aExact - bExact;
+      const aMin = Math.min(...aCPs.map(cp => Math.abs(cp - cpNum)));
+      const bMin = Math.min(...bCPs.map(cp => Math.abs(cp - cpNum)));
+      return aMin - bMin;
+    });
+
+    // Limitar a 20 resultados
+    const result = nearby.length > 0 ? nearby.slice(0, 20) : active.slice(0, 20);
 
     // Formatear respuesta para el frontend
     const formatted = result.map(a => ({
@@ -169,7 +207,6 @@ router.get("/correo-argentino/agencies-by-cp", async (req, res) => {
     res.json({
       provinceCode,
       total: formatted.length,
-      exactMatch: exact.length > 0,
       agencies: formatted
     });
   } catch (error) {
