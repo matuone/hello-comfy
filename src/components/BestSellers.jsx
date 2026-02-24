@@ -59,8 +59,11 @@ export default function BestSellers() {
   const handleAddToCart = (event, product) => {
     event.stopPropagation();
 
-    const availableSizes = getAvailableSizes(product);
-    const fallbackSize = availableSizes[0]?.[0] || null;
+    const allSizes = getAvailableSizes(product);
+    const hasUnico = allSizes.some(([t]) => t === 'Único');
+    const sizesToUse = hasUnico ? allSizes.filter(([t]) => t === 'Único') : allSizes;
+    const inStock = sizesToUse.filter(([, qty]) => qty > 0);
+    const fallbackSize = inStock[0]?.[0] || sizesToUse[0]?.[0] || null;
     const chosenSize = selectedSizes[product._id] || fallbackSize;
     const quantity = quantities[product._id] || 1;
 

@@ -264,12 +264,10 @@ export default function Products() {
   const handleAddToCart = (event, product) => {
     event.stopPropagation();
 
-    const availableSizes = getAvailableSizes(product);
-    const fallbackSize = availableSizes[0]?.[0] || null;
-    const chosenSize = selectedSizes[product._id] || fallbackSize;
+    const chosenSize = getSelectedSize(product);
     const maxStock = getMaxStockForSize(product, chosenSize);
     const baseQty = quantities[product._id] || 1;
-    const quantity = Number.isFinite(maxStock) ? Math.min(baseQty, maxStock) : baseQty;
+    const quantity = Number.isFinite(maxStock) ? Math.max(1, Math.min(baseQty, maxStock)) : baseQty;
 
     addToCart(product, { size: chosenSize, color: product.stockColorId?.color, quantity });
   };
