@@ -333,7 +333,12 @@ export function CartProvider({ children }) {
       });
 
       const promoSubtotal = applicableItems.reduce(
-        (acc, item) => acc + item.price * item.quantity,
+        (acc, item) => {
+          const base = item.price;
+          const disc = applyCategoryDiscount(item);
+          const finalPrice = disc > 0 ? base - (base * disc) / 100 : base;
+          return acc + finalPrice * item.quantity;
+        },
         0
       );
 
