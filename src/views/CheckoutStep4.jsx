@@ -387,14 +387,54 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
     setShowConfirmModal(false);
   };
 
-  const handleFileChange = (e) => {
+  // ⭐ Comprimir imagen si es muy grande (para evitar errores con base64 pesado)
+  const comprimirImagen = (file, maxWidth = 1920, quality = 0.8) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            const compressed = new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() });
+            resolve(compressed);
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file); // si falla, devolver original
+      };
+      img.src = url;
+    });
+  };
+
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB
-        toast.error("El archivo no puede exceder 5MB");
+      if (file.size > 15 * 1024 * 1024) { // 15MB
+        toast.error("El archivo no puede exceder 15MB");
         return;
       }
-      setProofFile(file);
+      // Comprimir imágenes > 2MB para que no falle el envío
+      if (file.type.startsWith("image/") && file.size > 2 * 1024 * 1024) {
+        const comprimido = await comprimirImagen(file);
+        setProofFile(comprimido);
+      } else {
+        setProofFile(file);
+      }
     }
   };
 
