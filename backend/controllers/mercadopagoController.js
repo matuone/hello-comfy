@@ -81,6 +81,26 @@ export const createPreference = async (req, res) => {
       };
     });
 
+    // Aplicar descuentos globales (cupón promo, 3x2) proporcionalmente a cada item
+    // para que el total de items de MP coincida con el total validado
+    const globalDiscount = (totals.promoDiscount || 0) + (totals.promo3x2Discount || 0) + (totals.transferDiscount || 0);
+    if (globalDiscount > 0) {
+      const itemsSubtotal = mercadopagoItems.reduce((sum, i) => sum + (i.unit_price * i.quantity), 0);
+      if (itemsSubtotal > 0) {
+        const ratio = (itemsSubtotal - globalDiscount) / itemsSubtotal;
+        mercadopagoItems.forEach((item) => {
+          item.unit_price = Math.round(item.unit_price * ratio * 100) / 100;
+        });
+        // Ajustar centavos de redondeo en el último item para que el total sea exacto
+        const newTotal = mercadopagoItems.reduce((sum, i) => sum + (i.unit_price * i.quantity), 0);
+        const diff = Math.round((totals.total - newTotal) * 100) / 100;
+        if (Math.abs(diff) > 0 && mercadopagoItems.length > 0) {
+          mercadopagoItems[mercadopagoItems.length - 1].unit_price =
+            Math.round((mercadopagoItems[mercadopagoItems.length - 1].unit_price + diff / mercadopagoItems[mercadopagoItems.length - 1].quantity) * 100) / 100;
+        }
+      }
+    }
+
     // Agregar envío como item si corresponde — RECALCULADO desde la API
     const { shippingCost: validatedShipping } = await validateShippingCost({
       shippingMethod: metadata?.shippingMethod,
@@ -162,13 +182,12 @@ export const createPreference = async (req, res) => {
  */
 export const webhookMercadoPago = async (req, res) => {
   try {
-    const { type, data } = req.query;
+    // MercadoPago puede enviar datos por query params (IPN) o por body (Webhooks v2)
+    const type = req.query.type || req.body?.type || req.body?.action;
+    const paymentId = req.query?.data?.id || req.body?.data?.id;
 
-    // Verificar que sea una notificación de Mercado Pago válida
-    if (type === "payment") {
-      // console.log("✅ Notificación de pago recibida:", data.id);
-
-      const paymentId = data.id;
+    // Verificar que sea una notificación de pago válida
+    if ((type === "payment" || type === "payment.created" || type === "payment.updated") && paymentId) {
 
       // Obtener detalles del pago
       const paymentDetails = await axios.get(

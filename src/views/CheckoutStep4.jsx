@@ -23,7 +23,7 @@ const stripItemsForStorage = (items) =>
 
 export default function Step4({ formData, items, totalPrice, shippingPrice = 0, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
-  const { clearCart } = useCart();
+  const { clearCart, promoCode } = useCart();
   const { user } = useAuth();
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [proofFile, setProofFile] = useState(null);
@@ -78,6 +78,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         metadata: {
           orderType: "checkout",
           shippingMethod: formData.shippingMethod,
+          promoCode: promoCode || null,
         },
       });
 
@@ -91,7 +92,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
       // Guardar datos de orden pendiente antes de abrir el modal
       localStorage.setItem("pendingOrder", JSON.stringify({
         userId: user?.id || null,
-        formData,
+        formData: { ...formData, promoCode: promoCode || null },
         items: stripItemsForStorage(items),
         createdAt: new Date().toISOString(),
       }));
@@ -199,13 +200,14 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         metadata: {
           orderType: "checkout",
           shippingMethod: formData.shippingMethod,
+          promoCode: promoCode || null,
         },
       });
 
       if (checkout?.url_init) {
         localStorage.setItem("pendingOrder", JSON.stringify({
           userId: user?.id || null,
-          formData,
+          formData: { ...formData, promoCode: promoCode || null },
           items: stripItemsForStorage(items),
           createdAt: new Date().toISOString(),
         }));
@@ -262,13 +264,14 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         metadata: {
           orderType: "checkout",
           shippingMethod: formData.shippingMethod,
+          promoCode: promoCode || null,
         },
       });
 
       if (preferencia?.init_point) {
         localStorage.setItem("pendingOrder", JSON.stringify({
           userId: user?.id || null,
-          formData,
+          formData: { ...formData, promoCode: promoCode || null },
           items: stripItemsForStorage(items),
           createdAt: new Date().toISOString(),
         }));
@@ -290,7 +293,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
       // Guardar orden (solo datos mínimos, sin precios)
       localStorage.setItem("pendingOrder", JSON.stringify({
         userId: user?.id || null,
-        formData,
+        formData: { ...formData, promoCode: promoCode || null },
         items: stripItemsForStorage(items),
         paymentProof: proofBase64,
         paymentProofName: proofFile?.name || null,
@@ -307,7 +310,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         },
         body: JSON.stringify({
           userId: user?.id || null,
-          formData,
+          formData: { ...formData, promoCode: promoCode || null },
           items: stripItemsForStorage(items),
           paymentProof: proofBase64,
           paymentProofName: proofFile?.name || null,
