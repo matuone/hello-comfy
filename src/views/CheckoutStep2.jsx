@@ -3,6 +3,23 @@ export default function Step2({ formData, updateField, next, back }) {
   const needsPostalCode = formData.shippingMethod === "correo-home" || formData.shippingMethod === "correo-branch"
     || formData.shippingMethod === "home";
 
+  // Cambiar método de envío y limpiar campos del método anterior
+  const handleShippingChange = (method) => {
+    updateField("shippingMethod", method);
+    if (method === "pickup") {
+      // Limpiar campos de correo
+      updateField("address", "");
+      updateField("postalCode", "");
+      updateField("province", "");
+      updateField("localidad", "");
+      updateField("selectedAgency", null);
+      updateField("shippingPrice", 0);
+    } else {
+      // Limpiar campos de pickup
+      updateField("pickPoint", "");
+    }
+  };
+
   const isValid =
     formData.shippingMethod === "pickup" ||
     (needsAddress &&
@@ -81,7 +98,7 @@ export default function Step2({ formData, updateField, next, back }) {
             type="radio"
             name="shipping"
             checked={formData.shippingMethod === "pickup"}
-            onChange={() => updateField("shippingMethod", "pickup")}
+            onChange={() => handleShippingChange("pickup")}
           />
           Retiro en Pick Up Point
         </label>
@@ -92,7 +109,7 @@ export default function Step2({ formData, updateField, next, back }) {
             type="radio"
             name="shipping"
             checked={formData.shippingMethod === "correo-home" || formData.shippingMethod === "home"}
-            onChange={() => updateField("shippingMethod", "correo-home")}
+            onChange={() => handleShippingChange("correo-home")}
           />
           Envío a domicilio (Correo Argentino)
         </label>
@@ -103,7 +120,7 @@ export default function Step2({ formData, updateField, next, back }) {
             type="radio"
             name="shipping"
             checked={formData.shippingMethod === "correo-branch"}
-            onChange={() => updateField("shippingMethod", "correo-branch")}
+            onChange={() => handleShippingChange("correo-branch")}
           />
           Envío a sucursal (Correo Argentino)
         </label>

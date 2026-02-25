@@ -213,10 +213,17 @@ export default function Cart() {
     checkoutFormData.giftMessage = giftMessage;
 
     // Propagar la selección de envío del carrito al checkout
-    if (selectedShipping) {
+    if (pickPoint) {
+      // Pick up point seleccionado → tiene prioridad
+      checkoutFormData.shippingMethod = "pickup";
+      checkoutFormData.pickPoint = pickPoint;
+      checkoutFormData.shippingPrice = 0;
+      checkoutFormData.selectedAgency = null;
+    } else if (selectedShipping) {
       checkoutFormData.shippingMethod = selectedShipping; // "correo-home" o "correo-branch"
       checkoutFormData.shippingPrice = effectiveShippingPrice;
       checkoutFormData.freeShipping = freeShipping;
+      checkoutFormData.pickPoint = "";
     }
     if (postalCode) {
       checkoutFormData.postalCode = postalCode;
@@ -533,46 +540,79 @@ export default function Cart() {
             )}
 
             {/* ⭐ Opciones de envío seleccionables */}
-            <ShippingOptions
-              result={shippingOptions}
-              selected={selectedShipping}
-              initialAgency={selectedAgency}
-              onSelect={(id, opt, agency) => {
-                setSelectedShipping(id);
-                setShippingPrice(opt?.data?.price || 0);
-                if (agency) setSelectedAgency(agency);
-                else if (id !== "correo-branch") setSelectedAgency(null);
-                // Persistir selección
-                localStorage.setItem("shippingSelection", JSON.stringify({
-                  postalCode,
-                  selectedShipping: id,
-                  shippingPrice: opt?.data?.price || 0,
-                  selectedAgency: agency || null,
-                }));
-              }}
-              postalCode={postalCode}
-            />
+            {!pickPoint && (
+              <ShippingOptions
+                result={shippingOptions}
+                selected={selectedShipping}
+                initialAgency={selectedAgency}
+                onSelect={(id, opt, agency) => {
+                  setSelectedShipping(id);
+                  setShippingPrice(opt?.data?.price || 0);
+                  if (agency) setSelectedAgency(agency);
+                  else if (id !== "correo-branch") setSelectedAgency(null);
+                  // Al elegir correo, limpiar pick up point
+                  setPickPoint("");
+                  // Persistir selección
+                  localStorage.setItem("shippingSelection", JSON.stringify({
+                    postalCode,
+                    selectedShipping: id,
+                    shippingPrice: opt?.data?.price || 0,
+                    selectedAgency: agency || null,
+                  }));
+                }}
+                postalCode={postalCode}
+              />
+            )}
 
             {/* ⭐ PICK UP POINT */}
-            <div className="cart-pickup">
-              <h4 className="cart-pickup-title">Pick Up Point</h4>
+            {!selectedShipping && (
+              <div className="cart-pickup">
+                <h4 className="cart-pickup-title">Pick Up Point</h4>
 
-              <div className="cart-field">
-                <select
-                  className="cart-input cart-pickup-dropdown"
-                  value={pickPoint}
-                  onChange={(e) => setPickPoint(e.target.value)}
-                >
-                  <option value="">Elegí un punto de retiro</option>
-                  <option value="aquelarre">Pick Up Point Aquelarre — CABA</option>
-                  <option value="temperley">Pick Up Point Temperley — ZS-GBA</option>
-                </select>
+                <div className="cart-field">
+                  <select
+                    className="cart-input cart-pickup-dropdown"
+                    value={pickPoint}
+                    onChange={(e) => {
+                      setPickPoint(e.target.value);
+                      // Al elegir pick up, limpiar selección de correo
+                      if (e.target.value) {
+                        setSelectedShipping(null);
+                        setShippingPrice(0);
+                        setSelectedAgency(null);
+                        localStorage.removeItem("shippingSelection");
+                      }
+                    }}
+                  >
+                    <option value="">Elegí un punto de retiro</option>
+                    <option value="aquelarre">Pick Up Point Aquelarre — CABA</option>
+                    <option value="temperley">Pick Up Point Temperley — ZS-GBA</option>
+                  </select>
+                </div>
+
+                <p className="cart-pickup-note">
+                  Retiro sin costo. Te avisamos cuando esté listo.
+                </p>
               </div>
+            )}
 
-              <p className="cart-pickup-note">
-                Retiro sin costo. Te avisamos cuando esté listo.
-              </p>
-            </div>
+            {/* Botón para cambiar de método si ya eligió uno */}
+            {(selectedShipping || pickPoint) && (
+              <button
+                type="button"
+                className="cart-btn-secondary"
+                style={{ marginTop: "10px", fontSize: "0.85rem" }}
+                onClick={() => {
+                  setSelectedShipping(null);
+                  setShippingPrice(0);
+                  setSelectedAgency(null);
+                  setPickPoint("");
+                  localStorage.removeItem("shippingSelection");
+                }}
+              >
+                Cambiar método de envío
+              </button>
+            )}
 
             {/* ⭐ REGALO */}
             <div className="cart-gift">
