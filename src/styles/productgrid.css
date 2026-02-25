@@ -188,6 +188,9 @@
   font-size: 12px;
   border: 1px solid #f0f0f0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .payment-option__label {

@@ -285,54 +285,64 @@ export default function AdminSaleDetail() {
   // CANCELAR VENTA
   // ============================
   const [cancelando, setCancelando] = useState(false);
+  const [reembolsando, setReembolsando] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ open: false, action: null });
+  const [resultModal, setResultModal] = useState(null); // { tipo: "success"|"error", mensaje }
 
-  async function cancelarVenta() {
-    if (!window.confirm("¿Estás seguro de que querés cancelar esta venta? Se enviará un email al cliente.")) return;
-    setCancelando(true);
+  function abrirConfirmCancelar() {
     setIsMoreOpen(false);
-    try {
-      const res = await adminFetch(apiPath(`/admin/orders/${id}/cancel`), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al cancelar venta");
-      setVenta(data.order);
-      alert("Venta cancelada. Se envió el email de cancelación al cliente.");
-    } catch (err) {
-      alert(err.message || "Error al cancelar la venta");
-    } finally {
-      setCancelando(false);
-    }
+    setConfirmModal({ open: true, action: "cancelar" });
   }
 
-  // ============================
-  // DEVOLVER DINERO (REEMBOLSO)
-  // ============================
-  const [reembolsando, setReembolsando] = useState(false);
-
-  async function devolverDinero() {
+  function abrirConfirmDevolver() {
     const metodo = venta?.paymentMethod;
     if (!["mercadopago", "gocuotas", "modo"].includes(metodo)) {
-      alert("Este medio de pago no soporta devolución automática. Realizá la devolución de forma manual.");
+      setIsMoreOpen(false);
+      setResultModal({ tipo: "error", mensaje: "Este medio de pago no soporta devolución automática. Realizá la devolución de forma manual." });
       return;
     }
-    if (!window.confirm("¿Estás seguro de que querés devolver el dinero? Se procesará el reembolso y se enviará un email al cliente.")) return;
-    setReembolsando(true);
     setIsMoreOpen(false);
-    try {
-      const res = await adminFetch(apiPath(`/admin/orders/${id}/refund`), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al procesar la devolución");
-      setVenta(data.order);
-      alert("Devolución procesada correctamente. Se envió un email al cliente.");
-    } catch (err) {
-      alert(err.message || "Error al procesar la devolución");
-    } finally {
-      setReembolsando(false);
+    setConfirmModal({ open: true, action: "devolver" });
+  }
+
+  async function ejecutarAccionConfirmada() {
+    const action = confirmModal.action;
+    setConfirmModal({ open: false, action: null });
+
+    if (action === "cancelar") {
+      setCancelando(true);
+      try {
+        const res = await adminFetch(apiPath(`/admin/orders/${id}/cancel`), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al cancelar venta");
+        setVenta(data.order);
+        setResultModal({ tipo: "success", mensaje: "Venta cancelada. Se envió el email de cancelación al cliente." });
+      } catch (err) {
+        setResultModal({ tipo: "error", mensaje: err.message || "Error al cancelar la venta" });
+      } finally {
+        setCancelando(false);
+      }
+    }
+
+    if (action === "devolver") {
+      setReembolsando(true);
+      try {
+        const res = await adminFetch(apiPath(`/admin/orders/${id}/refund`), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al procesar la devolución");
+        setVenta(data.order);
+        setResultModal({ tipo: "success", mensaje: "Devolución procesada correctamente. Se envió un email al cliente." });
+      } catch (err) {
+        setResultModal({ tipo: "error", mensaje: err.message || "Error al procesar la devolución" });
+      } finally {
+        setReembolsando(false);
+      }
     }
   }
 
@@ -495,13 +505,12 @@ export default function AdminSaleDetail() {
             Más opciones ▾
           </button>
           <div className={`dropdown-menu ${isMoreOpen ? "open" : ""}`}>
-            <button onClick={cancelarVenta} disabled={cancelando || venta?.status === "cancelado"}>
+            <button onClick={abrirConfirmCancelar} disabled={cancelando || venta?.status === "cancelado"}>
               {cancelando ? "Cancelando..." : venta?.status === "cancelado" ? "✅ Venta cancelada" : "Cancelar venta"}
             </button>
-            <button onClick={devolverDinero} disabled={reembolsando || venta?.reembolsado}>
+            <button onClick={abrirConfirmDevolver} disabled={reembolsando || venta?.reembolsado}>
               {reembolsando ? "Procesando..." : venta?.reembolsado ? "✅ Dinero devuelto" : "Devolver dinero"}
             </button>
-            <button>Archivar venta</button>
           </div>
         </div>
 
@@ -842,6 +851,45 @@ export default function AdminSaleDetail() {
           mensaje={modalError}
           tipo="error"
           onClose={() => setModalError(null)}
+        />
+      )}
+
+      {/* MODAL DE CONFIRMACIÓN (cancelar / devolver) */}
+      {confirmModal.open && (
+        <div className="admin-confirm-overlay" onClick={() => setConfirmModal({ open: false, action: null })}>
+          <div className="admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>
+              {confirmModal.action === "cancelar" ? "Cancelar venta" : "Devolver dinero"}
+            </h3>
+            <p>
+              {confirmModal.action === "cancelar"
+                ? "¿Estás seguro de que querés cancelar esta venta? Se enviará un email al cliente."
+                : "¿Estás seguro de que querés devolver el dinero? Se procesará el reembolso y se enviará un email al cliente."}
+            </p>
+            <div className="admin-confirm-actions">
+              <button
+                className="admin-btn admin-btn-ghost"
+                onClick={() => setConfirmModal({ open: false, action: null })}
+              >
+                No, volver
+              </button>
+              <button
+                className="admin-btn admin-btn-danger"
+                onClick={ejecutarAccionConfirmada}
+              >
+                Sí, confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE RESULTADO (éxito / error) */}
+      {resultModal && (
+        <NotificationModal
+          mensaje={resultModal.mensaje}
+          tipo={resultModal.tipo}
+          onClose={() => setResultModal(null)}
         />
       )}
     </div>
