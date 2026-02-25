@@ -87,7 +87,7 @@ export const createPaymentIntent = async (req, res) => {
     // Llamada real a la API de Modo
     const response = await axios.post(MODO_API_URL, modoPayload, {
       headers: {
-        "Authorization": `Bearer ${MODO_API_KEY}`,
+        "apikey": MODO_API_KEY,
         "Content-Type": "application/json",
       },
     });
@@ -247,7 +247,7 @@ export const getPaymentStatus = async (req, res) => {
       `${MODO_API_URL}/${paymentId}`,
       {
         headers: {
-          "Authorization": `Bearer ${MODO_API_KEY}`,
+          "apikey": MODO_API_KEY,
         },
       }
     );
