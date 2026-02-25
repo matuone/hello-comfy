@@ -122,7 +122,7 @@ export const createPreference = async (req, res) => {
       notification_url: `${process.env.API_URL || "http://localhost:5000"}/api/mercadopago/webhook`,
       external_reference: `order_${Date.now()}`,
       metadata: metadata,
-      // auto_return: "approved", // ❌ No funciona con localhost - solo para producción
+      auto_return: "approved",
     };
 
     // console.log("🔄 Enviando preferencia a Mercado Pago:", JSON.stringify(preference, null, 2)); // No loggear payloads completos en producción

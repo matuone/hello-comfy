@@ -7,6 +7,7 @@ import {
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
 import { validateShippingCost } from "../services/validateShippingCost.js";
+import PendingOrder from "../models/PendingOrder.js";
 
 // ============================
 // CONFIG
@@ -134,17 +135,22 @@ export const createCheckout = async (req, res) => {
       }
     );
 
-    global.gocuotasOrders = global.gocuotasOrders || {};
-    global.gocuotasOrders[response.data.id] = {
-      orderReference,
-      customerData,
-      items: validatedItems, // ← items con precios validados de BD
-      totalPrice: totals.total, // ← total recalculado desde BD
-      shippingMethod: metadata?.shippingMethod || null,
-      postalCode: customerData?.postalCode || null,
-      metadata,
-      createdAt: new Date(),
-    };
+    // Guardar datos de la orden pendiente en MongoDB (sobrevive reinicios del servidor)
+    await PendingOrder.findOneAndUpdate(
+      { checkoutId: response.data.id },
+      {
+        checkoutId: response.data.id,
+        paymentMethod: "gocuotas",
+        orderReference,
+        customerData,
+        items: validatedItems,
+        totalPrice: totals.total,
+        shippingMethod: metadata?.shippingMethod || null,
+        postalCode: customerData?.postalCode || null,
+        metadata,
+      },
+      { upsert: true, new: true }
+    );
 
     res.json({
       id: response.data.id,
@@ -197,9 +203,9 @@ export const webhookGocuotas = async (req, res) => {
   try {
     const { checkout_id, order_reference_id, status, amount_in_cents, installments } = req.body;
 
-    const orderData = global.gocuotasOrders?.[checkout_id];
+    const orderData = await PendingOrder.findOne({ checkoutId: checkout_id });
     if (!orderData) {
-      // console.warn("⚠️ No se encontraron datos de la orden:", checkout_id);
+      console.warn("⚠️ No se encontraron datos de la orden en BD:", checkout_id);
       return res.status(200).json({ received: true });
     }
 
@@ -251,13 +257,13 @@ export const webhookGocuotas = async (req, res) => {
             installments,
           },
         });
-        delete global.gocuotasOrders[checkout_id];
+        await PendingOrder.deleteOne({ checkoutId: checkout_id });
         // console.log("✅ Orden creada:", newOrder._id);
       } catch (err) {
         console.error("Error creando orden");
       }
     } else if (["rejected", "cancelled", "expired"].includes(status)) {
-      delete global.gocuotasOrders[checkout_id];
+      await PendingOrder.deleteOne({ checkoutId: checkout_id });
     }
 
     res.status(200).json({ received: true });
@@ -292,7 +298,7 @@ export const processPayment = async (req, res) => {
       return res.status(400).json({ error: "Pago no aprobado", status: checkoutStatus.status });
     }
 
-    const orderData = global.gocuotasOrders?.[checkoutId];
+    const orderData = await PendingOrder.findOne({ checkoutId: checkoutId });
     if (!orderData) {
       return res.status(400).json({ error: "No se encontraron datos de la orden" });
     }
@@ -345,7 +351,7 @@ export const processPayment = async (req, res) => {
       },
     });
 
-    delete global.gocuotasOrders[checkoutId];
+    await PendingOrder.deleteOne({ checkoutId: checkoutId });
 
     res.json({ success: true, orderId: newOrder._id, message: "Pago procesado correctamente" });
   } catch (err) {
