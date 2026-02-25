@@ -7,6 +7,12 @@ const CART_STORAGE_FIELDS = ["key", "productId", "size", "color", "quantity"];
 const stripSensitive = (item) =>
   CART_STORAGE_FIELDS.reduce((obj, k) => { if (item[k] !== undefined) obj[k] = item[k]; return obj; }, {});
 
+// Configuración global de API para compatibilidad local/producción
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [cartLoading, setCartLoading] = useState(true);
@@ -58,10 +64,6 @@ export function CartProvider({ children }) {
     }
 
     // Hidratar precios/nombres desde la API (NUNCA desde localStorage)
-    const API_URL = import.meta.env.VITE_API_URL;
-    const apiPath = (path) =>
-      API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
-
     const productIds = [...new Set(minimalItems.map((i) => i.productId))];
 
     Promise.all(
@@ -135,8 +137,6 @@ export function CartProvider({ children }) {
   // FETCH REGLAS DE DESCUENTO
   // ============================
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL;
-    const apiPath = (path) => `${API_URL}${path}`;
     fetch(apiPath("/discounts"))
       .then((res) => res.json())
       .then((data) => setDiscountRules(data))
