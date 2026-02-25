@@ -394,10 +394,20 @@ router.patch("/admin/orders/:id/refund", verifyAdmin, async (req, res) => {
   } catch (err) {
     // Capturar errores de API del proveedor
     const apiError = err?.response?.data;
+    const apiMessage = apiError?.message || apiError?.error || err.message;
     console.error("Error procesando devolución:", apiError || err.message);
+
+    // Detectar si el pago ya fue reembolsado
+    if (apiMessage?.includes("not valid for the current payment state") || apiMessage?.includes("already refunded")) {
+      return res.status(400).json({
+        error: "El pago ya fue reembolsado previamente desde el proveedor de pagos. Marcá la orden como reembolsada manualmente.",
+        details: apiMessage,
+      });
+    }
+
     res.status(500).json({
       error: "Error al procesar la devolución con el proveedor de pagos",
-      details: apiError?.message || apiError?.error || err.message,
+      details: apiMessage,
     });
   }
 });
