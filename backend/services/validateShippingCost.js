@@ -38,9 +38,9 @@ export async function validateShippingCost({ shippingMethod, postalCode, items, 
       quantity: item.quantity || 1,
       weight: (item.weight > 0) ? item.weight : 0.3,
       dimensions: {
-        width: (dims.width > 0) ? dims.width : 20,
+        width: (dims.width > 0) ? dims.width : 5,
         height: (dims.height > 0) ? dims.height : 5,
-        length: (dims.length > 0) ? dims.length : 30,
+        length: (dims.length > 0) ? dims.length : 5,
       },
     };
   });

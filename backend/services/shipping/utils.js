@@ -15,9 +15,9 @@ export function calculatePackage(products) {
     const qty = p.quantity || 1;
     const weight = (p.weight > 0) ? p.weight : 0.3; // fallback 300g
     const dims = p.dimensions || {};
-    const width = (dims.width > 0) ? dims.width : 20;
+    const width = (dims.width > 0) ? dims.width : 5;
     const height = (dims.height > 0) ? dims.height : 5;
-    const length = (dims.length > 0) ? dims.length : 30;
+    const length = (dims.length > 0) ? dims.length : 5;
 
     totalWeight += weight * qty;
     totalHeight += height * qty;        // apilamos los productos
@@ -28,7 +28,7 @@ export function calculatePackage(products) {
   return {
     weight: totalWeight,
     height: totalHeight || 5,   // fallback mínimo
-    width: maxWidth || 20,
-    length: maxLength || 30
+    width: maxWidth || 5,
+    length: maxLength || 5
   };
 }

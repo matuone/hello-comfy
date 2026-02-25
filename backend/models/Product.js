@@ -45,11 +45,11 @@ const productSchema = new mongoose.Schema(
     },
 
     // ⭐ PESO Y DIMENSIONES (para envío Correo Argentino)
-    weight: { type: Number, default: 0 }, // kg
+    weight: { type: Number, default: 0.3 }, // kg
     dimensions: {
-      height: { type: Number, default: 0 }, // cm
-      width: { type: Number, default: 0 },  // cm
-      length: { type: Number, default: 0 },  // cm
+      height: { type: Number, default: 5 }, // cm
+      width: { type: Number, default: 5 },  // cm
+      length: { type: Number, default: 5 },  // cm
     },
 
     // ⭐ NECESARIO PARA BEST SELLERS
