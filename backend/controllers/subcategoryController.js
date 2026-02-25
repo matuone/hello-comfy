@@ -191,21 +191,35 @@ export const syncSubcategories = async (_req, res) => {
       existentes.map((s) => `${s.category}||${s.name}`)
     );
 
+    // Mapa de subcategorías existentes para resolver categoría correcta
+    const subToCatMap = {};
+    existentes.forEach((s) => {
+      subToCatMap[s.name] = s.category;
+    });
+
     // Recopilar pares únicos de productos
+    // Usar la tabla Subcategory como fuente de verdad para la relación sub→categoría
     const pairsMap = new Map();
     productos.forEach((p) => {
-      const cats = Array.isArray(p.category) ? p.category : [p.category];
       const subs = Array.isArray(p.subcategory) ? p.subcategory : [p.subcategory];
-      cats.forEach((cat) => {
-        if (!cat || !ALLOWED_CATEGORIES.includes(cat)) return;
-        subs.forEach((sub) => {
-          if (!sub) return;
-          const normalizedSub = normalize(sub);
-          const key = `${cat}||${normalizedSub}`;
+      subs.forEach((sub) => {
+        if (!sub) return;
+        const normalizedSub = normalize(sub);
+        // Si ya existe en la tabla, sabemos su categoría real
+        const realCat = subToCatMap[normalizedSub];
+        if (realCat) {
+          // Ya existe, no necesita crearse
+          return;
+        }
+        // Si no existe, intentar asignarla a la primera categoría válida del producto
+        const cats = Array.isArray(p.category) ? p.category : [p.category];
+        const validCat = cats.find((c) => c && ALLOWED_CATEGORIES.includes(c));
+        if (validCat) {
+          const key = `${validCat}||${normalizedSub}`;
           if (!existenteSet.has(key) && !pairsMap.has(key)) {
-            pairsMap.set(key, { category: cat, name: normalizedSub });
+            pairsMap.set(key, { category: validCat, name: normalizedSub });
           }
-        });
+        }
       });
     });
 

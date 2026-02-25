@@ -323,19 +323,34 @@ export const getCategoriesAndSubcategories = async (req, res) => {
       subsHidden.map((s) => `${s.category}||${s.name}`)
     );
 
-    // Recopilar subcategorías únicas de productos (soporta arrays)
+    // Recopilar subcategorías únicas de productos y resolver su categoría correcta
+    // usando la tabla Subcategory como fuente de verdad (evita cross-join de arrays)
+    const allSubcategories = await Subcategory.find();
+    const subToCategoryMap = {}; // { normalizedSubName: category }
+    allSubcategories.forEach((s) => {
+      subToCategoryMap[s.name] = s.category;
+    });
+
     const productSubsMap = {}; // { category: Set<name> }
     productos.forEach((p) => {
-      const cats = Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []);
       const subs = Array.isArray(p.subcategory) ? p.subcategory : (p.subcategory ? [p.subcategory] : []);
-      cats.forEach((cat) => {
-        if (!cat) return;
-        subs.forEach((sub) => {
-          if (!sub) return;
-          const normalizedSub = normalize(sub);
-          if (!productSubsMap[cat]) productSubsMap[cat] = new Set();
-          productSubsMap[cat].add(normalizedSub);
-        });
+      subs.forEach((sub) => {
+        if (!sub) return;
+        const normalizedSub = normalize(sub);
+        // Usar la tabla Subcategory para saber la categoría real
+        const realCategory = subToCategoryMap[normalizedSub];
+        if (realCategory) {
+          if (!productSubsMap[realCategory]) productSubsMap[realCategory] = new Set();
+          productSubsMap[realCategory].add(normalizedSub);
+        } else {
+          // Fallback: si la subcategoría no está en la tabla, asignarla a las categorías del producto
+          const cats = Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []);
+          cats.forEach((cat) => {
+            if (!cat) return;
+            if (!productSubsMap[cat]) productSubsMap[cat] = new Set();
+            productSubsMap[cat].add(normalizedSub);
+          });
+        }
       });
     });
 
