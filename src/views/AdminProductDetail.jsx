@@ -559,10 +559,7 @@ export default function AdminProductDetail() {
           <ReactQuill
             theme="snow"
             value={producto.description || ""}
-            onChange={(value) => {
-              const clean = value.replace(/&nbsp;/g, " ");
-              actualizarCampo("description", clean);
-            }}
+            onChange={(value) => actualizarCampo("description", value)}
             placeholder="Descripción detallada del producto..."
             modules={{
               toolbar: [

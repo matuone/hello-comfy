@@ -79,10 +79,22 @@
   min-height: 150px;
   font-size: 0.9rem;
   background: white;
+  color: #333;
 }
 
 .admin-shell .quill .ql-editor {
   min-height: 150px;
+  text-align: left !important;
+  color: #333 !important;
+}
+
+.admin-shell .quill .ql-editor p,
+.admin-shell .quill .ql-editor h1,
+.admin-shell .quill .ql-editor h2,
+.admin-shell .quill .ql-editor h3,
+.admin-shell .quill .ql-editor li {
+  text-align: left !important;
+  color: #333 !important;
 }
 
 /* Estado de error en input */

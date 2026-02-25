@@ -215,6 +215,12 @@ export const createProduct = async (req, res) => {
       description: req.body.description || "",
       cardDescription: req.body.cardDescription || "",
       sizeGuide: req.body.sizeGuide || "none",
+      weight: req.body.weight || 0,
+      dimensions: {
+        height: req.body.dimensions?.height || 0,
+        width: req.body.dimensions?.width || 0,
+        length: req.body.dimensions?.length || 0,
+      },
     });
 
     await product.save();
@@ -246,6 +252,12 @@ export const updateProduct = async (req, res) => {
         description: req.body.description || "",
         cardDescription: req.body.cardDescription || "",
         sizeGuide: req.body.sizeGuide || "none",
+        weight: req.body.weight || 0,
+        dimensions: {
+          height: req.body.dimensions?.height || 0,
+          width: req.body.dimensions?.width || 0,
+          length: req.body.dimensions?.length || 0,
+        },
       },
       { new: true }
     ).populate("stockColorId");
