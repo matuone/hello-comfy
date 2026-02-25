@@ -32,3 +32,6 @@ backend/config/afip-ta/
 # Environment files (NEVER COMMIT THESE!)
 .env
 backend/.env
+
+# Manual de instrucciones (documentación local)
+manual de instrucciones/
