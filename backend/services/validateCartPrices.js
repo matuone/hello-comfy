@@ -156,7 +156,21 @@ export async function validateCartPrices(clientItems, options = {}) {
       });
 
       const promoSubtotal = applicableItems.reduce(
-        (acc, item) => acc + item.price * item.quantity,
+        (acc, item) => {
+          const base = item.price;
+          const iCats = Array.isArray(item.category) ? item.category : [item.category];
+          const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+          const catRule = discountRules.find(
+            (r) =>
+              iCats.includes(r.category) &&
+              (r.subcategory === "none" || iSubs.includes(r.subcategory)) &&
+              r.type === "percentage"
+          );
+          let discPct = item.discount || 0;
+          if (discPct === 0 && catRule) discPct = catRule.discount;
+          const finalPrice = discPct > 0 ? base - (base * discPct) / 100 : base;
+          return acc + finalPrice * item.quantity;
+        },
         0
       );
 
