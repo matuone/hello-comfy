@@ -393,14 +393,14 @@ export default function AdminSaleDetail() {
                 >
                   {enviandoPickup ? "Enviando..." : "Enviar notificación por email"}
                 </button>
-                {/* Botón WhatsApp SIEMPRE visible, pero deshabilitado si falta teléfono o fecha/hora */}
+                {/* Botón WhatsApp — solo requiere teléfono, fecha/hora es opcional */}
                 <a
                   className="factura-modal-btn confirm"
-                  style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 1 : 0.5, pointerEvents: customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? 'auto' : 'none' }}
-                  href={customer?.whatsapp && fechaRetiroFecha && fechaRetiroHora ? `https://wa.me/${customer.whatsapp.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
+                  style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: (customer?.phone || customer?.whatsapp) ? 1 : 0.5, pointerEvents: (customer?.phone || customer?.whatsapp) ? 'auto' : 'none' }}
+                  href={(customer?.phone || customer?.whatsapp) ? `https://wa.me/${(customer.phone || customer.whatsapp).replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title={customer?.whatsapp ? '' : 'El cliente no tiene WhatsApp'}
+                  title={(customer?.phone || customer?.whatsapp) ? '' : 'El cliente no tiene WhatsApp'}
                 >
                   Enviar WhatsApp
                 </a>
@@ -474,7 +474,19 @@ export default function AdminSaleDetail() {
           <h3 className="detalle-title">Cliente</h3>
           <p className="detalle-info-line"><strong>Nombre:</strong> {customer.name}</p>
           <p className="detalle-info-line"><strong>Email:</strong> {customer.email}</p>
-          {/* Teléfono eliminado, solo WhatsApp disponible */}
+          {(customer.phone || customer.whatsapp) && (
+            <p className="detalle-info-line">
+              <strong>WhatsApp:</strong>{" "}
+              <a
+                href={`https://wa.me/${(customer.phone || customer.whatsapp).replace(/[^\d]/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#25d366', fontWeight: 600, textDecoration: 'none' }}
+              >
+                {customer.phone || customer.whatsapp}
+              </a>
+            </p>
+          )}
         </div>
 
         {/* DIRECCIÓN */}

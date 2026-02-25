@@ -3,6 +3,7 @@
 import express from "express";
 const router = express.Router();
 import Order from "../models/Order.js";
+import Customer from "../models/Customer.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
 import { enviarEmailRetiroPickup, enviarEmailPagoRecibido, enviarEmailSeguimiento } from "../services/emailService.js";
 
@@ -99,7 +100,16 @@ router.get("/admin/orders/:id", verifyAdmin, async (req, res) => {
       return res.status(404).json({ error: "Pedido no encontrado" });
     }
 
-    res.json(order);
+    // Enriquecer con whatsapp del Customer si la orden no tiene phone
+    const orderObj = order.toObject();
+    if (!orderObj.customer?.phone && orderObj.customer?.email) {
+      const customer = await Customer.findOne({ email: orderObj.customer.email });
+      if (customer?.whatsapp) {
+        orderObj.customer.whatsapp = customer.whatsapp;
+      }
+    }
+
+    res.json(orderObj);
   } catch (err) {
     console.error("Error obteniendo detalle de venta:", err);
     res.status(500).json({ error: "Error interno del servidor" });

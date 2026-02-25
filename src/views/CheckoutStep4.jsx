@@ -39,7 +39,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
   const discount = (formData.paymentMethod === "transfer" ? totalPrice * 0.1 : 0);
   const finalPrice = totalConEnvio - discount;
 
-  // ⭐ Pagar con Modo
+  // ⭐ Pagar con Modo (producción - SDK modal)
   const handlePagarModo = async () => {
     if (!formData.email) {
       toast.error("Email requerido");
@@ -62,7 +62,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         color: item.color
       }));
 
-      const paymentIntent = await crearIntencionPagoModo({
+      const response = await crearIntencionPagoModo({
         items: itemsValidos,
         totalPrice: parseFloat(totalPrice) || 0,
         customerData: {
@@ -81,21 +81,76 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         },
       });
 
-      if (paymentIntent?.paymentIntent?.checkout_url) {
-        localStorage.setItem("pendingOrder", JSON.stringify({
-          userId: user?.id || null,
-          formData,
-          items: stripItemsForStorage(items),
-          createdAt: new Date().toISOString(),
-        }));
-        window.location.href = paymentIntent.paymentIntent.checkout_url;
-      } else {
+      const pi = response?.paymentIntent;
+      if (!pi?.qr || !pi?.id) {
         toast.error("Error al crear la intención de pago con Modo");
+        setLoadingPayment(false);
+        return;
+      }
+
+      // Guardar datos de orden pendiente antes de abrir el modal
+      localStorage.setItem("pendingOrder", JSON.stringify({
+        userId: user?.id || null,
+        formData,
+        items: stripItemsForStorage(items),
+        createdAt: new Date().toISOString(),
+      }));
+
+      // Abrir modal SDK de Modo
+      if (typeof window.ModoSDK !== "undefined" && window.ModoSDK.modoInitPayment) {
+        window.ModoSDK.modoInitPayment({
+          qrString: pi.qr,
+          checkoutId: pi.id,
+          deeplink: pi.deeplink,
+          callbackURL: `${window.location.origin}/checkout/success`,
+          onSuccess: async () => {
+            try {
+              const pendingOrderStr = localStorage.getItem("pendingOrder");
+              if (pendingOrderStr) {
+                const pendingOrderData = JSON.parse(pendingOrderStr);
+                const confirmRes = await fetch(apiPath("/modo/confirm-payment"), {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    checkoutId: pi.id,
+                    pendingOrderData,
+                  }),
+                });
+                const confirmData = await confirmRes.json();
+                if (confirmData.success && confirmData.order?.code) {
+                  localStorage.setItem("lastOrderCode", confirmData.order.code);
+                }
+              }
+              clearCart();
+              localStorage.removeItem("checkoutStep");
+              localStorage.removeItem("checkoutFormData");
+              localStorage.removeItem("pendingOrder");
+              navigate("/checkout/success");
+            } catch (err) {
+              console.error("Error confirmando pago Modo:", err);
+              toast.error("El pago fue exitoso pero hubo un error creando la orden. Contactanos.");
+            }
+          },
+          onFailure: () => {
+            toast.error("El pago fue rechazado");
+            setLoadingPayment(false);
+          },
+          onCancel: () => {
+            setLoadingPayment(false);
+          },
+          onClose: () => {
+            setLoadingPayment(false);
+          },
+        });
+      } else {
+        // Fallback: si el SDK no cargó, mostrar error
+        console.error("ModoSDK no disponible");
+        toast.error("Error cargando Modo. Intentá de nuevo.");
+        setLoadingPayment(false);
       }
     } catch (error) {
       console.error("Error en Modo:", error);
       toast.error("Error al procesar el pago");
-    } finally {
       setLoadingPayment(false);
     }
   };

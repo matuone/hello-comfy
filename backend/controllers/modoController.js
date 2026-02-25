@@ -8,56 +8,54 @@ import {
 import { validateCartPrices } from "../services/validateCartPrices.js";
 import { validateShippingCost } from "../services/validateShippingCost.js";
 
+// URL de la API de Modo (PlayDigital)
+const MODO_API_URL = "https://merchants.playdigital.com.ar/merchants/ecommerce/payment-intention";
+
 /**
  * POST /api/modo/create-payment-intent
- * Crea una intención de pago en Modo
+ * Crea una intención de pago en Modo (producción)
  */
 export const createPaymentIntent = async (req, res) => {
   try {
     const { items, totalPrice, customerData, shippingCost = 0, metadata = {} } = req.body;
 
-    // Validar que tenemos las credenciales de test
-    const MODO_STORE_ID = process.env.MODO_STORE_ID || "TEST_STORE_ID";
-    const MODO_API_KEY = process.env.MODO_API_KEY || "TEST_API_KEY";
+    const MODO_STORE_ID = process.env.MODO_STORE_ID;
+    const MODO_API_KEY = process.env.MODO_API_KEY;
+    const MODO_TEMPLATE_ID = process.env.MODO_TEMPLATE_ID;
 
-    // console.log("🟢 Creando intención de pago con Modo (Modo Test)");
-    // console.log("  Store ID:", MODO_STORE_ID); // No exponer IDs en producción
+    if (!MODO_STORE_ID || !MODO_API_KEY) {
+      console.error("❌ Credenciales de Modo no configuradas");
+      return res.status(500).json({ error: "Modo no configurado correctamente" });
+    }
 
     // Validar items
     if (!items || items.length === 0) {
-      console.error("Items vacíos o no proporcionados");
-      return res.status(400).json({
-        error: "Items requeridos",
-      });
+      return res.status(400).json({ error: "Items requeridos" });
     }
 
     // Validar customerData
     if (!customerData || !customerData.email) {
-      console.error("Customer data incompleto");
-      return res.status(400).json({
-        error: "Datos del cliente incompletos (email requerido)",
-      });
+      return res.status(400).json({ error: "Datos del cliente incompletos (email requerido)" });
     }
 
-    // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
-    let validatedItems, totals, validationWarnings, cartValidation;
+    // ⭐ VALIDAR PRECIOS CONTRA LA BD
+    let validatedItems, totals, cartValidation;
     try {
       cartValidation = await validateCartPrices(items, {
         promoCode: metadata?.promoCode || null,
       });
       validatedItems = cartValidation.validatedItems;
       totals = cartValidation.totals;
-      validationWarnings = cartValidation.warnings;
 
-      if (validationWarnings.length > 0) {
-        console.warn("⚠️ Advertencias de validación de carrito (Modo create-intent):", validationWarnings);
+      if (cartValidation.warnings.length > 0) {
+        console.warn("⚠️ Advertencias validación carrito (Modo):", cartValidation.warnings);
       }
     } catch (validationError) {
       console.error("❌ Error validando precios del carrito:", validationError.message);
       return res.status(400).json({ error: "Error validando productos del carrito" });
     }
 
-    // Calcular total con precios validados + envío recalculado desde API
+    // Calcular total con envío validado
     const { shippingCost: validatedShipping } = await validateShippingCost({
       shippingMethod: metadata?.shippingMethod,
       postalCode: customerData?.postalCode,
@@ -66,164 +64,119 @@ export const createPaymentIntent = async (req, res) => {
       hasFreeShipping: cartValidation.hasFreeShipping,
     });
     const total = totals.total + validatedShipping;
-    const externalReference = `modo_test_${Date.now()}`;
+
+    // Referencia externa única
+    const externalReference = `hc_modo_${Date.now()}`;
 
     // URLs de callback
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const backendUrl = process.env.API_URL || "http://localhost:5000";
 
-    // Preparar payload para Modo con PRECIOS VALIDADOS
+    // Payload para la API de Modo
     const modoPayload = {
       store_id: MODO_STORE_ID,
-      external_reference: externalReference,
-      amount: Math.round(total * 100), // Modo espera el monto en centavos
+      template_id: MODO_TEMPLATE_ID,
+      external_intention_id: externalReference,
+      amount: Math.round(total * 100), // centavos
       currency: "ARS",
-      description: `Compra en Hello-Comfy - ${validatedItems.length} producto(s)`,
-      customer: {
-        email: customerData.email,
-        name: customerData.name,
-        identification: {
-          type: "DNI",
-          number: customerData.dni || ""
-        }
-      },
+      description: `Compra en Hello Comfy - ${validatedItems.length} producto(s)`,
       callback_url: `${backendUrl}/api/modo/webhook`,
-      return_url: `${frontendUrl}/payment/modo-return?reference=${externalReference}`,
-      items: validatedItems.map(item => {
-        const base = item.price;
-        const discountPercent = item.discount || 0;
-        const finalPrice = discountPercent > 0
-          ? Math.round((base - (base * discountPercent) / 100) * 100) / 100
-          : base;
-
-        return {
-          title: item.name || "Producto",
-          description: `${item.category || ""}${item.subcategory ? " - " + item.subcategory : ""}`,
-          quantity: item.quantity,
-          unit_price: Math.round(finalPrice * 100)
-        };
-      })
+      return_url: `${frontendUrl}/checkout/success`,
     };
 
-    // console.log("📤 Enviando request a Modo:", JSON.stringify(modoPayload, null, 2)); // No loggear payloads completos en producción
+    // Llamada real a la API de Modo
+    const response = await axios.post(MODO_API_URL, modoPayload, {
+      headers: {
+        "Authorization": `Bearer ${MODO_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-    // En modo test, simulamos una respuesta de Modo
-    // Cuando tengas credenciales reales, descomenta el código real
-
-    // MODO TEST - Simular respuesta
-    const testResponse = {
-      id: `modo_test_${Date.now()}`,
-      qr: `https://chart.googleapis.com/chart?cht=qr&chl=modo://test/${externalReference}&chs=300x300`,
-      deeplink: `modo://test/${externalReference}`,
-      checkout_url: `${frontendUrl}/payment/modo-checkout?id=${externalReference}`,
-      status: "pending",
-      external_reference: externalReference
-    };
-
-    // console.log("✅ Respuesta de Modo (TEST):", testResponse);
-
-    /* MODO PRODUCCIÓN - Código real (comentado por ahora)
-    const response = await axios.post(
-      'https://api.modo.com.ar/v1/payment-intents',
-      modoPayload,
-      {
-        headers: {
-          'Authorization': `Bearer ${MODO_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    console.log("✅ Respuesta de Modo:", response.data);
-    */
+    const modoData = response.data;
 
     res.json({
       success: true,
-      paymentIntent: testResponse // En producción: response.data
+      paymentIntent: {
+        id: modoData.id,
+        qr: modoData.qr,
+        deeplink: modoData.deeplink,
+        externalReference,
+        amount: total,
+      },
     });
 
   } catch (error) {
-    console.error("❌ Error creando intención de pago con Modo:", error);
+    console.error("❌ Error creando intención de pago con Modo:", error?.response?.data || error.message);
     res.status(500).json({
-      error: "Error al crear intención de pago",
-      details: error.message,
+      error: "Error al crear intención de pago con Modo",
+      details: error?.response?.data?.message || error.message,
     });
   }
 };
 
 /**
  * POST /api/modo/confirm-payment
- * Confirmar un pago de Modo Test y crear la orden
+ * Confirmar un pago de Modo y crear la orden
  */
 export const confirmPayment = async (req, res) => {
   try {
-    const { reference, status, pendingOrderData } = req.body;
+    const { checkoutId, pendingOrderData } = req.body;
 
-    // console.log("✅ Confirmando pago de Modo Test:", reference);
-
-    if (status === "approved") {
-      // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
-      let validatedItems, cartValidation;
-      try {
-        cartValidation = await validateCartPrices(
-          pendingOrderData.items,
-          { promoCode: pendingOrderData.formData?.promoCode || null }
-        );
-        validatedItems = cartValidation.validatedItems;
-        if (cartValidation.warnings.length > 0) {
-          console.warn("⚠️ Advertencias de validación de carrito (Modo):", cartValidation.warnings);
-        }
-        pendingOrderData.items = validatedItems;
-        pendingOrderData.totalPrice = cartValidation.totals.total;
-      } catch (validationError) {
-        console.error("❌ Error validando precios del carrito:", validationError.message);
-        return res.status(400).json({ error: "Error validando productos del carrito" });
-      }
-
-      // ⭐ VALIDAR COSTO DE ENVÍO contra la API
-      const { shippingCost: validatedShipping } = await validateShippingCost({
-        shippingMethod: pendingOrderData.formData?.shippingMethod,
-        postalCode: pendingOrderData.formData?.postalCode,
-        items: validatedItems,
-        clientShippingCost: pendingOrderData.shippingCost,
-        hasFreeShipping: cartValidation.hasFreeShipping,
-      });
-      pendingOrderData.shippingCost = validatedShipping;
-
-      // Crear datos de pago simulados
-      const paymentData = {
-        id: reference,
-        status: "approved",
-        transaction_amount: pendingOrderData.totalPrice + validatedShipping,
-        payer: {
-          email: pendingOrderData.formData.email,
-          name: pendingOrderData.formData.name
-        },
-        payment_method_id: "modo",
-        payment_type_id: "digital_wallet"
-      };
-
-      // ⭐ VERIFICAR que el monto sea coherente (para cuando Modo esté en producción)
-      // En test el monto viene de paymentData que ya usa el total validado
-
-      // Crear orden en la base de datos
-      const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
-
-      // console.log("📦 Orden creada exitosamente:", order.code);
-
-      return res.json({
-        success: true,
-        order: {
-          code: order.code,
-          _id: order._id
-        }
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        error: "Pago no aprobado"
-      });
+    if (!pendingOrderData) {
+      return res.status(400).json({ error: "Datos de orden pendiente requeridos" });
     }
+
+    // ⭐ VALIDAR PRECIOS EN LA BD
+    let validatedItems, cartValidation;
+    try {
+      cartValidation = await validateCartPrices(
+        pendingOrderData.items,
+        { promoCode: pendingOrderData.formData?.promoCode || null }
+      );
+      validatedItems = cartValidation.validatedItems;
+      if (cartValidation.warnings.length > 0) {
+        console.warn("⚠️ Advertencias validación carrito (Modo confirm):", cartValidation.warnings);
+      }
+      pendingOrderData.items = validatedItems;
+      pendingOrderData.totalPrice = cartValidation.totals.total;
+    } catch (validationError) {
+      console.error("❌ Error validando precios del carrito:", validationError.message);
+      return res.status(400).json({ error: "Error validando productos del carrito" });
+    }
+
+    // ⭐ VALIDAR COSTO DE ENVÍO
+    const { shippingCost: validatedShipping } = await validateShippingCost({
+      shippingMethod: pendingOrderData.formData?.shippingMethod,
+      postalCode: pendingOrderData.formData?.postalCode,
+      items: validatedItems,
+      clientShippingCost: pendingOrderData.shippingCost,
+      hasFreeShipping: cartValidation.hasFreeShipping,
+    });
+    pendingOrderData.shippingCost = validatedShipping;
+
+    // Crear datos de pago
+    const paymentData = {
+      id: checkoutId || `modo_${Date.now()}`,
+      status: "approved",
+      transaction_amount: pendingOrderData.totalPrice + validatedShipping,
+      payer: {
+        email: pendingOrderData.formData.email,
+        name: pendingOrderData.formData.name
+      },
+      payment_method_id: "modo",
+      payment_type_id: "digital_wallet"
+    };
+
+    // Crear orden en la base de datos
+    const order = await crearOrdenDesdePago(paymentData, pendingOrderData);
+
+    return res.json({
+      success: true,
+      order: {
+        code: order.code,
+        _id: order._id
+      }
+    });
   } catch (error) {
     console.error("❌ Error confirmando pago de Modo:", error);
     res.status(500).json({
@@ -288,33 +241,20 @@ export const handleWebhook = async (req, res) => {
 export const getPaymentStatus = async (req, res) => {
   try {
     const { paymentId } = req.params;
-
-    // console.log("🔍 Consultando estado de pago:", paymentId);
-
-    // En modo test, simulamos una respuesta
-    const testStatus = {
-      id: paymentId,
-      status: "pending",
-      external_reference: paymentId.replace("modo_test_", "order_")
-    };
-
-    /* MODO PRODUCCIÓN - Código real
     const MODO_API_KEY = process.env.MODO_API_KEY;
+
     const response = await axios.get(
-      `https://api.modo.com.ar/v1/payment-intents/${paymentId}`,
+      `${MODO_API_URL}/${paymentId}`,
       {
         headers: {
-          'Authorization': `Bearer ${MODO_API_KEY}`
-        }
+          "Authorization": `Bearer ${MODO_API_KEY}`,
+        },
       }
     );
 
     res.json(response.data);
-    */
-
-    res.json(testStatus);
   } catch (error) {
-    console.error("❌ Error consultando pago:", error);
+    console.error("❌ Error consultando pago Modo:", error?.response?.data || error.message);
     res.status(500).json({ error: "Error consultando pago" });
   }
 };
