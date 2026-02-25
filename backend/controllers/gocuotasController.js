@@ -11,7 +11,7 @@ import { validateShippingCost } from "../services/validateShippingCost.js";
 // ============================
 // CONFIG
 // ============================
-const GOCUOTAS_BASE_URL = process.env.GOCUOTAS_BASE_URL || "https://sandbox.gocuotas.com/api_redirect/v1";
+const GOCUOTAS_BASE_URL = process.env.GOCUOTAS_BASE_URL || "https://www.gocuotas.com/api_redirect/v1";
 
 // Si usas email/password se usará token; si usas API key no se usa token
 let GOCUOTAS_TOKEN = null;
@@ -19,14 +19,14 @@ let TOKEN_EXPIRY = null;
 
 const getGocuotasToken = async () => {
   // Si hay API key configurada, no usamos token
-  if (process.env.GOCUOTAS_API_KEY_SANDBOX) return null;
+  if (process.env.GOCUOTAS_API_KEY) return null;
 
   if (GOCUOTAS_TOKEN && TOKEN_EXPIRY && Date.now() < TOKEN_EXPIRY) return GOCUOTAS_TOKEN;
 
-  const email = process.env.GOCUOTAS_SANDBOX_EMAIL;
-  const password = process.env.GOCUOTAS_SANDBOX_PASSWORD;
+  const email = process.env.GOCUOTAS_EMAIL;
+  const password = process.env.GOCUOTAS_PASSWORD;
   if (!email || !password) {
-    throw new Error("Credenciales de Go Cuotas sandbox no configuradas");
+    throw new Error("Credenciales de Go Cuotas no configuradas");
   }
 
   const response = await axios.post(
@@ -47,10 +47,10 @@ export const createCheckout = async (req, res) => {
   try {
     const { items, totalPrice, customerData, shippingCost = 0, metadata = {} } = req.body;
 
-    const hasApiKey = !!process.env.GOCUOTAS_API_KEY_SANDBOX;
-    const hasUserPass = !!(process.env.GOCUOTAS_SANDBOX_EMAIL && process.env.GOCUOTAS_SANDBOX_PASSWORD);
+    const hasApiKey = !!process.env.GOCUOTAS_API_KEY;
+    const hasUserPass = !!(process.env.GOCUOTAS_EMAIL && process.env.GOCUOTAS_PASSWORD);
     if (!hasApiKey && !hasUserPass) {
-      return res.status(500).json({ error: "Go Cuotas Sandbox no está configurado" });
+      return res.status(500).json({ error: "Go Cuotas no está configurado" });
     }
 
     if (!items || items.length === 0) {
@@ -127,7 +127,7 @@ export const createCheckout = async (req, res) => {
       {
         headers: {
           Authorization: hasApiKey
-            ? `Bearer ${process.env.GOCUOTAS_API_KEY_SANDBOX}`
+            ? `Bearer ${process.env.GOCUOTAS_API_KEY}`
             : `Bearer ${token}`,
           "Content-Type": "application/json",
         },
@@ -169,7 +169,7 @@ export const createCheckout = async (req, res) => {
 // ============================
 export const getCheckoutStatus = async (req, res) => {
   try {
-    const hasApiKey = !!process.env.GOCUOTAS_API_KEY_SANDBOX;
+    const hasApiKey = !!process.env.GOCUOTAS_API_KEY;
     const token = hasApiKey ? null : await getGocuotasToken();
 
     const response = await axios.get(
@@ -177,7 +177,7 @@ export const getCheckoutStatus = async (req, res) => {
       {
         headers: {
           Authorization: hasApiKey
-            ? `Bearer ${process.env.GOCUOTAS_API_KEY_SANDBOX}`
+            ? `Bearer ${process.env.GOCUOTAS_API_KEY}`
             : `Bearer ${token}`,
         },
       }
@@ -273,7 +273,7 @@ export const webhookGocuotas = async (req, res) => {
 export const processPayment = async (req, res) => {
   try {
     const { checkoutId, orderReference } = req.body;
-    const hasApiKey = !!process.env.GOCUOTAS_API_KEY_SANDBOX;
+    const hasApiKey = !!process.env.GOCUOTAS_API_KEY;
     const token = hasApiKey ? null : await getGocuotasToken();
 
     const response = await axios.get(
@@ -281,7 +281,7 @@ export const processPayment = async (req, res) => {
       {
         headers: {
           Authorization: hasApiKey
-            ? `Bearer ${process.env.GOCUOTAS_API_KEY_SANDBOX}`
+            ? `Bearer ${process.env.GOCUOTAS_API_KEY}`
             : `Bearer ${token}`,
         },
       }
