@@ -50,12 +50,14 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
 
     try {
       const itemsValidos = items.map((item) => ({
+        productId: item.productId,
         title: item.name || "Producto",
         description: `Talle: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}`,
         quantity: parseInt(item.quantity) || 1,
         unit_price: parseFloat(item.price) || 0,
+        price: item.price,
+        discount: item.discount || 0,
         picture_url: item.image || "",
-        productId: item.id,
         size: item.size,
         color: item.color
       }));
@@ -114,11 +116,16 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
 
     try {
       const itemsValidos = items.map((item) => ({
+        productId: item.productId,
         title: item.name || "Producto",
         quantity: parseInt(item.quantity) || 1,
         unit_price: parseFloat(item.price) || 0,
+        price: item.price,
+        discount: item.discount || 0,
         picture_url: item.image || "",
         description: `Talle: ${item.size || 'N/A'}, Color: ${item.color || 'N/A'}`,
+        size: item.size,
+        color: item.color,
       }));
 
       const dniMatch = formData.phone.match(/\d{7,8}/);
@@ -175,12 +182,17 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
 
     try {
       const itemsValidos = items.map((item) => ({
+        productId: item.productId,
         title: item.name || "Producto",
         description: item.description || "",
         picture_url: item.image || "",
         quantity: parseInt(item.quantity) || 1,
         unit_price: parseFloat(item.price) || 0,
+        price: item.price,
+        discount: item.discount || 0,
         currency_id: "ARS",
+        size: item.size,
+        color: item.color,
       }));
 
       const preferencia = await crearPreferenciaMercadoPago({
