@@ -325,7 +325,7 @@ router.patch("/admin/orders/:id/refund", verifyAdmin, async (req, res) => {
       const mpRes = await axios.post(
         `https://api.mercadopago.com/v1/payments/${paymentId}/refunds`,
         {},
-        { headers: { Authorization: `Bearer ${mpToken}`, "Content-Type": "application/json" } }
+        { headers: { Authorization: `Bearer ${mpToken}`, "Content-Type": "application/json", "X-Idempotency-Key": `refund-${paymentId}-${Date.now()}` } }
       );
       refundResult = { provider: "mercadopago", refundId: mpRes.data?.id, status: mpRes.data?.status };
     }
