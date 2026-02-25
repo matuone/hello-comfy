@@ -42,7 +42,10 @@ async function getLowStockList() {
     const stockColor = prod.stockColorId;
     if (stockColor && stockColor.talles) {
       const colorNombre = stockColor.color;
-      for (const [talle, stock] of Object.entries(stockColor.talles)) {
+      const tallesEntries = stockColor.talles instanceof Map
+        ? [...stockColor.talles.entries()]
+        : Object.entries(stockColor.talles || {});
+      for (const [talle, stock] of tallesEntries) {
         if (typeof stock === "number" && stock <= 4) {
           lowStock.push({
             producto: prod.name,

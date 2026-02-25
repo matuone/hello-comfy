@@ -2,10 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import OpinionsPopup from "../components/OpinionsPopup";
 
-import BabyTeesTable from "../components/sizeTables/BabyTeesTable";
-import CropTopsTable from "../components/sizeTables/CropTopsTable";
-import RemerasTable from "../components/sizeTables/RemerasTable";
-import GorrasTable from "../components/sizeTables/GorrasTable";
+import DynamicSizeTable from "../components/DynamicSizeTable";
 import ImageModal from "../components/ImageModal";
 
 import { useCart } from "../context/CartContext";
@@ -53,6 +50,7 @@ export default function ProductDetail() {
 
   const [similares, setSimilares] = useState([]);
   const [loadingSimilares, setLoadingSimilares] = useState(true);
+  const [sizeTableData, setSizeTableData] = useState(null);
 
   // ⭐ NUEVO — Estados de envío REAL
   const [postalCode, setPostalCode] = useState("");
@@ -84,6 +82,21 @@ export default function ProductDetail() {
       })
       .catch(() => setLoading(false));
   }, [id]);
+
+  // Cargar tabla de talles dinámica
+  useEffect(() => {
+    if (!producto || !producto.sizeGuide || producto.sizeGuide === "none") {
+      setSizeTableData(null);
+      return;
+    }
+    fetch(apiPath("/sizetables"))
+      .then((res) => res.json())
+      .then((tables) => {
+        const match = tables.find((t) => t.name === producto.sizeGuide);
+        setSizeTableData(match || null);
+      })
+      .catch(() => setSizeTableData(null));
+  }, [producto?.sizeGuide]);
 
   useEffect(() => {
     if (!producto) return;
@@ -525,14 +538,10 @@ export default function ProductDetail() {
           </div>
 
           {/* GUÍA DE TALLES */}
-          {producto.sizeGuide !== "none" && !producto.stockColorId?.talleUnico && (
+          {producto.sizeGuide !== "none" && !producto.stockColorId?.talleUnico && sizeTableData && (
             <div className="pd-size-guide">
               <h3>Guía de talles</h3>
-
-              {producto.sizeGuide === "baby-tees" && <BabyTeesTable />}
-              {producto.sizeGuide === "crop-tops" && <CropTopsTable />}
-              {producto.sizeGuide === "remeras" && <RemerasTable />}
-              {producto.sizeGuide === "Gorras" && <GorrasTable />}
+              <DynamicSizeTable table={sizeTableData} />
             </div>
           )}
 

@@ -195,8 +195,8 @@ export default function AdminProductDetail() {
 
     try {
       const opciones = {
-        maxSizeMB: 0.4,
-        maxWidthOrHeight: 1400,
+        maxSizeMB: 1.5,
+        maxWidthOrHeight: 2048,
         useWebWorker: true,
       };
 
