@@ -162,6 +162,7 @@ export default function Checkout() {
           updateField={updateField}
           next={next}
           back={back}
+          items={items}
         />
       )}
 

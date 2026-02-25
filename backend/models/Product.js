@@ -4,8 +4,8 @@ const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
 
-    category: { type: String, required: true },
-    subcategory: { type: String, required: true },
+    category: { type: [String], required: true, default: [] },
+    subcategory: { type: [String], required: true, default: [] },
 
     price: { type: Number, required: true },
 
@@ -69,12 +69,18 @@ function normalize(str) {
   return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
+
+// Normalizar cada categoría y subcategoría a capitalizado
 productSchema.pre("save", async function () {
-  if (this.category) {
-    this.category = normalize(this.category);
+  if (Array.isArray(this.category)) {
+    this.category = this.category.map(normalize);
+  } else if (this.category) {
+    this.category = [normalize(this.category)];
   }
-  if (this.subcategory) {
-    this.subcategory = normalize(this.subcategory);
+  if (Array.isArray(this.subcategory)) {
+    this.subcategory = this.subcategory.map(normalize);
+  } else if (this.subcategory) {
+    this.subcategory = [normalize(this.subcategory)];
   }
 });
 

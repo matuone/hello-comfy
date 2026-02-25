@@ -216,10 +216,12 @@ export function CartProvider({ children }) {
   // APLICAR DESCUENTO POR CATEGORÍA/SUBCATEGORÍA
   // ============================
   const applyCategoryDiscount = (item) => {
+    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
     const rule = discountRules.find(
       (r) =>
-        r.category === item.category &&
-        (r.subcategory === item.subcategory || r.subcategory === "none") &&
+        itemCats.includes(r.category) &&
+        (r.subcategory === "none" || itemSubs.includes(r.subcategory)) &&
         r.type === "percentage"
     );
 
@@ -241,9 +243,11 @@ export function CartProvider({ children }) {
       .filter((r) => r.type === "3x2")
       .forEach((rule) => {
         const group = items.filter(
-          (item) =>
-            item.category === rule.category &&
-            item.subcategory === rule.subcategory
+          (item) => {
+            const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+            const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+            return itemCats.includes(rule.category) && itemSubs.includes(rule.subcategory);
+          }
         );
 
         const totalQty = group.reduce((acc, i) => acc + i.quantity, 0);
@@ -320,9 +324,11 @@ export function CartProvider({ children }) {
       const { discount, category, subcategory } = promoCodeData;
 
       const applicableItems = items.filter((item) => {
-        const matchCategory = category === "all" || item.category === category;
+        const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+        const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+        const matchCategory = category === "all" || itemCats.includes(category);
         const matchSub =
-          subcategory === "all" || item.subcategory === subcategory;
+          subcategory === "all" || itemSubs.includes(subcategory);
         return matchCategory && matchSub;
       });
 

@@ -35,10 +35,14 @@ export const getAllProducts = async (req, res) => {
 
     const filtros = {};
 
-    if (category) filtros.category = category;
+    if (category) {
+      // Buscar productos que tengan al menos una categoría coincidente
+      filtros.category = { $in: Array.isArray(category) ? category : [category] };
+    }
     if (subcategory) {
+      // Buscar productos que tengan al menos una subcategoría coincidente
       const normalizedSubcategory = normalize(subcategory);
-      filtros.subcategory = { $regex: `^${normalizedSubcategory.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: "i" };
+      filtros.subcategory = { $in: [normalizedSubcategory] };
     }
 
     // Búsqueda por nombre o descripción
@@ -180,7 +184,7 @@ export const getProductsBySubcategory = async (req, res) => {
     const name = rawName.trim().replace(/\s*\/\s*/g, " / ");
 
     let productos = await Product.find({
-      subcategory: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, "i") }
+      subcategory: { $in: [name] }
     }).populate("stockColorId");
 
     productos = productos.map((p) => {
@@ -201,13 +205,14 @@ export const getProductsBySubcategory = async (req, res) => {
 // ============================
 export const createProduct = async (req, res) => {
   try {
-    const normalizedCategory = normalize(req.body.category);
-    const normalizedSubcategory = normalize(req.body.subcategory);
+    // Permitir arrays o strings para category/subcategory
+    const categories = Array.isArray(req.body.category) ? req.body.category : [req.body.category];
+    const subcategories = Array.isArray(req.body.subcategory) ? req.body.subcategory : [req.body.subcategory];
 
     const product = new Product({
       name: req.body.name,
-      category: normalizedCategory,
-      subcategory: normalizedSubcategory,
+      category: categories,
+      subcategory: subcategories,
       price: req.body.price,
       discount: req.body.discount || 0,
       stockColorId: req.body.stockColorId,
@@ -236,15 +241,15 @@ export const createProduct = async (req, res) => {
 // ============================
 export const updateProduct = async (req, res) => {
   try {
-    const normalizedCategory = normalize(req.body.category);
-    const normalizedSubcategory = normalize(req.body.subcategory);
+    const categories = Array.isArray(req.body.category) ? req.body.category : [req.body.category];
+    const subcategories = Array.isArray(req.body.subcategory) ? req.body.subcategory : [req.body.subcategory];
 
     let updated = await Product.findByIdAndUpdate(
       req.params.id,
       {
         name: req.body.name,
-        category: normalizedCategory,
-        subcategory: normalizedSubcategory,
+        category: categories,
+        subcategory: subcategories,
         price: req.body.price,
         discount: req.body.discount || 0,
         stockColorId: req.body.stockColorId,
@@ -318,14 +323,20 @@ export const getCategoriesAndSubcategories = async (req, res) => {
       subsHidden.map((s) => `${s.category}||${s.name}`)
     );
 
-    // Recopilar subcategorías únicas de productos
+    // Recopilar subcategorías únicas de productos (soporta arrays)
     const productSubsMap = {}; // { category: Set<name> }
     productos.forEach((p) => {
-      if (p.category && p.subcategory) {
-        const sub = normalize(p.subcategory);
-        if (!productSubsMap[p.category]) productSubsMap[p.category] = new Set();
-        productSubsMap[p.category].add(sub);
-      }
+      const cats = Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []);
+      const subs = Array.isArray(p.subcategory) ? p.subcategory : (p.subcategory ? [p.subcategory] : []);
+      cats.forEach((cat) => {
+        if (!cat) return;
+        subs.forEach((sub) => {
+          if (!sub) return;
+          const normalizedSub = normalize(sub);
+          if (!productSubsMap[cat]) productSubsMap[cat] = new Set();
+          productSubsMap[cat].add(normalizedSub);
+        });
+      });
     });
 
     // Construir resultado: primero las manuales (respetando order), luego las de productos no registradas ni ocultas

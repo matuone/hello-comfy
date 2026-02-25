@@ -1,0 +1,150 @@
+/* src/styles/searchableselect.css */
+
+.ss-container {
+  position: relative;
+  width: 100%;
+}
+
+.ss-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Botón cerrado */
+.ss-display {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #e3e3e3;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  min-height: 46px;
+}
+
+.ss-display:hover {
+  border-color: #d94f7a;
+}
+
+.ss-value {
+  flex: 1;
+  font-size: 1rem;
+  color: #333;
+}
+
+.ss-placeholder {
+  flex: 1;
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.ss-clear {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0 6px;
+  line-height: 1;
+}
+
+.ss-clear:hover {
+  color: #d94f7a;
+}
+
+.ss-arrow {
+  font-size: 0.85rem;
+  color: #999;
+  margin-left: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Input de búsqueda */
+.ss-input-wrap {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1.5px solid #d94f7a;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.18);
+  min-height: 46px;
+}
+
+.ss-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #333;
+  background: transparent;
+  padding: 10px 0;
+}
+
+.ss-input::placeholder {
+  color: #bbb;
+}
+
+/* Dropdown */
+.ss-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1.5px solid #e3e3e3;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  padding: 4px 0;
+}
+
+.ss-option {
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ss-option:hover {
+  background: #fff0f5;
+  color: #d94f7a;
+}
+
+.ss-option--selected {
+  background: #fce4ec;
+  font-weight: 600;
+  color: #d94f7a;
+}
+
+.ss-no-results {
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  color: #999;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Scrollbar rosa */
+.ss-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ss-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ss-dropdown::-webkit-scrollbar-thumb {
+  background: #f0c0d0;
+  border-radius: 3px;
+}
+
+.ss-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #d94f7a;
+}

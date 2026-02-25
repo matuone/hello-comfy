@@ -60,6 +60,53 @@
   box-shadow: 0 0 0 2px rgba(217, 79, 122, 0.2);
 }
 
+/* ⭐ Multi-select box (categorías y subcategorías) */
+.admin-shell .multi-select-box {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  background: white;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.admin-shell .multi-select-box.input-error {
+  border-color: #e74c3c;
+}
+
+.admin-shell .multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.admin-shell .multi-select-option:hover {
+  background: #f8f0f3;
+}
+
+.admin-shell .multi-select-option input[type="checkbox"] {
+  accent-color: #d94f7a;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.admin-shell .multi-select-empty {
+  color: #999;
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0;
+}
+
 /* Quill editor (Descripción larga) */
 .admin-shell .quill {
   max-width: 520px;

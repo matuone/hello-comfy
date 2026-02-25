@@ -48,8 +48,8 @@ export default function AdminProducts() {
         const adaptados = sorted.map((p) => ({
           id: p._id,
           nombre: p.name,
-          categoria: p.category,
-          subcategoria: p.subcategory,
+          categoria: Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []),
+          subcategoria: Array.isArray(p.subcategory) ? p.subcategory : (p.subcategory ? [p.subcategory] : []),
           precio: p.price,
           imagenes: p.images,
           color: p.stockColorId?.color || "Sin color",
@@ -91,12 +91,14 @@ export default function AdminProducts() {
   // ============================
   // FILTRADO
   // ============================
-  const productosFiltrados = productos.filter((p) =>
-    [p.nombre, p.categoria, p.subcategoria]
+  const productosFiltrados = productos.filter((p) => {
+    const cats = Array.isArray(p.categoria) ? p.categoria.join(" ") : (p.categoria || "");
+    const subs = Array.isArray(p.subcategoria) ? p.subcategoria.join(" ") : (p.subcategoria || "");
+    return [p.nombre, cats, subs]
       .join(" ")
       .toLowerCase()
-      .includes(busqueda.toLowerCase())
-  );
+      .includes(busqueda.toLowerCase());
+  });
 
   // ============================
   // ELIMINAR
@@ -344,7 +346,7 @@ export default function AdminProducts() {
                           <span className="prod-title">{prod.nombre}</span>
 
                           <span className="prod-subinfo">
-                            {prod.categoria} / {prod.subcategoria}
+                            {(Array.isArray(prod.categoria) ? prod.categoria : [prod.categoria]).join(", ")} / {(Array.isArray(prod.subcategoria) ? prod.subcategoria : [prod.subcategoria]).join(", ")}
                           </span>
 
                           <div className="prod-color-row">
@@ -378,8 +380,8 @@ export default function AdminProducts() {
                       </button>
                     </td>
 
-                    <td>{prod.categoria}</td>
-                    <td>{prod.subcategoria}</td>
+                    <td>{Array.isArray(prod.categoria) ? prod.categoria.join(", ") : prod.categoria}</td>
+                    <td>{Array.isArray(prod.subcategoria) ? prod.subcategoria.join(", ") : prod.subcategoria}</td>
                     <td>${prod.precio?.toLocaleString()}</td>
 
                     <td>

@@ -143,24 +143,28 @@ export default function Cart() {
   // FUNCIÓN: OBTENER REGLA POR CATEGORÍA
   // ============================
   function getCategoryRule(item) {
+    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
     return discountRules.find(
       (r) =>
-        r.category === item.category &&
-        (r.subcategory === "none" || r.subcategory === item.subcategory)
+        itemCats.includes(r.category) &&
+        (r.subcategory === "none" || itemSubs.includes(r.subcategory))
     );
   }
 
   // ============================
   // ENVÍO GRATIS POR REGLA DE DESCUENTO
   // ============================
-  const freeShipping = items.some((item) =>
-    discountRules.some(
+  const freeShipping = items.some((item) => {
+    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+    return discountRules.some(
       (r) =>
         r.type === "free_shipping" &&
-        r.category === item.category &&
-        (r.subcategory === "none" || r.subcategory === item.subcategory)
-    )
-  );
+        itemCats.includes(r.category) &&
+        (r.subcategory === "none" || itemSubs.includes(r.subcategory))
+    );
+  });
 
   // ============================
   // FUNCIÓN: 3x2 REAL

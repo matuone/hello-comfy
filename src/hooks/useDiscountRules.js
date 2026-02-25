@@ -32,11 +32,13 @@ export function getEffectiveDiscount(product, discountRules) {
   }
 
   // Buscar regla de descuento por categoría/subcategoría
+  const prodCats = Array.isArray(product.category) ? product.category : [product.category];
+  const prodSubs = Array.isArray(product.subcategory) ? product.subcategory : [product.subcategory];
   const rule = discountRules.find(
     (r) =>
       r.type === "percentage" &&
-      r.category === product.category &&
-      (r.subcategory === "none" || r.subcategory === product.subcategory)
+      prodCats.includes(r.category) &&
+      (r.subcategory === "none" || prodSubs.includes(r.subcategory))
   );
 
   return rule ? rule.discount : 0;
@@ -80,12 +82,14 @@ export function calcularPrecios(product, discountRules) {
  */
 export function hasFreeShippingRule(items, discountRules) {
   if (!items || !discountRules) return false;
-  return items.some((item) =>
-    discountRules.some(
+  return items.some((item) => {
+    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+    return discountRules.some(
       (r) =>
         r.type === "free_shipping" &&
-        r.category === item.category &&
-        (r.subcategory === "none" || r.subcategory === item.subcategory)
-    )
-  );
+        itemCats.includes(r.category) &&
+        (r.subcategory === "none" || itemSubs.includes(r.subcategory))
+    );
+  });
 }

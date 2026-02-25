@@ -94,6 +94,8 @@
   background: #fff;
   transition: all 0.2s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group input:hover,
@@ -181,6 +183,117 @@
 .checkout-pickup-select:focus {
   border-color: #d94f7a;
   box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.18);
+}
+
+/* ============================
+   SHIPPING PRICE & AGENCY (Step 2)
+============================ */
+.checkout-shipping-price {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #d94f7a;
+  margin-left: 4px;
+}
+
+.checkout-shipping-loading {
+  font-size: 0.9rem;
+  color: #999;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.checkout-shipping-error {
+  font-size: 0.9rem;
+  color: #e74c3c;
+  margin-top: 6px;
+}
+
+.checkout-agency-box {
+  padding: 16px;
+  border-radius: 14px;
+  background: #fff7fb;
+  border: 1px solid #f7c9d8;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.checkout-agency-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d94f7a;
+}
+
+.checkout-agency-select {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #f7c9d8;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #444;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.checkout-agency-select:hover {
+  background: #ffe8f0;
+}
+
+.checkout-agency-select:focus {
+  border-color: #d94f7a;
+  box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.18);
+}
+
+.checkout-agency-detail {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.checkout-agency-loading {
+  font-size: 0.9rem;
+  color: #999;
+  font-style: italic;
+}
+
+.checkout-agency-empty {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+/* ============================
+   SELECT PROVINCIA/LOCALIDAD
+============================ */
+.checkout-select {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #e3e3e3;
+  font-size: 1rem;
+  outline: none;
+  background: #fff;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  color: #333;
+  appearance: auto;
+}
+
+.checkout-select:hover {
+  border-color: #d94f7a;
+}
+
+.checkout-select:focus {
+  border-color: #d94f7a;
+  box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.18);
+}
+
+.checkout-loading-text {
+  font-size: 0.9rem;
+  color: #999;
+  font-style: italic;
+  padding: 8px 0;
 }
 
 /* ============================

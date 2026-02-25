@@ -23,8 +23,8 @@ export default function AdminProductDetail() {
   // ============================
   const [producto, setProducto] = useState({
     nombre: "",
-    categoria: "Indumentaria",
-    subcategoria: "",  // ⭐ CAMBIO: Vacía inicialmente para que el usuario seleccione dinámicamente
+    categoria: ["Indumentaria"],  // ⭐ MULTI-CATEGORÍA: array
+    subcategoria: [],              // ⭐ MULTI-SUBCATEGORÍA: array
     precio: "",
     stockColorId: "",
     imagenes: [],
@@ -89,26 +89,21 @@ export default function AdminProductDetail() {
     fetch(apiPath(`/products/${id}`))
       .then((res) => res.json())
       .then((data) => {
-        const categoriasValidas = ["Indumentaria", "Cute items", "Merch"]; // ⭐ ARREGLADO: "Cute items" con i minúscula
-        let categoriaNormalizada = (data.category || "").trim();
-
-        if (!categoriasValidas.includes(categoriaNormalizada)) {
-          const lower = categoriaNormalizada.toLowerCase();
-          if (lower === "indumentaria") categoriaNormalizada = "Indumentaria";
-          else if (lower === "cute items" || lower === "cute items") categoriaNormalizada = "Cute items"; // ⭐ ARREGLADO
-          else if (lower === "merch") categoriaNormalizada = "Merch";
-          else categoriaNormalizada = "Indumentaria";
-        }
+        // Convertir category/subcategory a arrays (compatibilidad con datos viejos tipo string)
+        let cats = data.category;
+        if (!Array.isArray(cats)) cats = cats ? [cats] : ["Indumentaria"];
+        let subs = data.subcategory;
+        if (!Array.isArray(subs)) subs = subs ? [subs] : [];
 
         setProducto({
           nombre: data.name,
-          categoria: categoriaNormalizada,
-          subcategoria: data.subcategory || "",
+          categoria: cats,
+          subcategoria: subs,
           precio: data.price,
           stockColorId: data.stockColorId?._id || "",
           imagenes: data.images || [],
           description: data.description || "",
-          cardDescription: data.cardDescription || "", // ⭐ NUEVO
+          cardDescription: data.cardDescription || "",
           sizeGuide: data.sizeGuide || "remeras",
           weight: data.weight || "",
           dimHeight: data.dimensions?.height || "",
@@ -129,12 +124,12 @@ export default function AdminProductDetail() {
       nuevosErrores.nombre = "El nombre debe tener al menos 3 caracteres.";
     }
 
-    if (!producto.categoria) {
-      nuevosErrores.categoria = "Seleccioná una categoría.";
+    if (!producto.categoria || producto.categoria.length === 0) {
+      nuevosErrores.categoria = "Seleccioná al menos una categoría.";
     }
 
-    if (!producto.subcategoria) {
-      nuevosErrores.subcategoria = "Seleccioná una subcategoría.";
+    if (!producto.subcategoria || producto.subcategoria.length === 0) {
+      nuevosErrores.subcategoria = "Seleccioná al menos una subcategoría.";
     }
 
     if (!producto.stockColorId) {
@@ -154,27 +149,39 @@ export default function AdminProductDetail() {
   // ============================
   function actualizarCampo(campo, valor) {
     setErrores((prev) => ({ ...prev, [campo]: "" }));
-
-    if (campo === "categoria") {
-      // Cuando cambias de categoría, queremos que el usuario seleccione una subcategoría explícitamente
-      // Solo sugerimos la primera disponible si la subcategoría actual no es válida
-      const subsDisponibles = groupedSubcategories[valor] || [];
-      let nuevaSub = producto.subcategoria;
-
-      // Si la subcategoría actual no existe en la nueva categoría, limpiamos
-      if (!subsDisponibles.includes(producto.subcategoria)) {
-        nuevaSub = "";
-      }
-
-      setProducto((prev) => ({
-        ...prev,
-        categoria: valor,
-        subcategoria: nuevaSub,
-      }));
-    } else {
-      setProducto((prev) => ({ ...prev, [campo]: valor }));
-    }
+    setProducto((prev) => ({ ...prev, [campo]: valor }));
   }
+
+  // Toggle una categoría en el array
+  function toggleCategoria(cat) {
+    setErrores((prev) => ({ ...prev, categoria: "" }));
+    setProducto((prev) => {
+      const nuevas = prev.categoria.includes(cat)
+        ? prev.categoria.filter((c) => c !== cat)
+        : [...prev.categoria, cat];
+      // Limpiar subcategorías que ya no pertenecen a ninguna categoría seleccionada
+      const subsValidas = prev.subcategoria.filter((sub) =>
+        nuevas.some((c) => (groupedSubcategories[c] || []).includes(sub))
+      );
+      return { ...prev, categoria: nuevas, subcategoria: subsValidas };
+    });
+  }
+
+  // Toggle una subcategoría en el array
+  function toggleSubcategoria(sub) {
+    setErrores((prev) => ({ ...prev, subcategoria: "" }));
+    setProducto((prev) => {
+      const nuevas = prev.subcategoria.includes(sub)
+        ? prev.subcategoria.filter((s) => s !== sub)
+        : [...prev.subcategoria, sub];
+      return { ...prev, subcategoria: nuevas };
+    });
+  }
+
+  // Subcategorías disponibles según las categorías seleccionadas
+  const subcategoriasDisponibles = [...new Set(
+    producto.categoria.flatMap((cat) => groupedSubcategories[cat] || [])
+  )];
 
   // ============================
   // SUBIR IMAGEN
@@ -311,13 +318,13 @@ export default function AdminProductDetail() {
 
     const payload = {
       name: producto.nombre.trim(),
-      category: producto.categoria.trim(),
-      subcategory: producto.subcategoria.trim(),
+      category: producto.categoria,
+      subcategory: producto.subcategoria,
       price: Number(producto.precio),
       stockColorId: producto.stockColorId,
       images: producto.imagenes || [],
       description: producto.description || "",
-      cardDescription: producto.cardDescription || "", // ⭐ NUEVO
+      cardDescription: producto.cardDescription || "",
       sizeGuide: producto.sizeGuide,
       weight: producto.weight ? Number(producto.weight) : 0,
       dimensions: {
@@ -367,7 +374,7 @@ export default function AdminProductDetail() {
     const payload = {
       name: producto.nombre + " (copia)",
       category: producto.categoria,
-      subcategory: producto.subcategoria || "",
+      subcategory: producto.subcategoria || [],
       price: Number(producto.precio) || 0,
       stockColorId: producto.stockColorId,
       images: producto.imagenes,
@@ -481,35 +488,41 @@ export default function AdminProductDetail() {
             <p className="input-error-text">{errores.nombre}</p>
           )}
 
-          {/* CATEGORÍA */}
-          <label className="input-label">Categoría</label>
-          <select
-            className={`input-field ${errores.categoria ? "input-error" : ""}`}
-            value={producto.categoria}
-            onChange={(e) => actualizarCampo("categoria", e.target.value)}
-          >
-            <option>Indumentaria</option>
-            <option>Cute items</option>
-            <option>Merch</option>
-          </select>
+          {/* CATEGORÍAS (multi-select) */}
+          <label className="input-label">Categorías</label>
+          <div className={`multi-select-box ${errores.categoria ? "input-error" : ""}`}>
+            {["Indumentaria", "Cute items", "Merch"].map((cat) => (
+              <label key={cat} className="multi-select-option">
+                <input
+                  type="checkbox"
+                  checked={producto.categoria.includes(cat)}
+                  onChange={() => toggleCategoria(cat)}
+                />
+                <span>{cat}</span>
+              </label>
+            ))}
+          </div>
           {errores.categoria && (
             <p className="input-error-text">{errores.categoria}</p>
           )}
 
-          {/* SUBCATEGORÍA */}
-          <label className="input-label">Subcategoría</label>
-          <select
-            className={`input-field ${errores.subcategoria ? "input-error" : ""}`}
-            value={producto.subcategoria}
-            onChange={(e) => actualizarCampo("subcategoria", e.target.value)}
-          >
-            <option value="">Seleccionar subcategoría...</option>
-            {(groupedSubcategories[producto.categoria] || []).map((sub) => (
-              <option key={sub} value={sub}>
-                {sub}
-              </option>
+          {/* SUBCATEGORÍAS (multi-select) */}
+          <label className="input-label">Subcategorías</label>
+          <div className={`multi-select-box ${errores.subcategoria ? "input-error" : ""}`}>
+            {subcategoriasDisponibles.length === 0 && (
+              <p className="multi-select-empty">Seleccioná al menos una categoría primero</p>
+            )}
+            {subcategoriasDisponibles.map((sub) => (
+              <label key={sub} className="multi-select-option">
+                <input
+                  type="checkbox"
+                  checked={producto.subcategoria.includes(sub)}
+                  onChange={() => toggleSubcategoria(sub)}
+                />
+                <span>{sub}</span>
+              </label>
             ))}
-          </select>
+          </div>
           {errores.subcategoria && (
             <p className="input-error-text">{errores.subcategoria}</p>
           )}

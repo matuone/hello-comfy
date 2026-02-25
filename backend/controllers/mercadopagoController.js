@@ -73,7 +73,7 @@ export const createPreference = async (req, res) => {
 
       return {
         title: item.name || "Producto",
-        description: `${item.category || ""}${item.subcategory ? " - " + item.subcategory : ""}`,
+        description: `${Array.isArray(item.category) ? item.category.join(", ") : (item.category || "")}${item.subcategory ? " - " + (Array.isArray(item.subcategory) ? item.subcategory.join(", ") : item.subcategory) : ""}`,
         picture_url: item.image || "",
         quantity: item.quantity,
         unit_price: finalPrice,

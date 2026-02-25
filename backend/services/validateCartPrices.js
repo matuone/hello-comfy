@@ -88,10 +88,12 @@ export async function validateCartPrices(clientItems, options = {}) {
     const base = item.price;
 
     // Buscar regla de descuento por categoría/subcategoría
+    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
     const categoryRule = discountRules.find(
       (r) =>
-        r.category === item.category &&
-        (r.subcategory === item.subcategory || r.subcategory === "none") &&
+        itemCats.includes(r.category) &&
+        (r.subcategory === "none" || itemSubs.includes(r.subcategory)) &&
         r.type === "percentage"
     );
 
@@ -115,9 +117,11 @@ export async function validateCartPrices(clientItems, options = {}) {
 
   rules3x2.forEach((rule) => {
     const group = validatedItems.filter(
-      (item) =>
-        item.category === rule.category &&
-        item.subcategory === rule.subcategory
+      (item) => {
+        const iCats = Array.isArray(item.category) ? item.category : [item.category];
+        const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+        return iCats.includes(rule.category) && iSubs.includes(rule.subcategory);
+      }
     );
 
     const totalQty = group.reduce((acc, i) => acc + i.quantity, 0);
@@ -144,8 +148,10 @@ export async function validateCartPrices(clientItems, options = {}) {
 
     if (promo) {
       const applicableItems = validatedItems.filter((item) => {
-        const matchCategory = promo.category === "all" || item.category === promo.category;
-        const matchSub = promo.subcategory === "all" || item.subcategory === promo.subcategory;
+        const iCats = Array.isArray(item.category) ? item.category : [item.category];
+        const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+        const matchCategory = promo.category === "all" || iCats.includes(promo.category);
+        const matchSub = promo.subcategory === "all" || iSubs.includes(promo.subcategory);
         return matchCategory && matchSub;
       });
 
@@ -173,13 +179,15 @@ export async function validateCartPrices(clientItems, options = {}) {
 
   // 9) Detectar reglas de envío gratis
   const freeShippingRules = discountRules.filter((r) => r.type === "free_shipping");
-  const hasFreeShipping = validatedItems.some((item) =>
-    freeShippingRules.some(
+  const hasFreeShipping = validatedItems.some((item) => {
+    const iCats = Array.isArray(item.category) ? item.category : [item.category];
+    const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+    return freeShippingRules.some(
       (r) =>
-        r.category === item.category &&
-        (r.subcategory === item.subcategory || r.subcategory === "none")
-    )
-  );
+        iCats.includes(r.category) &&
+        (r.subcategory === "none" || iSubs.includes(r.subcategory))
+    );
+  });
 
   return {
     validatedItems,

@@ -53,8 +53,14 @@ export default function AdminDiscounts() {
     ? [
       ...new Set(
         products
-          .filter((p) => (p.category || "").toLowerCase() === form.category.toLowerCase())
-          .map((p) => normalize(p.subcategory))
+          .filter((p) => {
+            const cats = Array.isArray(p.category) ? p.category : [p.category];
+            return cats.some((c) => (c || "").toLowerCase() === form.category.toLowerCase());
+          })
+          .flatMap((p) => {
+            const subs = Array.isArray(p.subcategory) ? p.subcategory : [p.subcategory];
+            return subs.map((s) => normalize(s));
+          })
           .filter(Boolean)
       ),
     ]
