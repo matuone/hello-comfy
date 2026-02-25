@@ -297,7 +297,7 @@ export default function ProductDetail() {
                           alt={producto.name}
                           className="pd-main-img"
                           style={{ width: "100vw", height: "70vh", objectFit: "cover", borderRadius: 0, margin: 0, padding: 0 }}
-                          onClick={() => setIsImageModalOpen(true)}
+                          onClick={() => { setSelectedImage(img); setIsImageModalOpen(true); }}
                         />
                       </div>
                     </SwiperSlide>
@@ -324,7 +324,7 @@ export default function ProductDetail() {
                         src={img}
                         alt={producto.name}
                         className="pd-main-img"
-                        onClick={() => setIsImageModalOpen(true)}
+                        onClick={() => { setSelectedImage(img); setIsImageModalOpen(true); }}
                         style={{ cursor: "pointer", borderRadius: 18 }}
                       />
                     </SwiperSlide>

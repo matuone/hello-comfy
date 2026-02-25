@@ -199,7 +199,7 @@ export default function NavbarMobile() {
                   Productos
                 </button>
                 {menuOpen === "productos" && (
-                  <CategoriesMenuMobile onClose={() => setMenuOpen(true)} />
+                  <CategoriesMenuMobile onClose={() => setMenuOpen(false)} />
                 )}
               </li>
               <li>
