@@ -22,6 +22,11 @@ export default function Cart() {
     clearCart,
     totalItems,
     updateQuantity,
+    promoCode,
+    setPromoCode,
+    validatePromoCode,
+    promoCodeError,
+    promoCodeData,
   } = useCart();
 
   console.log("🛒 Cart component rendered with items:", items);
@@ -105,39 +110,8 @@ export default function Cart() {
   }, [items]);
 
   // ============================
-  // CÓDIGO PROMOCIONAL
+  // CÓDIGO PROMOCIONAL → usa CartContext (promoCode, promoCodeData, etc.)
   // ============================
-  const [promoCode, setPromoCode] = useState("");
-  const [promoData, setPromoData] = useState(null);
-  const [promoError, setPromoError] = useState("");
-
-  async function applyPromoCode() {
-    setPromoError("");
-
-    if (!promoCode.trim()) {
-      setPromoError("Ingresá un código válido");
-      return;
-    }
-
-    try {
-      const res = await fetch(apiPath("/promocodes/validate"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoCode.trim() }),
-      });
-      const data = await res.json();
-
-      if (!data.valid) {
-        setPromoData(null);
-        setPromoError("Código inválido o vencido");
-        return;
-      }
-
-      setPromoData(data);
-    } catch (err) {
-      setPromoError("Error validando el código");
-    }
-  }
 
   // ============================
   // FUNCIÓN: OBTENER REGLA POR CATEGORÍA
@@ -204,8 +178,8 @@ export default function Cart() {
   // ============================
   let total = subtotal;
 
-  if (promoData) {
-    total = total - (total * promoData.discount) / 100;
+  if (promoCodeData) {
+    total = total - (total * promoCodeData.discount) / 100;
   }
 
   // Agregar costo de envío si hay opción seleccionada (gratis si hay regla free_shipping)
@@ -473,21 +447,21 @@ export default function Cart() {
 
               <button
                 className="cart-btn-secondary"
-                onClick={applyPromoCode}
+                onClick={validatePromoCode}
               >
                 Aplicar código
               </button>
             </div>
 
-            {promoError && (
+            {promoCodeError && (
               <p style={{ color: "#b71c1c", marginTop: "6px" }}>
-                {promoError}
+                {promoCodeError}
               </p>
             )}
 
-            {promoData && (
+            {promoCodeData && (
               <p style={{ color: "#d94f7a", marginTop: "6px" }}>
-                Código aplicado: {promoData.code} ({promoData.discount}%)
+                Código aplicado: {promoCode} ({promoCodeData.discount}%)
               </p>
             )}
           </div>
@@ -503,12 +477,12 @@ export default function Cart() {
           {/* ============================
               DESCUENTO PROMO
           ============================ */}
-          {promoData && (
+          {promoCodeData && (
             <div className="cart-summary-row">
-              <span>Descuento ({promoData.discount}%)</span>
+              <span>Descuento ({promoCodeData.discount}%)</span>
               <span>
                 -$
-                {(subtotal * (promoData.discount / 100)).toLocaleString(
+                {(subtotal * (promoCodeData.discount / 100)).toLocaleString(
                   "es-AR"
                 )}
               </span>

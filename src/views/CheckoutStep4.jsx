@@ -23,7 +23,7 @@ const stripItemsForStorage = (items) =>
 
 export default function Step4({ formData, items, totalPrice, shippingPrice = 0, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
-  const { clearCart, promoCode } = useCart();
+  const { clearCart, promoCode, promoCodeData } = useCart();
   const { user } = useAuth();
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [proofFile, setProofFile] = useState(null);
@@ -519,6 +519,12 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           <p style={{ fontSize: "0.95rem", color: "#555" }}>
             Subtotal productos: ${totalPrice.toLocaleString("es-AR")}
           </p>
+
+          {promoCodeData && (
+            <p style={{ fontSize: "0.85rem", color: "#d94f7a", marginTop: "4px" }}>
+              Cupón {promoCode} ({promoCodeData.discount}%) aplicado
+            </p>
+          )}
 
           {envio > 0 && (
             <p style={{ fontSize: "0.95rem", color: "#555", marginTop: "4px" }}>
