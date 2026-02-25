@@ -1,5 +1,6 @@
 // backend/controllers/modoController.js
 import axios from "axios";
+
 import {
   crearOrdenDesdePago,
   actualizarEstadoPago,
@@ -8,24 +9,81 @@ import {
 import { validateCartPrices } from "../services/validateCartPrices.js";
 import { validateShippingCost } from "../services/validateShippingCost.js";
 
-// URL de la API de Modo (PlayDigital)
-const MODO_API_URL = "https://merchants.playdigital.com.ar/merchants/ecommerce/payment-intention";
+// ============================================================
+// Modo API v2 (PlayDigital) - OAuth2 Token + Payment Requests
+// ============================================================
+
+// Base URL configurable: producción o preproducción (test)
+const MODO_BASE_URL = process.env.MODO_BASE_URL || "https://merchants.playdigital.com.ar";
+const MODO_TOKEN_URL = `${MODO_BASE_URL}/v2/stores/companies/token`;
+const MODO_PAYMENT_URL = `${MODO_BASE_URL}/v2/payment-requests/`;
+const MODO_MERCHANT_NAME = process.env.MODO_MERCHANT_NAME || "HelloComfy";
+
+// Cache del token en memoria (dura 1 semana según docs)
+let cachedToken = null;
+let tokenExpiresAt = 0;
+
+/**
+ * Obtiene un token de acceso de Modo, reutilizando el cache si no expiró.
+ * Rate limit del endpoint: 10 requests cada 10 minutos.
+ */
+async function getModoToken() {
+  const now = Date.now();
+
+  // Si el token cacheado aún es válido (con 5 min de margen), reutilizar
+  if (cachedToken && tokenExpiresAt > now + 5 * 60 * 1000) {
+    return cachedToken;
+  }
+
+  const username = process.env.MODO_USERNAME;
+  const password = process.env.MODO_PASSWORD;
+
+  if (!username || !password) {
+    throw new Error("Credenciales de Modo (MODO_USERNAME / MODO_PASSWORD) no configuradas");
+  }
+
+  // ...existing code...
+
+  const response = await axios.post(
+    MODO_TOKEN_URL,
+    { username, password },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": MODO_MERCHANT_NAME,
+      },
+    }
+  );
+
+  const { access_token, expires_in } = response.data;
+  cachedToken = access_token;
+  // expires_in está en segundos
+  tokenExpiresAt = now + expires_in * 1000;
+
+  // ...existing code...
+  return cachedToken;
+}
 
 /**
  * POST /api/modo/create-payment-intent
- * Crea una intención de pago en Modo (producción)
+ * Crea un Payment Request en Modo v2
  */
 export const createPaymentIntent = async (req, res) => {
   try {
+    // ...existing code...
     const { items, totalPrice, customerData, shippingCost = 0, metadata = {} } = req.body;
 
-    const MODO_STORE_ID = process.env.MODO_STORE_ID;
-    const MODO_API_KEY = process.env.MODO_API_KEY;
-    const MODO_TEMPLATE_ID = process.env.MODO_TEMPLATE_ID;
+    const MODO_PROCESSOR_CODE = process.env.MODO_PROCESSOR_CODE;
+    const MODO_CC_CODE = process.env.MODO_CC_CODE || "1CSI";
 
-    if (!MODO_STORE_ID || !MODO_API_KEY) {
+    if (!process.env.MODO_USERNAME || !process.env.MODO_PASSWORD) {
       console.error("❌ Credenciales de Modo no configuradas");
       return res.status(500).json({ error: "Modo no configurado correctamente" });
+    }
+
+    if (!MODO_PROCESSOR_CODE) {
+      console.error("❌ MODO_PROCESSOR_CODE no configurado");
+      return res.status(500).json({ error: "Modo: processor_code no configurado" });
     }
 
     // Validar items
@@ -65,30 +123,47 @@ export const createPaymentIntent = async (req, res) => {
     });
     const total = totals.total + validatedShipping;
 
-    // Referencia externa única
-    const externalReference = `hc_modo_${Date.now()}`;
+    // Referencia externa única (cambia en cada request, requerido por Modo)
+    const externalReference = `hc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
     // URLs de callback
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const backendUrl = process.env.API_URL || "http://localhost:5000";
 
-    // Payload para la API de Modo
+    // Descripción (máx 100 chars según docs)
+    const description = `Hello Comfy - ${validatedItems.length} producto(s)`.slice(0, 100);
+
+    // Payload v2 para Modo
     const modoPayload = {
-      store_id: MODO_STORE_ID,
-      template_id: MODO_TEMPLATE_ID,
-      external_intention_id: externalReference,
-      amount: Math.round(total * 100), // centavos
+      description,
+      amount: parseFloat(total.toFixed(2)), // float, NO centavos
       currency: "ARS",
-      description: `Compra en Hello Comfy - ${validatedItems.length} producto(s)`,
-      callback_url: `${backendUrl}/api/modo/webhook`,
-      return_url: `${frontendUrl}/checkout/success`,
+      cc_code: MODO_CC_CODE,
+      processor_code: MODO_PROCESSOR_CODE,
+      external_intention_id: externalReference,
+      webhook_notification: `${backendUrl}/api/modo/webhook`,
+      customer: {
+        full_name: customerData.name || "Cliente",
+        email: customerData.email,
+        identification: customerData.dni || "",
+      },
+      items: validatedItems.map((item) => ({
+        description: (item.name || item.title || "Producto").slice(0, 100),
+        quantity: parseInt(item.quantity) || 1,
+        unit_price: parseFloat(item.unit_price || item.price) || 0,
+        image: item.picture_url || item.image || "",
+        sku: item.productId || "",
+      })),
     };
 
-    // Llamada real a la API de Modo
-    const response = await axios.post(MODO_API_URL, modoPayload, {
+    // Obtener token OAuth2
+    const token = await getModoToken();
+
+    // Llamada a la API v2 de Modo
+    const response = await axios.post(MODO_PAYMENT_URL, modoPayload, {
       headers: {
-        "apikey": MODO_API_KEY,
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
+        "User-Agent": MODO_MERCHANT_NAME,
       },
     });
 
@@ -106,7 +181,13 @@ export const createPaymentIntent = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error creando intención de pago con Modo:", error?.response?.data || error.message);
+    // Si el token expiró (401), invalidar cache para renovar en siguiente intento
+    if (error?.response?.status === 401) {
+      cachedToken = null;
+      tokenExpiresAt = 0;
+      console.warn("⚠️ Token de Modo expirado, se renovará en el próximo intento");
+    }
+    console.error("❌ Error creando Payment Request en Modo:", error?.response?.data || error.message);
     res.status(500).json({
       error: "Error al crear intención de pago con Modo",
       details: error?.response?.data?.message || error.message,
@@ -161,10 +242,10 @@ export const confirmPayment = async (req, res) => {
       transaction_amount: pendingOrderData.totalPrice + validatedShipping,
       payer: {
         email: pendingOrderData.formData.email,
-        name: pendingOrderData.formData.name
+        name: pendingOrderData.formData.name,
       },
       payment_method_id: "modo",
-      payment_type_id: "digital_wallet"
+      payment_type_id: "digital_wallet",
     };
 
     // Crear orden en la base de datos
@@ -174,57 +255,55 @@ export const confirmPayment = async (req, res) => {
       success: true,
       order: {
         code: order.code,
-        _id: order._id
-      }
+        _id: order._id,
+      },
     });
   } catch (error) {
     console.error("❌ Error confirmando pago de Modo:", error);
     res.status(500).json({
       success: false,
       error: "Error al confirmar pago",
-      details: error.message
+      details: error.message,
     });
   }
 };
 
 /**
  * POST /api/modo/webhook
- * Webhook para notificaciones de Modo
+ * Webhook para notificaciones de Modo v2
  */
 export const handleWebhook = async (req, res) => {
   try {
-    // console.log("🔔 Webhook de Modo recibido:");
-    // console.log(JSON.stringify(req.body, null, 2)); // No loggear payloads completos en producción
+    const { external_intention_id, status, payment_id } = req.body;
 
-    const { external_reference, status, payment_id } = req.body;
+    // Modo v2 usa external_intention_id
+    const reference = external_intention_id || req.body.external_reference;
 
-    if (!external_reference) {
-      return res.status(400).json({ error: "external_reference requerido" });
+    if (!reference) {
+      return res.status(400).json({ error: "external_intention_id requerido" });
     }
 
     // Obtener la orden
-    const order = await obtenerOrdenPorCodigo(external_reference);
+    const order = await obtenerOrdenPorCodigo(reference);
     if (!order) {
-      console.error("❌ Orden no encontrada:", external_reference);
+      console.error("❌ Orden no encontrada:", reference);
       return res.status(404).json({ error: "Orden no encontrada" });
     }
 
     // Mapear estado de Modo a nuestro sistema
     let paymentStatus = "pending";
-    if (status === "approved" || status === "success") {
+    if (status === "approved" || status === "success" || status === "APPROVED") {
       paymentStatus = "approved";
-    } else if (status === "rejected" || status === "failed") {
+    } else if (status === "rejected" || status === "failed" || status === "REJECTED") {
       paymentStatus = "failed";
     }
 
-    // console.log(`📝 Actualizando orden ${external_reference} a estado: ${paymentStatus}`);
-
     // Actualizar orden
-    await actualizarEstadoPago(external_reference, {
+    await actualizarEstadoPago(reference, {
       status: paymentStatus,
       paymentId: payment_id,
       paymentMethod: "modo",
-      paymentDetails: req.body
+      paymentDetails: req.body,
     });
 
     res.status(200).json({ received: true });
@@ -236,24 +315,31 @@ export const handleWebhook = async (req, res) => {
 
 /**
  * GET /api/modo/payment/:paymentId
- * Consultar estado de un pago en Modo
+ * Consultar estado de un pago en Modo v2
  */
 export const getPaymentStatus = async (req, res) => {
   try {
     const { paymentId } = req.params;
-    const MODO_API_KEY = process.env.MODO_API_KEY;
+
+    const token = await getModoToken();
 
     const response = await axios.get(
-      `${MODO_API_URL}/${paymentId}`,
+      `${MODO_BASE_URL}/v2/payment-requests/${paymentId}`,
       {
         headers: {
-          "apikey": MODO_API_KEY,
+          "Authorization": `Bearer ${token}`,
+          "User-Agent": MODO_MERCHANT_NAME,
         },
       }
     );
 
     res.json(response.data);
   } catch (error) {
+    // Si el token expiró, invalidar cache
+    if (error?.response?.status === 401) {
+      cachedToken = null;
+      tokenExpiresAt = 0;
+    }
     console.error("❌ Error consultando pago Modo:", error?.response?.data || error.message);
     res.status(500).json({ error: "Error consultando pago" });
   }
@@ -263,5 +349,5 @@ export default {
   createPaymentIntent,
   confirmPayment,
   handleWebhook,
-  getPaymentStatus
+  getPaymentStatus,
 };
