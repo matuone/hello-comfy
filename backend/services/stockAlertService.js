@@ -1,6 +1,5 @@
 // Servicio de alerta de bajo stock para HelloComfy
 import cron from "node-cron";
-import Product from "../models/Product.js";
 import StockColor from "../models/StockColor.js";
 import SiteConfig from "../models/SiteConfig.js";
 import sendEmail from "./emailService.js";
@@ -34,26 +33,22 @@ function isToday(value) {
   return dateStr.slice(0, 10) === today;
 }
 
-// Arma la lista de talles/colores con bajo stock
+// Arma la lista de talles/colores con bajo stock (directo desde StockColor)
 async function getLowStockList() {
-  const productos = await Product.find({}).populate('stockColorId');
+  const stockColors = await StockColor.find({});
   const lowStock = [];
-  for (const prod of productos) {
-    const stockColor = prod.stockColorId;
-    if (stockColor && stockColor.talles) {
-      const colorNombre = stockColor.color;
-      const tallesEntries = stockColor.talles instanceof Map
-        ? [...stockColor.talles.entries()]
-        : Object.entries(stockColor.talles || {});
-      for (const [talle, stock] of tallesEntries) {
-        if (typeof stock === "number" && stock <= 4) {
-          lowStock.push({
-            producto: prod.name,
-            color: colorNombre,
-            talle,
-            stock,
-          });
-        }
+  for (const sc of stockColors) {
+    if (!sc.talles) continue;
+    const tallesEntries = sc.talles instanceof Map
+      ? [...sc.talles.entries()]
+      : Object.entries(sc.talles || {});
+    for (const [talle, stock] of tallesEntries) {
+      if (typeof stock === "number" && stock <= 4) {
+        lowStock.push({
+          color: sc.color,
+          talle,
+          stock,
+        });
       }
     }
   }
@@ -67,9 +62,9 @@ async function getLowStockList() {
 async function sendStockAlertEmail(lista) {
   let html = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background: #faf7ff; padding: 32px; border-radius: 16px; max-width: 600px; margin: 0 auto;">
     <h2 style="color: #a259e6; text-align: center; margin-bottom: 8px;">🚨 Alerta de bajo stock</h2>
-    <p style="text-align: center; color: #333; margin-bottom: 24px;">Estos son los productos, colores y talles con stock crítico (4 o menos unidades).<br>Por favor, revisá y reponé lo antes posible.</p>`;
+    <p style="text-align: center; color: #333; margin-bottom: 24px;">Estos son los colores y talles con stock crítico (4 o menos unidades).<br>Por favor, revisá y reponé lo antes posible.</p>`;
 
-  // Agrupar solo por color
+  // Agrupar por color
   const agrupado = {};
   for (const item of lista) {
     if (!agrupado[item.color]) agrupado[item.color] = [];
