@@ -73,8 +73,8 @@ export default function AdminProductNew() {
 
     const payload = {
       name: form.name,
-      category: form.category,
-      subcategory: form.subcategory,
+      category: form.category ? form.category.split(",").map((c) => c.trim()).filter(Boolean) : [],
+      subcategory: form.subcategory ? form.subcategory.split(",").map((s) => s.trim()).filter(Boolean) : [],
       price: Number(form.price),
 
       colors: parsedColors,

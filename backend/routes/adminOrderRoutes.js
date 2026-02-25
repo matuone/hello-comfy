@@ -2,10 +2,11 @@
 
 import express from "express";
 const router = express.Router();
+import axios from "axios";
 import Order from "../models/Order.js";
 import Customer from "../models/Customer.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
-import { enviarEmailRetiroPickup, enviarEmailPagoRecibido, enviarEmailSeguimiento } from "../services/emailService.js";
+import { enviarEmailRetiroPickup, enviarEmailPagoRecibido, enviarEmailSeguimiento, enviarEmailCancelacion, enviarEmailDevolucion } from "../services/emailService.js";
 
 /* ============================================================
    ⭐ Notificar retiro listo (Pick Up)
@@ -242,6 +243,162 @@ router.patch("/admin/orders/:id/status", verifyAdmin, async (req, res) => {
   } catch (err) {
     console.error("Error actualizando estado:", err);
     res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
+   ⭐ Cancelar venta
+   PATCH /api/admin/orders/:id/cancel
+============================================================ */
+router.patch("/admin/orders/:id/cancel", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+
+    if (order.status === "cancelado") {
+      return res.status(400).json({ error: "La venta ya está cancelada" });
+    }
+
+    order.status = "cancelado";
+    order.timeline.push({
+      status: "Venta cancelada",
+      date: new Date().toLocaleString("es-AR"),
+    });
+
+    await order.save();
+
+    // Enviar email de cancelación al cliente
+    enviarEmailCancelacion(order).catch((err) =>
+      console.error("Error enviando email de cancelación:", err.message)
+    );
+
+    res.json({ message: "Venta cancelada correctamente", order });
+  } catch (err) {
+    console.error("Error cancelando venta:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
+   ⭐ Devolver dinero (reembolso)
+   PATCH /api/admin/orders/:id/refund
+   Solo funcional para mercadopago, gocuotas y modo.
+   Para transfer/cuentadni no se procesa (devolución manual).
+============================================================ */
+router.patch("/admin/orders/:id/refund", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+
+    if (order.reembolsado) {
+      return res.status(400).json({ error: "Esta venta ya fue reembolsada" });
+    }
+
+    const metodo = order.paymentMethod;
+    const paymentId = order.paymentId;
+
+    // Solo métodos digitales soportan reembolso automático
+    if (!["mercadopago", "gocuotas", "modo"].includes(metodo)) {
+      return res.status(400).json({
+        error: `El método de pago "${metodo}" no soporta devolución automática. Realizá la devolución de forma manual.`,
+      });
+    }
+
+    if (!paymentId) {
+      return res.status(400).json({
+        error: "No se encontró el ID de pago del proveedor. No se puede procesar la devolución automática.",
+      });
+    }
+
+    let refundResult = null;
+
+    // ── MercadoPago ──
+    if (metodo === "mercadopago") {
+      const mpToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+      if (!mpToken) {
+        return res.status(500).json({ error: "MERCADOPAGO_ACCESS_TOKEN no configurado en el servidor" });
+      }
+      const mpRes = await axios.post(
+        `https://api.mercadopago.com/v1/payments/${paymentId}/refunds`,
+        {},
+        { headers: { Authorization: `Bearer ${mpToken}`, "Content-Type": "application/json" } }
+      );
+      refundResult = { provider: "mercadopago", refundId: mpRes.data?.id, status: mpRes.data?.status };
+    }
+
+    // ── GoCuotas ──
+    if (metodo === "gocuotas") {
+      const gcBaseUrl = process.env.GOCUOTAS_BASE_URL || "https://www.gocuotas.com/api_redirect/v1";
+      const gcApiKey = process.env.GOCUOTAS_API_KEY;
+      if (!gcApiKey) {
+        return res.status(500).json({ error: "GOCUOTAS_API_KEY no configurada en el servidor" });
+      }
+      const gcRes = await axios.post(
+        `${gcBaseUrl}/checkouts/${paymentId}/refund`,
+        {},
+        { headers: { Authorization: `Bearer ${gcApiKey}`, "Content-Type": "application/json" } }
+      );
+      refundResult = { provider: "gocuotas", data: gcRes.data };
+    }
+
+    // ── MODO ──
+    if (metodo === "modo") {
+      // Obtener token de MODO
+      const modoBaseUrl = process.env.MODO_BASE_URL || "https://merchants.playdigital.com.ar";
+      const modoUser = process.env.MODO_USERNAME;
+      const modoPass = process.env.MODO_PASSWORD;
+      if (!modoUser || !modoPass) {
+        return res.status(500).json({ error: "Credenciales de MODO no configuradas en el servidor" });
+      }
+      const tokenRes = await axios.post(
+        `${modoBaseUrl}/v2/stores/companies/token`,
+        { username: modoUser, password: modoPass },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const modoToken = tokenRes.data?.token || tokenRes.data?.access_token;
+      const merchantName = process.env.MODO_MERCHANT_NAME || "HelloComfy";
+
+      const modoRes = await axios.post(
+        `${modoBaseUrl}/v2/payment-requests/${paymentId}/refunds`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${modoToken}`,
+            "User-Agent": merchantName,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      refundResult = { provider: "modo", data: modoRes.data };
+    }
+
+    // Marcar orden como reembolsada
+    order.reembolsado = true;
+    order.pagoEstado = "reembolsado";
+    order.timeline.push({
+      status: `Dinero devuelto vía ${metodo}`,
+      date: new Date().toLocaleString("es-AR"),
+    });
+    await order.save();
+
+    // Enviar email de devolución al cliente
+    enviarEmailDevolucion(order).catch((err) =>
+      console.error("Error enviando email de devolución:", err.message)
+    );
+
+    res.json({ message: "Devolución procesada correctamente", order, refundResult });
+  } catch (err) {
+    // Capturar errores de API del proveedor
+    const apiError = err?.response?.data;
+    console.error("Error procesando devolución:", apiError || err.message);
+    res.status(500).json({
+      error: "Error al procesar la devolución con el proveedor de pagos",
+      details: apiError?.message || apiError?.error || err.message,
+    });
   }
 });
 

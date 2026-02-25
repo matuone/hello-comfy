@@ -194,16 +194,19 @@ export const syncSubcategories = async (_req, res) => {
     // Recopilar pares únicos de productos
     const pairsMap = new Map();
     productos.forEach((p) => {
-      if (p.category && p.subcategory) {
-        const cat = p.category;
-        const sub = normalize(p.subcategory);
-        if (ALLOWED_CATEGORIES.includes(cat)) {
-          const key = `${cat}||${sub}`;
+      const cats = Array.isArray(p.category) ? p.category : [p.category];
+      const subs = Array.isArray(p.subcategory) ? p.subcategory : [p.subcategory];
+      cats.forEach((cat) => {
+        if (!cat || !ALLOWED_CATEGORIES.includes(cat)) return;
+        subs.forEach((sub) => {
+          if (!sub) return;
+          const normalizedSub = normalize(sub);
+          const key = `${cat}||${normalizedSub}`;
           if (!existenteSet.has(key) && !pairsMap.has(key)) {
-            pairsMap.set(key, { category: cat, name: sub });
+            pairsMap.set(key, { category: cat, name: normalizedSub });
           }
-        }
-      }
+        });
+      });
     });
 
     // Obtener el siguiente order por categoría

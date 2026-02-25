@@ -103,8 +103,9 @@ export default function ProductDetail() {
 
     const fetchSimilares = async () => {
       try {
+        const cats = Array.isArray(producto.category) ? producto.category : [producto.category];
         const res = await fetch(
-          apiPath(`/products?category=${producto.category}`)
+          apiPath(`/products?category=${encodeURIComponent(cats[0])}`)
         );
         let data = await res.json();
 

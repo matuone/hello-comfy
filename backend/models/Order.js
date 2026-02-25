@@ -53,8 +53,14 @@ const OrderSchema = new mongoose.Schema({
   // ⭐ Estado del pago
   pagoEstado: {
     type: String,
-    enum: ["pendiente", "recibido"],
+    enum: ["pendiente", "recibido", "reembolsado"],
     default: "pendiente",
+  },
+
+  // ⭐ Flag de reembolso
+  reembolsado: {
+    type: Boolean,
+    default: false,
   },
 
   // ⭐ Medio de pago
@@ -62,6 +68,12 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     enum: ["mercadopago", "gocuotas", "modo", "transfer", "cuentadni"],
     default: "mercadopago",
+  },
+
+  // ⭐ ID de pago del proveedor (para reembolsos)
+  paymentId: {
+    type: String,
+    default: null,
   },
 
   // ⭐ Estado del envío

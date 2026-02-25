@@ -1013,3 +1013,133 @@ export async function enviarEmailSeguimiento(order, tracking) {
     return false;
   }
 }
+
+/* ============================================================
+   ⭐ Enviar email de cancelación de orden
+============================================================ */
+export async function enviarEmailCancelacion(order) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email de cancelación");
+      return false;
+    }
+
+    const nodemailer = (await import('nodemailer')).default;
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const nombreCliente = order.customer?.name || "Cliente";
+    const codigoOrden = order.code || "—";
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <div style="background: linear-gradient(135deg, #d94f7a, #e76f93); padding: 28px 24px; text-align: center;">
+          <h1 style="color: #fff; margin: 0; font-size: 22px;">Tu orden fue cancelada</h1>
+        </div>
+        <div style="padding: 32px 24px; text-align: left;">
+          <p style="color: #333; font-size: 16px; margin: 0 0 18px 0;">
+            Hola <b>${nombreCliente}</b>, tu orden fue cancelada
+          </p>
+          <p style="color: #444; font-size: 15px; margin: 0 0 18px 0;">
+            Cancelamos tu orden <b>#${codigoOrden}</b> debido a que se venció el plazo para abonar la misma, si ya lo hiciste y fue cancelada por error, por favor adjuntanos el comprobante a este mismo mail que te responderemos a la brevedad.
+          </p>
+          <p style="color: #444; font-size: 15px; margin: 0 0 18px 0;">
+            Ante cualquier inquietud, no dudes en responder este mensaje.<br>
+            ¡Estamos a tu disposición!
+          </p>
+          <p style="color: #888; font-size: 14px; margin: 0 0 24px 0;">
+            Saludos,<br><b>HELLO COMFY</b>
+          </p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+          <p style="color: #aaa; font-size: 12px; margin: 0; text-align: center;">
+            Si no hiciste esta compra o simplemente estabas probando nuestro sitio, por favor desconsiderá este e-mail.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: "Hello Comfy 🧸 <hellocomfyind@gmail.com>",
+      to: order.customer?.email,
+      subject: `❌ Tu orden #${codigoOrden} fue cancelada — Hello Comfy`,
+      html: emailHtml,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando email de cancelación:", error.message);
+    return false;
+  }
+}
+
+/**
+ * Enviar email de devolución de dinero al cliente
+ */
+export async function enviarEmailDevolucion(order) {
+  try {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.warn("⚠️ GMAIL_APP_PASSWORD no configurado, no se enviará email de devolución");
+      return false;
+    }
+
+    const nodemailer = (await import('nodemailer')).default;
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "hellocomfyind@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const nombreCliente = order.customer?.name || "Cliente";
+    const codigoOrden = order.code || "—";
+    const totalDevuelto = (order.totals?.total || 0).toLocaleString("es-AR");
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <div style="background: linear-gradient(135deg, #d94f7a, #e76f93); padding: 28px 24px; text-align: center;">
+          <h1 style="color: #fff; margin: 0; font-size: 22px;">Devolución de dinero procesada</h1>
+        </div>
+        <div style="padding: 32px 24px; text-align: left;">
+          <p style="color: #333; font-size: 16px; margin: 0 0 18px 0;">
+            Hola <b>${nombreCliente}</b>,
+          </p>
+          <p style="color: #444; font-size: 15px; margin: 0 0 18px 0;">
+            Te informamos que procesamos la devolución de tu orden <b>#${codigoOrden}</b> por un total de <b>$${totalDevuelto}</b>.
+          </p>
+          <p style="color: #444; font-size: 15px; margin: 0 0 18px 0;">
+            El reembolso puede demorar entre 5 y 10 días hábiles en verse reflejado, dependiendo de tu medio de pago y entidad bancaria.
+          </p>
+          <p style="color: #444; font-size: 15px; margin: 0 0 18px 0;">
+            Ante cualquier inquietud, no dudes en responder este mensaje.<br>
+            ¡Estamos a tu disposición!
+          </p>
+          <p style="color: #888; font-size: 14px; margin: 0 0 24px 0;">
+            Saludos,<br><b>HELLO COMFY</b>
+          </p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+          <p style="color: #aaa; font-size: 12px; margin: 0; text-align: center;">
+            Si tenés alguna duda sobre esta devolución, respondé este e-mail y te ayudaremos.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: "Hello Comfy 🧸 <hellocomfyind@gmail.com>",
+      to: order.customer?.email,
+      subject: `💸 Devolución procesada — Orden #${codigoOrden} — Hello Comfy`,
+      html: emailHtml,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("❌ Error enviando email de devolución:", error.message);
+    return false;
+  }
+}

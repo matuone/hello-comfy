@@ -197,8 +197,12 @@ export default function Products() {
   const countByCategory = {};
   allProducts.forEach((p) => {
     if (!p.subcategory) return;
-    const key = p.subcategory.trim();
-    countByCategory[key] = (countByCategory[key] || 0) + 1;
+    const subs = Array.isArray(p.subcategory) ? p.subcategory : [p.subcategory];
+    subs.forEach((s) => {
+      if (!s) return;
+      const key = s.trim();
+      countByCategory[key] = (countByCategory[key] || 0) + 1;
+    });
   });
 
   const totalCount = allProducts.length;

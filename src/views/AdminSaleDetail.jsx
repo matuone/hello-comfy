@@ -282,6 +282,61 @@ export default function AdminSaleDetail() {
   }
 
   // ============================
+  // CANCELAR VENTA
+  // ============================
+  const [cancelando, setCancelando] = useState(false);
+
+  async function cancelarVenta() {
+    if (!window.confirm("¿Estás seguro de que querés cancelar esta venta? Se enviará un email al cliente.")) return;
+    setCancelando(true);
+    setIsMoreOpen(false);
+    try {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/cancel`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al cancelar venta");
+      setVenta(data.order);
+      alert("Venta cancelada. Se envió el email de cancelación al cliente.");
+    } catch (err) {
+      alert(err.message || "Error al cancelar la venta");
+    } finally {
+      setCancelando(false);
+    }
+  }
+
+  // ============================
+  // DEVOLVER DINERO (REEMBOLSO)
+  // ============================
+  const [reembolsando, setReembolsando] = useState(false);
+
+  async function devolverDinero() {
+    const metodo = venta?.paymentMethod;
+    if (!["mercadopago", "gocuotas", "modo"].includes(metodo)) {
+      alert("Este medio de pago no soporta devolución automática. Realizá la devolución de forma manual.");
+      return;
+    }
+    if (!window.confirm("¿Estás seguro de que querés devolver el dinero? Se procesará el reembolso y se enviará un email al cliente.")) return;
+    setReembolsando(true);
+    setIsMoreOpen(false);
+    try {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/refund`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al procesar la devolución");
+      setVenta(data.order);
+      alert("Devolución procesada correctamente. Se envió un email al cliente.");
+    } catch (err) {
+      alert(err.message || "Error al procesar la devolución");
+    } finally {
+      setReembolsando(false);
+    }
+  }
+
+  // ============================
   // ESTADO Y LÓGICA DE EDICIÓN DE COMENTARIO
   // ============================
   const [isEditingComentario, setIsEditingComentario] = useState(false);
@@ -440,8 +495,12 @@ export default function AdminSaleDetail() {
             Más opciones ▾
           </button>
           <div className={`dropdown-menu ${isMoreOpen ? "open" : ""}`}>
-            <button>Cancelar venta</button>
-            <button>Devolver dinero</button>
+            <button onClick={cancelarVenta} disabled={cancelando || venta?.status === "cancelado"}>
+              {cancelando ? "Cancelando..." : venta?.status === "cancelado" ? "✅ Venta cancelada" : "Cancelar venta"}
+            </button>
+            <button onClick={devolverDinero} disabled={reembolsando || venta?.reembolsado}>
+              {reembolsando ? "Procesando..." : venta?.reembolsado ? "✅ Dinero devuelto" : "Devolver dinero"}
+            </button>
             <button>Archivar venta</button>
           </div>
         </div>

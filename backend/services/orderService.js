@@ -54,6 +54,7 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     const orderData = {
       code,
       userId: pendingOrderData.userId || null, // Vincular usuario si está autenticado
+      paymentId: paymentData.id || paymentData.paymentId || null, // ID del pago del proveedor (para reembolsos)
       customer: {
         email: paymentData.payer?.email || pendingOrderData.formData?.email,
         name: paymentData.payer?.name || pendingOrderData.formData?.name,

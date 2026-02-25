@@ -161,8 +161,8 @@ export default function AdminProducts() {
       // 2) Armar el payload con TODOS los datos necesarios
       const payload = {
         name: (original.name || prod.nombre) + " (copia)",
-        category: original.category || prod.categoria,
-        subcategory: original.subcategory || prod.subcategoria || "",
+        category: (original.category?.length ? original.category : null) || (prod.categoria?.length ? [prod.categoria] : []),
+        subcategory: (original.subcategory?.length ? original.subcategory : null) || (prod.subcategoria?.length ? [prod.subcategoria] : []),
         price: Number(original.price ?? prod.precio) || 0,
         images: original.images && original.images.length > 0
           ? original.images

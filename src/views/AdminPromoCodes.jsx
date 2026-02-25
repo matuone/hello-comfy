@@ -44,10 +44,17 @@ export default function AdminPromoCodes() {
 
   // Normalización visual
   const normalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
+    typeof str === "string" && str
+      ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+      : str;
 
-  // Categorías únicas
-  const categories = ["all", ...new Set(products.map((p) => normalize(p.category)))];
+  // Categorías únicas (p.category puede ser array o string)
+  const categories = ["all", ...new Set(
+    products.flatMap((p) => {
+      const cats = Array.isArray(p.category) ? p.category : [p.category];
+      return cats.filter(Boolean).map(normalize);
+    })
+  )];
 
   // Subcategorías según categoría seleccionada
   const subcategories =
@@ -57,8 +64,14 @@ export default function AdminPromoCodes() {
         "all",
         ...new Set(
           products
-            .filter((p) => normalize(p.category) === form.category)
-            .map((p) => normalize(p.subcategory))
+            .filter((p) => {
+              const cats = Array.isArray(p.category) ? p.category : [p.category];
+              return cats.some((c) => normalize(c) === form.category);
+            })
+            .flatMap((p) => {
+              const subs = Array.isArray(p.subcategory) ? p.subcategory : [p.subcategory];
+              return subs.filter(Boolean).map(normalize);
+            })
         ),
       ];
 
