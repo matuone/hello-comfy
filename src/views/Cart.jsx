@@ -120,9 +120,11 @@ export default function Cart() {
     }
 
     try {
-      const res = await fetch(
-        apiPath(`/promocodes/validate/${promoCode}`)
-      );
+      const res = await fetch(apiPath("/promocodes/validate"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoCode.trim() }),
+      });
       const data = await res.json();
 
       if (!data.valid) {
