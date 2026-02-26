@@ -368,6 +368,7 @@
 @media (max-width: 900px) {
   .products {
     padding: 8px 0 0 0;
+    padding-top: 110px;
     margin: 0;
     max-width: 100vw;
   }
@@ -383,8 +384,7 @@
   }
 
   .products__filters-horizontal {
-    margin-top: 64px;
-    /* Ajuste fino: apenas debajo del navbar en mobile */
+    margin-top: 0;
     padding: 8px 0;
     font-size: 0.95rem;
   }

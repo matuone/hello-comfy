@@ -54,7 +54,13 @@ export default function ProductCardMobile({ product }) {
           />
         </div>
       </div>
-      <div className="productcard__stars">★★★★★</div>
+      <div
+        className="productcard__stars"
+        onClick={() => window.dispatchEvent(new CustomEvent("showProductOpinions", { detail: { productId: product._id } }))}
+        style={{ cursor: 'pointer' }}
+      >
+        ★★★★★
+      </div>
       <div className="productcard__buttons">
         <button className="productcard__btn-buy">Comprar</button>
         <button className="productcard__btn-cart">Agregar al carrito</button>

@@ -348,7 +348,10 @@ export default function Category() {
 
               <div
                 className="productcard__stars"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.dispatchEvent(new CustomEvent("showProductOpinions", { detail: { productId: p._id } }));
+                }}
               >
                 {"★".repeat(5)}
               </div>

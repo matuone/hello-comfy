@@ -93,6 +93,11 @@
 }
 
 @media (max-width: 900px) {
+  .category-view {
+    margin-top: 0;
+    padding-top: 110px;
+  }
+
   .category-view .products__grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
