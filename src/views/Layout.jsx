@@ -13,6 +13,7 @@ import PromoBanner from "../components/PromoBanner";
 import PromoBannerMobile from "../components/mobile/PromoBannerMobile";
 import PromoBannerTablet from "../components/mobile/PromoBannerTablet"; // ← IMPORTADO
 import FloatingBear from "../components/FloatingBear"; // ← AGREGADO
+import WhatsAppButton from "../components/WhatsAppButton";
 import Maintenance from "./Maintenance";
 import "../styles/layout.css";
 
@@ -99,6 +100,7 @@ export default function Layout() {
 
         {/* ← EL OSITO VA ACÁ */}
         {!esAdmin && <FloatingBear />}
+        {!esAdmin && <WhatsAppButton />}
 
         <Outlet />
       </main>
