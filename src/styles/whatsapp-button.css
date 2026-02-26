@@ -34,11 +34,12 @@
   height: 32px;
 }
 
-/* En mobile lo bajamos un poco y achicamos */
+/* En mobile lo pasamos a la izquierda para no pisar al osito */
 @media (max-width: 899px) {
   .whatsapp-float {
     bottom: 20px;
-    right: 20px;
+    right: auto;
+    left: 20px;
     width: 50px;
     height: 50px;
   }
