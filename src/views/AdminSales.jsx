@@ -10,6 +10,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/adminsales.css";
 import ReenviarModal from "../components/ReenviarModal";
+import FacturaModal from "../components/FacturaModal";
+import NotificationModal from "../components/NotificationModal";
 
 export default function AdminSales() {
   const { token } = useAuth();
@@ -30,6 +32,22 @@ export default function AdminSales() {
   // Modal de reenvío de factura
   const [modalReenvio, setModalReenvio] = useState(false);
   const [reenvioLoading, setReenvioLoading] = useState(false);
+
+  const [correoModal, setCorreoModal] = useState({
+    isOpen: false,
+    message: "",
+    type: "success",
+  });
+  const [correoConfirmOpen, setCorreoConfirmOpen] = useState(false);
+
+  const openCorreoModal = (title, message, type = "success") => {
+    const text = title ? `${title} — ${message}` : message;
+    setCorreoModal({ isOpen: true, message: text, type });
+  };
+
+  const closeCorreoModal = () => {
+    setCorreoModal((prev) => ({ ...prev, isOpen: false }));
+  };
 
   // ============================
   // DATOS DE VENTAS (BACKEND)
@@ -187,14 +205,14 @@ export default function AdminSales() {
   // ============================
   async function registrarOrdenesCorreo() {
     if (seleccionadas.length === 0) {
-      alert("No seleccionaste ninguna venta");
+      openCorreoModal("Validacion", "No seleccionaste ninguna venta", "error");
       return;
     }
+    setCorreoConfirmOpen(true);
+  }
 
-    if (!window.confirm(`Registrar ${seleccionadas.length} orden(es) en Correo Argentino?`)) {
-      return;
-    }
-
+  async function confirmarRegistroCorreo() {
+    setCorreoConfirmOpen(false);
     try {
       const res = await fetch(apiPath("/correo-argentino/import-batch"), {
         method: "POST",
@@ -208,7 +226,8 @@ export default function AdminSales() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Error al registrar órdenes");
+        const detalle = data?.message || data?.error || "Error al registrar órdenes";
+        openCorreoModal("Error", detalle, "error");
         return;
       }
 
@@ -219,7 +238,7 @@ export default function AdminSales() {
           if (match) {
             return {
               ...v,
-              correoArgentinoTracking: match.tracking,
+              correoArgentinoTracking: match.extOrderId || match.tracking,
               timeline: [
                 ...(v.timeline || []),
                 { status: "Registrado en Correo Argentino", date: new Date().toLocaleString("es-AR") },
@@ -230,9 +249,17 @@ export default function AdminSales() {
         })
       );
 
-      alert(`Registro finalizado\n✅ Exitosas: ${data.success}\n❌ Fallidas: ${data.failed}`);
+      const primerError = (data.errors || [])[0];
+      const detalleErrores = primerError
+        ? ` Primer error: ${primerError.code || primerError.orderId} - ${primerError.error}`
+        : "";
+      openCorreoModal(
+        "Registro finalizado",
+        `Exitosas: ${data.success}. Fallidas: ${data.failed}.${detalleErrores}`,
+        data.failed ? "error" : "success"
+      );
     } catch (err) {
-      alert("Error al registrar órdenes en Correo Argentino");
+      openCorreoModal("Error", err?.message || "Error al registrar órdenes en Correo Argentino", "error");
     }
   }
 
@@ -464,12 +491,28 @@ export default function AdminSales() {
               {/* ⭐ Facturación con AFIP/ARCA */}
               <button onClick={facturarSeleccionadas}>Generar factura en ARCA</button>
 
-              <button onClick={() => ejecutarAccion("Registrar órdenes en Correo Argentino")}>Registrar órdenes en Correo Argentino</button>
+              <button onClick={registrarOrdenesCorreo}>Registrar órdenes en Correo Argentino</button>
               <button onClick={() => ejecutarAccion("Andreani - Descargar Etiquetas")}>Andreani - Descargar Etiquetas</button>
             </div>
           </div>
         </div>
       </div>
+
+      {correoModal.isOpen && (
+        <NotificationModal
+          mensaje={correoModal.message}
+          tipo={correoModal.type}
+          onClose={closeCorreoModal}
+        />
+      )}
+
+      <FacturaModal
+        isOpen={correoConfirmOpen}
+        title="Registrar en Correo Argentino"
+        message={`Registrar ${seleccionadas.length} orden(es) en Correo Argentino?`}
+        onConfirm={confirmarRegistroCorreo}
+        onCancel={() => setCorreoConfirmOpen(false)}
+      />
 
       {/* Tabla */}
       <div className="admin-table-container">
@@ -557,7 +600,8 @@ export default function AdminSales() {
                   </td>
 
                   <td className="shipping-method-cell">
-                    {venta.shipping.method === "home" && "📦 Envío a domicilio"}
+                    {(venta.shipping.method === "home" || venta.shipping.method === "correo-home") && "📦 Envío a domicilio"}
+                    {venta.shipping.method === "correo-branch" && "🏤 Envío a sucursal (Correo Argentino)"}
                     {venta.shipping.method === "pickup" && (
                       <>
                         🏬 Pick Up Point

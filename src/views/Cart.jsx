@@ -29,7 +29,36 @@ export default function Cart() {
     promoCodeData,
   } = useCart();
 
-  console.log("🛒 Cart component rendered with items:", items);
+  // ============================
+  // REGLAS DE DESCUENTO DEL ADMIN
+  // ============================
+  const [discountRules, setDiscountRules] = useState([]);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+  const [isActiveThreshold, setIsActiveThreshold] = useState(false);
+
+  useEffect(() => {
+    fetch(apiPath("/discounts"))
+      .then((res) => res.json())
+      .then((data) => setDiscountRules(data || []))
+      .catch((err) => {
+        console.error("Error loading discount rules:", err);
+        setDiscountRules([]);
+      });
+  }, []);
+
+  // 🚚 Cargar Free Shipping Threshold
+  useEffect(() => {
+    fetch(apiPath("/discounts/free-shipping/threshold"))
+      .then((res) => res.json())
+      .then((data) => {
+        setFreeShippingThreshold(data.threshold || 0);
+        setIsActiveThreshold(data.isActive || false);
+      })
+      .catch(() => {
+        setFreeShippingThreshold(0);
+        setIsActiveThreshold(false);
+      });
+  }, []);
 
   // ============================
   // ENVÍO REAL — Restaurar selección del ProductDetail
@@ -44,17 +73,6 @@ export default function Cart() {
   const [shippingPrice, setShippingPrice] = useState(savedShipping.shippingPrice || 0);
   const [selectedAgency, setSelectedAgency] = useState(savedShipping.selectedAgency || null);
   const [shippingRestored, setShippingRestored] = useState(false);
-
-  // ============================
-  // REGLAS DE DESCUENTO DEL ADMIN
-  // ============================
-  const [discountRules, setDiscountRules] = useState([]);
-
-  useEffect(() => {
-    fetch(apiPath("/discounts"))
-      .then((res) => res.json())
-      .then((data) => setDiscountRules(data));
-  }, []);
 
   // ============================
   // STOCK POR ITEM (POR TALLE)
@@ -122,36 +140,14 @@ export default function Cart() {
     return discountRules.find(
       (r) =>
         itemCats.includes(r.category) &&
-        (r.subcategory === "none" || itemSubs.includes(r.subcategory))
+        (!r.subcategory || r.subcategory === "none" || itemSubs.includes(r.subcategory))
     );
   }
 
   // ============================
-  // ENVÍO GRATIS POR REGLA DE DESCUENTO
+  // ENVÍO GRATIS POR REGLA DE DESCUENTO O POR THRESHOLD
   // ============================
-  const freeShipping = items.some((item) => {
-    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
-    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-    return discountRules.some(
-      (r) =>
-        r.type === "free_shipping" &&
-        itemCats.includes(r.category) &&
-        (r.subcategory === "none" || itemSubs.includes(r.subcategory))
-    );
-  });
-
-  // ============================
-  // FUNCIÓN: 3x2 REAL
-  // ============================
-  function apply3x2(price, qty) {
-    const groups = Math.floor(qty / 3);
-    const remainder = qty % 3;
-    return groups * 2 * price + remainder * price;
-  }
-
-  // ============================
-  // SUBTOTAL REAL
-  // ============================
+  // Primero calcular subtotal para verificar threshold
   const subtotal = items.reduce((acc, item) => {
     const basePrice = typeof item.price === "number" ? item.price : 0;
 
@@ -173,6 +169,30 @@ export default function Cart() {
     return acc + finalPrice * item.quantity;
   }, 0);
 
+  // Verificar envío gratis: por regla de categoría O por threshold
+  const freeShippingByRule = items.some((item) => {
+    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+    return discountRules.some(
+      (r) =>
+        r.type === "free_shipping" &&
+        itemCats.includes(r.category) &&
+        (!r.subcategory || r.subcategory === "none" || itemSubs.includes(r.subcategory))
+    );
+  });
+
+  const freeShippingByThreshold = isActiveThreshold && freeShippingThreshold > 0 && subtotal >= freeShippingThreshold;
+  const freeShipping = freeShippingByRule || freeShippingByThreshold;
+
+  // ============================
+  // FUNCIÓN: 3x2 REAL
+  // ============================
+  function apply3x2(price, qty) {
+    const groups = Math.floor(qty / 3);
+    const remainder = qty % 3;
+    return groups * 2 * price + remainder * price;
+  }
+
   // ============================
   // TOTAL FINAL CON CÓDIGO PROMO + ENVÍO
   // ============================
@@ -182,7 +202,7 @@ export default function Cart() {
     total = total - (total * promoCodeData.discount) / 100;
   }
 
-  // Agregar costo de envío si hay opción seleccionada (gratis si hay regla free_shipping)
+  // Agregar costo de envío si hay opción seleccionada (gratis si hay regla free_shipping o threshold)
   const effectiveShippingPrice = freeShipping ? 0 : shippingPrice;
   const totalConEnvio = total + (selectedShipping ? effectiveShippingPrice : 0);
 
@@ -525,6 +545,7 @@ export default function Cart() {
                 result={shippingOptions}
                 selected={selectedShipping}
                 initialAgency={selectedAgency}
+                freeShipping={freeShipping}
                 onSelect={(id, opt, agency) => {
                   setSelectedShipping(id);
                   setShippingPrice(opt?.data?.price || 0);

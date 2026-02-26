@@ -16,37 +16,29 @@ export async function trackAbandonedCart(req, res) {
 
     const cartType = type || (userId ? "registered" : "guest");
 
-    // Buscar si ya existe un carrito abandonado activo para este email
-    let cart = await AbandonedCart.findOne({
-      email: email.toLowerCase().trim(),
-      recovered: false,
-    });
+    const normalizedEmail = email.toLowerCase().trim();
 
-    if (cart) {
-      // Actualizar el existente
-      cart.items = items;
-      cart.checkoutStep = checkoutStep || cart.checkoutStep;
-      cart.totalEstimado = totalEstimado || cart.totalEstimado;
-      cart.name = name || cart.name;
-      cart.phone = phone || cart.phone;
-      cart.userId = userId || cart.userId;
-      cart.type = cartType;
-      cart.lastActivity = new Date();
-      await cart.save();
-    } else {
-      // Crear nuevo
-      cart = await AbandonedCart.create({
-        type: cartType,
-        email: email.toLowerCase().trim(),
-        name: name || "",
-        phone: phone || "",
-        userId: userId || null,
-        items,
-        checkoutStep: checkoutStep || 0,
-        totalEstimado: totalEstimado || 0,
-        lastActivity: new Date(),
-      });
-    }
+    // Upsert atomico para evitar VersionError por concurrencia
+    const cart = await AbandonedCart.findOneAndUpdate(
+      { email: normalizedEmail, recovered: false },
+      {
+        $set: {
+          items,
+          checkoutStep: checkoutStep ?? 0,
+          totalEstimado: totalEstimado ?? 0,
+          name: name ?? "",
+          phone: phone ?? "",
+          userId: userId ?? null,
+          type: cartType,
+          lastActivity: new Date(),
+        },
+        $setOnInsert: {
+          email: normalizedEmail,
+          recovered: false,
+        },
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
 
     return res.status(200).json({ ok: true, cartId: cart._id });
   } catch (err) {

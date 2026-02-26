@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { fetchAgenciesByCP } from "../services/shippingApi";
 import "../styles/shippingoptions.css";
 
-export default function ShippingOptions({ result, selected, onSelect, postalCode, initialAgency }) {
+export default function ShippingOptions({ result, selected, onSelect, postalCode, initialAgency, freeShipping }) {
   if (!result) return null;
 
   const { correo } = result;
@@ -93,9 +93,15 @@ export default function ShippingOptions({ result, selected, onSelect, postalCode
                   <strong className="shipopt-carrier">{opt.type}</strong>
 
                   <div className="shipopt-row">
-                    <p className="shipopt-price">
-                      ${opt.data.price.toLocaleString("es-AR")}
-                    </p>
+                    {freeShipping ? (
+                      <p className="shipopt-price" style={{ color: '#2e7d32', fontWeight: 700 }}>
+                        GRATIS 🎉
+                      </p>
+                    ) : (
+                      <p className="shipopt-price">
+                        ${opt.data.price.toLocaleString("es-AR")}
+                      </p>
+                    )}
                     <small className="shipopt-eta">{opt.data.eta}</small>
                   </div>
                 </div>

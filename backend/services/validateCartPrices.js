@@ -45,16 +45,16 @@ export async function validateCartPrices(clientItems, options = {}) {
       continue;
     }
 
-    // Detectar manipulación de precio
-    if (clientItem.price !== dbProduct.price) {
+    // Detectar manipulación de precio (solo si el cliente envia un numero)
+    if (typeof clientItem.price === "number" && clientItem.price !== dbProduct.price) {
       warnings.push(
         `Precio manipulado detectado para "${dbProduct.name}": ` +
         `cliente envió $${clientItem.price}, precio real $${dbProduct.price}`
       );
     }
 
-    // Detectar manipulación de descuento
-    if (clientItem.discount !== (dbProduct.discount || 0)) {
+    // Detectar manipulación de descuento (solo si el cliente envia un numero)
+    if (typeof clientItem.discount === "number" && clientItem.discount !== (dbProduct.discount || 0)) {
       warnings.push(
         `Descuento manipulado detectado para "${dbProduct.name}": ` +
         `cliente envió ${clientItem.discount}%, descuento real ${dbProduct.discount || 0}%`

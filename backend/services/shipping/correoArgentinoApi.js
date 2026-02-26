@@ -221,7 +221,12 @@ export async function importShipping(orderData) {
   try {
     const token = await getAuthToken();
 
-    const isHome = orderData.shipping.method === "home";
+    const method = orderData.shipping.method;
+    const isHome = method === "home" || method === "correo-home";
+    const isBranch = method === "branch" || method === "correo-branch";
+    if (!isHome && !isBranch) {
+      throw new Error("Metodo de envio invalido para Correo Argentino");
+    }
     const deliveryType = isHome ? "D" : "S";
 
     // Construir dirección de envío

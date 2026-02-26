@@ -88,6 +88,21 @@ export default function AdminSaleDetail() {
   const [modalFactura, setModalFactura] = useState(null);
   const [cargandoFactura, setCargandoFactura] = useState(false);
   const [modalExito, setModalExito] = useState(null);
+  const [correoLoading, setCorreoLoading] = useState(false);
+  const [correoModal, setCorreoModal] = useState({
+    isOpen: false,
+    message: "",
+    type: "success",
+  });
+
+  const openCorreoModal = (title, message, type = "success") => {
+    const text = title ? `${title} — ${message}` : message;
+    setCorreoModal({ isOpen: true, message: text, type });
+  };
+
+  const closeCorreoModal = () => {
+    setCorreoModal((prev) => ({ ...prev, isOpen: false }));
+  };
 
   const appsRef = useRef(null);
   const moreRef = useRef(null);
@@ -224,6 +239,53 @@ export default function AdminSaleDetail() {
   }
 
   // ============================
+  // REGISTRAR ORDEN EN CORREO ARGENTINO (INDIVIDUAL)
+  // ============================
+  async function registrarOrdenCorreo() {
+    if (!venta?._id) {
+      openCorreoModal("Error", "Orden invalida", "error");
+      return;
+    }
+
+    if (venta?.correoArgentinoTracking) {
+      openCorreoModal("Info", "Esta orden ya fue registrada en Correo Argentino", "error");
+      return;
+    }
+
+    setCorreoLoading(true);
+    try {
+      const res = await adminFetch(apiPath(`/correo-argentino/import/${venta._id}`), {
+        method: "POST",
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        openCorreoModal("Error", data.error || "Error al registrar orden", "error");
+        return;
+      }
+
+      setVenta((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          correoArgentinoTracking: data.extOrderId || prev.correoArgentinoTracking,
+          correoArgentinoRegisteredAt: data.createdAt || prev.correoArgentinoRegisteredAt,
+          timeline: [
+            ...(prev.timeline || []),
+            { status: "Registrado en Correo Argentino", date: new Date().toLocaleString("es-AR") },
+          ],
+        };
+      });
+
+      openCorreoModal("Registro exitoso", "Orden registrada en Correo Argentino", "success");
+    } catch (err) {
+      openCorreoModal("Error", "Error al registrar orden en Correo Argentino", "error");
+    } finally {
+      setCorreoLoading(false);
+    }
+  }
+
+  // ============================
   // REENVIAR FACTURA (placeholder)
   // ============================
   function reenviarFactura() {
@@ -256,7 +318,11 @@ export default function AdminSaleDetail() {
   function renderMetodo(m) {
     switch (m) {
       case "home":
+      case "correo-home":
         return "📦 Envío a domicilio";
+      case "correo-branch":
+      case "branch":
+        return "🏤 Envío a sucursal (Correo Argentino)";
       case "pickup":
         return "🏬 Pick Up Point";
       default:
@@ -495,7 +561,23 @@ export default function AdminSaleDetail() {
             Aplicaciones ▾
           </button>
           <div className={`dropdown-menu ${isAppsOpen ? "open" : ""}`}>
-            <button>Registrar orden en Correo Argentino</button>
+            <button
+              onClick={registrarOrdenCorreo}
+              disabled={
+                correoLoading ||
+                venta?.correoArgentinoTracking ||
+                !["correo-home", "correo-branch", "home", "branch"].includes(venta?.shipping?.method)
+              }
+              title={
+                !["correo-home", "correo-branch", "home", "branch"].includes(venta?.shipping?.method)
+                  ? "La orden no tiene envio por Correo Argentino"
+                  : venta?.correoArgentinoTracking
+                    ? "Ya registrada en Correo Argentino"
+                    : "Registrar orden en Correo Argentino"
+              }
+            >
+              {correoLoading ? "Registrando..." : "Registrar orden en Correo Argentino"}
+            </button>
             <button>Registrar orden en Andreani</button>
           </div>
         </div>
@@ -558,10 +640,40 @@ export default function AdminSaleDetail() {
         </div>
 
         {/* DIRECCIÓN */}
-        {shipping.method === "home" && (
+        {(shipping.method === "home" || shipping.method === "correo-home") && (
           <div className="detalle-box">
             <h3 className="detalle-title">Dirección</h3>
             <p className="detalle-info-line">{shipping.address}</p>
+            {shipping.localidad && (
+              <p className="detalle-info-line"><strong>Localidad:</strong> {shipping.localidad}</p>
+            )}
+            {shipping.province && (
+              <p className="detalle-info-line"><strong>Provincia:</strong> {shipping.province}</p>
+            )}
+            {shipping.postalCode && (
+              <p className="detalle-info-line"><strong>CP:</strong> {shipping.postalCode}</p>
+            )}
+          </div>
+        )}
+
+        {shipping.method === "correo-branch" && (
+          <div className="detalle-box">
+            <h3 className="detalle-title">Sucursal</h3>
+            {shipping.branchName && (
+              <p className="detalle-info-line"><strong>Nombre:</strong> {shipping.branchName}</p>
+            )}
+            {shipping.branchAddress && (
+              <p className="detalle-info-line"><strong>Dirección:</strong> {shipping.branchAddress}</p>
+            )}
+            {shipping.localidad && (
+              <p className="detalle-info-line"><strong>Localidad:</strong> {shipping.localidad}</p>
+            )}
+            {shipping.province && (
+              <p className="detalle-info-line"><strong>Provincia:</strong> {shipping.province}</p>
+            )}
+            {shipping.postalCode && (
+              <p className="detalle-info-line"><strong>CP:</strong> {shipping.postalCode}</p>
+            )}
           </div>
         )}
 
@@ -572,6 +684,30 @@ export default function AdminSaleDetail() {
           <p className="detalle-info-line">
             <strong>Método:</strong> {renderMetodo(shipping.method)}
           </p>
+
+          {shipping.address && (shipping.method === "correo-home" || shipping.method === "home") && (
+            <p className="detalle-info-line">
+              <strong>Dirección:</strong> {shipping.address}
+            </p>
+          )}
+
+          {shipping.localidad && (
+            <p className="detalle-info-line">
+              <strong>Localidad:</strong> {shipping.localidad}
+            </p>
+          )}
+
+          {shipping.province && (
+            <p className="detalle-info-line">
+              <strong>Provincia:</strong> {shipping.province}
+            </p>
+          )}
+
+          {shipping.postalCode && (
+            <p className="detalle-info-line">
+              <strong>CP:</strong> {shipping.postalCode}
+            </p>
+          )}
 
           {shipping.pickPoint && (
             <p className="detalle-info-line">
@@ -622,6 +758,14 @@ export default function AdminSaleDetail() {
         </div>
 
       </div>
+
+      {correoModal.isOpen && (
+        <NotificationModal
+          mensaje={correoModal.message}
+          tipo={correoModal.type}
+          onClose={closeCorreoModal}
+        />
+      )}
 
       {/* ============================
           FACTURACIÓN

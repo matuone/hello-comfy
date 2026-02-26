@@ -38,7 +38,7 @@ export function getEffectiveDiscount(product, discountRules) {
     (r) =>
       r.type === "percentage" &&
       prodCats.includes(r.category) &&
-      (r.subcategory === "none" || prodSubs.includes(r.subcategory))
+      (!r.subcategory || r.subcategory === "none" || prodSubs.includes(r.subcategory))
   );
 
   return rule ? rule.discount : 0;
@@ -75,21 +75,19 @@ export function calcularPrecios(product, discountRules) {
 }
 
 /**
- * Verifica si algún producto del carrito tiene una regla de envío gratis.
- * @param {Array} items - Items del carrito (cada uno con category y subcategory)
+ * Verifica si un producto tiene una regla de descuento 3x2.
+ * @param {Object} product - Producto con category y subcategory
  * @param {Array} discountRules - Reglas de descuento
  * @returns {Boolean}
  */
-export function hasFreeShippingRule(items, discountRules) {
-  if (!items || !discountRules) return false;
-  return items.some((item) => {
-    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
-    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-    return discountRules.some(
-      (r) =>
-        r.type === "free_shipping" &&
-        itemCats.includes(r.category) &&
-        (r.subcategory === "none" || itemSubs.includes(r.subcategory))
-    );
-  });
+export function has3x2Rule(product, discountRules) {
+  if (!product || !discountRules) return false;
+  const prodCats = Array.isArray(product.category) ? product.category : [product.category];
+  const prodSubs = Array.isArray(product.subcategory) ? product.subcategory : [product.subcategory];
+  return discountRules.some(
+    (r) =>
+      r.type === "3x2" &&
+      prodCats.includes(r.category) &&
+      (!r.subcategory || r.subcategory === "none" || prodSubs.includes(r.subcategory))
+  );
 }

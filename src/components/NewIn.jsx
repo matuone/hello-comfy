@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import OpinionsPopup from "./OpinionsPopup";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { useDiscountRules, calcularPrecios } from "../hooks/useDiscountRules";
+import { useDiscountRules, calcularPrecios, has3x2Rule } from "../hooks/useDiscountRules";
 
 // Configuración global de API para compatibilidad local/producción
 const API_URL = import.meta.env.VITE_API_URL;
@@ -117,6 +117,13 @@ export default function NewIn() {
                   alt={p.name}
                   className="productcard__image"
                 />
+
+                {/* Badge 3x2 en esquina superior izquierda */}
+                {has3x2Rule(p, discountRules) && (
+                  <div className="productcard__badge-3x2">
+                    3x2
+                  </div>
+                )}
 
                 {p.featured && (
                   <span className="productcard__badge">Destacado</span>

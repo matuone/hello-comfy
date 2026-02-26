@@ -3,12 +3,14 @@ import express from "express";
 const router = express.Router();
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
 import {
   cotizarCorreoArgentino,
   getAgencies,
   importShipping,
   getTracking
 } from "../services/shipping/correoArgentinoApi.js";
+import { calculatePackage } from "../services/shipping/utils.js";
 
 /**
  * POST /api/correo-argentino/quote
@@ -118,6 +120,104 @@ const cpToProvinceCode = (cp) => {
   // Fallback Buenos Aires (rango general)
   if (n >= 1500 && n < 2000) return "B";
   return null;
+};
+
+const normalizeProvince = (value) =>
+  (value || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+
+const provinceNameToCode = (name) => {
+  const normalized = normalizeProvince(name);
+  const map = {
+    "caba": "C",
+    "capital federal": "C",
+    "ciudad autonoma de buenos aires": "C",
+    "buenos aires": "B",
+    "catamarca": "K",
+    "chaco": "H",
+    "chubut": "U",
+    "cordoba": "X",
+    "corrientes": "W",
+    "entre rios": "E",
+    "formosa": "P",
+    "jujuy": "Y",
+    "la pampa": "L",
+    "la rioja": "F",
+    "mendoza": "M",
+    "misiones": "N",
+    "neuquen": "Q",
+    "rio negro": "R",
+    "salta": "A",
+    "san juan": "J",
+    "san luis": "D",
+    "santa cruz": "Z",
+    "santa fe": "S",
+    "santiago del estero": "G",
+    "tierra del fuego": "V",
+    "tucuman": "T"
+  };
+  return map[normalized] || null;
+};
+
+const resolveProvinceCode = (orderShipping) => {
+  if (!orderShipping) return null;
+  const fromPostal = cpToProvinceCode(orderShipping.postalCode);
+  return (
+    orderShipping.provinceCode ||
+    fromPostal ||
+    provinceNameToCode(orderShipping.province)
+  );
+};
+
+const buildOrderData = async (order) => {
+  const orderProvinceCode = resolveProvinceCode(order.shipping) || "C";
+  const productIds = (order.items || []).map((i) => i.productId).filter(Boolean);
+  const products = await Product.find({ _id: { $in: productIds } }).lean();
+  const productMap = {};
+  products.forEach((p) => {
+    productMap[p._id.toString()] = p;
+  });
+
+  const packageProducts = (order.items || []).map((item) => {
+    const dbProduct = productMap[item.productId?.toString?.() || item.productId] || {};
+    return {
+      quantity: item.quantity || 1,
+      weight: dbProduct.weight,
+      dimensions: dbProduct.dimensions,
+    };
+  });
+
+  const { weight, height, width, length } = calculatePackage(packageProducts);
+
+  return {
+    code: order.code,
+    customer: {
+      name: order.customer.name,
+      email: order.customer.email,
+      phone: order.customer.phone || "",
+      cellPhone: order.customer.cellPhone || ""
+    },
+    shipping: {
+      method: order.shipping.method,
+      streetName: order.shipping.address?.split(',')[0]?.trim() || "",
+      streetNumber: order.shipping.address?.match(/\d+/)?.[0] || "S/N",
+      floor: "",
+      apartment: "",
+      city: order.shipping.localidad || order.shipping.city || "",
+      provinceCode: orderProvinceCode,
+      postalCode: order.shipping.postalCode || "",
+      agency: order.shipping.pickPoint || null,
+      weight: weight || 0.3,
+      height: height || 5,
+      width: width || 5,
+      length: length || 5
+    },
+    totals: order.totals
+  };
 };
 
 /**
@@ -241,31 +341,7 @@ router.post("/correo-argentino/import/:orderId", verifyAdmin, async (req, res) =
     }
 
     // Preparar datos de la orden
-    const orderData = {
-      code: order.code,
-      customer: {
-        name: order.customer.name,
-        email: order.customer.email,
-        phone: order.customer.phone || "",
-        cellPhone: order.customer.cellPhone || ""
-      },
-      shipping: {
-        method: order.shipping.method,
-        streetName: order.shipping.address?.split(',')[0]?.trim() || "",
-        streetNumber: order.shipping.address?.match(/\d+/)?.[0] || "S/N",
-        floor: "",
-        apartment: "",
-        city: order.shipping.city || "",
-        provinceCode: order.shipping.provinceCode || "C",
-        postalCode: order.shipping.postalCode || "",
-        agency: order.shipping.pickPoint || null,
-        weight: order.shipping.weight || 1000,
-        height: order.shipping.height || 20,
-        width: order.shipping.width || 20,
-        length: order.shipping.length || 30
-      },
-      totals: order.totals
-    };
+    const orderData = await buildOrderData(order);
 
     // Registrar en Correo Argentino
     const result = await importShipping(orderData);
@@ -348,31 +424,7 @@ router.post("/correo-argentino/import-batch", verifyAdmin, async (req, res) => {
           continue;
         }
 
-        const orderData = {
-          code: order.code,
-          customer: {
-            name: order.customer.name,
-            email: order.customer.email,
-            phone: order.customer.phone || "",
-            cellPhone: order.customer.cellPhone || ""
-          },
-          shipping: {
-            method: order.shipping.method,
-            streetName: order.shipping.address?.split(',')[0]?.trim() || "",
-            streetNumber: order.shipping.address?.match(/\d+/)?.[0] || "S/N",
-            floor: "",
-            apartment: "",
-            city: order.shipping.city || "",
-            provinceCode: order.shipping.provinceCode || "C",
-            postalCode: order.shipping.postalCode || "",
-            agency: order.shipping.pickPoint || null,
-            weight: order.shipping.weight || 1000,
-            height: order.shipping.height || 20,
-            width: order.shipping.width || 20,
-            length: order.shipping.length || 30
-          },
-          totals: order.totals
-        };
+        const orderData = await buildOrderData(order);
 
         const result = await importShipping(orderData);
 

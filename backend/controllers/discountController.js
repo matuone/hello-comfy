@@ -1,4 +1,5 @@
 import DiscountRule from "../models/DiscountRule.js";
+import SiteConfig from "../models/SiteConfig.js";
 
 // 📌 Obtener todas las reglas
 export const getDiscountRules = async (req, res) => {
@@ -13,7 +14,12 @@ export const getDiscountRules = async (req, res) => {
 // 📌 Crear una nueva regla
 export const createDiscountRule = async (req, res) => {
   try {
-    const rule = new DiscountRule(req.body);
+    const data = { ...req.body };
+    // Normalizar subcategoría vacía a "none"
+    if (!data.subcategory || data.subcategory.trim() === "") {
+      data.subcategory = "none";
+    }
+    const rule = new DiscountRule(data);
     await rule.save();
     res.json(rule);
   } catch (err) {
@@ -24,9 +30,14 @@ export const createDiscountRule = async (req, res) => {
 // 📌 Editar una regla
 export const updateDiscountRule = async (req, res) => {
   try {
+    const data = { ...req.body };
+    // Normalizar subcategoría vacía a "none"
+    if (!data.subcategory || data.subcategory.trim() === "") {
+      data.subcategory = "none";
+    }
     const rule = await DiscountRule.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      data,
       { new: true }
     );
     res.json(rule);
@@ -42,5 +53,47 @@ export const deleteDiscountRule = async (req, res) => {
     res.json({ message: "Regla eliminada" });
   } catch (err) {
     res.status(500).json({ error: "Error al eliminar la regla" });
+  }
+};
+
+// 📌 Obtener el threshold de envío gratis
+export const getFreeShippingThreshold = async (req, res) => {
+  try {
+    const config = await SiteConfig.findOne({ key: "freeShippingThreshold" });
+    const defaultValue = { threshold: 0, isActive: false };
+    const configValue = config?.value || defaultValue;
+
+    res.json({
+      threshold: configValue.threshold || 0,
+      isActive: configValue.isActive !== undefined ? configValue.isActive : false
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener threshold de envío gratis" });
+  }
+};
+
+// 📌 Actualizar el threshold de envío gratis
+export const updateFreeShippingThreshold = async (req, res) => {
+  try {
+    const { threshold, isActive } = req.body;
+    if (typeof threshold !== "number" || threshold < 0) {
+      return res.status(400).json({ error: "El threshold debe ser un número positivo" });
+    }
+
+    const config = await SiteConfig.findOneAndUpdate(
+      { key: "freeShippingThreshold" },
+      {
+        value: { threshold, isActive: isActive === true },
+        updatedAt: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({
+      threshold: config.value.threshold,
+      isActive: config.value.isActive
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Error al actualizar threshold de envío gratis" });
   }
 };

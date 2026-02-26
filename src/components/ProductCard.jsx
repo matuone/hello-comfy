@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useWishlist } from "../context/WishlistContext";
 import "../styles/productgrid.css";
-import { calcularPrecios } from "../hooks/useDiscountRules";
+import { calcularPrecios, has3x2Rule } from "../hooks/useDiscountRules";
 
 export default function ProductCard({ product, discountRules = [] }) {
   const [loaded, setLoaded] = useState(false);
@@ -16,6 +16,9 @@ export default function ProductCard({ product, discountRules = [] }) {
 
   // Calcular precios usando reglas de descuento del admin
   const { precioOriginal, descuento, precioFinal, precioTransferencia, precioCuota } = calcularPrecios(product, discountRules);
+
+  // Detectar si hay descuento 3x2
+  const tiene3x2 = has3x2Rule(product, discountRules);
 
   function handleStarsClick() {
     // Aquí se podría abrir un modal o popup con las opiniones del producto
@@ -45,12 +48,21 @@ export default function ProductCard({ product, discountRules = [] }) {
       {/* Skeleton mientras carga */}
       {!loaded && <div className="skeleton"></div>}
 
-      <img
-        src={mainImage}
-        alt={product.name}
-        onLoad={() => setLoaded(true)}
-        className={loaded ? "loaded" : "hidden"}
-      />
+      <div className="productcard__image-container">
+        <img
+          src={mainImage}
+          alt={product.name}
+          onLoad={() => setLoaded(true)}
+          className={`productcard__image ${loaded ? "loaded" : "hidden"}`}
+        />
+
+        {/* Badge 3x2 en esquina superior izquierda */}
+        {tiene3x2 && (
+          <div className="productcard__badge-3x2">
+            3x2
+          </div>
+        )}
+      </div>
 
       <h3>{product.name}</h3>
       <div className="productcard__stars" onClick={handleStarsClick} style={{ cursor: "pointer", fontSize: 20, color: "#FFD700", marginBottom: 8 }}>

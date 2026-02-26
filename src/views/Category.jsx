@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { useDiscountRules, calcularPrecios } from "../hooks/useDiscountRules";
+import { useDiscountRules, calcularPrecios, has3x2Rule } from "../hooks/useDiscountRules";
 import "../styles/productgrid.css";
 import "../styles/products.css";
 import "../styles/category.css";
@@ -228,6 +228,13 @@ export default function Category() {
                 alt={p.name}
                 className="productcard__image"
               />
+
+              {/* Badge 3x2 */}
+              {has3x2Rule(p, discountRules) && (
+                <div className="productcard__badge-3x2">
+                  3x2
+                </div>
+              )}
 
               {p.featured && (
                 <span className="productcard__badge">Destacado</span>
