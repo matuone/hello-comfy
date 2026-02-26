@@ -40,7 +40,10 @@ export async function fetchInstagramPosts(accessToken, businessAccountId) {
         title: post.caption ? post.caption.substring(0, 100) : "Sin título",
         caption: post.caption || "",
         description: post.caption || "",
-        imageUrl: post.media_url || post.thumbnail_url,
+        imageUrl:
+          post.media_type === "VIDEO"
+            ? post.thumbnail_url || post.media_url
+            : post.media_url || post.thumbnail_url,
         instagramUrl: post.permalink,
         order: 0, // Se asignará dinámicamente
         active: true,
