@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { calcularPrecios } from "../../hooks/useDiscountRules";
+import { calcularPrecios, has3x2Rule } from "../../hooks/useDiscountRules";
 import { useWishlist } from "../../context/WishlistContext";
 
 export default function ProductCardNewInMobile({ product, discountRules = [], onBuy, onAddToCart, onViewMore, onStarsClick }) {
@@ -27,6 +27,7 @@ export default function ProductCardNewInMobile({ product, discountRules = [], on
   // Calcular precios usando reglas de descuento del admin
   const { precioOriginal, descuento, precioFinal, precioTransferencia, precioCuota } = calcularPrecios(product, discountRules);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const tiene3x2 = has3x2Rule(product, discountRules);
 
   return (
     <div className="productcard__item" onClick={() => onViewMore(product)}>
@@ -39,6 +40,11 @@ export default function ProductCardNewInMobile({ product, discountRules = [], on
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
         </svg>
       </button>
+      {tiene3x2 && (
+        <div className="productcard__badge-3x2">
+          3x2
+        </div>
+      )}
       <img
         alt={product.name}
         className="productcard__image"
