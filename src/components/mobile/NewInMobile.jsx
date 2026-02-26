@@ -52,6 +52,9 @@ export default function NewInMobile() {
 
   return (
     <>
+      <div className="swipe-hint-mobile">
+        <span className="swipe-hand">👆</span> Deslizá para ver más
+      </div>
       <div className="newin-mobile-swiper bestsellers-mobile-scroll">
         <div className="bestsellers-mobile-track">
           {productos.map((product) => (

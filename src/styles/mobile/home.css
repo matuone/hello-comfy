@@ -8,4 +8,40 @@
   .home-mobile-container {
     padding: 1rem;
   }
+
+  .bestsellers__title,
+  .newin__title {
+    margin-top: 36px;
+  }
+
+  /* Hint de swipe para carruseles mobile */
+  .swipe-hint-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #bbb;
+    margin-bottom: 6px;
+    margin-top: -2px;
+    opacity: 0.85;
+  }
+
+  .swipe-hint-mobile .swipe-hand {
+    display: inline-block;
+    font-size: 16px;
+    animation: swipeHandMove 1.5s ease-in-out infinite;
+  }
+
+  @keyframes swipeHandMove {
+
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    50% {
+      transform: translateX(8px);
+    }
+  }
 }
