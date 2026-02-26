@@ -106,6 +106,7 @@ export default function PromoBannerMobile(props) {
   var backendMessage = bannerData?.message;
   var finalMessage = backendMessage || savedMessage || "Aprovechá hoy 3x2 en remeras 🧸";
   var mobileFontSize = bannerData?.mobileFontSize || 28;
+  var mobileColor = bannerData?.mobileColor || '#d72660';
 
   if (loading) return null;
 
@@ -133,7 +134,7 @@ export default function PromoBannerMobile(props) {
         })}
         <div className="promoBannerMobile__overlay-blur" />
         <div className="promoBannerMobile__message-overlay">
-          <div className="promoBannerMobile__message" style={{ fontSize: `${mobileFontSize}px` }}>
+          <div className="promoBannerMobile__message" style={{ fontSize: `${mobileFontSize}px`, color: mobileColor }}>
             <MarketingMessage message={finalMessage} />
           </div>
         </div>

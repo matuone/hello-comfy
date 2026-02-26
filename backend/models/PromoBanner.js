@@ -31,6 +31,14 @@ const promoBannerSchema = new mongoose.Schema({
     type: Number,
     default: 64
   },
+  mobileFontSize: {
+    type: Number,
+    default: 28
+  },
+  mobileColor: {
+    type: String,
+    default: '#d72660'
+  },
   active: {
     type: Boolean,
     default: true

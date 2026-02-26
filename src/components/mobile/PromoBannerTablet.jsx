@@ -30,12 +30,13 @@ export default function PromoBannerTablet(props) {
   var bannerFontSize = bannerData?.fontSize || 64;
   // En tablet el tamaño se escala al 40% del desktop
   var tabletFontSize = Math.max(16, Math.round(bannerFontSize * 0.4));
+  var mobileColor = bannerData?.mobileColor || '#d72660';
 
   if (loading) return null;
 
   return (
     <section className="promoBannerTablet">
-      <div className="promoBannerTablet__message" style={{ fontSize: `${tabletFontSize}px` }}>
+      <div className="promoBannerTablet__message" style={{ fontSize: `${tabletFontSize}px`, color: mobileColor }}>
         <MarketingMessage message={finalMessage} />
       </div>
       {/* Aquí puedes agregar un slider o imagen para tablet si lo deseas */}

@@ -39,6 +39,10 @@ export default function AdminMarketing() {
   const [interval, setInterval] = useState(5000);
   const [bannerFontSize, setBannerFontSize] = useState(64);
 
+  // Estado para banner mobile
+  const [mobileFontSize, setMobileFontSize] = useState(28);
+  const [mobileColor, setMobileColor] = useState('#d72660');
+
   // Estado para preview de imagen
   const [imagePreview, setImagePreview] = useState(null);
   const [previewPosition, setPreviewPosition] = useState({ x: 50, y: 50 });
@@ -79,6 +83,8 @@ export default function AdminMarketing() {
         setAutoplay(data.autoplay !== undefined ? data.autoplay : true);
         setInterval(data.interval || 5000);
         setBannerFontSize(data.fontSize || 64);
+        setMobileFontSize(data.mobileFontSize || 28);
+        setMobileColor(data.mobileColor || '#d72660');
       }
     } catch (error) {
       // Error cargando configuración del banner
@@ -118,7 +124,7 @@ export default function AdminMarketing() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize })
+        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize, mobileFontSize, mobileColor })
       });
 
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
@@ -615,6 +621,85 @@ export default function AdminMarketing() {
           <button className="btn-resetear" onClick={resetear}>
             Resetear a default
           </button>
+        </div>
+      </div>
+
+      {/* Configuración del Banner Mobile/Tablet */}
+      <div className="marketing-box" style={{ marginTop: '30px' }}>
+        <h3 style={{ marginBottom: '15px', color: '#333' }}>
+          📱 Banner Versión Mobile / Tablet
+        </h3>
+        <p style={{ color: '#888', fontSize: '13px', marginBottom: '15px' }}>
+          Estos ajustes aplican al texto del banner en celulares y tablets.
+        </p>
+
+        {/* Color del texto mobile */}
+        <label className="marketing-label">Color del texto</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+          <input
+            type="color"
+            value={mobileColor}
+            onChange={(e) => setMobileColor(e.target.value)}
+            style={{ width: '50px', height: '36px', border: '1px solid #ccc', borderRadius: '8px', cursor: 'pointer', padding: '2px' }}
+          />
+          <input
+            type="text"
+            value={mobileColor}
+            onChange={(e) => setMobileColor(e.target.value)}
+            style={{ width: '100px', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'monospace' }}
+          />
+          <button
+            type="button"
+            onClick={() => setMobileColor('#d72660')}
+            style={{ padding: '6px 12px', border: '1px solid #ccc', borderRadius: '6px', background: '#fafafa', cursor: 'pointer', fontSize: '12px' }}
+          >
+            Reset
+          </button>
+        </div>
+
+        {/* Tamaño de fuente mobile */}
+        <label className="marketing-label">Tamaño de fuente (px)</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+          <input
+            type="range"
+            min="14"
+            max="60"
+            value={mobileFontSize}
+            onChange={(e) => setMobileFontSize(Number(e.target.value))}
+            style={{ flex: 1 }}
+          />
+          <input
+            type="number"
+            min="14"
+            max="60"
+            value={mobileFontSize}
+            onChange={(e) => setMobileFontSize(Number(e.target.value))}
+            style={{ width: '70px', padding: '5px', textAlign: 'center', borderRadius: '6px', border: '1px solid #ccc' }}
+          />
+          <span style={{ color: '#888', fontSize: '13px' }}>{mobileFontSize}px</span>
+        </div>
+
+        {/* Vista previa mobile */}
+        <div style={{ marginTop: '10px' }}>
+          <h4 style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>Vista previa mobile</h4>
+          <div style={{
+            background: '#222',
+            borderRadius: '12px',
+            padding: '30px 20px',
+            textAlign: 'center',
+            maxWidth: '360px',
+            margin: '0 auto'
+          }}>
+            <span style={{
+              color: mobileColor,
+              fontSize: `${Math.min(mobileFontSize, 36)}px`,
+              fontWeight: 900,
+              lineHeight: 1.15,
+              textShadow: '0 2px 16px rgba(0,0,0,0.3)'
+            }}>
+              {message}
+            </span>
+          </div>
         </div>
       </div>
 
