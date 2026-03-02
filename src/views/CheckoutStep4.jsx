@@ -330,7 +330,9 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           navigate("/checkout/success");
         }, 1000);
       } else {
-        toast.error("Error al crear la orden");
+        const errData = await response.json().catch(() => ({}));
+        const errMsg = errData.error || errData.message || "Error al crear la orden";
+        toast.error(errMsg, { duration: 6000 });
         setLoadingPayment(false);
       }
     } catch (error) {

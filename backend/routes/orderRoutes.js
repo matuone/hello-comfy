@@ -223,8 +223,16 @@ router.post("/orders/create-transfer", async (req, res) => {
     });
   } catch (error) {
     console.error("Error creando orden por transferencia:", error);
-    res.status(500).json({
-      error: "Error al crear la orden",
+    // Errores de validación de stock/precio → 400 (problema del cliente, no del servidor)
+    const isValidationError =
+      error.message.includes("Stock insuficiente") ||
+      error.message.includes("no tiene stock") ||
+      error.message.includes("Cantidad inválida") ||
+      error.message.includes("cantidad máxima") ||
+      error.message.includes("ningún producto") ||
+      error.message.includes("vacío");
+    res.status(isValidationError ? 400 : 500).json({
+      error: error.message,
       message: error.message,
     });
   }
