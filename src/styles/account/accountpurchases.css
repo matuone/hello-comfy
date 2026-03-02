@@ -184,6 +184,98 @@
 
 .item-details {
   flex: 1;
+  min-width: 0;
+}
+
+/* THUMBNAIL DE PRODUCTO */
+.item-thumb-btn {
+  position: relative;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  margin-right: 0.875rem;
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.item-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  transition: opacity 0.2s;
+}
+
+.item-thumb-btn:hover .item-image {
+  opacity: 0.75;
+}
+
+.item-thumb-zoom {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.item-thumb-btn:hover .item-thumb-zoom {
+  opacity: 1;
+}
+
+/* LIGHTBOX */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.lightbox-inner {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.lightbox-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 12px;
+  object-fit: contain;
+  display: block;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1;
 }
 
 .item-name {
@@ -391,5 +483,244 @@
 
   .summary-row.total span:last-child {
     font-size: 1rem;
+  }
+}
+
+/* ============================
+   SECTION LABEL (heading de sección)
+   ============================ */
+.section-label {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+}
+
+/* ============================
+   BADGES DE PAGO Y ESTADO
+   ============================ */
+.order-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pago-badge {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 25px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================
+   PRECIO UNITARIO POR ÍTEM
+   ============================ */
+.item-unit-price {
+  margin: 0.15rem 0 0 0;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+/* ============================
+   ENVÍO GRATIS
+   ============================ */
+.free-shipping {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+/* ============================
+   FILA DE MÉTODO DE PAGO
+   ============================ */
+.summary-row.payment-row {
+  border-top: 1px dashed #e0e0e0;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* ============================
+   DESCUENTOS APILADOS
+   ============================ */
+.summary-discounts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* ============================
+   SHIPPING DETAILS
+   ============================ */
+.shipping-detail {
+  margin: 0.4rem 0;
+  font-size: 0.9rem;
+  color: #444;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  line-height: 1.45;
+}
+
+.shipping-detail-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+/* ============================
+   TRACKING CODE
+   ============================ */
+.tracking-block {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #bbdefb;
+  flex-wrap: wrap;
+}
+
+.tracking-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1565c0;
+  white-space: nowrap;
+}
+
+.tracking-code {
+  background: #e3f2fd;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-family: "Courier New", monospace;
+  color: #1565c0;
+  word-break: break-all;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ============================
+   HISTORIAL / TIMELINE
+   ============================ */
+.order-timeline {
+  margin-top: 1.5rem;
+  border-top: 2px solid #f0f0f0;
+  padding-top: 1.25rem;
+}
+
+.timeline-heading {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #555;
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-entry {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+}
+
+.timeline-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.timeline-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.timeline-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+  color: white;
+  font-weight: 700;
+}
+
+.timeline-line {
+  width: 2px;
+  flex: 1;
+  min-height: 28px;
+  background: #e0e0e0;
+  margin: 2px 0;
+}
+
+.timeline-content {
+  padding-bottom: 1.25rem;
+  flex: 1;
+}
+
+.timeline-status {
+  margin: 0 0 0.2rem 0;
+  font-size: 0.92rem;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.4;
+  padding-top: 0.35rem;
+}
+
+.timeline-date {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #999;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.timeline-time {
+  background: #f0f0f0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #666;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 480px) {
+  .tracking-block {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .timeline-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .timeline-icon {
+    font-size: 0.75rem;
+  }
+
+  .timeline-status {
+    font-size: 0.85rem;
   }
 }

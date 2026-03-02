@@ -81,6 +81,7 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       },
       isGift: pendingOrderData.formData?.isGift || false,
       giftMessage: pendingOrderData.formData?.giftMessage || "",
+      promoCode: pendingOrderData.formData?.promoCode || null,
       items: pendingOrderData.items.map((item) => ({
         productId: item.productId,
         name: item.name,

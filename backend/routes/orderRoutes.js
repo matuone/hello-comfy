@@ -34,7 +34,10 @@ router.get("/orders/my-orders", authMiddleware, async (req, res) => {
         _id: order._id,
         code: order.code,
         status: order.status,
+        pagoEstado: order.pagoEstado,
+        paymentMethod: order.paymentMethod,
         createdAt: order.createdAt,
+        date: order.date,
         items: order.items || [],
         totals: order.totals || {
           subtotal: 0,
@@ -45,10 +48,18 @@ router.get("/orders/my-orders", authMiddleware, async (req, res) => {
         shipping: {
           method: order.shipping?.method || "N/A",
           address: order.shipping?.address || null,
+          postalCode: order.shipping?.postalCode || null,
+          province: order.shipping?.province || null,
+          localidad: order.shipping?.localidad || null,
           pickPoint: order.shipping?.pickPoint || null,
+          branchName: order.shipping?.branchName || null,
+          branchAddress: order.shipping?.branchAddress || null,
           tracking: order.shipping?.tracking || null,
           eta: order.shipping?.eta || null,
         },
+        correoTracking: order.correoArgentinoTracking || null,
+        promoCode: order.promoCode || null,
+        timeline: order.timeline || [],
       })),
     });
   } catch (err) {

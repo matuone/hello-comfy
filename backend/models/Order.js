@@ -164,6 +164,12 @@ const OrderSchema = new mongoose.Schema({
     total: { type: Number, required: true },
   },
 
+  // ⭐ Código de descuento promocional aplicado
+  promoCode: {
+    type: String,
+    default: null,
+  },
+
   // ⭐ Comprobante de pago (para transferencias)
   paymentProof: {
     type: String, // Base64 del archivo
