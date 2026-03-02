@@ -1,5 +1,6 @@
 // backend/services/orderService.js
 import Order from "../models/Order.js";
+import StockColor from "../models/StockColor.js";
 import { enviarEmailConfirmacionOrden, enviarEmailAlAdmin } from "./emailService.js";
 
 /**
@@ -143,6 +144,25 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     // Crear la orden en BD
     const order = new Order(orderData);
     await order.save();
+
+    // ⭐ DESCONTAR STOCK al crear la orden
+    // Usa los items de pendingOrderData que ya tienen stockColorId (de validateCartPrices)
+    const stockDecrements = pendingOrderData.items.filter(
+      (item) => item.stockColorId && item.size && item.quantity > 0
+    );
+    await Promise.all(
+      stockDecrements.map((item) =>
+        StockColor.findByIdAndUpdate(
+          item.stockColorId,
+          { $inc: { [`talles.${item.size}`]: -item.quantity } }
+        ).catch((err) =>
+          console.error(`❌ Error descontando stock para ${item.name} talle ${item.size}:`, err.message)
+        )
+      )
+    );
+    if (stockDecrements.length > 0) {
+      console.log(`✅ Stock descontado para orden ${order.code}:`, stockDecrements.map(i => `${i.name} ${i.size} x${i.quantity}`));
+    }
 
     // console.log("✅ Orden creada exitosamente:", { code: order.code, email: order.customer.email, paymentId: paymentData.id });
 
