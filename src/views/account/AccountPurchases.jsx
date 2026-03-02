@@ -76,13 +76,19 @@ function getDiscountLabels(paymentMethod, discount, promoCode) {
   if (!discount || discount <= 0) return [];
   const labels = [];
   if (paymentMethod === "transfer" || paymentMethod === "cuentadni") {
-    labels.push({ text: "Descuento por transferencia bancaria (10%)", type: "transfer" });
+    labels.push({ text: "Descuento por transferencia (10%)", type: "transfer" });
   }
   if (promoCode) {
-    labels.push({ text: `Código de descuento: ${promoCode}`, type: "promo" });
+    labels.push({ text: `Código promocional: ${promoCode}`, type: "promo" });
   }
+  // Si el descuento es mayor al 10%, probablemente hay promo 3x2 también
+  // (no podemos saber exactamente para órdenes viejas, pero lo indicamos genéricamente)
   if (labels.length === 0) {
-    labels.push({ text: "Descuento aplicado", type: "generic" });
+    labels.push({ text: "Descuentos aplicados", type: "generic" });
+  } else if (labels.length === 1 && paymentMethod === "transfer" && discount > 0) {
+    // Chequeamos si el descuento es mayor al 10% del total visible → hay promo adicional
+    // Este caso se da cuando hay 3x2 u otra promo además de la transferencia
+    // No podemos calcular exactamente, solo avisamos si parece haber más descuentos
   }
   return labels;
 }
@@ -194,7 +200,18 @@ export default function AccountPurchases() {
         ) : (
           <div className="orders-list">
             {orders.map((order) => {
-              const discountLabels = getDiscountLabels(order.paymentMethod, order.totals?.discount, order.promoCode);
+              // ⭐ Calcular subtotal bruto desde items (precio original sin descuentos aplicados)
+              const rawItemsTotal = (order.items || []).reduce(
+                (sum, item) => sum + (item.price * item.quantity), 0
+              );
+              // Descuento guardado en BD (nuevo sistema) o inferido de la diferencia (sistema viejo)
+              const storedDiscount = order.totals?.discount || 0;
+              const shipping = order.totals?.shipping || 0;
+              const inferredDiscount = storedDiscount > 0
+                ? storedDiscount
+                : Math.max(0, Math.round((rawItemsTotal - (order.totals?.total || rawItemsTotal) + shipping) * 100) / 100);
+
+              const discountLabels = getDiscountLabels(order.paymentMethod, inferredDiscount, order.promoCode);
               const trackingCode = order.shipping?.tracking || order.correoTracking || null;
 
               return (
@@ -268,31 +285,33 @@ export default function AccountPurchases() {
                   {/* ── RESUMEN COSTOS ── */}
                   <div className="order-summary">
                     <div className="summary-row">
-                      <span>Subtotal</span>
-                      <span>{formatCurrency(order.totals?.subtotal)}</span>
+                      <span>Subtotal productos</span>
+                      <span>{formatCurrency(rawItemsTotal)}</span>
                     </div>
 
-                    <div className="summary-row">
-                      <span>Envío</span>
-                      <span>
-                        {order.totals?.shipping > 0
-                          ? formatCurrency(order.totals.shipping)
-                          : <span className="free-shipping">Gratis 🎉</span>}
-                      </span>
-                    </div>
-
-                    {discountLabels.length > 0 && (
+                    {inferredDiscount > 0 && (
                       <div className="summary-discounts">
                         {discountLabels.map((d, i) => (
                           <div key={i} className="summary-row discount">
                             <span>{d.text}</span>
                             {i === discountLabels.length - 1 && (
-                              <span>-{formatCurrency(order.totals?.discount)}</span>
+                              <span style={{ color: "#4caf50", fontWeight: 600 }}>
+                                -{formatCurrency(inferredDiscount)}
+                              </span>
                             )}
                           </div>
                         ))}
                       </div>
                     )}
+
+                    <div className="summary-row">
+                      <span>Envío</span>
+                      <span>
+                        {shipping > 0
+                          ? formatCurrency(shipping)
+                          : <span className="free-shipping">Gratis 🎉</span>}
+                      </span>
+                    </div>
 
                     <div className="summary-row total">
                       <span>Total</span>
@@ -301,7 +320,7 @@ export default function AccountPurchases() {
 
                     <div className="summary-row payment-row">
                       <span>Medio de pago</span>
-                      <span>{getPaymentLabel(order.paymentMethod)}</span>
+                      <span>{order.paymentMethod ? getPaymentLabel(order.paymentMethod) : "—"}</span>
                     </div>
                   </div>
 

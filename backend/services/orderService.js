@@ -91,12 +91,23 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         size: item.size || null,
         color: item.color || null,
       })),
-      totals: {
-        subtotal: pendingOrderData.totalPrice,
-        shipping: 0,
-        discount: 0,
-        total: paymentData.transaction_amount || pendingOrderData.totalPrice,
-      },
+      totals: (() => {
+        const tb = pendingOrderData.totalsBreakdown;
+        if (tb) {
+          return {
+            subtotal: tb.subtotal,
+            shipping: tb.shipping || 0,
+            discount: (tb.promo3x2Discount || 0) + (tb.promoDiscount || 0) + (tb.transferDiscount || 0),
+            total: tb.total,
+          };
+        }
+        return {
+          subtotal: pendingOrderData.totalPrice,
+          shipping: 0,
+          discount: 0,
+          total: paymentData.transaction_amount || pendingOrderData.totalPrice,
+        };
+      })(),
       date: new Date().toLocaleString("es-AR"),
       timeline: [
         {

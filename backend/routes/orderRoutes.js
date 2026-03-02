@@ -192,9 +192,19 @@ router.post("/orders/create-transfer", async (req, res) => {
 
     const pendingOrderData = {
       userId: userId || null,
-      formData,
+      // ⭐ Asegurar que paymentMethod siempre esté presente en formData
+      formData: { ...formData, paymentMethod },
       items: validatedItems, // ← items con precios validados
       totalPrice: validatedTotal, // ← total recalculado desde BD
+      // ⭐ Desglose completo de totales para almacenar correctamente
+      totalsBreakdown: {
+        subtotal: totals.subtotal,
+        promo3x2Discount: totals.promo3x2Discount || 0,
+        promoDiscount: totals.promoDiscount || 0,
+        transferDiscount: totals.transferDiscount || 0,
+        shipping: validatedShipping,
+        total: validatedTotal + validatedShipping,
+      },
       paymentProof: paymentProof || null,
       paymentProofName: paymentProofName || null,
     };
