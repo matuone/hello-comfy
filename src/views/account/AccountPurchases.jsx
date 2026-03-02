@@ -127,13 +127,45 @@ function parseTimelineDate(dateStr) {
   return { day: dateStr, time: "" };
 }
 
+const PAYMENT_METHOD_LABELS = {
+  mercadopago: "Mercado Pago",
+  gocuotas: "Go Cuotas",
+  modo: "MODO",
+  transfer: "Transferencia bancaria",
+  cuentadni: "Cuenta DNI",
+};
+
+function normalizeTimelineStatus(status, paymentMethod) {
+  if (!status) return status;
+  // Convertir estados en inglés
+  let s = status
+    .replace(/\(approved\)/gi, "(Pago aprobado)")
+    .replace(/\(pending\)/gi, "(Pago pendiente)")
+    .replace(/\(rejected\)/gi, "(Pago rechazado)")
+    .replace(/\(cancelled\)/gi, "(Pago cancelado)")
+    .replace(/\(in_process\)/gi, "(En proceso)");
+  // Reemplazar el patrón viejo con el método real de la orden
+  const realLabel = PAYMENT_METHOD_LABELS[paymentMethod] || null;
+  if (realLabel) {
+    // Reemplaza "Pago confirmado - Mercado Pago" por el estado + método real
+    s = s
+      .replace(/Pago confirmado - Mercado Pago \(Pago aprobado\)/gi, `Pago aprobado - ${realLabel}`)
+      .replace(/Pago confirmado - Mercado Pago \(Pago pendiente\)/gi, `Pago pendiente - ${realLabel}`)
+      .replace(/Pago confirmado - Mercado Pago \(Pago rechazado\)/gi, `Pago rechazado - ${realLabel}`)
+      .replace(/Pago confirmado - Mercado Pago/gi, `Pago recibido - ${realLabel}`);
+  } else {
+    s = s.replace(/Pago confirmado - Mercado Pago/gi, "Pago recibido");
+  }
+  return s;
+}
+
 function getTimelineStyle(status) {
   const s = (status || "").toLowerCase();
-  if (s.includes("pago") || s.includes("cobro")) return { dot: "#4caf50", icon: "$" };
+  if (s.includes("pago") || s.includes("cobro") || s.includes("aprobado")) return { dot: "#4caf50", icon: "$" };
   if (s.includes("enviado") || s.includes("camino") || s.includes("envío")) return { dot: "#2196f3", icon: "🚚" };
   if (s.includes("seguimiento") || s.includes("tracking") || s.includes("código")) return { dot: "#ff9800", icon: "🔎" };
   if (s.includes("entregado")) return { dot: "#4caf50", icon: "✅" };
-  if (s.includes("cancelado")) return { dot: "#f44336", icon: "✕" };
+  if (s.includes("cancelado") || s.includes("rechazado")) return { dot: "#f44336", icon: "✕" };
   if (s.includes("notificado") || s.includes("retiro")) return { dot: "#9c27b0", icon: "📬" };
   if (s.includes("recibida") || s.includes("recibido")) return { dot: "#607d8b", icon: "📋" };
   return { dot: "#9e9e9e", icon: "·" };
@@ -391,7 +423,7 @@ export default function AccountPurchases() {
                                 {idx < arr.length - 1 && <div className="timeline-line" />}
                               </div>
                               <div className="timeline-content">
-                                <p className="timeline-status">{entry.status}</p>
+                                <p className="timeline-status">{normalizeTimelineStatus(entry.status, order.paymentMethod)}</p>
                                 {(day || time) && (
                                   <p className="timeline-date">
                                     {day && <span>{day}</span>}

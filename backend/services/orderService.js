@@ -109,16 +109,35 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         };
       })(),
       date: new Date().toLocaleString("es-AR"),
-      timeline: [
-        {
-          status: `Pago confirmado - Mercado Pago (${paymentData.status})`,
-          date: new Date().toLocaleString("es-AR"),
-        },
-        {
-          status: "Orden recibida",
-          date: new Date().toLocaleString("es-AR"),
-        },
-      ],
+      timeline: (() => {
+        const paymentMethodLabels = {
+          mercadopago: "Mercado Pago",
+          gocuotas: "Go Cuotas",
+          modo: "MODO",
+          transfer: "Transferencia bancaria",
+          cuentadni: "Cuenta DNI",
+        };
+        const paymentStatusLabels = {
+          approved: "Pago aprobado",
+          pending: "Pago pendiente",
+          rejected: "Pago rechazado",
+          cancelled: "Pago cancelado",
+          refunded: "Pago reembolsado",
+          in_process: "Pago en proceso",
+        };
+        const methodLabel = paymentMethodLabels[pendingOrderData.formData?.paymentMethod] || pendingOrderData.formData?.paymentMethod || "Pago";
+        const statusLabel = paymentStatusLabels[paymentData.status] || (paymentData.status === "pending" ? "Pago pendiente de confirmación" : "Pago recibido");
+        return [
+          {
+            status: `${statusLabel} - ${methodLabel}`,
+            date: new Date().toLocaleString("es-AR"),
+          },
+          {
+            status: "Orden recibida",
+            date: new Date().toLocaleString("es-AR"),
+          },
+        ];
+      })(),
     };
 
     // Crear la orden en BD

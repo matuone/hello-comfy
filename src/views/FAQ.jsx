@@ -20,7 +20,8 @@ export default function FAQ() {
       title: "🚚 Envíos por Andreani",
       img: andreaniIcon,
       extraClass: "faq__img--andreani",
-      desc: "También contamos con envíos mediante Andreani, con tiempos estimativos de entrega similares a Correo Argentino."
+      desc: "También contamos con envíos mediante Andreani, con tiempos estimativos de entrega similares a Correo Argentino.",
+      comingSoon: true,
     },
     {
       title: "🚗 Envíos por Uber (Zona Sur y CABA)",
@@ -44,7 +45,25 @@ export default function FAQ() {
       <h1>Envíos y retiros</h1>
       <div className="faq__grid">
         {faqs.map((f) => (
-          <div key={f.title} className="faq__card">
+          <div key={f.title} className="faq__card" style={f.comingSoon ? { opacity: 0.55, position: "relative" } : {}}>
+            {f.comingSoon && (
+              <span style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                background: "#e0e0e0",
+                color: "#777",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                borderRadius: 20,
+                padding: "3px 12px",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                pointerEvents: "none",
+              }}>
+                Próximamente
+              </span>
+            )}
             <div className="faq__iconbubble">
               <img
                 src={f.img}

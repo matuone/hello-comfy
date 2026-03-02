@@ -152,6 +152,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [showInactivityModal, setShowInactivityModal] = useState(false);
   const [showTokenExpiredModal, setShowTokenExpiredModal] = useState(false);
+  const [showUserExpiredModal, setShowUserExpiredModal] = useState(false);
   const [isValidatingAdminToken, setIsValidatingAdminToken] = useState(false);
   const logoutTimer = useRef(null);
   const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 minutos en ms
@@ -393,6 +394,28 @@ export function AuthProvider({ children }) {
   }
 
   // ============================
+  // HELPER: FETCH CON MANEJO DE 401 PARA USUARIOS NORMALES
+  // ============================
+  async function userFetch(url, options = {}) {
+    const userToken = localStorage.getItem("userToken");
+    const headers = {
+      ...options.headers,
+      Authorization: `Bearer ${userToken}`,
+    };
+    try {
+      const res = await fetch(url, { ...options, headers });
+      if (res.status === 401) {
+        logout();
+        setShowUserExpiredModal(true);
+        throw new Error("Sesión expirada");
+      }
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // ============================
   // HELPER: FETCH CON MANEJO DE 401 PARA ADMIN
   // ============================
   async function adminFetch(url, options = {}) {
@@ -430,6 +453,7 @@ export function AuthProvider({ children }) {
         updateUserAvatar,
         logout,
         adminFetch,
+        userFetch,
         isAdmin: user?.isAdmin === true,
         isValidatingAdminToken,
       }}
@@ -455,6 +479,51 @@ export function AuthProvider({ children }) {
           window.location.href = "/admin";
         }}
       />
+
+      {/* Sesión expirada para usuarios normales */}
+      {showUserExpiredModal && (
+        <div
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.4)", zIndex: 10000,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "linear-gradient(135deg, #ffb6b3 0%, #d94f7a 100%)",
+              color: "#fff", borderRadius: 16, padding: "40px 32px",
+              boxShadow: "0 12px 48px rgba(0,0,0,0.25)", textAlign: "center",
+              maxWidth: 360, fontFamily: "inherit",
+            }}
+          >
+            <h2 style={{ marginBottom: 12, fontWeight: 700, fontSize: "1.3rem" }}>
+              🔒 Sesión cerrada
+            </h2>
+            <p style={{ fontSize: "1rem", marginBottom: 28, lineHeight: "1.6" }}>
+              Tu sesión expiró por inactividad o fue cerrada desde otro dispositivo.
+              <br />
+              <span style={{ fontSize: "0.9rem", opacity: 0.9 }}>
+                Volvé a iniciar sesión para continuar.
+              </span>
+            </p>
+            <button
+              style={{
+                background: "#fff", color: "#d94f7a", border: "none",
+                borderRadius: 8, padding: "12px 32px", fontWeight: 600,
+                fontSize: "1rem", cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              }}
+              onClick={() => {
+                setShowUserExpiredModal(false);
+                window.location.href = "/mi-cuenta";
+              }}
+            >
+              Ir a iniciar sesión
+            </button>
+          </div>
+        </div>
+      )}
     </AuthContext.Provider>
   );
 }

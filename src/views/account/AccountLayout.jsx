@@ -121,11 +121,10 @@ export default function AccountLayout() {
           <NavLink to="/mi-cuenta/favoritos">❤️ Mi Wishlist</NavLink>
           <NavLink to="/mi-cuenta/opiniones">⭐ Opiniones</NavLink>
           <NavLink to="/mi-cuenta/ayuda">❓ Ayuda</NavLink>
+          <button className="account-logout" onClick={handleLogout}>
+            🚪 Cerrar sesión
+          </button>
         </nav>
-
-        <button className="account-logout" onClick={handleLogout}>
-          🚪 Cerrar sesión
-        </button>
       </aside>
 
       {/* CONTENIDO */}

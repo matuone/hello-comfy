@@ -37,6 +37,7 @@ import feedRoutes from "./routes/feedRoutes.js"; // ⭐ NUEVO FEED
 import instagramRoutes from "./routes/instagramRoutes.js"; // ⭐ SINCRONIZACIÓN INSTAGRAM
 import abandonedCartRoutes from "./routes/abandonedCartRoutes.js"; // ⭐ CARRITOS ABANDONADOS
 import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
+import "./services/instagramSyncService.js"; // Auto-sync feed de Instagram al arrancar y cada 6hs
 
 // ============================
 // IMPORTS DE SERVICIOS DE ENVÍO

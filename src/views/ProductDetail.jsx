@@ -55,6 +55,19 @@ export default function ProductDetail() {
   // ⭐ NUEVO — Estados de envío REAL
   const [postalCode, setPostalCode] = useState("");
   const [selectedShipping, setSelectedShipping] = useState(null);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(null);
+
+  // Fetch umbral de envío gratis
+  useEffect(() => {
+    fetch(apiPath("/discounts/free-shipping/threshold"))
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.isActive && data.threshold > 0) {
+          setFreeShippingThreshold(data.threshold);
+        }
+      })
+      .catch(() => { });
+  }, []);
 
   const {
     loading: loadingShipping,
@@ -659,7 +672,11 @@ export default function ProductDetail() {
 
 
             <ul className="pd-list pd-shipping-extra">
-              <li>Envío gratis superando los $15.000.</li>
+              <li>
+                {freeShippingThreshold
+                  ? `Envío gratis superando los $${freeShippingThreshold.toLocaleString("es-AR")}.`
+                  : "Envío gratis superando el mínimo de compra."}
+              </li>
               <li>Retiro en punto de pick-up (showroom) a coordinar.</li>
             </ul>
           </div>
