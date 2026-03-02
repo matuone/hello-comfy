@@ -67,7 +67,9 @@ export async function validateCartPrices(clientItems, options = {}) {
     const requestedQty = Math.max(1, parseInt(clientItem.quantity) || 1);
     const size = clientItem.size || null;
     if (size && dbProduct.stockColorId?.talles) {
-      const realStock = dbProduct.stockColorId.talles[size] ?? 0;
+      const tallesMap = dbProduct.stockColorId.talles;
+      // talles es un Mongoose Map → usar .get(); si es objeto plano usar bracket
+      const realStock = (typeof tallesMap.get === "function" ? tallesMap.get(size) : tallesMap[size]) ?? 0;
       if (realStock === 0) {
         throw new Error(
           `El producto "${dbProduct.name}" talle ${size} no tiene stock disponible.`
@@ -130,7 +132,8 @@ export async function validateCartPrices(clientItems, options = {}) {
     for (const [, group] of Object.entries(demandMap)) {
       const sc = stockColorMap[group.stockColorId];
       if (!sc) continue;
-      const available = sc.talles?.[group.size] ?? 0;
+      const tallesMapSC = sc.talles;
+      const available = (tallesMapSC && typeof tallesMapSC.get === "function" ? tallesMapSC.get(group.size) : tallesMapSC?.[group.size]) ?? 0;
       if (group.totalQty > available) {
         throw new Error(
           `Stock insuficiente para el color "${sc.color}" talle ${group.size}: ` +

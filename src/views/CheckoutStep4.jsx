@@ -30,6 +30,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showProofStep, setShowProofStep] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [stockErrorMsg, setStockErrorMsg] = useState(null);
 
   // Costo de envío (pickup = gratis)
   const envio = formData.shippingMethod === "pickup" ? 0 : shippingPrice;
@@ -332,7 +333,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
       } else {
         const errData = await response.json().catch(() => ({}));
         const errMsg = errData.error || errData.message || "Error al crear la orden";
-        toast.error(errMsg, { duration: 6000 });
+        setStockErrorMsg(errMsg);
         setLoadingPayment(false);
       }
     } catch (error) {
@@ -883,6 +884,77 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         onCancel={handleCancelModal}
         paymentMethod={formData.paymentMethod}
       />
+
+      {/* Modal de error de stock */}
+      {stockErrorMsg && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.55)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+          }}
+          onClick={() => setStockErrorMsg(null)}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              padding: "2rem",
+              maxWidth: "480px",
+              width: "100%",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+              textAlign: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>&#128230;</div>
+            <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.2rem", color: "#c0392b" }}>
+              Problema con tu carrito
+            </h3>
+            <p style={{ margin: "0 0 1.5rem", fontSize: "0.97rem", color: "#333", lineHeight: 1.5 }}>
+              {stockErrorMsg}
+            </p>
+            <p style={{ margin: "0 0 1.5rem", fontSize: "0.88rem", color: "#666" }}>
+              Por favor revisá tu carrito y quitá los productos sin stock antes de continuar.
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
+              <button
+                onClick={() => { setStockErrorMsg(null); navigate("/cart"); }}
+                style={{
+                  padding: "0.6rem 1.4rem",
+                  backgroundColor: "#222",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "0.95rem",
+                }}
+              >
+                Ir al carrito
+              </button>
+              <button
+                onClick={() => setStockErrorMsg(null)}
+                style={{
+                  padding: "0.6rem 1.4rem",
+                  backgroundColor: "#eee",
+                  color: "#333",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "0.95rem",
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
