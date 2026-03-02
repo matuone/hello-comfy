@@ -293,7 +293,7 @@ export default function Navbar() {
               <button
                 type="button"
                 className={`nav-action nav-action--main${user ? " nav-action--logged" : ""}`}
-                aria-label={user ? user.nombre || user.name || "Mi cuenta" : "Mi cuenta"}
+                aria-label={user ? (user.nombre || user.name || "Mi cuenta").split(" ")[0] : "Mi cuenta"}
                 onClick={() => setShowPopup(true)}
               >
                 <span className="nav-glyph" aria-hidden="true">
@@ -307,7 +307,7 @@ export default function Navbar() {
                   </svg>
                 </span>
                 <span className="nav-label">
-                  {user ? (user.nombre || user.name || "Mi cuenta") : "Mi cuenta"}
+                  {user ? (user.nombre || user.name || "Mi cuenta").split(" ")[0] : "Mi cuenta"}
                 </span>
               </button>
 
