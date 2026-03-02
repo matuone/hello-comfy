@@ -316,6 +316,52 @@
 }
 
 /* ============================
+   AVISO STOCK COMPARTIDO
+============================ */
+.cart-stock-conflict {
+  background: #fff4e5;
+  border: 1.5px solid #f5a623;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #7a4f00;
+}
+
+.cart-stock-conflict strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #c47d00;
+}
+
+.cart-stock-conflict__item {
+  margin-bottom: 10px;
+  border-bottom: 1px dashed #f5c87a;
+  padding-bottom: 10px;
+}
+
+.cart-stock-conflict__item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cart-stock-conflict__item p {
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.cart-stock-conflict__item ul {
+  margin: 0 0 6px 18px;
+  padding: 0;
+}
+
+.cart-stock-conflict__item li {
+  margin-bottom: 2px;
+}
+
+/* ============================
    PICK UP POINT (COMFY)
 ============================ */
 .cart-pickup {

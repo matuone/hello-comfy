@@ -75,18 +75,22 @@ export default function Cart() {
   const [shippingRestored, setShippingRestored] = useState(false);
 
   // ============================
-  // STOCK POR ITEM (POR TALLE)
+  // STOCK POR ITEM (POR TALLE) + CONFLICTOS DE STOCK COMPARTIDO
   // ============================
   const [stockMap, setStockMap] = useState({});
+  const [sharedStockConflicts, setSharedStockConflicts] = useState([]);
 
   useEffect(() => {
     if (!items.length) {
       setStockMap({});
+      setSharedStockConflicts([]);
       return;
     }
 
     const fetchStocks = async () => {
       const map = {};
+      // stockColorId real por item.key: { stockColorId, color, talles }
+      const colorDataByKey = {};
       const groupedByProduct = {};
 
       items.forEach((item) => {
@@ -99,19 +103,19 @@ export default function Cart() {
       await Promise.all(
         Object.keys(groupedByProduct).map(async (productId) => {
           try {
-            const res = await fetch(
-              apiPath(`/products/${productId}`)
-            );
+            const res = await fetch(apiPath(`/products/${productId}`));
             const data = await res.json();
             const talles = data.stockColorId?.talles || {};
+            const stockColorId = data.stockColorId?._id || data.stockColorId || null;
+            const color = data.stockColorId?.color || "";
 
             groupedByProduct[productId].forEach((item) => {
               if (item.size) {
-                const stock = talles[item.size] ?? 0;
-                map[item.key] = stock;
+                map[item.key] = talles[item.size] ?? 0;
               } else {
                 map[item.key] = Infinity;
               }
+              colorDataByKey[item.key] = { stockColorId: String(stockColorId), color, talles };
             });
           } catch (err) {
             groupedByProduct[productId].forEach((item) => {
@@ -122,6 +126,30 @@ export default function Cart() {
       );
 
       setStockMap(map);
+
+      // Detectar conflictos: agrupar por stockColorId + talle
+      const demandMap = {};
+      items.forEach((item) => {
+        const cd = colorDataByKey[item.key];
+        if (!cd || !cd.stockColorId || !item.size) return;
+        const key = `${cd.stockColorId}-${item.size}`;
+        if (!demandMap[key]) {
+          demandMap[key] = {
+            color: cd.color,
+            size: item.size,
+            available: cd.talles[item.size] ?? 0,
+            totalQty: 0,
+            affectedItems: [],
+          };
+        }
+        demandMap[key].totalQty += item.quantity;
+        demandMap[key].affectedItems.push({ name: item.name, key: item.key, quantity: item.quantity });
+      });
+
+      const conflicts = Object.values(demandMap).filter(
+        (g) => g.affectedItems.length > 1 && g.totalQty > g.available
+      );
+      setSharedStockConflicts(conflicts);
     };
 
     fetchStocks();
@@ -207,6 +235,10 @@ export default function Cart() {
   const totalConEnvio = total + (selectedShipping ? effectiveShippingPrice : 0);
 
   const handleCheckout = () => {
+    if (sharedStockConflicts.length > 0) {
+      toast.error("Revisá los conflictos de stock antes de continuar");
+      return;
+    }
     // Guardar datos de regalo + envío seleccionado en localStorage para el checkout
     const checkoutFormData = JSON.parse(localStorage.getItem("checkoutFormData") || "{}");
     checkoutFormData.isGift = isGift;
@@ -673,7 +705,36 @@ export default function Cart() {
             </ul>
           </div>
 
-          <button className="cart-btn-primary" onClick={handleCheckout}>
+          {/* ============================
+              AVISO DE STOCK COMPARTIDO
+          ============================ */}
+          {sharedStockConflicts.length > 0 && (
+            <div className="cart-stock-conflict">
+              <strong>⚠️ Conflicto de stock</strong>
+              {sharedStockConflicts.map((conflict, i) => (
+                <div key={i} className="cart-stock-conflict__item">
+                  <p>
+                    El color <strong>{conflict.color}</strong> talle <strong>{conflict.size}</strong> solo
+                    tiene <strong>{conflict.available}</strong> unidad{conflict.available === 1 ? "" : "es"} disponible{conflict.available === 1 ? "" : "s"},
+                    pero tenés {conflict.totalQty} en el carrito entre:
+                  </p>
+                  <ul>
+                    {conflict.affectedItems.map((ai) => (
+                      <li key={ai.key}>{ai.name} &times; {ai.quantity}</li>
+                    ))}
+                  </ul>
+                  <p>Por favor quitá o reducí alguno de estos productos para poder continuar.</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            className="cart-btn-primary"
+            onClick={handleCheckout}
+            disabled={sharedStockConflicts.length > 0}
+            style={sharedStockConflicts.length > 0 ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+          >
             Iniciar compra
           </button>
 

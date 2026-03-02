@@ -1,5 +1,6 @@
 // backend/services/validateCartPrices.js
 import Product from "../models/Product.js";
+import StockColor from "../models/StockColor.js";
 import DiscountRule from "../models/DiscountRule.js";
 import PromoCode from "../models/PromoCode.js";
 
@@ -24,8 +25,8 @@ export async function validateCartPrices(clientItems, options = {}) {
   // 1) Obtener todos los productIds del carrito
   const productIds = [...new Set(clientItems.map((item) => item.productId))];
 
-  // 2) Buscar todos los productos en la BD de una sola vez
-  const products = await Product.find({ _id: { $in: productIds } });
+  // 2) Buscar todos los productos en la BD de una sola vez (con stockColorId populado)
+  const products = await Product.find({ _id: { $in: productIds } }).populate("stockColorId");
   const productMap = {};
   products.forEach((p) => {
     productMap[p._id.toString()] = p;
@@ -61,6 +62,29 @@ export async function validateCartPrices(clientItems, options = {}) {
       );
     }
 
+    // ⭐ VALIDAR CANTIDAD CONTRA STOCK INDIVIDUAL
+    // Nunca confiar en la cantidad enviada por el cliente; verificar contra el stock real.
+    const requestedQty = Math.max(1, parseInt(clientItem.quantity) || 1);
+    const size = clientItem.size || null;
+    if (size && dbProduct.stockColorId?.talles) {
+      const realStock = dbProduct.stockColorId.talles[size] ?? 0;
+      if (realStock === 0) {
+        throw new Error(
+          `El producto "${dbProduct.name}" talle ${size} no tiene stock disponible.`
+        );
+      }
+      if (requestedQty > realStock) {
+        throw new Error(
+          `Cantidad inválida para "${dbProduct.name}" talle ${size}: ` +
+          `solicitaste ${requestedQty} pero solo hay ${realStock} en stock.`
+        );
+      }
+    }
+    // Límite absoluto anti-abuso (máx 50 unidades por ítem)
+    if (requestedQty > 50) {
+      throw new Error(`La cantidad máxima por producto es 50 unidades ("${dbProduct.name}").`);
+    }
+
     validatedItems.push({
       productId: dbProduct._id,
       name: dbProduct.name,
@@ -69,16 +93,52 @@ export async function validateCartPrices(clientItems, options = {}) {
       price: dbProduct.price, // ← PRECIO REAL de la BD
       discount: dbProduct.discount || 0, // ← DESCUENTO REAL de la BD
       image: clientItem.image || dbProduct.images?.[0] || "",
-      size: clientItem.size || null,
+      size,
       color: clientItem.color || null,
-      quantity: Math.max(1, parseInt(clientItem.quantity) || 1),
+      quantity: requestedQty,
       weight: dbProduct.weight || 0.3,
       dimensions: dbProduct.dimensions || { height: 5, width: 5, length: 5 },
+      // ⭐ Para validación de stock compartido
+      stockColorId: dbProduct.stockColorId?._id?.toString() || dbProduct.stockColorId?.toString() || null,
     });
   }
 
   if (validatedItems.length === 0) {
     throw new Error("Ningún producto del carrito es válido");
+  }
+
+  // ⭐ 4b) VALIDAR STOCK COMPARTIDO POR stockColorId + talle
+  // Dos productos distintos pueden apuntar al mismo stockColorId (mismo color real).
+  // Si la suma de cantidades pedidas supera el stock disponible → rechazar.
+  {
+    // Agrupar: { "<stockColorId>-<talle>": { totalQty, names[] } }
+    const demandMap = {};
+    for (const item of validatedItems) {
+      if (!item.stockColorId || !item.size) continue;
+      const key = `${item.stockColorId}-${item.size}`;
+      if (!demandMap[key]) demandMap[key] = { totalQty: 0, names: [], stockColorId: item.stockColorId, size: item.size };
+      demandMap[key].totalQty += item.quantity;
+      demandMap[key].names.push(item.name);
+    }
+
+    // Obtener los stockColorIds únicos involucrados
+    const uniqueStockColorIds = [...new Set(Object.values(demandMap).map((g) => g.stockColorId))];
+    const stockColors = await StockColor.find({ _id: { $in: uniqueStockColorIds } });
+    const stockColorMap = {};
+    stockColors.forEach((sc) => { stockColorMap[sc._id.toString()] = sc; });
+
+    for (const [, group] of Object.entries(demandMap)) {
+      const sc = stockColorMap[group.stockColorId];
+      if (!sc) continue;
+      const available = sc.talles?.[group.size] ?? 0;
+      if (group.totalQty > available) {
+        throw new Error(
+          `Stock insuficiente para el color "${sc.color}" talle ${group.size}: ` +
+          `solicitaste ${group.totalQty} unidad(es) en total entre los productos [${group.names.join(", ")}], ` +
+          `pero solo hay ${available} disponible(s). Por favor revisá tu carrito.`
+        );
+      }
+    }
   }
 
   // 5) Calcular subtotal con descuentos de producto y categoría
