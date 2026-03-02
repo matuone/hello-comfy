@@ -208,15 +208,15 @@ export default function ProductDetail() {
     }
 
     setQuantity((prev) => {
-      if (prev >= stockForSelectedSize) {
-        toast.error(
-          `Solo hay ${stockForSelectedSize} unidad${stockForSelectedSize > 1 ? "es" : ""
-          } disponibles para este talle`
-        );
-        return prev;
-      }
+      if (prev >= stockForSelectedSize) return prev;
       return prev + 1;
     });
+    // toast fuera del updater para evitar setState-in-render warning
+    if (quantity >= stockForSelectedSize) {
+      toast.error(
+        `Solo hay ${stockForSelectedSize} unidad${stockForSelectedSize > 1 ? "es" : ""} disponibles para este talle`
+      );
+    }
   };
 
   const handleAddToCart = () => {
