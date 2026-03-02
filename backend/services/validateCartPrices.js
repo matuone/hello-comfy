@@ -67,9 +67,18 @@ export async function validateCartPrices(clientItems, options = {}) {
     const requestedQty = Math.max(1, parseInt(clientItem.quantity) || 1);
     const size = clientItem.size || null;
     if (size && dbProduct.stockColorId?.talles) {
-      const tallesMap = dbProduct.stockColorId.talles;
-      // talles es un Mongoose Map → usar .get(); si es objeto plano usar bracket
-      const realStock = (typeof tallesMap.get === "function" ? tallesMap.get(size) : tallesMap[size]) ?? 0;
+      const tallesRaw = dbProduct.stockColorId.talles;
+      // Convertir a objeto plano, funciona con Mongoose Map y con objetos comunes
+      let tallesObj;
+      try {
+        tallesObj = tallesRaw instanceof Map || typeof tallesRaw.entries === "function"
+          ? Object.fromEntries(tallesRaw)
+          : (tallesRaw.toObject ? tallesRaw.toObject() : Object.fromEntries(Object.entries(tallesRaw)));
+      } catch {
+        tallesObj = {};
+      }
+      const realStock = tallesObj[size] ?? 0;
+      console.log(`[Stock] ${dbProduct.name} talle=${size} stock=${realStock} tallesObj=`, JSON.stringify(tallesObj));
       if (realStock === 0) {
         throw new Error(
           `El producto "${dbProduct.name}" talle ${size} no tiene stock disponible.`
@@ -132,8 +141,16 @@ export async function validateCartPrices(clientItems, options = {}) {
     for (const [, group] of Object.entries(demandMap)) {
       const sc = stockColorMap[group.stockColorId];
       if (!sc) continue;
-      const tallesMapSC = sc.talles;
-      const available = (tallesMapSC && typeof tallesMapSC.get === "function" ? tallesMapSC.get(group.size) : tallesMapSC?.[group.size]) ?? 0;
+      const tallesRawSC = sc.talles;
+      let tallesObjSC;
+      try {
+        tallesObjSC = tallesRawSC instanceof Map || typeof tallesRawSC.entries === "function"
+          ? Object.fromEntries(tallesRawSC)
+          : (tallesRawSC?.toObject ? tallesRawSC.toObject() : Object.fromEntries(Object.entries(tallesRawSC ?? {})));
+      } catch {
+        tallesObjSC = {};
+      }
+      const available = tallesObjSC[group.size] ?? 0;
       if (group.totalQty > available) {
         throw new Error(
           `Stock insuficiente para el color "${sc.color}" talle ${group.size}: ` +
