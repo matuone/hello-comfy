@@ -34,16 +34,14 @@ async function syncInstagramFeed() {
     }
 
     let synced = 0;
-    for (const igPost of instagramPosts) {
+    for (let i = 0; i < instagramPosts.length; i++) {
+      const igPost = instagramPosts[i];
       const existingPost = await Feed.findOne({ externalId: igPost.externalId });
 
       if (!existingPost) {
-        const lastPost = await Feed.findOne().sort({ order: -1 });
-        const nextOrder = (lastPost?.order ?? 0) + 1;
-
         await new Feed({
           ...igPost,
-          order: nextOrder,
+          order: i, // orden = posición en el feed de Instagram (0 = más reciente)
           externalId: igPost.externalId,
         }).save();
 

@@ -6,7 +6,7 @@ import Feed from "../models/Feed.js";
 export async function getFeed(req, res) {
   try {
     const feed = await Feed.find({ active: true })
-      .sort({ order: 1, createdAt: -1 })
+      .sort({ timestamp: -1, createdAt: -1 })
       .limit(12); // Mostrar últimos 12 posts
 
     res.json(feed);
@@ -21,7 +21,7 @@ export async function getFeed(req, res) {
 // ===============================
 export async function getFeedAdmin(req, res) {
   try {
-    const feed = await Feed.find().sort({ order: 1, createdAt: -1 });
+    const feed = await Feed.find().sort({ timestamp: -1, createdAt: -1 });
     res.json(feed);
   } catch (error) {
     console.error("Error al obtener feed:", error);
