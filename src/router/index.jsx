@@ -79,6 +79,7 @@ import AccountContact from "../views/account/AccountContact";
 // ⭐ NUEVO: soporte
 import AccountOpinions from "../views/account/AccountOpinions";
 import AccountHelp from "../views/account/AccountHelp";
+import AccountWishlist from "../views/account/AccountWishlist";
 
 export default function AppRouter() {
   return (
@@ -176,6 +177,7 @@ export default function AppRouter() {
         <Route path="/mi-cuenta/opiniones" element={<AccountOpinions />} />
         {/* ⭐ NUEVA RUTA DE AYUDA */}
         <Route path="/mi-cuenta/ayuda" element={<AccountHelp />} />
+        <Route path="/mi-cuenta/favoritos" element={<AccountWishlist />} />
       </Route>
 
     </Routes>

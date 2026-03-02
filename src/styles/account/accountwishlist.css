@@ -1,0 +1,61 @@
+/* ============================
+   WISHLIST DENTRO DE MI CUENTA
+   Anula el contenedor de página completa
+============================ */
+.account-wishlist {
+  width: 100%;
+}
+
+.account-wishlist h1 {
+  margin: 0 0 0.25rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  text-align: left;
+}
+
+.account-wishlist .wishlist-count {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.account-wishlist .empty-wishlist {
+  color: #999;
+  font-size: 1.05rem;
+  margin: 2rem 0 1rem;
+  text-align: left;
+}
+
+.account-wishlist .wishlist-browse-btn {
+  display: inline-block;
+  background: #d94f7a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.account-wishlist .wishlist-browse-btn:hover {
+  background: #c63f6a;
+}
+
+/* Grid más compacto dentro del layout de cuenta */
+.account-wishlist .wishlist-grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 768px) {
+  .account-wishlist h1 {
+    font-size: 1.5rem;
+  }
+
+  .account-wishlist .wishlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+}

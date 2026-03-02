@@ -76,16 +76,30 @@ export default function Step3({ formData, updateField, next, back }) {
           </span>
         </label>
 
-        {/* ⭐ Modo */}
-        <label>
+        {/* ⭐ Modo - deshabilitado temporalmente */}
+        <label style={{ opacity: 0.5, cursor: "not-allowed", pointerEvents: "none", background: "#f0f0f0", borderColor: "#ddd" }}>
           <input
             type="radio"
             name="payment"
-            checked={formData.paymentMethod === "modo"}
-            onChange={() => updateField("paymentMethod", "modo")}
+            checked={false}
+            disabled
+            onChange={() => { }}
           />
-          <span style={{ color: "#20b042", fontWeight: 600 }}>
+          <span style={{ color: "#999", fontWeight: 600 }}>
             Pagar con MODO
+          </span>
+          <span style={{
+            marginLeft: "10px",
+            fontSize: "0.72rem",
+            fontWeight: 700,
+            background: "#e0e0e0",
+            color: "#777",
+            borderRadius: "20px",
+            padding: "2px 10px",
+            letterSpacing: "0.03em",
+            textTransform: "uppercase",
+          }}>
+            Muy pronto
           </span>
         </label>
       </div>
