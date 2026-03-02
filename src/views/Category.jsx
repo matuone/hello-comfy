@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useDiscountRules, calcularPrecios, has3x2Rule } from "../hooks/useDiscountRules";
+import OpinionsPopup from "../components/OpinionsPopup";
 import "../styles/productgrid.css";
 import "../styles/products.css";
 import "../styles/category.css";
@@ -29,6 +30,9 @@ export default function Category() {
 
   const [selectedSizes, setSelectedSizes] = useState({});
   const [quantities, setQuantities] = useState({});
+
+  const [showOpinions, setShowOpinions] = useState(false);
+  const [opinionsProductId, setOpinionsProductId] = useState(null);
 
   // Reglas de descuento del admin
   const discountRules = useDiscountRules();
@@ -357,7 +361,8 @@ export default function Category() {
                 className="productcard__stars"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.dispatchEvent(new CustomEvent("showProductOpinions", { detail: { productId: p._id } }));
+                  setOpinionsProductId(p._id);
+                  setShowOpinions(true);
                 }}
               >
                 {"★".repeat(5)}
@@ -391,6 +396,16 @@ export default function Category() {
             </p>
           )}
         </div>
+      )}
+
+      {showOpinions && opinionsProductId && (
+        <OpinionsPopup
+          productId={opinionsProductId}
+          onClose={() => {
+            setShowOpinions(false);
+            setOpinionsProductId(null);
+          }}
+        />
       )}
     </section>
   );
