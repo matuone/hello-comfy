@@ -78,7 +78,6 @@ export async function validateCartPrices(clientItems, options = {}) {
         tallesObj = {};
       }
       const realStock = tallesObj[size] ?? 0;
-      console.log(`[Stock] ${dbProduct.name} talle=${size} stock=${realStock} tallesObj=`, JSON.stringify(tallesObj));
       if (realStock === 0) {
         throw new Error(
           `El producto "${dbProduct.name}" talle ${size} no tiene stock disponible.`

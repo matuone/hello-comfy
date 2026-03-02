@@ -3,6 +3,7 @@
 
 import "../styles/accountpopup.css";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import ForgotPassword from "./ForgotPassword";
 import avatar from "../assets/avatar/avatar.png";
 import { useAuth } from "../context/AuthContext";
@@ -101,7 +102,7 @@ export default function AccountPopup(props) {
     navigate("/admin");
   }
 
-  return (
+  return createPortal(
     <div className="popup-overlay" onClick={handleOverlayClick}>
       <div className="popup" onClick={handlePopupClick}>
 
@@ -294,6 +295,7 @@ export default function AccountPopup(props) {
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
