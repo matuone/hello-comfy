@@ -102,9 +102,33 @@
       color: #e57373;
     }
 
+    .cat-mobile-ver-todos {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #e57373;
+      text-decoration: none;
+      background: #fff0f0;
+      border: 1.5px solid #f8c8c8;
+      border-radius: 8px;
+      padding: 0.5rem 0.9rem;
+      margin-bottom: 0.8rem;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .cat-mobile-ver-todos:hover {
+      background: #ffeaea;
+      color: #c62828;
+    }
+
     /* navbar.css - Estilos para Navbar en mobile/tablet */
 
     @media (max-width: 900px) {
+
+      /* Fallback: la altura real la setea NavbarMobile.jsx via ResizeObserver */
+
       .navbar-mobile {
         display: flex;
         flex-direction: column;
@@ -307,5 +331,11 @@
       .navbar-mobile__list button:hover {
         background: #ffeaea;
         color: #e57373;
+      }
+
+      .navbar-mobile__products-btn--open {
+        color: #e57373 !important;
+        background: #fff0f0 !important;
+        font-weight: 700 !important;
       }
     }

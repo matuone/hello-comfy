@@ -34,6 +34,23 @@ export default function NavbarMobile() {
   const searchRef = useRef(null);
   const menuRef = useRef(null);
   const menuBtnRef = useRef(null);
+  const navRef = useRef(null);
+
+  // Medir altura real del navbar y setear --navbar-height para que layout__content calcule bien el offset
+  useEffect(() => {
+    function updateNavHeight() {
+      if (navRef.current) {
+        const h = navRef.current.offsetHeight;
+        document.documentElement.style.setProperty("--navbar-height", `${h}px`);
+      }
+    }
+    updateNavHeight();
+    const ro = new ResizeObserver(updateNavHeight);
+    if (navRef.current) ro.observe(navRef.current);
+    return () => {
+      ro.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     if (searchQuery.trim().length < 2) {
@@ -98,7 +115,7 @@ export default function NavbarMobile() {
   }, []);
 
   return (
-    <nav className="navbar-mobile" role="navigation" aria-label="Principal">
+    <nav ref={navRef} className="navbar-mobile" role="navigation" aria-label="Principal">
       <div className="navbar-mobile__container">
         <div className="navbar-mobile__top">
           <Link to="/" className="navbar-mobile__logo" aria-label="Inicio">
@@ -178,7 +195,7 @@ export default function NavbarMobile() {
               </li>
               <li>
                 <button
-                  className="navbar-mobile__products-btn"
+                  className={`navbar-mobile__products-btn${menuOpen === "productos" ? " navbar-mobile__products-btn--open" : ""}`}
                   onClick={() => {
                     if (menuOpen === "productos") {
                       // Segundo click: navegar y cerrar menú

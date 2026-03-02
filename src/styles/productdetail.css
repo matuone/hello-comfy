@@ -965,8 +965,10 @@
   }
 
   body,
-  main,
-  .layout__content,
+  main {
+    box-sizing: border-box;
+  }
+
   .pd-container {
     margin: 0 !important;
     padding: 0 !important;

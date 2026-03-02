@@ -1,6 +1,19 @@
 /* src/styles/layout.css */
 
 /* ================================
+   VARIABLES MOBILE/TABLET
+   AnnouncementBarMobile: 40px fija
+   NavbarMobile: ~52px (padding 8+8 + logo 36)
+   Total offset mobile = 96px
+================================ */
+@media (max-width: 900px) {
+  :root {
+    --ab-height: 40px;
+    --navbar-height: 56px;
+  }
+}
+
+/* ================================
    CONTENEDOR GENERAL DEL SITIO
 ================================ */
 .layout {

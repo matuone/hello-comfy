@@ -13,6 +13,14 @@ export default function AnnouncementBarMobile() {
   const [index, setIndex] = useState(0);
   const [announcementMessages, setAnnouncementMessages] = useState(MESSAGES);
 
+  // Setear la variable CSS para que layout__content tenga el offset correcto
+  useEffect(() => {
+    document.documentElement.style.setProperty("--ab-height", "40px");
+    return () => {
+      document.documentElement.style.setProperty("--ab-height", "0px");
+    };
+  }, []);
+
   useEffect(() => {
     async function fetchMessages() {
       try {

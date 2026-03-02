@@ -40,6 +40,13 @@ export default function CategoriesMenuMobile({ onClose }) {
 
   return (
     <div className="categories-mobile-menu" role="menu" aria-label="Productos">
+      <Link
+        to="/products"
+        className="cat-mobile-ver-todos"
+        onClick={onClose}
+      >
+        🛍️ Ver todos los productos
+      </Link>
       {columns.map((cat) => {
         const subs = grouped[cat];
         if (!subs || subs.length === 0) return null;
