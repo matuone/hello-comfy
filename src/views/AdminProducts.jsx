@@ -170,6 +170,8 @@ export default function AdminProducts() {
         stockColorId, // 👈 MISMO STOCK REAL
         description: original.description || "",
         sizeGuide: original.sizeGuide || "remeras",
+        weight: original.weight ?? 0.3,
+        dimensions: original.dimensions ?? { height: 5, width: 5, length: 5 },
       };
 
       // 3) Crear el nuevo producto
