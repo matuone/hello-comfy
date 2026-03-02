@@ -146,8 +146,11 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     await order.save();
 
     // ⭐ DESCONTAR STOCK al crear la orden
-    // Usa los items de pendingOrderData que ya tienen stockColorId (de validateCartPrices)
-    const stockDecrements = pendingOrderData.items.filter(
+    // Soporta dos estilos de llamada:
+    //   1) crearOrdenDesdePago(paymentData, pendingOrderData)  → MP, transferencia
+    //   2) crearOrdenDesdePago({ items, ... })                 → GoCuotas (1 arg)
+    const itemsSource = pendingOrderData?.items ?? paymentData.items ?? [];
+    const stockDecrements = itemsSource.filter(
       (item) => item.stockColorId && item.size && item.quantity > 0
     );
     await Promise.all(
