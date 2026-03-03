@@ -210,8 +210,8 @@ const buildOrderData = async (order) => {
       city: order.shipping.localidad || order.shipping.city || "",
       provinceCode: orderProvinceCode,
       postalCode: order.shipping.postalCode || "",
-      agency: order.shipping.pickPoint || null,
-      weight: weight || 0.3,
+      agency: order.shipping.branchCode || order.shipping.pickPoint || null,
+      weight: Math.round((weight || 0.3) * 1000), // kg → gramos
       height: height || 5,
       width: width || 5,
       length: length || 5
@@ -325,6 +325,7 @@ router.get("/correo-argentino/agencies-by-cp", async (req, res) => {
 router.post("/correo-argentino/import/:orderId", verifyAdmin, async (req, res) => {
   try {
     const { orderId } = req.params;
+    const { agencyCode } = req.body || {};
 
     // Buscar la orden
     const order = await Order.findById(orderId);
@@ -342,6 +343,20 @@ router.post("/correo-argentino/import/:orderId", verifyAdmin, async (req, res) =
 
     // Preparar datos de la orden
     const orderData = await buildOrderData(order);
+
+    // Permitir override del código de sucursal para órdenes sin branchCode guardado
+    if (agencyCode) {
+      orderData.shipping.agency = agencyCode;
+    }
+
+    // Validar que envíos a sucursal tengan código de sucursal
+    const isBranchMethod = ["correo-branch", "branch"].includes(order.shipping?.method);
+    if (isBranchMethod && !orderData.shipping.agency) {
+      return res.status(400).json({
+        error: "Falta código de sucursal. Ingresalo manualmente en el panel antes de registrar.",
+        message: "Falta código de sucursal. Ingresalo manualmente en el panel antes de registrar."
+      });
+    }
 
     // Registrar en Correo Argentino
     const result = await importShipping(orderData);

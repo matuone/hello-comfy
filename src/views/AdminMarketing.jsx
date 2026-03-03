@@ -94,6 +94,7 @@ export default function AdminMarketing() {
       if (data) {
         setBannerImages(data.images || []);
         if (data.message) setMessage(data.message);
+        if (data.bearMessage) setBearMessage(data.bearMessage);
         setAutoplay(data.autoplay !== undefined ? data.autoplay : true);
         setInterval(data.interval || 5000);
         setBannerFontSize(data.fontSize || 64);
@@ -141,7 +142,7 @@ export default function AdminMarketing() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize, mobileFontSize, mobileColor, textAlign: bannerTextAlign, topPercent: bannerTopPercent, maxWidth: bannerMaxWidth })
+        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize, mobileFontSize, mobileColor, textAlign: bannerTextAlign, topPercent: bannerTopPercent, maxWidth: bannerMaxWidth, bearMessage })
       });
 
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');

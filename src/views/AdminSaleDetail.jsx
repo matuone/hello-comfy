@@ -89,6 +89,7 @@ export default function AdminSaleDetail() {
   const [cargandoFactura, setCargandoFactura] = useState(false);
   const [modalExito, setModalExito] = useState(null);
   const [correoLoading, setCorreoLoading] = useState(false);
+  const [agencyCodeInput, setAgencyCodeInput] = useState("");
   const [correoModal, setCorreoModal] = useState({
     isOpen: false,
     message: "",
@@ -254,8 +255,19 @@ export default function AdminSaleDetail() {
 
     setCorreoLoading(true);
     try {
+      const isBranch = ["correo-branch", "branch"].includes(venta?.shipping?.method);
+      const needsAgencyCode = isBranch && !venta?.shipping?.branchCode;
+      if (needsAgencyCode && !agencyCodeInput.trim()) {
+        openCorreoModal("Error", "Ingresá el código de sucursal antes de registrar", "error");
+        setCorreoLoading(false);
+        return;
+      }
+      const body = {};
+      if (needsAgencyCode && agencyCodeInput) body.agencyCode = agencyCodeInput.trim();
       const res = await adminFetch(apiPath(`/correo-argentino/import/${venta._id}`), {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -561,6 +573,18 @@ export default function AdminSaleDetail() {
             Aplicaciones ▾
           </button>
           <div className={`dropdown-menu ${isAppsOpen ? "open" : ""}`}>
+            {["correo-branch", "branch"].includes(venta?.shipping?.method) && !venta?.shipping?.branchCode && (
+              <div style={{ padding: "6px 12px" }}>
+                <label style={{ fontSize: 12, display: "block", marginBottom: 4 }}>Código sucursal Correo:</label>
+                <input
+                  type="text"
+                  placeholder="Ej: BA3401"
+                  value={agencyCodeInput}
+                  onChange={(e) => setAgencyCodeInput(e.target.value)}
+                  style={{ width: "100%", padding: "4px 6px", fontSize: 13, boxSizing: "border-box" }}
+                />
+              </div>
+            )}
             <button
               onClick={registrarOrdenCorreo}
               disabled={

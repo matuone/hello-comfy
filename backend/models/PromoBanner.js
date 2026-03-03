@@ -75,6 +75,10 @@ const promoBannerSchema = new mongoose.Schema({
   active: {
     type: Boolean,
     default: true
+  },
+  bearMessage: {
+    type: String,
+    default: 'HELLOCOMFY10'
   }
 }, {
   timestamps: true

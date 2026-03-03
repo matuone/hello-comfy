@@ -454,4 +454,118 @@ router.patch("/admin/orders/status/batch", verifyAdmin, async (req, res) => {
   });
 });
 
+/* ============================================================
+   ⭐ Estadísticas reales del negocio
+   GET /api/admin/stats
+============================================================ */
+router.get("/admin/stats", verifyAdmin, async (req, res) => {
+  try {
+    const allOrders = await Order.find(
+      {},
+      "totals envioEstado customer shipping items paymentMethod pagoEstado _id"
+    ).lean();
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    // KPIs básicos
+    const totalVentas = allOrders.length;
+    const totalFacturado = allOrders.reduce((acc, o) => acc + (o.totals?.total || 0), 0);
+    const ventasEnviadas = allOrders.filter((o) => o.envioEstado === "enviado").length;
+    const ventasPendientes = allOrders.filter((o) => o.envioEstado === "pendiente").length;
+
+    // Facturado este mes
+    const ordenesMes = allOrders.filter((o) => {
+      const t = o._id.getTimestamp();
+      return t >= startOfMonth;
+    });
+    const facturadoMes = ordenesMes.reduce((acc, o) => acc + (o.totals?.total || 0), 0);
+
+    // Cliente top del mes
+    const clienteTotals = {};
+    ordenesMes.forEach((o) => {
+      const email = o.customer?.email;
+      if (!email) return;
+      if (!clienteTotals[email]) {
+        clienteTotals[email] = { nombre: o.customer?.name || email, email, total: 0, ordenes: 0 };
+      }
+      clienteTotals[email].total += o.totals?.total || 0;
+      clienteTotals[email].ordenes++;
+    });
+    const topClienteMes =
+      Object.values(clienteTotals).sort((a, b) => b.total - a.total)[0] || null;
+
+    // Ventas por mes del año actual (facturación + cantidad de órdenes)
+    const ventasPorMes = new Array(12).fill(0);
+    const ordenesPorMes = new Array(12).fill(0);
+    allOrders.forEach((o) => {
+      const t = o._id.getTimestamp();
+      if (t >= startOfYear) {
+        const mes = t.getMonth();
+        ventasPorMes[mes] += o.totals?.total || 0;
+        ordenesPorMes[mes]++;
+      }
+    });
+
+    // Métodos de envío
+    const envioMetodos = {};
+    allOrders.forEach((o) => {
+      const method = o.shipping?.method || "desconocido";
+      const labels = {
+        "home": "A domicilio",
+        "correo-home": "Correo (domicilio)",
+        "correo-branch": "Correo (sucursal)",
+        "pickup": "Pick Up Point",
+      };
+      const label = labels[method] || method;
+      envioMetodos[label] = (envioMetodos[label] || 0) + 1;
+    });
+
+    // Métodos de pago
+    const pagoMetodos = {};
+    allOrders.forEach((o) => {
+      const labels = {
+        mercadopago: "Mercado Pago",
+        gocuotas: "Go Cuotas",
+        modo: "MODO",
+        transfer: "Transferencia",
+        cuentadni: "Cuenta DNI",
+      };
+      const label = labels[o.paymentMethod] || o.paymentMethod || "Otro";
+      pagoMetodos[label] = (pagoMetodos[label] || 0) + 1;
+    });
+
+    // Productos más vendidos
+    const productosCounts = {};
+    allOrders.forEach((o) => {
+      o.items?.forEach((item) => {
+        if (!item.name) return;
+        productosCounts[item.name] = (productosCounts[item.name] || 0) + (item.quantity || 1);
+      });
+    });
+    const topProductos = Object.entries(productosCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([nombre, cantidad]) => ({ nombre, cantidad }));
+
+    res.json({
+      totalVentas,
+      totalFacturado,
+      facturadoMes,
+      ventasEnviadas,
+      ventasPendientes,
+      topClienteMes,
+      ventasPorMes,
+      ordenesPorMes,
+      envioMetodos,
+      pagoMetodos,
+      topProductos,
+    });
+  } catch (err) {
+    console.error("Error en stats:", err);
+    res.status(500).json({ error: "Error al obtener estadísticas" });
+  }
+});
+
 export default router;

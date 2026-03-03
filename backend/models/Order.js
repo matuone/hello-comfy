@@ -117,6 +117,7 @@ const OrderSchema = new mongoose.Schema({
     province: { type: String },
     localidad: { type: String },
     pickPoint: { type: String },
+    branchCode: { type: String },
     branchName: { type: String },
     branchAddress: { type: String },
     eta: { type: String },

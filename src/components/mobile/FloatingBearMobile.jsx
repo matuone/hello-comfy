@@ -1,11 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../../styles/mobile/floatingbear.mobile.css";
 import bearCloud from "../../assets/bear-cloud.png";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function FloatingBearMobile() {
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(true);
-  const coupon = "HELLOCOMFY10";
+  const [coupon, setCoupon] = useState("HELLOCOMFY10");
+
+  useEffect(() => {
+    fetch(`${API_URL}/promo-banner`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.bearMessage) setCoupon(data.bearMessage);
+      })
+      .catch(() => {
+        const saved = localStorage.getItem("bearMessage");
+        if (saved) setCoupon(saved);
+      });
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(coupon);

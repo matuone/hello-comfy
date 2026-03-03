@@ -75,6 +75,7 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         province: pendingOrderData.formData?.province || null,
         localidad: pendingOrderData.formData?.localidad || null,
         pickPoint: pendingOrderData.formData?.pickPoint,
+        branchCode: pendingOrderData.formData?.selectedAgency?.code || null,
         branchName: pendingOrderData.formData?.selectedAgency?.name || null,
         branchAddress: pendingOrderData.formData?.selectedAgency
           ? `${pendingOrderData.formData.selectedAgency.address || ''}, ${pendingOrderData.formData.selectedAgency.locality || ''}`

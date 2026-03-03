@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import "../styles/adminstats.css";
-import { salesData } from "../data/salesData";
 
 // Chart.js
 import {
@@ -17,7 +17,6 @@ import {
 
 import { Line, Pie, Bar } from "react-chartjs-2";
 
-// Registrar componentes de Chart.js
 ChartJS.register(
   LineElement,
   BarElement,
@@ -30,218 +29,186 @@ ChartJS.register(
   Filler
 );
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
+const MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+const PIE_COLORS = ["#d94f7a", "#ffb74d", "#81c784", "#64b5f6", "#ba68c8", "#ff7043", "#26c6da"];
+
 export default function AdminStats() {
-  // ============================
-  // CÁLCULOS BASE
-  // ============================
-  const totalVentas = salesData.length;
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const totalFacturado = salesData.reduce((acc, v) => {
-    const num = Number(String(v.total).replace(/[^0-9.-]+/g, ""));
-    return acc + num;
-  }, 0);
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    fetch(apiPath("/admin/stats"), {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error al cargar estadísticas");
+        return res.json();
+      })
+      .then((data) => { setStats(data); setLoading(false); })
+      .catch((err) => { setError(err.message); setLoading(false); });
+  }, []);
 
-  const ventasEnviadas = salesData.filter(v => v.envioEstado === "enviado").length;
-  const ventasPendientes = totalVentas - ventasEnviadas;
+  if (loading) return (
+    <div className="admin-section">
+      <h2 className="admin-section-title">Estadísticas</h2>
+      <p style={{ color: "#888" }}>Cargando datos reales...</p>
+    </div>
+  );
 
-  // ============================
-  // CLIENTE TOP DEL MES
-  // ============================
-  const hoy = new Date();
-  const mesActual = hoy.getMonth();
-  const añoActual = hoy.getFullYear();
+  if (error) return (
+    <div className="admin-section">
+      <h2 className="admin-section-title">Estadísticas</h2>
+      <p style={{ color: "#d94f7a" }}>Error: {error}</p>
+    </div>
+  );
 
-  const ventasMesActual = salesData.filter(v => {
-    const fecha = new Date(v.fecha);
-    return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
-  });
-
-  const consumoPorCliente = {};
-
-  ventasMesActual.forEach(v => {
-    const email = v.email;
-    const monto = Number(String(v.total).replace(/[^0-9.-]+/g, ""));
-
-    if (!consumoPorCliente[email]) {
-      consumoPorCliente[email] = {
-        nombre: v.cliente,
-        email: v.email,
-        total: 0,
-      };
-    }
-
-    consumoPorCliente[email].total += monto;
-  });
-
-  const topClienteMes =
-    Object.values(consumoPorCliente).sort((a, b) => b.total - a.total)[0] || null;
-
-  // ============================
-  // VENTAS POR MES (GRÁFICO LÍNEA)
-  // ============================
-  const meses = [
-    "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-    "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
-  ];
-
-  const ventasPorMes = new Array(12).fill(0);
-
-  salesData.forEach(v => {
-    const fecha = new Date(v.fecha);
-    const mes = fecha.getMonth();
-    const monto = Number(String(v.total).replace(/[^0-9.-]+/g, ""));
-    ventasPorMes[mes] += monto;
-  });
-
+  // Gráfico de línea: facturación + órdenes por mes
   const lineData = {
-    labels: meses,
+    labels: MESES,
     datasets: [
       {
-        label: "Facturación mensual",
-        data: ventasPorMes,
+        label: "Facturación ($)",
+        data: stats.ventasPorMes,
         borderColor: "#d94f7a",
-        backgroundColor: "rgba(217, 79, 122, 0.2)",
+        backgroundColor: "rgba(217,79,122,0.13)",
         tension: 0.3,
         fill: true,
+        pointRadius: 4,
+        yAxisID: "y",
       },
-    ],
-  };
-
-  // ============================
-  // MÉTODOS DE ENVÍO (GRÁFICO TORTA)
-  // ============================
-  const metodos = {
-    andreani: 0,
-    correo: 0,
-    retiro_temperley: 0,
-    retiro_aquelarre: 0,
-    nextday_moto: 0,
-  };
-
-  salesData.forEach(v => {
-    if (metodos[v.shippingMethod] !== undefined) {
-      metodos[v.shippingMethod]++;
-    }
-  });
-
-  const pieData = {
-    labels: [
-      "Andreani",
-      "Correo Argentino",
-      "Retiro Temperley",
-      "Retiro Aquelarre",
-      "Next Day Moto"
-    ],
-    datasets: [
       {
-        data: Object.values(metodos),
-        backgroundColor: [
-          "#d94f7a",
-          "#ffb74d",
-          "#81c784",
-          "#64b5f6",
-          "#ba68c8",
-        ],
+        label: "Órdenes",
+        data: stats.ordenesPorMes,
+        borderColor: "#64b5f6",
+        backgroundColor: "rgba(100,181,246,0.08)",
+        tension: 0.3,
+        fill: false,
+        pointRadius: 4,
+        yAxisID: "y2",
       },
     ],
   };
+  const lineOptions = {
+    maintainAspectRatio: false,
+    scales: {
+      y: { ticks: { callback: (v) => `$${v.toLocaleString("es-AR")}` } },
+      y2: { position: "right", grid: { drawOnChartArea: false }, ticks: { stepSize: 1 } },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ctx.datasetIndex === 0
+            ? `$${ctx.raw.toLocaleString("es-AR")}`
+            : `${ctx.raw} órdenes`,
+        },
+      },
+    },
+  };
 
-  // ============================
-  // PRODUCTOS MÁS VENDIDOS (GRÁFICO BARRAS)
-  // ============================
-  const productos = {};
+  // Torta envíos
+  const envioLabels = Object.keys(stats.envioMetodos);
+  const pieEnvioData = {
+    labels: envioLabels,
+    datasets: [{ data: Object.values(stats.envioMetodos), backgroundColor: PIE_COLORS }],
+  };
 
-  salesData.forEach(v => {
-    v.items.forEach(item => {
-      if (!productos[item.nombre]) {
-        productos[item.nombre] = 0;
-      }
-      productos[item.nombre] += item.cantidad;
-    });
-  });
+  // Torta pagos
+  const pagoLabels = Object.keys(stats.pagoMetodos);
+  const piePagoData = {
+    labels: pagoLabels,
+    datasets: [{ data: Object.values(stats.pagoMetodos), backgroundColor: [...PIE_COLORS].reverse() }],
+  };
 
-  const topProductos = Object.entries(productos)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8);
+  const pieOptions = { maintainAspectRatio: false };
 
+  // Barras horizontales: productos más vendidos
   const barData = {
-    labels: topProductos.map(p => p[0]),
-    datasets: [
-      {
-        label: "Unidades vendidas",
-        data: topProductos.map(p => p[1]),
-        backgroundColor: "#d94f7a",
-      },
-    ],
+    labels: stats.topProductos.map((p) => p.nombre.length > 28 ? p.nombre.slice(0, 26) + "…" : p.nombre),
+    datasets: [{ label: "Unidades", data: stats.topProductos.map((p) => p.cantidad), backgroundColor: "#d94f7a", borderRadius: 6 }],
+  };
+  const barOptions = {
+    maintainAspectRatio: false,
+    indexAxis: "y",
+    plugins: { legend: { display: false } },
+    scales: { x: { ticks: { stepSize: 1 } } },
   };
 
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">Estadísticas</h2>
       <p className="admin-section-text">
-        Resumen general del rendimiento del emprendimiento.
+        Datos reales del negocio — año {new Date().getFullYear()}.
       </p>
 
-      {/* ============================
-          KPIs PRINCIPALES
-      ============================ */}
+      {/* KPIs */}
       <div className="stats-kpi-grid">
         <div className="kpi-box">
           <span className="kpi-label">Total de ventas</span>
-          <span className="kpi-value">{totalVentas}</span>
+          <span className="kpi-value">{stats.totalVentas}</span>
         </div>
-
         <div className="kpi-box">
           <span className="kpi-label">Facturado total</span>
-          <span className="kpi-value">
-            ${totalFacturado.toLocaleString("es-AR")}
-          </span>
+          <span className="kpi-value">${stats.totalFacturado.toLocaleString("es-AR")}</span>
         </div>
-
         <div className="kpi-box">
-          <span className="kpi-label">Ventas enviadas</span>
-          <span className="kpi-value">{ventasEnviadas}</span>
+          <span className="kpi-label">Facturado este mes</span>
+          <span className="kpi-value">${stats.facturadoMes.toLocaleString("es-AR")}</span>
         </div>
-
+        <div className="kpi-box">
+          <span className="kpi-label">Enviadas</span>
+          <span className="kpi-value">{stats.ventasEnviadas}</span>
+        </div>
         <div className="kpi-box">
           <span className="kpi-label">Pendientes de envío</span>
-          <span className="kpi-value">{ventasPendientes}</span>
+          <span className="kpi-value">{stats.ventasPendientes}</span>
         </div>
-
-        {/* NUEVO KPI: CLIENTE DEL MES */}
         <div className="kpi-box">
           <span className="kpi-label">Cliente del mes</span>
-          <span className="kpi-value">
-            {topClienteMes ? topClienteMes.nombre : "—"}
+          <span className="kpi-value" style={{ fontSize: "1rem" }}>
+            {stats.topClienteMes ? stats.topClienteMes.nombre : "—"}
           </span>
-          {topClienteMes && (
+          {stats.topClienteMes && (
             <span className="kpi-sub">
-              ${topClienteMes.total.toLocaleString("es-AR")}
+              ${stats.topClienteMes.total.toLocaleString("es-AR")} &middot;{" "}
+              {stats.topClienteMes.ordenes}{" "}
+              {stats.topClienteMes.ordenes === 1 ? "orden" : "órdenes"}
             </span>
           )}
         </div>
       </div>
 
-      {/* ============================
-          GRÁFICOS EN GRID
-      ============================ */}
+      {/* Gráficos */}
       <div className="stats-graphs-grid">
-
-        <div className="graph-box">
-          <h3>Facturación por mes</h3>
-          <Line data={lineData} options={{ maintainAspectRatio: false }} />
-        </div>
-
-        <div className="graph-box">
-          <h3>Métodos de envío</h3>
-          <Pie data={pieData} options={{ maintainAspectRatio: false }} />
+        <div className="graph-box" style={{ gridColumn: "1 / -1" }}>
+          <h3>Facturación y órdenes por mes ({new Date().getFullYear()})</h3>
+          <Line data={lineData} options={lineOptions} />
         </div>
 
         <div className="graph-box">
           <h3>Productos más vendidos</h3>
-          <Bar data={barData} options={{ maintainAspectRatio: false }} />
+          <Bar data={barData} options={barOptions} />
         </div>
 
+        <div className="graph-box">
+          <h3>Métodos de pago</h3>
+          {pagoLabels.length > 0
+            ? <Pie data={piePagoData} options={pieOptions} />
+            : <p style={{ color: "#aaa", marginTop: 20 }}>Sin datos</p>}
+        </div>
+
+        <div className="graph-box">
+          <h3>Métodos de envío</h3>
+          {envioLabels.length > 0
+            ? <Pie data={pieEnvioData} options={pieOptions} />
+            : <p style={{ color: "#aaa", marginTop: 20 }}>Sin datos</p>}
+        </div>
       </div>
     </div>
   );

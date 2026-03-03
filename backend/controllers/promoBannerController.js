@@ -29,7 +29,7 @@ export const getBanner = async (req, res) => {
 // Actualizar configuración del banner
 export const updateBanner = async (req, res) => {
   try {
-    const { message, autoplay, interval, fontSize, mobileFontSize, mobileColor, textAlign, textColor, fontWeight, fontStyle, textTransform, topPercent, maxWidth } = req.body;
+    const { message, autoplay, interval, fontSize, mobileFontSize, mobileColor, textAlign, textColor, fontWeight, fontStyle, textTransform, topPercent, maxWidth, bearMessage } = req.body;
 
     let banner = await PromoBanner.findOne({ active: true });
 
@@ -64,6 +64,7 @@ export const updateBanner = async (req, res) => {
       if (textTransform !== undefined) banner.textTransform = textTransform;
       if (topPercent !== undefined) banner.topPercent = topPercent;
       if (maxWidth !== undefined) banner.maxWidth = maxWidth;
+      if (bearMessage !== undefined) banner.bearMessage = bearMessage;
     }
 
     await banner.save();
