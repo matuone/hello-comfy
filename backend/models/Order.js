@@ -160,7 +160,10 @@ const OrderSchema = new mongoose.Schema({
   totals: {
     subtotal: { type: Number, required: true },
     shipping: { type: Number, default: 0 },
-    discount: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },       // total agregado (suma de los 3 siguientes)
+    promo3x2Discount: { type: Number, default: 0 },
+    promoDiscount: { type: Number, default: 0 },
+    transferDiscount: { type: Number, default: 0 },
     total: { type: Number, required: true },
   },
 

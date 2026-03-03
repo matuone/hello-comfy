@@ -129,10 +129,19 @@ export default function OrderDetails() {
         <div className="od-section">
           <h2>Totales</h2>
           <p><strong>Subtotal:</strong> ${order.totals.subtotal.toLocaleString("es-AR")}</p>
-          <p><strong>Envío:</strong> ${order.totals.shipping.toLocaleString("es-AR")}</p>
-          {order.totals.discount > 0 && (
+          {order.totals?.promo3x2Discount > 0 && (
+            <p><strong>Descuento 3x2:</strong> -${order.totals.promo3x2Discount.toLocaleString("es-AR")}</p>
+          )}
+          {order.totals?.promoDiscount > 0 && (
+            <p><strong>Cupón{order.promoCode ? ` (${order.promoCode})` : ""}:</strong> -${order.totals.promoDiscount.toLocaleString("es-AR")}</p>
+          )}
+          {order.totals?.transferDiscount > 0 && (
+            <p><strong>Desc. transferencia (10%):</strong> -${order.totals.transferDiscount.toLocaleString("es-AR")}</p>
+          )}
+          {order.totals?.discount > 0 && !order.totals?.promo3x2Discount && !order.totals?.promoDiscount && !order.totals?.transferDiscount && (
             <p><strong>Descuento:</strong> -${order.totals.discount.toLocaleString("es-AR")}</p>
           )}
+          <p><strong>Envío:</strong> ${order.totals.shipping.toLocaleString("es-AR")}</p>
           <p className="od-total">
             <strong>Total:</strong> ${order.totals.total.toLocaleString("es-AR")}
           </p>

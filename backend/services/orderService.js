@@ -98,6 +98,9 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
           return {
             subtotal: tb.subtotal,
             shipping: tb.shipping || 0,
+            promo3x2Discount: tb.promo3x2Discount || 0,
+            promoDiscount: tb.promoDiscount || 0,
+            transferDiscount: tb.transferDiscount || 0,
             discount: (tb.promo3x2Discount || 0) + (tb.promoDiscount || 0) + (tb.transferDiscount || 0),
             total: tb.total,
           };
@@ -105,6 +108,9 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         return {
           subtotal: pendingOrderData.totalPrice,
           shipping: 0,
+          promo3x2Discount: 0,
+          promoDiscount: 0,
+          transferDiscount: 0,
           discount: 0,
           total: paymentData.transaction_amount || pendingOrderData.totalPrice,
         };

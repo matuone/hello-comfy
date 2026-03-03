@@ -190,28 +190,40 @@ export async function validateCartPrices(clientItems, options = {}) {
     subtotal += finalPrice * item.quantity;
   });
 
-  // 6) Aplicar promociones 3x2
+  // 6) Aplicar promociones 3x2 — pool unificado entre todas las reglas
+  // (remeras + merch + etc. se cuentan juntos si cada una tiene su regla 3x2)
   let promo3x2Discount = 0;
   const rules3x2 = discountRules.filter((r) => r.type === "3x2");
 
-  rules3x2.forEach((rule) => {
-    const group = validatedItems.filter(
-      (item) => {
+  if (rules3x2.length > 0) {
+    const matched3x2Keys = new Set();
+    rules3x2.forEach((rule) => {
+      validatedItems.forEach((item) => {
         const iCats = Array.isArray(item.category) ? item.category : [item.category];
         const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-        return iCats.includes(rule.category) && iSubs.includes(rule.subcategory);
-      }
-    );
+        if (
+          iCats.includes(rule.category) &&
+          (rule.subcategory === "none" || iSubs.includes(rule.subcategory))
+        ) {
+          // Usar productId+size como key único
+          matched3x2Keys.add(`${item.productId}-${item.size || "nosize"}`);
+        }
+      });
+    });
 
-    const totalQty = group.reduce((acc, i) => acc + i.quantity, 0);
+    const pool = validatedItems.filter((item) =>
+      matched3x2Keys.has(`${item.productId}-${item.size || "nosize"}`)
+    );
+    const totalQty = pool.reduce((acc, i) => acc + i.quantity, 0);
 
     if (totalQty >= 3) {
       const freeUnits = Math.floor(totalQty / 3);
-      const sorted = [...group].sort((a, b) => a.price - b.price);
-      const cheapest = sorted[0];
-      promo3x2Discount += cheapest.price * freeUnits;
+      // Expandir por cantidad y ordenar: las unidades gratis son las más baratas
+      const expanded = pool.flatMap((item) => Array(item.quantity).fill(item.price));
+      expanded.sort((a, b) => a - b);
+      promo3x2Discount = expanded.slice(0, freeUnits).reduce((s, p) => s + p, 0);
     }
-  });
+  }
 
   let total = subtotal - promo3x2Discount;
 
