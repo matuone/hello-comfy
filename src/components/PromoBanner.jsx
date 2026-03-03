@@ -136,6 +136,11 @@ export default function PromoBanner(props) {
   var backendMessage = bannerData?.message;
   var finalMessage = backendMessage || savedMessage || "Aprovechá hoy 3x2 en remeras 🧸";
   var bannerFontSize = bannerData?.fontSize || 64;
+  var bannerTextAlign = bannerData?.textAlign || 'left';
+  var bannerTextColor = bannerData?.textColor || '#ffffff';
+  var bannerFontWeight = bannerData?.fontWeight ?? 900;
+  var bannerFontStyle = bannerData?.fontStyle || 'normal';
+  var bannerTextTransform = bannerData?.textTransform || 'none';
 
   if (loading) {
     return null; // O un skeleton loader
@@ -148,7 +153,17 @@ export default function PromoBanner(props) {
       className={`promoBanner ${props.fullBleed ? "fullBleed" : ""}`}
     >
       {/* TEXTO SUPERPUESTO */}
-      <div className="promoBanner__message" style={{ fontSize: `${bannerFontSize}px` }}>
+      <div
+        className="promoBanner__message"
+        style={{
+          fontSize: `${bannerFontSize}px`,
+          textAlign: bannerTextAlign,
+          color: bannerTextColor,
+          fontWeight: bannerFontWeight,
+          fontStyle: bannerFontStyle,
+          textTransform: bannerTextTransform,
+        }}
+      >
         <MarketingMessage message={finalMessage} />
       </div>
 

@@ -39,6 +39,13 @@ export default function AdminMarketing() {
   const [interval, setInterval] = useState(5000);
   const [bannerFontSize, setBannerFontSize] = useState(64);
 
+  // Estilos de texto del banner (desktop)
+  const [bannerTextAlign, setBannerTextAlign] = useState('left');
+  const [bannerTextColor, setBannerTextColor] = useState('#ffffff');
+  const [bannerFontWeight, setBannerFontWeight] = useState(900);
+  const [bannerFontStyle, setBannerFontStyle] = useState('normal');
+  const [bannerTextTransform, setBannerTextTransform] = useState('none');
+
   // Estado para banner mobile
   const [mobileFontSize, setMobileFontSize] = useState(28);
   const [mobileColor, setMobileColor] = useState('#d72660');
@@ -85,6 +92,11 @@ export default function AdminMarketing() {
         setBannerFontSize(data.fontSize || 64);
         setMobileFontSize(data.mobileFontSize || 28);
         setMobileColor(data.mobileColor || '#d72660');
+        if (data.textAlign) setBannerTextAlign(data.textAlign);
+        if (data.textColor) setBannerTextColor(data.textColor);
+        if (data.fontWeight !== undefined) setBannerFontWeight(data.fontWeight);
+        if (data.fontStyle) setBannerFontStyle(data.fontStyle);
+        if (data.textTransform) setBannerTextTransform(data.textTransform);
       }
     } catch (error) {
       // Error cargando configuración del banner
@@ -124,7 +136,7 @@ export default function AdminMarketing() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize, mobileFontSize, mobileColor })
+        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize, mobileFontSize, mobileColor, textAlign: bannerTextAlign, textColor: bannerTextColor, fontWeight: bannerFontWeight, fontStyle: bannerFontStyle, textTransform: bannerTextTransform })
       });
 
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
@@ -569,10 +581,139 @@ export default function AdminMarketing() {
           <span style={{ color: '#888', fontSize: '13px' }}>{bannerFontSize}px</span>
         </div>
 
+        {/* Alineación del texto */}
+        <label className="marketing-label" style={{ marginTop: '15px' }}>Posición del texto (desktop)</label>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {[
+            { value: 'left', label: '⬅ Izquierda' },
+            { value: 'center', label: '↔ Centro' },
+            { value: 'right', label: '➡ Derecha' },
+          ].map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setBannerTextAlign(value)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '6px',
+                border: `2px solid ${bannerTextAlign === value ? '#d72660' : '#ccc'}`,
+                background: bannerTextAlign === value ? '#d72660' : '#fff',
+                color: bannerTextAlign === value ? '#fff' : '#333',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '13px',
+                transition: 'all 0.15s',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Color del texto */}
+        <label className="marketing-label" style={{ marginTop: '15px' }}>Color del texto</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <input
+            type="color"
+            value={bannerTextColor}
+            onChange={(e) => setBannerTextColor(e.target.value)}
+            style={{ width: '48px', height: '36px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', padding: '2px' }}
+          />
+          <span style={{ color: '#555', fontSize: '13px' }}>{bannerTextColor}</span>
+        </div>
+
+        {/* Estilos de texto */}
+        <label className="marketing-label" style={{ marginTop: '15px' }}>Estilos de texto</label>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Negrita */}
+          <button
+            onClick={() => setBannerFontWeight(bannerFontWeight === 900 ? 400 : 900)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '6px',
+              border: `2px solid ${bannerFontWeight === 900 ? '#d72660' : '#ccc'}`,
+              background: bannerFontWeight === 900 ? '#d72660' : '#fff',
+              color: bannerFontWeight === 900 ? '#fff' : '#333',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            <strong>N</strong>egrita
+          </button>
+
+          {/* Cursiva */}
+          <button
+            onClick={() => setBannerFontStyle(bannerFontStyle === 'italic' ? 'normal' : 'italic')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '6px',
+              border: `2px solid ${bannerFontStyle === 'italic' ? '#d72660' : '#ccc'}`,
+              background: bannerFontStyle === 'italic' ? '#d72660' : '#fff',
+              color: bannerFontStyle === 'italic' ? '#fff' : '#333',
+              fontStyle: 'italic',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            <em>C</em>ursiva
+          </button>
+
+          {/* Mayúsculas */}
+          <button
+            onClick={() => setBannerTextTransform(bannerTextTransform === 'uppercase' ? 'none' : 'uppercase')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '6px',
+              border: `2px solid ${bannerTextTransform === 'uppercase' ? '#d72660' : '#ccc'}`,
+              background: bannerTextTransform === 'uppercase' ? '#d72660' : '#fff',
+              color: bannerTextTransform === 'uppercase' ? '#fff' : '#333',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '13px',
+              textTransform: 'uppercase',
+            }}
+          >
+            Mayúsculas
+          </button>
+
+          {/* Capitalizar */}
+          <button
+            onClick={() => setBannerTextTransform(bannerTextTransform === 'capitalize' ? 'none' : 'capitalize')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '6px',
+              border: `2px solid ${bannerTextTransform === 'capitalize' ? '#d72660' : '#ccc'}`,
+              background: bannerTextTransform === 'capitalize' ? '#d72660' : '#fff',
+              color: bannerTextTransform === 'capitalize' ? '#fff' : '#333',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '13px',
+              textTransform: 'capitalize',
+            }}
+          >
+            Capitalizar
+          </button>
+        </div>
+
         {/* Vista previa del mensaje */}
         <div style={{ marginTop: '15px' }}>
           <h3 style={{ marginBottom: '10px', fontSize: '16px', color: '#555' }}>Vista previa del mensaje</h3>
-          <div className="marketing-preview-box" style={{ fontSize: `${Math.min(bannerFontSize, 40)}px`, fontWeight: 900, lineHeight: 1.1 }}>{message}</div>
+          <div
+            className="marketing-preview-box"
+            style={{
+              fontSize: `${Math.min(bannerFontSize, 40)}px`,
+              fontWeight: bannerFontWeight,
+              fontStyle: bannerFontStyle,
+              textTransform: bannerTextTransform,
+              textAlign: bannerTextAlign,
+              color: bannerTextColor,
+              lineHeight: 1.1,
+              background: '#444',
+            }}
+          >
+            {message}
+          </div>
         </div>
 
         {/* Mensaje del osito */}

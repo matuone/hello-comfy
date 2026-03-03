@@ -39,6 +39,30 @@ const promoBannerSchema = new mongoose.Schema({
     type: String,
     default: '#d72660'
   },
+  // Estilos de texto del banner (desktop)
+  textAlign: {
+    type: String,
+    enum: ['left', 'center', 'right'],
+    default: 'left'
+  },
+  textColor: {
+    type: String,
+    default: '#ffffff'
+  },
+  fontWeight: {
+    type: Number,
+    default: 900
+  },
+  fontStyle: {
+    type: String,
+    enum: ['normal', 'italic'],
+    default: 'normal'
+  },
+  textTransform: {
+    type: String,
+    enum: ['none', 'uppercase', 'lowercase', 'capitalize'],
+    default: 'none'
+  },
   active: {
     type: Boolean,
     default: true
