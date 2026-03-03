@@ -246,7 +246,10 @@ export function CartProvider({ children }) {
           (item) => {
             const itemCats = Array.isArray(item.category) ? item.category : [item.category];
             const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-            return itemCats.includes(rule.category) && itemSubs.includes(rule.subcategory);
+            return (
+              itemCats.includes(rule.category) &&
+              (rule.subcategory === "none" || itemSubs.includes(rule.subcategory))
+            );
           }
         );
 

@@ -176,7 +176,9 @@ export default function Cart() {
   // ENVÍO GRATIS POR REGLA DE DESCUENTO O POR THRESHOLD
   // ============================
   // Primero calcular subtotal para verificar threshold
-  const subtotal = items.reduce((acc, item) => {
+
+  // Subtotal base: aplica descuentos de porcentaje por item, SIN 3x2 por item
+  const subtotalBase = items.reduce((acc, item) => {
     const basePrice = typeof item.price === "number" ? item.price : 0;
 
     let finalPrice =
@@ -190,12 +192,35 @@ export default function Cart() {
       finalPrice = finalPrice - (finalPrice * rule.discount) / 100;
     }
 
-    if (rule?.type === "3x2") {
-      return acc + apply3x2(finalPrice, item.quantity);
-    }
-
     return acc + finalPrice * item.quantity;
   }, 0);
+
+  // Descuento 3x2 agrupado: suma cantidades de TODOS los items que coincidan
+  // con la misma regla y aplica la promo al más barato del grupo
+  const promo3x2Discount = (() => {
+    let discount = 0;
+    discountRules
+      .filter((r) => r.type === "3x2")
+      .forEach((rule) => {
+        const group = items.filter((item) => {
+          const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+          const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+          return (
+            itemCats.includes(rule.category) &&
+            (rule.subcategory === "none" || itemSubs.includes(rule.subcategory))
+          );
+        });
+        const totalQty = group.reduce((acc, i) => acc + i.quantity, 0);
+        if (totalQty >= 3) {
+          const freeUnits = Math.floor(totalQty / 3);
+          const sorted = [...group].sort((a, b) => a.price - b.price);
+          discount += sorted[0].price * freeUnits;
+        }
+      });
+    return discount;
+  })();
+
+  const subtotal = subtotalBase - promo3x2Discount;
 
   // Verificar envío gratis: por regla de categoría O por threshold
   const freeShippingByRule = items.some((item) => {
@@ -211,15 +236,6 @@ export default function Cart() {
 
   const freeShippingByThreshold = isActiveThreshold && freeShippingThreshold > 0 && subtotal >= freeShippingThreshold;
   const freeShipping = freeShippingByRule || freeShippingByThreshold;
-
-  // ============================
-  // FUNCIÓN: 3x2 REAL
-  // ============================
-  function apply3x2(price, qty) {
-    const groups = Math.floor(qty / 3);
-    const remainder = qty % 3;
-    return groups * 2 * price + remainder * price;
-  }
 
   // ============================
   // TOTAL FINAL CON CÓDIGO PROMO + ENVÍO
