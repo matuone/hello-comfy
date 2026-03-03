@@ -185,8 +185,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         color: item.color,
       }));
 
-      const dniMatch = formData.phone.match(/\d{7,8}/);
-      const dni = dniMatch ? dniMatch[0] : "0000000";
+      const dni = (formData.dni || "").replace(/\D/g, "") || "0000000";
 
       const checkout = await createGocuotasCheckout({
         items: itemsValidos,
