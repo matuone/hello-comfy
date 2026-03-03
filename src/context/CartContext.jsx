@@ -237,36 +237,33 @@ export function CartProvider({ children }) {
   // APLICAR PROMOCIÓN 3x2
   // ============================
   const apply3x2Promotions = () => {
-    let discountAmount = 0;
+    const rules3x2 = discountRules.filter((r) => r.type === "3x2");
+    if (rules3x2.length === 0) return 0;
 
-    discountRules
-      .filter((r) => r.type === "3x2")
-      .forEach((rule) => {
-        const group = items.filter(
-          (item) => {
-            const itemCats = Array.isArray(item.category) ? item.category : [item.category];
-            const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-            return (
-              itemCats.includes(rule.category) &&
-              (rule.subcategory === "none" || itemSubs.includes(rule.subcategory))
-            );
-          }
-        );
-
-        const totalQty = group.reduce((acc, i) => acc + i.quantity, 0);
-
-        if (totalQty >= 3) {
-          const freeUnits = Math.floor(totalQty / 3);
-
-          // Tomamos el precio más barato del grupo (estándar en 3x2)
-          const sorted = [...group].sort((a, b) => a.price - b.price);
-          const cheapest = sorted[0];
-
-          discountAmount += cheapest.price * freeUnits;
+    // Pool unificado: cualquier ítem que califica para ALGUNA regla 3x2
+    const matchedKeys = new Set();
+    rules3x2.forEach((rule) => {
+      items.forEach((item) => {
+        const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+        const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+        if (
+          itemCats.includes(rule.category) &&
+          (rule.subcategory === "none" || itemSubs.includes(rule.subcategory))
+        ) {
+          matchedKeys.add(item.key);
         }
       });
+    });
 
-    return discountAmount;
+    const pool = items.filter((item) => matchedKeys.has(item.key));
+    const totalQty = pool.reduce((acc, i) => acc + i.quantity, 0);
+    if (totalQty < 3) return 0;
+
+    const freeUnits = Math.floor(totalQty / 3);
+    // Expandir según cantidad y ordenar: las unidades gratis son las más baratas
+    const expanded = pool.flatMap((item) => Array(item.quantity).fill(item.price));
+    expanded.sort((a, b) => a - b);
+    return expanded.slice(0, freeUnits).reduce((s, p) => s + p, 0);
   };
 
   // ============================

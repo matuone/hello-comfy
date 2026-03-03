@@ -195,29 +195,35 @@ export default function Cart() {
     return acc + finalPrice * item.quantity;
   }, 0);
 
-  // Descuento 3x2 agrupado: suma cantidades de TODOS los items que coincidan
-  // con la misma regla y aplica la promo al más barato del grupo
+  // Descuento 3x2 unificado: junta TODOS los ítems que califiquen para
+  // CUALQUIER regla 3x2 en un solo pool. Así, 2 remeras + 1 merch = 3x2.
+  const rules3x2 = discountRules.filter((r) => r.type === "3x2");
+
+  // Set de keys de ítems que entran al pool 3x2 (se reutiliza para badges)
+  const matched3x2Keys = new Set();
+  rules3x2.forEach((rule) => {
+    items.forEach((item) => {
+      const itemCats = Array.isArray(item.category) ? item.category : [item.category];
+      const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+      if (
+        itemCats.includes(rule.category) &&
+        (rule.subcategory === "none" || itemSubs.includes(rule.subcategory))
+      ) {
+        matched3x2Keys.add(item.key);
+      }
+    });
+  });
+
   const promo3x2Discount = (() => {
-    let discount = 0;
-    discountRules
-      .filter((r) => r.type === "3x2")
-      .forEach((rule) => {
-        const group = items.filter((item) => {
-          const itemCats = Array.isArray(item.category) ? item.category : [item.category];
-          const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-          return (
-            itemCats.includes(rule.category) &&
-            (rule.subcategory === "none" || itemSubs.includes(rule.subcategory))
-          );
-        });
-        const totalQty = group.reduce((acc, i) => acc + i.quantity, 0);
-        if (totalQty >= 3) {
-          const freeUnits = Math.floor(totalQty / 3);
-          const sorted = [...group].sort((a, b) => a.price - b.price);
-          discount += sorted[0].price * freeUnits;
-        }
-      });
-    return discount;
+    if (rules3x2.length === 0) return 0;
+    const pool = items.filter((item) => matched3x2Keys.has(item.key));
+    const totalQty = pool.reduce((acc, i) => acc + i.quantity, 0);
+    if (totalQty < 3) return 0;
+    const freeUnits = Math.floor(totalQty / 3);
+    // Expandir según cantidad y ordenar: las unidades gratis son las más baratas
+    const expanded = pool.flatMap((item) => Array(item.quantity).fill(item.price));
+    expanded.sort((a, b) => a - b);
+    return expanded.slice(0, freeUnits).reduce((s, p) => s + p, 0);
   })();
 
   const subtotal = subtotalBase - promo3x2Discount;
@@ -432,7 +438,7 @@ export default function Cart() {
                     <p className="cart-item-color">Color: {item.color}</p>
                   )}
 
-                  {rule?.type === "3x2" && (
+                  {matched3x2Keys.has(item.key) && (
                     <p className="cart-item-promo">Promo 3x2 aplicada</p>
                   )}
 
