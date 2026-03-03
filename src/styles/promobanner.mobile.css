@@ -9,8 +9,7 @@
   text-align: center;
   position: relative;
   z-index: 10;
-  margin-top: 96px;
-  /* Ajuste más fino para eliminar completamente la línea blanca */
+  margin-top: 0;
 }
 
 .promoBannerMobile__message-overlay {

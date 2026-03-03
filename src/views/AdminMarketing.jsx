@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import "../styles/adminmarketing.css";
 import NotificationModal from "../components/NotificationModal";
 import ConfirmModal from "../components/ConfirmModal";
@@ -39,12 +41,10 @@ export default function AdminMarketing() {
   const [interval, setInterval] = useState(5000);
   const [bannerFontSize, setBannerFontSize] = useState(64);
 
-  // Estilos de texto del banner (desktop)
+  // Posición del bloque de texto en el banner
   const [bannerTextAlign, setBannerTextAlign] = useState('left');
-  const [bannerTextColor, setBannerTextColor] = useState('#ffffff');
-  const [bannerFontWeight, setBannerFontWeight] = useState(900);
-  const [bannerFontStyle, setBannerFontStyle] = useState('normal');
-  const [bannerTextTransform, setBannerTextTransform] = useState('none');
+  const [bannerTopPercent, setBannerTopPercent] = useState(25);
+  const [bannerMaxWidth, setBannerMaxWidth] = useState(100);
 
   // Estado para banner mobile
   const [mobileFontSize, setMobileFontSize] = useState(28);
@@ -55,6 +55,13 @@ export default function AdminMarketing() {
   const [previewPosition, setPreviewPosition] = useState({ x: 50, y: 50 });
   const [isDragging, setIsDragging] = useState(false);
   const previewRef = useRef(null);
+
+  // Preview de texto del banner (scale transform)
+  const bannerPreviewContainerRef = useRef(null);
+  const bannerPreviewInnerRef = useRef(null);
+  const [bannerPreviewScale, setBannerPreviewScale] = useState(0.5);
+  const [bannerPreviewInnerH, setBannerPreviewInnerH] = useState(800);
+  const BANNER_REF_W = 1400;
 
   // Estado para modales
   const [notification, setNotification] = useState(null);
@@ -93,10 +100,8 @@ export default function AdminMarketing() {
         setMobileFontSize(data.mobileFontSize || 28);
         setMobileColor(data.mobileColor || '#d72660');
         if (data.textAlign) setBannerTextAlign(data.textAlign);
-        if (data.textColor) setBannerTextColor(data.textColor);
-        if (data.fontWeight !== undefined) setBannerFontWeight(data.fontWeight);
-        if (data.fontStyle) setBannerFontStyle(data.fontStyle);
-        if (data.textTransform) setBannerTextTransform(data.textTransform);
+        if (data.topPercent !== undefined) setBannerTopPercent(data.topPercent);
+        if (data.maxWidth !== undefined) setBannerMaxWidth(data.maxWidth);
       }
     } catch (error) {
       // Error cargando configuración del banner
@@ -136,7 +141,7 @@ export default function AdminMarketing() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize, mobileFontSize, mobileColor, textAlign: bannerTextAlign, textColor: bannerTextColor, fontWeight: bannerFontWeight, fontStyle: bannerFontStyle, textTransform: bannerTextTransform })
+        body: JSON.stringify({ message, autoplay, interval, fontSize: bannerFontSize, mobileFontSize, mobileColor, textAlign: bannerTextAlign, topPercent: bannerTopPercent, maxWidth: bannerMaxWidth })
       });
 
       if (!bannerResponse.ok) throw new Error('Error al actualizar banner');
@@ -160,6 +165,9 @@ export default function AdminMarketing() {
 
       // Notificar al home que el copy cambió
       window.dispatchEvent(new Event("homeCopyUpdated"));
+
+      // Notificar al banner que fue actualizado (refetch en PromoBanner)
+      window.dispatchEvent(new Event("bannerUpdated"));
 
       setNotification({ mensaje: "Cambios guardados correctamente", tipo: "success" });
     } catch (error) {
@@ -437,6 +445,26 @@ export default function AdminMarketing() {
     }
   }, [isDragging]);
 
+  useEffect(() => {
+    if (!bannerPreviewContainerRef.current) return;
+    const obs = new ResizeObserver(entries => {
+      const w = entries[0].contentRect.width;
+      setBannerPreviewScale(w / BANNER_REF_W);
+    });
+    obs.observe(bannerPreviewContainerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  // Medir altura real del inner div para compensar el scale en el marginBottom
+  useEffect(() => {
+    if (!bannerPreviewInnerRef.current) return;
+    const obs = new ResizeObserver(entries => {
+      setBannerPreviewInnerH(entries[0].contentRect.height);
+    });
+    obs.observe(bannerPreviewInnerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
   // AnnouncementBar messages (lista editable)
   const [announcementMessages, setAnnouncementMessages] = useState([]);
   const [newAnnouncementMessage, setNewAnnouncementMessage] = useState("");
@@ -552,12 +580,22 @@ export default function AdminMarketing() {
 
         {/* Mensaje del banner */}
         <label className="marketing-label">Mensaje del banner</label>
-        <textarea
-          className="marketing-textarea"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={3}
-        />
+        <div className="banner-quill-wrapper">
+          <ReactQuill
+            theme="snow"
+            value={message}
+            onChange={setMessage}
+            modules={{
+              toolbar: [
+                ['bold', 'italic', 'underline'],
+                [{ color: [] }, { background: [] }],
+                [{ align: [] }],
+                ['clean'],
+              ],
+            }}
+            formats={['bold', 'italic', 'underline', 'color', 'background', 'align']}
+          />
+        </div>
 
         {/* Tamaño de fuente del banner */}
         <label className="marketing-label" style={{ marginTop: '15px' }}>Tamaño de fuente del banner (px)</label>
@@ -581,8 +619,8 @@ export default function AdminMarketing() {
           <span style={{ color: '#888', fontSize: '13px' }}>{bannerFontSize}px</span>
         </div>
 
-        {/* Alineación del texto */}
-        <label className="marketing-label" style={{ marginTop: '15px' }}>Posición del texto (desktop)</label>
+        {/* Posición del texto */}
+        <label className="marketing-label" style={{ marginTop: '15px' }}>Posición horizontal</label>
         <div style={{ display: 'flex', gap: '8px' }}>
           {[
             { value: 'left', label: '⬅ Izquierda' },
@@ -609,110 +647,88 @@ export default function AdminMarketing() {
           ))}
         </div>
 
-        {/* Color del texto */}
-        <label className="marketing-label" style={{ marginTop: '15px' }}>Color del texto</label>
+        <label className="marketing-label" style={{ marginTop: '15px' }}>Posición vertical en el banner: {bannerTopPercent}%</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ color: '#888', fontSize: '12px' }}>Arriba</span>
           <input
-            type="color"
-            value={bannerTextColor}
-            onChange={(e) => setBannerTextColor(e.target.value)}
-            style={{ width: '48px', height: '36px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', padding: '2px' }}
+            type="range"
+            min="0"
+            max="80"
+            value={bannerTopPercent}
+            onChange={(e) => setBannerTopPercent(Number(e.target.value))}
+            style={{ flex: 1 }}
           />
-          <span style={{ color: '#555', fontSize: '13px' }}>{bannerTextColor}</span>
+          <span style={{ color: '#888', fontSize: '12px' }}>Abajo</span>
         </div>
 
-        {/* Estilos de texto */}
-        <label className="marketing-label" style={{ marginTop: '15px' }}>Estilos de texto</label>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {/* Negrita */}
-          <button
-            onClick={() => setBannerFontWeight(bannerFontWeight === 900 ? 400 : 900)}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: `2px solid ${bannerFontWeight === 900 ? '#d72660' : '#ccc'}`,
-              background: bannerFontWeight === 900 ? '#d72660' : '#fff',
-              color: bannerFontWeight === 900 ? '#fff' : '#333',
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
-          >
-            <strong>N</strong>egrita
-          </button>
-
-          {/* Cursiva */}
-          <button
-            onClick={() => setBannerFontStyle(bannerFontStyle === 'italic' ? 'normal' : 'italic')}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: `2px solid ${bannerFontStyle === 'italic' ? '#d72660' : '#ccc'}`,
-              background: bannerFontStyle === 'italic' ? '#d72660' : '#fff',
-              color: bannerFontStyle === 'italic' ? '#fff' : '#333',
-              fontStyle: 'italic',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
-          >
-            <em>C</em>ursiva
-          </button>
-
-          {/* Mayúsculas */}
-          <button
-            onClick={() => setBannerTextTransform(bannerTextTransform === 'uppercase' ? 'none' : 'uppercase')}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: `2px solid ${bannerTextTransform === 'uppercase' ? '#d72660' : '#ccc'}`,
-              background: bannerTextTransform === 'uppercase' ? '#d72660' : '#fff',
-              color: bannerTextTransform === 'uppercase' ? '#fff' : '#333',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: '13px',
-              textTransform: 'uppercase',
-            }}
-          >
-            Mayúsculas
-          </button>
-
-          {/* Capitalizar */}
-          <button
-            onClick={() => setBannerTextTransform(bannerTextTransform === 'capitalize' ? 'none' : 'capitalize')}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: `2px solid ${bannerTextTransform === 'capitalize' ? '#d72660' : '#ccc'}`,
-              background: bannerTextTransform === 'capitalize' ? '#d72660' : '#fff',
-              color: bannerTextTransform === 'capitalize' ? '#fff' : '#333',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: '13px',
-              textTransform: 'capitalize',
-            }}
-          >
-            Capitalizar
-          </button>
+        <label className="marketing-label" style={{ marginTop: '15px' }}>Ancho máximo del bloque de texto: {bannerMaxWidth}%</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ color: '#888', fontSize: '12px' }}>Estrecho</span>
+          <input
+            type="range"
+            min="20"
+            max="100"
+            value={bannerMaxWidth}
+            onChange={(e) => setBannerMaxWidth(Number(e.target.value))}
+            style={{ flex: 1 }}
+          />
+          <span style={{ color: '#888', fontSize: '12px' }}>Ancho</span>
         </div>
+
 
         {/* Vista previa del mensaje */}
         <div style={{ marginTop: '15px' }}>
           <h3 style={{ marginBottom: '10px', fontSize: '16px', color: '#555' }}>Vista previa del mensaje</h3>
+          {/* Contenedor que mide el ancho disponible y se adapta al contenido */}
           <div
-            className="marketing-preview-box"
-            style={{
-              fontSize: `${Math.min(bannerFontSize, 40)}px`,
-              fontWeight: bannerFontWeight,
-              fontStyle: bannerFontStyle,
-              textTransform: bannerTextTransform,
-              textAlign: bannerTextAlign,
-              color: bannerTextColor,
-              lineHeight: 1.1,
-              background: '#444',
-            }}
+            ref={bannerPreviewContainerRef}
+            style={{ width: '100%', borderRadius: '8px', position: 'relative', overflow: 'hidden' }}
           >
-            {message}
+            {/* Banner a tamaño real escalado — paddingTop posiciona el texto para que el contenedor crezca con él */}
+            <div
+              ref={bannerPreviewInnerRef}
+              style={{
+                position: 'relative',
+                width: `${BANNER_REF_W}px`,
+                paddingTop: `${bannerTopPercent}%`,
+                paddingBottom: '80px',
+                transform: `scale(${bannerPreviewScale})`,
+                transformOrigin: 'top left',
+                background: '#444',
+                borderRadius: '8px',
+                boxSizing: 'border-box',
+                marginBottom: `${-(bannerPreviewInnerH * (1 - bannerPreviewScale))}px`,
+              }}
+            >
+              {/* Texto — mismos estilos que PromoBanner.jsx */}
+              <div
+                style={{
+                  width: `${bannerMaxWidth}%`,
+                  ...(bannerTextAlign === 'right'
+                    ? { marginLeft: 'auto', marginRight: 0, paddingRight: '60px' }
+                    : bannerTextAlign === 'center'
+                      ? { marginLeft: 'auto', marginRight: 'auto' }
+                      : { marginLeft: 0, marginRight: 'auto', paddingLeft: '60px' }),
+                  fontSize: `${bannerFontSize}px`,
+                  color: '#ffffff',
+                  lineHeight: 1.05,
+                  textShadow: '0 5px 20px rgba(0,0,0,0.55)',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
+                }}
+                className="banner-preview-html"
+                dangerouslySetInnerHTML={{ __html: (message || '').replace(/&nbsp;/g, ' ') }}
+              />
+            </div>
+          </div>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              className="btn-guardar"
+              onClick={guardar}
+              disabled={loading}
+            >
+              {loading ? 'Guardando...' : 'Aplicar cambios'}
+            </button>
           </div>
         </div>
 
@@ -823,23 +839,27 @@ export default function AdminMarketing() {
         {/* Vista previa mobile */}
         <div style={{ marginTop: '10px' }}>
           <h4 style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>Vista previa mobile</h4>
-          <div style={{
-            background: '#222',
-            borderRadius: '12px',
-            padding: '30px 20px',
-            textAlign: 'center',
-            maxWidth: '360px',
-            margin: '0 auto'
-          }}>
-            <span style={{
-              color: mobileColor,
-              fontSize: `${Math.min(mobileFontSize, 36)}px`,
-              fontWeight: 900,
-              lineHeight: 1.15,
-              textShadow: '0 2px 16px rgba(0,0,0,0.3)'
-            }}>
-              {message}
-            </span>
+          <div
+            className="mobile-banner-preview"
+            style={{
+              background: '#222',
+              borderRadius: '12px',
+              padding: '30px 20px',
+              textAlign: 'center',
+              maxWidth: '360px',
+              margin: '0 auto'
+            }}
+          >
+            <div
+              style={{
+                color: mobileColor,
+                fontSize: `${Math.min(mobileFontSize, 36)}px`,
+                fontWeight: 900,
+                lineHeight: 1.15,
+                textShadow: '0 2px 16px rgba(0,0,0,0.3)'
+              }}
+              dangerouslySetInnerHTML={{ __html: (message || '').replace(/&nbsp;/g, ' ') }}
+            />
           </div>
         </div>
       </div>

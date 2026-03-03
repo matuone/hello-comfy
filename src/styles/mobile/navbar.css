@@ -136,8 +136,8 @@
         border-bottom: 1px solid #eee;
         padding: 0.5rem 1rem;
         position: fixed;
-        top: 40px;
-        /* igual al alto de announcementbar-mobile */
+        top: var(--ab-height);
+        /* Dinámico: igual a la altura real del AnnouncementBarMobile */
         left: 0;
         right: 0;
         z-index: 2001;

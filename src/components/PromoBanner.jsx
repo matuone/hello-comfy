@@ -21,7 +21,7 @@ export default function PromoBanner(props) {
   }, []);
 
   // Cargar configuración del banner desde el backend
-  useEffect(() => {
+  function fetchBanner() {
     fetch(apiPath('/promo-banner'))
       .then(res => res.json())
       .then(data => {
@@ -32,7 +32,17 @@ export default function PromoBanner(props) {
         console.error('Error cargando banner:', err);
         setLoading(false);
       });
+  }
+
+  useEffect(() => {
+    fetchBanner();
   }, [API_URL]);
+
+  // Refetch cuando el admin guarda cambios
+  useEffect(() => {
+    window.addEventListener('bannerUpdated', fetchBanner);
+    return () => window.removeEventListener('bannerUpdated', fetchBanner);
+  }, []);
 
   // Usar imágenes del backend o fallback a las por defecto
   const IMGS = useMemo(function () {
@@ -137,10 +147,8 @@ export default function PromoBanner(props) {
   var finalMessage = backendMessage || savedMessage || "Aprovechá hoy 3x2 en remeras 🧸";
   var bannerFontSize = bannerData?.fontSize || 64;
   var bannerTextAlign = bannerData?.textAlign || 'left';
-  var bannerTextColor = bannerData?.textColor || '#ffffff';
-  var bannerFontWeight = bannerData?.fontWeight ?? 900;
-  var bannerFontStyle = bannerData?.fontStyle || 'normal';
-  var bannerTextTransform = bannerData?.textTransform || 'none';
+  var bannerTopPercent = bannerData?.topPercent ?? 25;
+  var bannerMaxWidth = bannerData?.maxWidth ?? 100;
 
   if (loading) {
     return null; // O un skeleton loader
@@ -157,11 +165,14 @@ export default function PromoBanner(props) {
         className="promoBanner__message"
         style={{
           fontSize: `${bannerFontSize}px`,
-          textAlign: bannerTextAlign,
-          color: bannerTextColor,
-          fontWeight: bannerFontWeight,
-          fontStyle: bannerFontStyle,
-          textTransform: bannerTextTransform,
+          color: '#ffffff',
+          top: `${bannerTopPercent}%`,
+          width: `${bannerMaxWidth}%`,
+          ...(bannerTextAlign === 'right'
+            ? { right: '0', left: 'auto', paddingRight: '60px' }
+            : bannerTextAlign === 'center'
+              ? { left: '50%', right: 'auto', transform: 'translateX(-50%)' }
+              : { left: '0', right: 'auto', paddingLeft: '60px' }),
         }}
       >
         <MarketingMessage message={finalMessage} />

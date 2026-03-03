@@ -76,6 +76,15 @@
 }
 
 /* ================================
+   ADMIN MOBILE: sin header fijo → sin padding-top
+================================ */
+@media (max-width: 900px) {
+  .layout__content--admin {
+    padding-top: 0;
+  }
+}
+
+/* ================================
    FOOTER
 ================================ */
 .layout footer {

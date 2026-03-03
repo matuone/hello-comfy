@@ -58,26 +58,39 @@
 }
 
 /* ===========================================
-   TEXTO SUPERPUESTO (IZQUIERDA, MUY GRANDE)
+   TEXTO SUPERPUESTO
 =========================================== */
 .promoBanner__message {
   position: absolute;
-  top: 140px;
-  left: 0;
-  right: 0;
-  padding: 0 60px;
   z-index: 5;
-
-  font-size: clamp(4rem, 8vw, 7rem);
-
   text-shadow: 0 5px 20px rgba(0, 0, 0, 0.55);
-
   line-height: 1.05;
-
   pointer-events: none;
-
-  /* ANIMACIÓN DE ENTRADA */
   animation: promoTextEnter 0.8s ease-out both;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Reset para el HTML generado por Quill */
+.promoBanner__message p,
+.promoBanner__message div {
+  margin: 0;
+  padding: 0;
+}
+
+.promoBanner__message p+p {
+  margin-top: 0.15em;
+}
+
+/* Igual para el preview del admin */
+.banner-preview-html p,
+.banner-preview-html div {
+  margin: 0;
+  padding: 0;
+}
+
+.banner-preview-html p+p {
+  margin-top: 0.15em;
 }
 
 /* ===========================
@@ -86,12 +99,10 @@
 @keyframes promoTextEnter {
   from {
     opacity: 0;
-    transform: translateX(-40px);
   }
 
   to {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 

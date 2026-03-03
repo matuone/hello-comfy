@@ -1,6 +1,6 @@
 // AnnouncementBarMobile.jsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "../../styles/mobile/announcementbar.css";
 
 const MESSAGES = [
@@ -12,11 +12,27 @@ const MESSAGES = [
 export default function AnnouncementBarMobile() {
   const [index, setIndex] = useState(0);
   const [announcementMessages, setAnnouncementMessages] = useState(MESSAGES);
+  const rootRef = useRef(null);
 
-  // Setear la variable CSS para que layout__content tenga el offset correcto
-  useEffect(() => {
-    document.documentElement.style.setProperty("--ab-height", "40px");
+  // Medir la altura REAL del elemento y setear --ab-height dinámicamente
+  // (igual que AnnouncementBar de escritorio) para que navbar-mobile
+  // quede siempre justo debajo, sin gaps ni superposición.
+  useLayoutEffect(() => {
+    const updateHeight = () => {
+      if (!rootRef.current) return;
+      const h = rootRef.current.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--ab-height", `${h}px`);
+    };
+
+    updateHeight();
+
+    const ro = new ResizeObserver(updateHeight);
+    if (rootRef.current) ro.observe(rootRef.current);
+    window.addEventListener("resize", updateHeight, { passive: true });
+
     return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateHeight);
       document.documentElement.style.setProperty("--ab-height", "0px");
     };
   }, []);
@@ -44,7 +60,7 @@ export default function AnnouncementBarMobile() {
   }, [announcementMessages]);
 
   return (
-    <div className="announcementbar-mobile" aria-roledescription="carousel" aria-label="Promos Hello-Comfy">
+    <div ref={rootRef} className="announcementbar-mobile" aria-roledescription="carousel" aria-label="Promos Hello-Comfy">
       <span className="announcementbar-mobile__message">{announcementMessages[index]}</span>
       <div className="announcementbar-mobile__dots">
         {announcementMessages.map((_, i) => (

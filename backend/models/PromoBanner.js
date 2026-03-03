@@ -63,6 +63,15 @@ const promoBannerSchema = new mongoose.Schema({
     enum: ['none', 'uppercase', 'lowercase', 'capitalize'],
     default: 'none'
   },
+  // Posición libre del bloque de texto en el banner
+  topPercent: {
+    type: Number,
+    default: 25
+  },
+  maxWidth: {
+    type: Number,
+    default: 100
+  },
   active: {
     type: Boolean,
     default: true

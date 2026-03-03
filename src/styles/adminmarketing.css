@@ -164,3 +164,58 @@
   background: #b33d62;
   transform: translateY(0);
 }
+/* =============================================
+   EDITOR QUILL — BANNER (fondo oscuro para
+   que el texto blanco sea visible al editarlo)
+============================================= */
+.banner-quill-wrapper {
+  margin-bottom: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.banner-quill-wrapper .ql-toolbar {
+  background: #2a2a2a;
+  border-color: #444;
+  border-radius: 8px 8px 0 0;
+}
+
+.banner-quill-wrapper .ql-toolbar .ql-stroke {
+  stroke: #ccc;
+}
+
+.banner-quill-wrapper .ql-toolbar .ql-fill {
+  fill: #ccc;
+}
+
+.banner-quill-wrapper .ql-toolbar .ql-picker-label {
+  color: #ccc;
+}
+
+.banner-quill-wrapper .ql-container {
+  background: #1a1a1a;
+  border-color: #444;
+  border-radius: 0 0 8px 8px;
+  min-height: 100px;
+}
+
+.banner-quill-wrapper .ql-editor {
+  color: #ffffff;
+  min-height: 100px;
+  font-size: 15px;
+}
+
+.banner-quill-wrapper .ql-editor.ql-blank::before {
+  color: #888;
+}
+
+/* Reset para HTML generado por Quill en la vista previa mobile */
+.mobile-banner-preview p,
+.mobile-banner-preview div {
+  margin: 0;
+  padding: 0;
+}
+
+.mobile-banner-preview p + p {
+  margin-top: 0.15em;
+}
