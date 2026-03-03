@@ -97,7 +97,12 @@ export const createCheckout = async (req, res) => {
       };
     });
 
-    const phoneNumber = (customerData.phone || "").replace(/[^0-9]/g, "");
+    // Parsear teléfono: stripear código de país 54 y prefijo móvil 9 si están presentes
+    // Ej: "5491125025895" → areaCode="11", telephoneNumber="25025895"
+    let phoneNumber = (customerData.phone || "").replace(/[^0-9]/g, "");
+    if (phoneNumber.startsWith("549")) phoneNumber = phoneNumber.slice(3);
+    else if (phoneNumber.startsWith("54")) phoneNumber = phoneNumber.slice(2);
+    if (phoneNumber.startsWith("9") && phoneNumber.length > 10) phoneNumber = phoneNumber.slice(1);
     const areaCode = phoneNumber.substring(0, 2) || "11";
     const telephoneNumber = phoneNumber.substring(2) || "0";
 
