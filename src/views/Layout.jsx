@@ -42,6 +42,9 @@ export default function Layout() {
   const esAdmin = location.pathname.startsWith("/admin");
   const isAdminUser = user?.isAdmin;
 
+  // ⚠️ Todos los hooks deben llamarse antes de cualquier return condicional
+  const { isMobile, isTablet } = useResponsive();
+
   // Si está en modo mantenimiento y no es admin, mostrar página de mantenimiento
   if (isMaintenanceMode && !isAdminUser) {
     return <Maintenance />;
@@ -54,8 +57,6 @@ export default function Layout() {
       location.pathname.startsWith("/create-account") ||
       location.pathname.startsWith("/products"));
 
-
-  const { isMobile, isTablet } = useResponsive();
   const showMobileNav = (isMobile || isTablet) && !esAdmin;
 
   return (
