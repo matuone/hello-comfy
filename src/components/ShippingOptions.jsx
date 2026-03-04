@@ -3,6 +3,37 @@ import { useState, useEffect } from "react";
 import { fetchAgenciesByCP } from "../services/shippingApi";
 import "../styles/shippingoptions.css";
 
+// ============================
+//  Helpers: fechas hábiles
+// ============================
+function addBusinessDays(date, days) {
+  let count = 0;
+  const current = new Date(date);
+  while (count < days) {
+    current.setDate(current.getDate() + 1);
+    const day = current.getDay();
+    if (day !== 0 && day !== 6) count++; // omitir sábado y domingo
+  }
+  return current;
+}
+
+const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+function formatFecha(date) {
+  const dia = DIAS[date.getDay()];
+  const num = String(date.getDate()).padStart(2, "0");
+  const mes = String(date.getMonth() + 1).padStart(2, "0");
+  return `${dia} ${num}/${mes}`;
+}
+
+function calcRangoEntrega(min, max) {
+  if (!min || !max) return null;
+  const hoy = new Date();
+  const fechaMin = addBusinessDays(hoy, min);
+  const fechaMax = addBusinessDays(hoy, max);
+  return `Llega entre el ${formatFecha(fechaMin)} y el ${formatFecha(fechaMax)}`;
+}
+
 export default function ShippingOptions({ result, selected, onSelect, postalCode, initialAgency, freeShipping }) {
   if (!result) return null;
 
@@ -70,6 +101,20 @@ export default function ShippingOptions({ result, selected, onSelect, postalCode
 
   return (
     <div className="shipopt-container">
+      {/* ============================
+          AVISO IMPORTANTE
+      ============================ */}
+      <div className="shipopt-aviso">
+        <span className="shipopt-aviso-icon">⚠️</span>
+        <p>
+          <strong>IMPORTANTE:</strong> Correo Argentino NO llama por teléfono. El rango horario de las
+          entregas es de 9:00 a 18:00 hs. Las fechas de entrega son <strong>ESTIMADAS</strong>, no
+          consideran feriados y/o condiciones climáticas. Las órdenes no pagas se cancelan
+          automáticamente a las 48 hs. Si elegiste envío a sucursal: una vez que llega el paquete,
+          disponés de <strong>4 días hábiles</strong> para retirarlo.
+        </p>
+      </div>
+
       <h4 className="shipopt-title">Opciones de envío de Correo Argentino</h4>
 
       <div className="shipopt-list">
@@ -102,8 +147,17 @@ export default function ShippingOptions({ result, selected, onSelect, postalCode
                         ${opt.data.price.toLocaleString("es-AR")}
                       </p>
                     )}
-                    <small className="shipopt-eta">{opt.data.eta}</small>
                   </div>
+
+                  {/* Rango de fechas estimadas */}
+                  {(() => {
+                    const rango = calcRangoEntrega(opt.data.deliveryTimeMin, opt.data.deliveryTimeMax);
+                    if (rango) {
+                      return <p className="shipopt-fechas">{rango}</p>;
+                    }
+                    // Fallback: mostrar el eta textual si no hay min/max
+                    return opt.data.eta ? <small className="shipopt-eta">{opt.data.eta}</small> : null;
+                  })()}
                 </div>
               </div>
 
@@ -145,6 +199,11 @@ export default function ShippingOptions({ result, selected, onSelect, postalCode
           );
         })}
       </div>
+
+      {/* Aclaración feriados */}
+      <p className="shipopt-feriados">
+        El tiempo de entrega <strong>no considera feriados</strong>.
+      </p>
     </div>
   );
 }

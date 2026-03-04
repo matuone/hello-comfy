@@ -124,6 +124,8 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
           result.home = {
             price: rate.price,
             eta,
+            deliveryTimeMin: rate.deliveryTimeMin,
+            deliveryTimeMax: rate.deliveryTimeMax,
             productName: rate.productName,
             productType: rate.productType,
             available: true
@@ -134,6 +136,8 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
           result.homeExpress = {
             price: rate.price,
             eta,
+            deliveryTimeMin: rate.deliveryTimeMin,
+            deliveryTimeMax: rate.deliveryTimeMax,
             productName: rate.productName,
             productType: rate.productType,
             available: true
@@ -144,6 +148,8 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
           result.branch = {
             price: rate.price,
             eta,
+            deliveryTimeMin: rate.deliveryTimeMin,
+            deliveryTimeMax: rate.deliveryTimeMax,
             productName: rate.productName,
             productType: rate.productType,
             available: true
@@ -153,6 +159,8 @@ export async function cotizarCorreoArgentino({ postalCode, products }) {
           result.branchExpress = {
             price: rate.price,
             eta,
+            deliveryTimeMin: rate.deliveryTimeMin,
+            deliveryTimeMax: rate.deliveryTimeMax,
             productName: rate.productName,
             productType: rate.productType,
             available: true
