@@ -214,16 +214,17 @@ export default function Cart() {
     });
   });
 
-  const promo3x2Discount = (() => {
-    if (rules3x2.length === 0) return 0;
+  const { promo3x2Discount, freeUnitsCount } = (() => {
+    if (rules3x2.length === 0) return { promo3x2Discount: 0, freeUnitsCount: 0 };
     const pool = items.filter((item) => matched3x2Keys.has(item.key));
     const totalQty = pool.reduce((acc, i) => acc + i.quantity, 0);
-    if (totalQty < 3) return 0;
+    if (totalQty < 3) return { promo3x2Discount: 0, freeUnitsCount: 0 };
     const freeUnits = Math.floor(totalQty / 3);
     // Expandir según cantidad y ordenar: las unidades gratis son las más baratas
     const expanded = pool.flatMap((item) => Array(item.quantity).fill(item.price));
     expanded.sort((a, b) => a - b);
-    return expanded.slice(0, freeUnits).reduce((s, p) => s + p, 0);
+    const discount = expanded.slice(0, freeUnits).reduce((s, p) => s + p, 0);
+    return { promo3x2Discount: discount, freeUnitsCount: freeUnits };
   })();
 
   const subtotal = subtotalBase - promo3x2Discount;
@@ -541,24 +542,48 @@ export default function Cart() {
           </div>
 
           {/* ============================
-              SUBTOTAL
+              SUBTOTAL + DESCUENTOS DESGLOSADOS
           ============================ */}
           <div className="cart-summary-row">
             <span>Subtotal</span>
-            <span>${subtotal.toLocaleString("es-AR")}</span>
+            <span>${subtotalBase.toLocaleString("es-AR")}</span>
           </div>
 
-          {/* ============================
-              DESCUENTO PROMO
-          ============================ */}
+          {/* DESCUENTO 3x2 */}
+          {promo3x2Discount > 0 && (
+            <div className="cart-summary-row cart-summary-discount">
+              <span className="cart-summary-discount-label">
+                <strong>Promo 3×2</strong>
+                <small>Llevás 3, pagás 2 · {freeUnitsCount} {freeUnitsCount === 1 ? "unidad gratis" : "unidades gratis"}</small>
+              </span>
+              <span className="cart-summary-discount-amount">-${promo3x2Discount.toLocaleString("es-AR")}</span>
+            </div>
+          )}
+
+          {/* DESCUENTO CÓDIGO PROMO */}
           {promoCodeData && (
-            <div className="cart-summary-row">
-              <span>Descuento ({promoCodeData.discount}%)</span>
+            <div className="cart-summary-row cart-summary-discount">
+              <span className="cart-summary-discount-label">
+                <strong>Código {promoCode}</strong>
+                <small>{promoCodeData.discount}% de descuento aplicado</small>
+              </span>
+              <span className="cart-summary-discount-amount">
+                -${(subtotal * (promoCodeData.discount / 100)).toLocaleString("es-AR")}
+              </span>
+            </div>
+          )}
+
+          {/* AHORRO TOTAL (si hay al menos un descuento) */}
+          {(promo3x2Discount > 0 || promoCodeData) && (
+            <div className="cart-summary-row cart-summary-saving">
+              <span>Total de ahorro</span>
               <span>
-                -$
-                {(subtotal * (promoCodeData.discount / 100)).toLocaleString(
-                  "es-AR"
-                )}
+                -${
+                  (
+                    promo3x2Discount +
+                    (promoCodeData ? subtotal * (promoCodeData.discount / 100) : 0)
+                  ).toLocaleString("es-AR")
+                }
               </span>
             </div>
           )}

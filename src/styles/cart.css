@@ -214,6 +214,60 @@
   margin-top: 4px;
 }
 
+/* ============================
+   FILAS DE DESCUENTO DESGLOSADAS
+============================ */
+.cart-summary-discount {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #fff8e1;
+  border-left: 3px solid #f6a605;
+  margin-top: 2px;
+}
+
+.cart-summary-discount-label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.3;
+}
+
+.cart-summary-discount-label strong {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.cart-summary-discount-label small {
+  font-size: 0.78rem;
+  color: #7a5100;
+}
+
+.cart-summary-discount-amount {
+  font-weight: 700;
+  color: #2e7d32;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+/* Fila de ahorro total */
+.cart-summary-saving {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #2e7d32;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  margin-top: 2px;
+}
+
 .cart-box {
   padding: 10px 12px;
   border-radius: 10px;
