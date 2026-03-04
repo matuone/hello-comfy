@@ -45,8 +45,8 @@ export default function Layout() {
   // ⚠️ Todos los hooks deben llamarse antes de cualquier return condicional
   const { isMobile, isTablet } = useResponsive();
 
-  // Si está en modo mantenimiento y no es admin, mostrar página de mantenimiento
-  if (isMaintenanceMode && !isAdminUser) {
+  // Si está en modo mantenimiento, no es admin y no está en ruta /admin → mostrar mantenimiento
+  if (isMaintenanceMode && !isAdminUser && !esAdmin) {
     return <Maintenance />;
   }
 
