@@ -347,11 +347,14 @@ export const processPayment = async (req, res) => {
     );
 
     const checkoutStatus = response.data;
-    if (checkoutStatus.status !== "approved") {
+    const PAID_STATUSES = ["approved", "completed", "paid"];
+    if (!PAID_STATUSES.includes(checkoutStatus.status)) {
       return res.status(400).json({ error: "Pago no aprobado", status: checkoutStatus.status });
     }
 
-    const orderData = await PendingOrder.findOne({ checkoutId: checkoutId });
+    const orderData = await PendingOrder.findOne(
+      checkoutId ? { checkoutId } : { orderReference }
+    );
     if (!orderData) {
       return res.status(400).json({ error: "No se encontraron datos de la orden" });
     }
