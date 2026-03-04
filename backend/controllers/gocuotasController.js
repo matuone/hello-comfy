@@ -142,11 +142,18 @@ export const createCheckout = async (req, res) => {
     );
     console.log("✅ GoCuotas checkout creado:", JSON.stringify(response.data, null, 2));
 
+    // GoCuotas Redirect V1 no devuelve un campo 'id' directo — extraerlo de url_init
+    // Ej: "https://www.gocuotas.com/checkouts/7429118" → "7429118"
+    const urlInit = response.data.url_init || "";
+    const checkoutId = response.data.id
+      || urlInit.split("/checkouts/").pop()
+      || null;
+
     // Guardar datos de la orden pendiente en MongoDB (sobrevive reinicios del servidor)
     await PendingOrder.findOneAndUpdate(
-      { checkoutId: response.data.id },
+      { orderReference },
       {
-        checkoutId: response.data.id,
+        checkoutId,
         paymentMethod: "gocuotas",
         orderReference,
         customerData,
@@ -160,8 +167,8 @@ export const createCheckout = async (req, res) => {
     );
 
     res.json({
-      id: response.data.id,
-      url_init: response.data.url_init,
+      id: checkoutId,
+      url_init: urlInit,
       status: response.data.status,
       orderReference,
     });
