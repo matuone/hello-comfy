@@ -13,8 +13,15 @@ function apiPath(path) {
 
 const ORDEN_TALLES = ["S", "M", "L", "XL", "XXL", "3XL"];
 
+const SK_BUSQUEDA = "adminProd_busqueda";
+const SK_CAT = "adminProd_cat";
+const SK_SUB = "adminProd_sub";
+
 export default function AdminProducts() {
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = useState(() => sessionStorage.getItem(SK_BUSQUEDA) || "");
+  const [filtroCat, setFiltroCat] = useState(() => sessionStorage.getItem(SK_CAT) || "");
+  const [filtroSub, setFiltroSub] = useState(() => sessionStorage.getItem(SK_SUB) || "");
+  const [groupedSubcategories, setGroupedSubcategories] = useState({});
   const [expandedRows, setExpandedRows] = useState([]);
   const [productos, setProductos] = useState([]);
   const [mostrarPanelPrecios, setMostrarPanelPrecios] = useState(false);
@@ -31,6 +38,30 @@ export default function AdminProducts() {
   // MODAL ELIMINAR
   // ============================
   const [modalEliminar, setModalEliminar] = useState(null);
+
+  // ============================
+  // PERSISTENCIA DE BÚSQUEDA Y FILTROS
+  // ============================
+  useEffect(() => { sessionStorage.setItem(SK_BUSQUEDA, busqueda); }, [busqueda]);
+  useEffect(() => { sessionStorage.setItem(SK_CAT, filtroCat); }, [filtroCat]);
+  useEffect(() => { sessionStorage.setItem(SK_SUB, filtroSub); }, [filtroSub]);
+
+  // ============================
+  // CARGAR CATEGORÍAS Y SUBCATEGORÍAS
+  // ============================
+  useEffect(() => {
+    fetch(apiPath("/products/filters/data"))
+      .then((res) => res.json())
+      .then((data) => setGroupedSubcategories(data.groupedSubcategories || {}))
+      .catch((err) => console.error("Error cargando filtros:", err));
+  }, []);
+
+  // Subcategorías disponibles según categoría seleccionada
+  const subcategoriasDisponibles = filtroCat
+    ? (groupedSubcategories[filtroCat] || [])
+    : Object.values(groupedSubcategories).flat();
+
+  const categoriasDisponibles = Object.keys(groupedSubcategories);
 
   // ============================
   // CARGAR PRODUCTOS
@@ -92,12 +123,23 @@ export default function AdminProducts() {
   // FILTRADO
   // ============================
   const productosFiltrados = productos.filter((p) => {
-    const cats = Array.isArray(p.categoria) ? p.categoria.join(" ") : (p.categoria || "");
-    const subs = Array.isArray(p.subcategoria) ? p.subcategoria.join(" ") : (p.subcategoria || "");
-    return [p.nombre, cats, subs]
-      .join(" ")
-      .toLowerCase()
-      .includes(busqueda.toLowerCase());
+    const cats = Array.isArray(p.categoria) ? p.categoria : (p.categoria ? [p.categoria] : []);
+    const subs = Array.isArray(p.subcategoria) ? p.subcategoria : (p.subcategoria ? [p.subcategoria] : []);
+
+    // Busqueda texto
+    const textoMatch = busqueda.trim() === "" || [
+      p.nombre,
+      cats.join(" "),
+      subs.join(" "),
+    ].join(" ").toLowerCase().includes(busqueda.toLowerCase());
+
+    // Filtro categoría
+    const catMatch = !filtroCat || cats.some((c) => c.toLowerCase() === filtroCat.toLowerCase());
+
+    // Filtro subcategoría
+    const subMatch = !filtroSub || subs.some((s) => s.toLowerCase() === filtroSub.toLowerCase());
+
+    return textoMatch && catMatch && subMatch;
   });
 
   // ============================
@@ -258,14 +300,48 @@ export default function AdminProducts() {
         Gestión de catálogo, precios, talles y fotos.
       </p>
 
-      {/* BUSCADOR */}
-      <input
-        type="text"
-        placeholder="Buscar por nombre o categoría..."
-        className="products-search"
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-      />
+      {/* BUSCADOR + FILTROS */}
+      <div className="products-filters-row">
+        <input
+          type="text"
+          placeholder="Buscar por nombre o categoría..."
+          className="products-search"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+
+        <select
+          className="products-filter-select"
+          value={filtroCat}
+          onChange={(e) => { setFiltroCat(e.target.value); setFiltroSub(""); }}
+        >
+          <option value="">Todas las categorías</option>
+          {categoriasDisponibles.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+
+        <select
+          className="products-filter-select"
+          value={filtroSub}
+          onChange={(e) => setFiltroSub(e.target.value)}
+          disabled={subcategoriasDisponibles.length === 0}
+        >
+          <option value="">Todas las subcategorías</option>
+          {[...new Set(subcategoriasDisponibles)].sort().map((sub) => (
+            <option key={sub} value={sub}>{sub}</option>
+          ))}
+        </select>
+
+        {(busqueda || filtroCat || filtroSub) && (
+          <button
+            className="products-filter-clear"
+            onClick={() => { setBusqueda(""); setFiltroCat(""); setFiltroSub(""); }}
+          >
+            ✕ Limpiar
+          </button>
+        )}
+      </div>
 
       {/* TOOLBAR */}
       <div className="products-toolbar">
