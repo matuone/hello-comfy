@@ -249,22 +249,42 @@ export const webhookGocuotas = async (req, res) => {
           return res.status(200).json({ received: true, error: "Monto no coincide" });
         }
 
-        const newOrder = await crearOrdenDesdePago({
-          paymentMethod: "gocuotas",
-          paymentId: checkout_id,
-          orderReference: order_reference_id,
-          customerData: orderData.customerData,
-          items: validatedItems,
-          totalPrice: validatedTotal,
-          shippingCost: validatedShipping,
-          status: "completed",
-          installments: installments || 1,
-          metadata: {
-            ...orderData.metadata,
-            gocuotasCheckoutId: checkout_id,
-            installments,
+        const wcd = orderData.customerData || {};
+        const newOrder = await crearOrdenDesdePago(
+          {
+            id: checkout_id,
+            status: "approved",
+            payer: { email: wcd.email, name: wcd.name },
+            transaction_amount: validatedTotal + validatedShipping,
           },
-        });
+          {
+            userId: orderData.metadata?.userId || null,
+            formData: {
+              email: wcd.email,
+              name: wcd.name,
+              phone: wcd.phone || null,
+              dni: wcd.dni || null,
+              postalCode: wcd.postalCode || orderData.postalCode || null,
+              address: wcd.address || null,
+              province: wcd.province || null,
+              localidad: wcd.localidad || null,
+              selectedAgency: wcd.selectedAgency || null,
+              shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod || null,
+              paymentMethod: "gocuotas",
+              promoCode: orderData.metadata?.promoCode || null,
+            },
+            items: validatedItems,
+            totalPrice: validatedTotal,
+            totalsBreakdown: {
+              subtotal: validatedTotal,
+              shipping: validatedShipping,
+              promo3x2Discount: 0,
+              promoDiscount: 0,
+              transferDiscount: 0,
+              total: validatedTotal + validatedShipping,
+            },
+          }
+        );
         await PendingOrder.deleteOne({ checkoutId: checkout_id });
         // console.log("✅ Orden creada:", newOrder._id);
       } catch (err) {
@@ -360,22 +380,44 @@ export const processPayment = async (req, res) => {
       return res.status(400).json({ error: "El monto cobrado no coincide con el precio real" });
     }
 
-    const newOrder = await crearOrdenDesdePago({
-      paymentMethod: "gocuotas",
-      paymentId: checkoutId,
-      orderReference,
-      customerData: orderData.customerData,
-      items: validatedItems,
-      totalPrice: validatedTotal,
-      shippingCost: validatedShippingProc,
-      status: "completed",
-      installments: checkoutStatus.installments || 1,
-      metadata: {
-        ...orderData.metadata,
-        gocuotasCheckoutId: checkoutId,
-        installments: checkoutStatus.installments,
+    const cd = orderData.customerData || {};
+    const newOrder = await crearOrdenDesdePago(
+      // paymentData (formato compatible con crearOrdenDesdePago)
+      {
+        id: checkoutId,
+        status: "approved", // GoCuotas confirmado = aprobado
+        payer: { email: cd.email, name: cd.name },
+        transaction_amount: validatedTotal + validatedShippingProc,
       },
-    });
+      // pendingOrderData
+      {
+        userId: orderData.metadata?.userId || null,
+        formData: {
+          email: cd.email,
+          name: cd.name,
+          phone: cd.phone || null,
+          dni: cd.dni || null,
+          postalCode: cd.postalCode || orderData.postalCode || null,
+          address: cd.address || null,
+          province: cd.province || null,
+          localidad: cd.localidad || null,
+          selectedAgency: cd.selectedAgency || null,
+          shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod || null,
+          paymentMethod: "gocuotas",
+          promoCode: orderData.metadata?.promoCode || null,
+        },
+        items: validatedItems,
+        totalPrice: validatedTotal,
+        totalsBreakdown: {
+          subtotal: validatedTotal,
+          shipping: validatedShippingProc,
+          promo3x2Discount: 0,
+          promoDiscount: 0,
+          transferDiscount: 0,
+          total: validatedTotal + validatedShippingProc,
+        },
+      }
+    );
 
     await PendingOrder.deleteOne({ checkoutId: checkoutId });
 

@@ -196,11 +196,17 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           phone: formData.phone || "",
           dni: dni,
           postalCode: formData.postalCode || "",
+          // Datos de envío completos
+          address: formData.address || "",
+          province: formData.province || "",
+          localidad: formData.localidad || "",
+          selectedAgency: formData.selectedAgency || null,
         },
         metadata: {
           orderType: "checkout",
           shippingMethod: formData.shippingMethod,
           promoCode: promoCode || null,
+          userId: user?.id || null,
         },
       });
 
