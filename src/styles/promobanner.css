@@ -35,6 +35,24 @@
   margin: 0;
 }
 
+@media (max-width: 1024px) {
+  .promoBanner {
+    height: clamp(320px, 60vw, 520px);
+  }
+}
+
+@media (max-width: 768px) {
+  .promoBanner {
+    height: clamp(220px, 58vw, 380px);
+  }
+}
+
+@media (max-width: 480px) {
+  .promoBanner {
+    height: clamp(180px, 56vw, 280px);
+  }
+}
+
 .promoBanner.fullBleed {
   position: relative;
   left: 50%;
