@@ -132,7 +132,6 @@ export const createCheckout = async (req, res) => {
       url_notification: notificationUrl,
     };
 
-    console.log("📦 GoCuotas checkout payload:", JSON.stringify(checkoutData, null, 2));
     const response = await axios.post(
       `${GOCUOTAS_BASE_URL}/checkouts`,
       checkoutData,
@@ -145,8 +144,6 @@ export const createCheckout = async (req, res) => {
         },
       }
     );
-    console.log("✅ GoCuotas checkout creado:", JSON.stringify(response.data, null, 2));
-
     // GoCuotas Redirect V1 no devuelve un campo 'id' directo — extraerlo de url_init
     // Ej: "https://www.gocuotas.com/checkouts/7429118" → "7429118"
     const urlInit = response.data.url_init || "";
@@ -221,7 +218,6 @@ export const getCheckoutStatus = async (req, res) => {
 // ============================
 export const webhookGocuotas = async (req, res) => {
   try {
-    console.log("🔔 GoCuotas webhook recibido:", JSON.stringify(req.body, null, 2));
     const { checkout_id, order_reference_id, status, amount_in_cents, installments } = req.body;
 
     const orderData = await PendingOrder.findOne({ checkoutId: checkout_id });
@@ -304,10 +300,10 @@ export const webhookGocuotas = async (req, res) => {
         console.error("Error creando orden");
       }
     } else if (["rejected", "cancelled", "expired"].includes(status)) {
-      console.log(`❌ GoCuotas pago ${status} para checkout ${checkout_id}. Body completo:`, JSON.stringify(req.body, null, 2));
+      console.log(`❌ GoCuotas pago ${status} para checkout ${checkout_id}.`);
       await PendingOrder.deleteOne({ checkoutId: checkout_id });
     } else {
-      console.log(`⚠️ GoCuotas status desconocido '${status}' para checkout ${checkout_id}:`, JSON.stringify(req.body, null, 2));
+      console.log(`⚠️ GoCuotas status desconocido '${status}' para checkout ${checkout_id}.`);
     }
 
     res.status(200).json({ received: true });
