@@ -67,6 +67,7 @@ import AdminSizeTables from "../views/AdminSizeTables";
 import AdminAbandonedCarts from "../views/AdminAbandonedCarts";
 // Protección admin
 import AdminRoute from "./AdminRoute";
+import AdminLogin from "../views/AdminLogin";
 
 // Área de cliente (PROTEGIDA)
 import UserRoute from "./UserRoute";
@@ -128,6 +129,9 @@ export default function AppRouter() {
         <Route path="/notfound" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+
+      {/* Login admin (sin Layout, accesible siempre) */}
+      <Route path="/admin/login" element={<AdminLogin />} />
 
       {/* Admin */}
       <Route

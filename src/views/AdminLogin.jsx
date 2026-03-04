@@ -6,23 +6,27 @@ import "../styles/admin.css";
 
 
 export default function AdminLogin() {
-  const { login } = useAuth();
+  const { loginAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    const ok = login(email, password);
+    const result = await loginAdmin(email, password);
 
-    if (ok) {
+    if (result?.success) {
       navigate("/admin");
     } else {
       setError("Credenciales incorrectas");
     }
+    setLoading(false);
   }
 
   return (
@@ -47,8 +51,8 @@ export default function AdminLogin() {
           className="admin-login__input"
         />
 
-        <button type="submit" className="admin-login__button">
-          Ingresar
+        <button type="submit" className="admin-login__button" disabled={loading}>
+          {loading ? "Ingresando..." : "Ingresar"}
         </button>
 
         {error && <p className="admin-login__error">{error}</p>}

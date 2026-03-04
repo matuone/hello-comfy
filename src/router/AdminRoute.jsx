@@ -6,9 +6,9 @@ import { AuthContext } from "../context/AuthContext";
 export default function AdminRoute({ children }) {
   const { user } = useContext(AuthContext);
 
-  // Si no hay usuario → redirigir a login
+  // Si no hay usuario → redirigir a login de admin
   if (!user) {
-    return <Navigate to="/mi-cuenta" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   // Si el usuario no es admin → NotFound
