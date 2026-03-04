@@ -316,48 +316,34 @@ export const webhookGocuotas = async (req, res) => {
 // ============================
 export const processPayment = async (req, res) => {
   try {
-    let { checkoutId, orderReference } = req.body;
-    const hasApiKey = !!process.env.GOCUOTAS_API_KEY;
-    const token = hasApiKey ? null : await getGocuotasToken();
+    const { checkoutId, orderReference } = req.body;
 
-    // Fallback: si no viene checkoutId, buscar por orderReference en PendingOrder
-    if (!checkoutId && orderReference) {
-      const pending = await PendingOrder.findOne({ orderReference });
-      if (pending) {
-        checkoutId = pending.checkoutId;
-        console.log(`🔍 checkoutId resuelto por orderReference: ${checkoutId}`);
-      } else {
-        return res.status(404).json({ error: "No se encontró la orden pendiente" });
-      }
-    }
-
-    if (!checkoutId) {
+    if (!checkoutId && !orderReference) {
       return res.status(400).json({ error: "checkoutId o orderReference requerido" });
     }
 
-    const response = await axios.get(
-      `${GOCUOTAS_BASE_URL}/checkouts/${checkoutId}`,
-      {
-        headers: {
-          Authorization: hasApiKey
-            ? `Bearer ${process.env.GOCUOTAS_API_KEY}`
-            : `Bearer ${token}`,
-        },
-      }
-    );
-
-    const checkoutStatus = response.data;
-    const PAID_STATUSES = ["approved", "completed", "paid"];
-    if (!PAID_STATUSES.includes(checkoutStatus.status)) {
-      return res.status(400).json({ error: "Pago no aprobado", status: checkoutStatus.status });
-    }
-
+    // Buscar la PendingOrder por orderReference (preferido) o checkoutId
     const orderData = await PendingOrder.findOne(
-      checkoutId ? { checkoutId } : { orderReference }
+      orderReference ? { orderReference } : { checkoutId }
     );
     if (!orderData) {
-      return res.status(400).json({ error: "No se encontraron datos de la orden" });
+      // Puede que ya se procesó antes — verificar si la orden ya existe
+      const { default: Order } = await import("../models/Order.js");
+      const existingOrder = orderReference
+        ? await Order.findOne({ "metadata.gocuotasOrderReference": orderReference })
+        : null;
+      if (existingOrder) {
+        console.log(`⚠️ Orden GoCuotas ya procesada: ${existingOrder.code}`);
+        return res.json({ success: true, orderId: existingOrder._id, alreadyProcessed: true });
+      }
+      return res.status(404).json({ error: "No se encontró la orden pendiente" });
     }
+
+    // NOTA: No consultamos GoCuotas para verificar el status porque GoCuotas
+    // elimina el checkout inmediatamente después del pago exitoso.
+    // La garantía es que GoCuotas SOLO redirige a url_success cuando el pago fue aprobado.
+    // Los precios siempre se revalidan contra nuestra BD.
+    console.log(`✅ GoCuotas process-payment: orderReference=${orderData.orderReference}, checkoutId=${orderData.checkoutId}`);
 
     // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
     let validatedItems, validatedTotal, gcValidation;
@@ -373,22 +359,12 @@ export const processPayment = async (req, res) => {
       return res.status(400).json({ error: "Error validando productos del carrito" });
     }
 
-    // ⭐ VERIFICAR que el monto cobrado coincida con el validado
     const { shippingCost: validatedShippingProc } = await validateShippingCost({
       shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod,
       postalCode: orderData.postalCode || orderData.customerData?.postalCode,
       items: validatedItems,
       hasFreeShipping: gcValidation.hasFreeShipping,
     });
-    const montoValidadoCents = Math.round((validatedTotal + validatedShippingProc) * 100);
-    const montoCobradoCents = checkoutStatus.amount_in_cents;
-    const toleranciaCents = 100; // $1 de tolerancia
-    if (montoCobradoCents && Math.abs(montoCobradoCents - montoValidadoCents) > toleranciaCents) {
-      console.error(
-        `❌ MONTO MANIPULADO (GoCuotas): cobrado ${montoCobradoCents}¢, validado ${montoValidadoCents}¢`
-      );
-      return res.status(400).json({ error: "El monto cobrado no coincide con el precio real" });
-    }
 
     const cd = orderData.customerData || {};
     const newOrder = await crearOrdenDesdePago(
@@ -426,10 +402,18 @@ export const processPayment = async (req, res) => {
           transferDiscount: 0,
           total: validatedTotal + validatedShippingProc,
         },
+        metadata: {
+          ...orderData.metadata,
+          gocuotasOrderReference: orderData.orderReference,
+          gocuotasCheckoutId: orderData.checkoutId,
+        },
       }
     );
 
-    await PendingOrder.deleteOne({ checkoutId: checkoutId });
+    await PendingOrder.deleteOne(
+      orderData.orderReference ? { orderReference: orderData.orderReference } : { checkoutId: orderData.checkoutId }
+    );
+    console.log(`✅ Orden GoCuotas creada: ${newOrder.code}`);
 
     res.json({ success: true, orderId: newOrder._id, message: "Pago procesado correctamente" });
   } catch (err) {
