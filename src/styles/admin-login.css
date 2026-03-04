@@ -1,0 +1,117 @@
+/* src/styles/admin-login.css */
+
+.admin-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9f6f3;
+  font-family: "DM Sans", sans-serif;
+}
+
+.admin-login-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-login-logo {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.admin-login-logo span {
+  color: #d94f7a;
+}
+
+.admin-login-subtitle {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.admin-login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-login-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+.admin-login-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #e8e0d8;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: "DM Sans", sans-serif;
+  color: #1a1a1a;
+  background: #faf8f6;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.admin-login-input:focus {
+  border-color: #d94f7a;
+  background: #fff;
+}
+
+.admin-login-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 13px;
+  background: #d94f7a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "DM Sans", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.3px;
+}
+
+.admin-login-btn:hover:not(:disabled) {
+  background: #c2406a;
+}
+
+.admin-login-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.admin-login-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.admin-login-error {
+  text-align: center;
+  font-size: 13px;
+  color: #d94f7a;
+  background: #fdf0f4;
+  border: 1px solid #f5c6d6;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 4px;
+}
