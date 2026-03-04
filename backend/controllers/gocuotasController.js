@@ -107,8 +107,13 @@ export const createCheckout = async (req, res) => {
     const telephoneNumber = phoneNumber.substring(2) || "0";
 
     const orderReference = `order_${Date.now()}`;
+    // Token secreto de un solo uso — solo GoCuotas lo recibe en url_success
+    // Previene que alguien vaya al success URL sin haber pagado
+    const crypto = await import("crypto");
+    const successToken = crypto.default.randomBytes(32).toString("hex");
+
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    const successUrl = `${frontendUrl}/payment/success?method=gocuotas&reference=${orderReference}`;
+    const successUrl = `${frontendUrl}/payment/success?method=gocuotas&reference=${orderReference}&token=${successToken}`;
     const failureUrl = `${frontendUrl}/payment/cancel?method=gocuotas&reference=${orderReference}`;
     const notificationUrl = `${process.env.API_URL || "http://localhost:5000"}/api/gocuotas/webhook`;
 
@@ -156,6 +161,7 @@ export const createCheckout = async (req, res) => {
         checkoutId,
         paymentMethod: "gocuotas",
         orderReference,
+        successToken,
         customerData,
         items: validatedItems,
         totalPrice: totals.total,
@@ -316,7 +322,7 @@ export const webhookGocuotas = async (req, res) => {
 // ============================
 export const processPayment = async (req, res) => {
   try {
-    const { checkoutId, orderReference } = req.body;
+    const { checkoutId, orderReference, successToken } = req.body;
 
     if (!checkoutId && !orderReference) {
       return res.status(400).json({ error: "checkoutId o orderReference requerido" });
@@ -337,6 +343,12 @@ export const processPayment = async (req, res) => {
         return res.json({ success: true, orderId: existingOrder._id, alreadyProcessed: true });
       }
       return res.status(404).json({ error: "No se encontró la orden pendiente" });
+    }
+
+    // ⭐ VERIFICAR TOKEN — previene que alguien simule el success URL sin haber pagado
+    if (orderData.successToken && orderData.successToken !== successToken) {
+      console.error(`❌ GoCuotas token inválido para ${orderReference}`);
+      return res.status(403).json({ error: "Token de pago inválido" });
     }
 
     // NOTA: No consultamos GoCuotas para verificar el status porque GoCuotas

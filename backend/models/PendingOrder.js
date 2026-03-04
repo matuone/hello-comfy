@@ -9,9 +9,10 @@ import mongoose from "mongoose";
  */
 const pendingOrderSchema = new mongoose.Schema(
   {
-    checkoutId: { type: String, required: true, unique: true, index: true },
+    checkoutId: { type: String, index: true },
     paymentMethod: { type: String, required: true }, // "gocuotas", etc.
     orderReference: { type: String },
+    successToken: { type: String }, // token secreto para verificar que el pago fue real
     customerData: { type: mongoose.Schema.Types.Mixed },
     items: [mongoose.Schema.Types.Mixed],
     totalPrice: { type: Number },

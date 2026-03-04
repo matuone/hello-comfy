@@ -31,13 +31,14 @@ export default function PaymentSuccess() {
           // El backend busca la PendingOrder por orderReference y resuelve el checkoutId.
           const checkoutId = searchParams.get("checkout_id") || null;
           const orderReference = searchParams.get("reference") || null;
+          const successToken = searchParams.get("token") || null;
 
           console.log("✅ GoCuotas pago exitoso - procesando orden:", { checkoutId, orderReference });
 
           const gcRes = await fetch(`${API_URL}/gocuotas/process-payment`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ checkoutId, orderReference }),
+            body: JSON.stringify({ checkoutId, orderReference, successToken }),
           });
 
           const gcData = await gcRes.json();
