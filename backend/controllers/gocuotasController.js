@@ -289,9 +289,24 @@ export const webhookGocuotas = async (req, res) => {
 // ============================
 export const processPayment = async (req, res) => {
   try {
-    const { checkoutId, orderReference } = req.body;
+    let { checkoutId, orderReference } = req.body;
     const hasApiKey = !!process.env.GOCUOTAS_API_KEY;
     const token = hasApiKey ? null : await getGocuotasToken();
+
+    // Fallback: si no viene checkoutId, buscar por orderReference en PendingOrder
+    if (!checkoutId && orderReference) {
+      const pending = await PendingOrder.findOne({ orderReference });
+      if (pending) {
+        checkoutId = pending.checkoutId;
+        console.log(`🔍 checkoutId resuelto por orderReference: ${checkoutId}`);
+      } else {
+        return res.status(404).json({ error: "No se encontró la orden pendiente" });
+      }
+    }
+
+    if (!checkoutId) {
+      return res.status(400).json({ error: "checkoutId o orderReference requerido" });
+    }
 
     const response = await axios.get(
       `${GOCUOTAS_BASE_URL}/checkouts/${checkoutId}`,

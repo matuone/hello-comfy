@@ -5,6 +5,8 @@ import { toast } from "react-hot-toast";
 import { useCart } from "../context/CartContext";
 import { procesarPagoConfirmado } from "../services/mercadopagoService";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export default function PaymentSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -15,15 +17,50 @@ export default function PaymentSuccess() {
   useEffect(() => {
     const processPayment = async () => {
       try {
+        const method = searchParams.get("method");
         const paymentId = searchParams.get("payment_id");
         const preferenceId = searchParams.get("preference_id");
         const externalReference = searchParams.get("external_reference");
 
-        console.log("✅ Pago exitoso:", {
-          paymentId,
-          preferenceId,
-          externalReference,
-        });
+        // ============================
+        // ⭐ GO CUOTAS
+        // ============================
+        if (method === "gocuotas") {
+          // GoCuotas pasa checkout_id en la URL de retorno
+          const checkoutId = searchParams.get("checkout_id");
+          const orderReference = searchParams.get("reference");
+
+          console.log("✅ GoCuotas pago exitoso - procesando orden:", { checkoutId, orderReference });
+
+          const gcRes = await fetch(`${API_URL}/gocuotas/process-payment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ checkoutId, orderReference }),
+          });
+
+          const gcData = await gcRes.json();
+
+          if (gcRes.ok && gcData.success) {
+            console.log("✅ Orden GoCuotas creada:", gcData);
+            toast.success("✅ ¡Pago procesado con GoCuotas!");
+          } else {
+            console.error("❌ Error procesando orden GoCuotas:", gcData);
+            // No mostrar error al usuario - igual la orden puede crearse por webhook
+          }
+
+          clearCart();
+          localStorage.removeItem("pendingOrder");
+          localStorage.removeItem("checkoutStep");
+          localStorage.removeItem("checkoutFormData");
+          setProcessingOrder(false);
+          setTimeout(() => navigate("/"), 3000);
+          return;
+        }
+
+        // ============================
+        // ⭐ MERCADO PAGO
+        // ============================
+        console.log("✅ Pago exitoso:", { paymentId, preferenceId, externalReference });
 
         // Recuperar datos de la orden pendiente del localStorage
         const pendingOrderStr = localStorage.getItem("pendingOrder");
@@ -65,13 +102,7 @@ export default function PaymentSuccess() {
         setProcessingOrder(false);
 
         // Redirigir al detalle de la orden después de 3 segundos
-        setTimeout(() => {
-          if (orderCode) {
-            navigate("/");
-          } else {
-            navigate("/");
-          }
-        }, 3000);
+        setTimeout(() => navigate("/"), 3000);
       } catch (error) {
         console.error("Error procesando pago:", error);
         toast.error("Error al procesar el pago");
@@ -80,7 +111,7 @@ export default function PaymentSuccess() {
     };
 
     processPayment();
-  }, [searchParams, navigate, orderCode]);
+  }, [searchParams, navigate]);
 
   return (
     <div className="payment-result-container">
