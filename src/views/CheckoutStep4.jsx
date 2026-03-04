@@ -217,9 +217,6 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           items: stripItemsForStorage(items),
           createdAt: new Date().toISOString(),
         }));
-        // Guardar checkoutId y orderReference para recuperarlos en PaymentSuccess
-        localStorage.setItem("gocuotasCheckoutId", checkout.id || "");
-        localStorage.setItem("gocuotasOrderReference", checkout.orderReference || "");
         window.location.href = checkout.url_init;
       } else {
         toast.error("Error al crear el checkout de Go Cuotas");

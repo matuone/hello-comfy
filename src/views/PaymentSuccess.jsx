@@ -26,16 +26,11 @@ export default function PaymentSuccess() {
         // ⭐ GO CUOTAS
         // ============================
         if (method === "gocuotas") {
-          // GoCuotas Redirect V1 no agrega checkout_id a la URL de retorno
-          // Lo recuperamos del localStorage donde lo guardamos al crear el checkout
-          const checkoutId =
-            searchParams.get("checkout_id") ||
-            localStorage.getItem("gocuotasCheckoutId") ||
-            null;
-          const orderReference =
-            searchParams.get("reference") ||
-            localStorage.getItem("gocuotasOrderReference") ||
-            null;
+          // GoCuotas Redirect V1 no agrega checkout_id a la URL de retorno,
+          // pero sí viene el reference que pusimos en url_success.
+          // El backend busca la PendingOrder por orderReference y resuelve el checkoutId.
+          const checkoutId = searchParams.get("checkout_id") || null;
+          const orderReference = searchParams.get("reference") || null;
 
           console.log("✅ GoCuotas pago exitoso - procesando orden:", { checkoutId, orderReference });
 
@@ -59,8 +54,6 @@ export default function PaymentSuccess() {
           localStorage.removeItem("pendingOrder");
           localStorage.removeItem("checkoutStep");
           localStorage.removeItem("checkoutFormData");
-          localStorage.removeItem("gocuotasCheckoutId");
-          localStorage.removeItem("gocuotasOrderReference");
           setProcessingOrder(false);
           setTimeout(() => navigate("/"), 3000);
           return;
