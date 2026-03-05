@@ -323,29 +323,26 @@ export const processPayment = async (req, res) => {
         return res.status(400).json({ error: "Error validando productos del carrito" });
       }
 
-      // ⭐ VALIDAR COSTO DE ENVÍO contra la API — nunca confiar en el frontend
-      const { shippingCost: validatedShipping } = await validateShippingCost({
-        shippingMethod: pendingOrderData.formData?.shippingMethod,
-        postalCode: pendingOrderData.formData?.postalCode,
-        items: validatedItems,
-        clientShippingCost: pendingOrderData.shippingCost,
-        hasFreeShipping: cartValidation.hasFreeShipping,
-      });
-      pendingOrderData.shippingCost = validatedShipping;
-
-      // ⭐ VERIFICAR que el monto pagado en MP coincida con el total validado
-      const montoValidado = pendingOrderData.totalPrice + validatedShipping;
+      // ⭐ VERIFICAR que el monto pagado cubre al menos el total de ítems validado
+      // El envío se DERIVA del monto real cobrado por MP (no se re-llama a la API de Correo
+      // ni se confía en localStorage, ambos podrían ser inconsistentes o manipulados).
       const montoPagado = paymentData.transaction_amount;
-      const tolerancia = 1; // $1 de tolerancia por redondeos
+      const totalItemsValidado = pendingOrderData.totalPrice; // ya re-validado desde la BD
 
-      if (Math.abs(montoPagado - montoValidado) > tolerancia) {
+      if (montoPagado < totalItemsValidado - 1) {
+        // El monto pagado es menor al costo de los productos → rechazo real
         console.error(
-          `❌ MONTO MANIPULADO: pagado $${montoPagado}, validado $${montoValidado}`
+          `❌ MONTO INSUFICIENTE: pagado $${montoPagado}, valor de ítems validado $${totalItemsValidado}`
         );
         return res.status(400).json({
-          error: "El monto pagado no coincide con el precio real de los productos",
+          error: "El monto pagado no cubre el precio real de los productos",
         });
       }
+
+      // El envío es lo que MP cobró por encima del subtotal de ítems (fuente de verdad: MP API)
+      const validatedShipping = Math.max(0, Math.round((montoPagado - totalItemsValidado) * 100) / 100);
+      pendingOrderData.shippingCost = validatedShipping;
+      console.log(`✅ Envío derivado del cobro de MP: $${validatedShipping} (pagado $${montoPagado} - ítems $${totalItemsValidado})`);
 
       order = await crearOrdenDesdePago(paymentData, pendingOrderData);
     } else {

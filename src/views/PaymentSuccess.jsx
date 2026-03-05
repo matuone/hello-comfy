@@ -108,8 +108,9 @@ export default function PaymentSuccess() {
         setTimeout(() => navigate("/"), 3000);
       } catch (error) {
         console.error("Error procesando pago:", error);
-        toast.error("Error al procesar el pago");
+        toast.error("Error al procesar el pago. Contactanos con tu comprobante de pago.");
         setProcessingOrder(false);
+        // NO limpiar localStorage — el pendingOrder puede servir para recuperar la orden
       }
     };
 
