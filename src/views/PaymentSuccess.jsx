@@ -33,8 +33,6 @@ export default function PaymentSuccess() {
           const orderReference = searchParams.get("reference") || null;
           const successToken = searchParams.get("token") || null;
 
-          console.log("✅ GoCuotas pago exitoso - procesando orden:", { checkoutId, orderReference });
-
           const gcRes = await fetch(`${API_URL}/gocuotas/process-payment`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -44,7 +42,6 @@ export default function PaymentSuccess() {
           const gcData = await gcRes.json();
 
           if (gcRes.ok && gcData.success) {
-            console.log("✅ Orden GoCuotas creada:", gcData);
             toast.success("✅ ¡Pago procesado con GoCuotas!");
           } else {
             console.error("❌ Error procesando orden GoCuotas:", gcData);
@@ -63,7 +60,6 @@ export default function PaymentSuccess() {
         // ============================
         // ⭐ MERCADO PAGO
         // ============================
-        console.log("✅ Pago exitoso:", { paymentId, preferenceId, externalReference });
 
         // Recuperar datos de la orden pendiente del localStorage
         const pendingOrderStr = localStorage.getItem("pendingOrder");
@@ -72,7 +68,6 @@ export default function PaymentSuccess() {
         if (pendingOrderStr) {
           try {
             pendingOrderData = JSON.parse(pendingOrderStr);
-            console.log("✅ PendingOrderData recuperado del localStorage");
           } catch (err) {
             console.error("Error parsing pending order:", err);
           }
@@ -82,9 +77,6 @@ export default function PaymentSuccess() {
 
         // Procesar el pago en el backend
         if (paymentId) {
-          console.log("💳 Procesando pago con paymentId:", paymentId);
-          console.log("📋 PendingOrderData disponible:", !!pendingOrderData);
-
           const response = await procesarPagoConfirmado(paymentId, pendingOrderData);
 
           if (response.success && response.order) {
