@@ -106,14 +106,15 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
             total: tb.total,
           };
         }
+        const shippingFallback = pendingOrderData.shippingCost || 0;
         return {
           subtotal: pendingOrderData.totalPrice,
-          shipping: 0,
+          shipping: shippingFallback,
           promo3x2Discount: 0,
           promoDiscount: 0,
           transferDiscount: 0,
           discount: 0,
-          total: paymentData.transaction_amount || pendingOrderData.totalPrice,
+          total: paymentData.transaction_amount || (pendingOrderData.totalPrice + shippingFallback),
         };
       })(),
       date: new Date().toLocaleString("es-AR"),

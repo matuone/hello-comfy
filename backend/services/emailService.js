@@ -108,6 +108,11 @@ export async function enviarEmailConfirmacionOrden(order) {
       },
     });
 
+    // Calcular shipping efectivo (por si la orden tiene shipping en total pero no en totals.shipping)
+    const shippingToShow = (order.totals?.shipping > 0)
+      ? order.totals.shipping
+      : Math.max(0, (order.totals?.total || 0) - (order.totals?.subtotal || 0) + (order.totals?.promo3x2Discount || 0) + (order.totals?.promoDiscount || 0) + (order.totals?.transferDiscount || 0));
+
     // Generar lista de productos HTML
     const productosHtml = order.items
       .map(
@@ -252,10 +257,10 @@ export async function enviarEmailConfirmacionOrden(order) {
               <td style="padding: 10px 16px; color: #666;">Descuento transferencia (10%)</td>
               <td style="padding: 10px 16px; text-align: right; color: #d94f7a;">-$${(order.totals.transferDiscount).toLocaleString("es-AR")}</td>
             </tr>` : ''}
-            ${order.totals?.shipping > 0 ? `
+            ${shippingToShow > 0 ? `
             <tr>
               <td style="padding: 10px 16px; color: #666;">Envío</td>
-              <td style="padding: 10px 16px; text-align: right;">$${(order.totals.shipping).toLocaleString("es-AR")}</td>
+              <td style="padding: 10px 16px; text-align: right;">$${shippingToShow.toLocaleString("es-AR")}</td>
             </tr>` : ''}
             <tr style="background: #f8f8f8;">
               <td style="padding: 16px; font-weight: 700; font-size: 18px;">
@@ -424,6 +429,11 @@ export async function enviarEmailAlAdmin(order) {
       },
     });
 
+    // Calcular shipping efectivo (por si la orden tiene shipping en total pero no en totals.shipping)
+    const shippingToShow = (order.totals?.shipping > 0)
+      ? order.totals.shipping
+      : Math.max(0, (order.totals?.total || 0) - (order.totals?.subtotal || 0) + (order.totals?.promo3x2Discount || 0) + (order.totals?.promoDiscount || 0) + (order.totals?.transferDiscount || 0));
+
     // Generar lista de productos
     const productosHtml = order.items
       .map(
@@ -572,10 +582,10 @@ export async function enviarEmailAlAdmin(order) {
                 <td colspan="3" style="padding: 8px 16px; text-align: right; color: #666;">Desc. transferencia (10%)</td>
                 <td style="padding: 8px 16px; text-align: right; color: #d94f7a;">-$${(order.totals.transferDiscount).toLocaleString("es-AR")}</td>
               </tr>` : ''}
-              ${order.totals?.shipping > 0 ? `
+              ${shippingToShow > 0 ? `
               <tr>
                 <td colspan="3" style="padding: 8px 16px; text-align: right; color: #666;">Envío</td>
-                <td style="padding: 8px 16px; text-align: right; color: #555;">$${(order.totals.shipping).toLocaleString("es-AR")}</td>
+                <td style="padding: 8px 16px; text-align: right; color: #555;">$${shippingToShow.toLocaleString("es-AR")}</td>
               </tr>` : ''}
               <tr style="background: #f8f8f8; font-weight: 700;">
                 <td colspan="3" style="padding: 16px; text-align: right;">Total</td>
