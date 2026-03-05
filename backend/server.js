@@ -80,6 +80,8 @@ const allowedOrigins = [
   "http://200.58.98.98",
   "http://hellocomfy.com.ar",
   "https://hellocomfy.com.ar",
+  "http://www.hellocomfy.com.ar",
+  "https://www.hellocomfy.com.ar",
   "https://hello-comfy.vercel.app",
   (process.env.FRONTEND_URL || "https://tudominio.com").replace(/\/$/, "") // sin slash final
 ];
