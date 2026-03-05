@@ -13,9 +13,15 @@
  *   PAYMENT_ID=123456789 node backend/scripts/recoverMPOrder.js
  */
 
-import "dotenv/config";
+import { config } from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 import mongoose from "mongoose";
 import axios from "axios";
+
+// Cargar .env desde backend/ sin importar desde dónde se ejecute el script
+const __dirname = dirname(fileURLToPath(import.meta.url));
+config({ path: join(__dirname, "../.env") });
 
 // Cargar modelos directamente
 const orderSchema = new mongoose.Schema({}, { strict: false });
