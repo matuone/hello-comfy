@@ -9,29 +9,21 @@ import { enviarEmailConfirmacionOrden, enviarEmailAlAdmin } from "./emailService
  */
 async function generarCodigoOrden() {
   try {
-    // Obtener la última orden creada
-    const lastOrder = await Order.findOne().sort({ createdAt: -1 });
+    // Buscar el mayor código numérico existente (no el más reciente por fecha,
+    // ya que órdenes recuperadas o de test pueden tener createdAt desincronizado)
+    const result = await Order.aggregate([
+      { $match: { code: { $regex: /^\d+$/ } } },
+      { $project: { codeNum: { $toInt: "$code" } } },
+      { $sort: { codeNum: -1 } },
+      { $limit: 1 },
+    ]);
 
-    if (!lastOrder || !lastOrder.code) {
-      // Primera orden
-      return "01";
-    }
+    if (result.length === 0) return "01";
 
-    // Extraer el número de la última orden
-    const lastNumber = parseInt(lastOrder.code, 10);
-
-    if (isNaN(lastNumber)) {
-      // Si el código anterior no era numérico, empezar desde 01
-      const count = await Order.countDocuments();
-      return String(count + 1).padStart(2, '0');
-    }
-
-    // Incrementar y formatear con mínimo 2 dígitos
-    const nextNumber = lastNumber + 1;
-    return String(nextNumber).padStart(2, '0');
+    const nextNumber = result[0].codeNum + 1;
+    return String(nextNumber).padStart(2, "0");
   } catch (error) {
     console.error("Error generando código de orden:", error);
-    // Fallback: usar timestamp
     return `ORD-${Date.now()}`;
   }
 }
@@ -48,12 +40,9 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     // console.log("📋 PaymentData:", { id: paymentData.id, status: paymentData.status, email: paymentData.payer?.email });
     // console.log("📋 PendingOrderData:", { email: pendingOrderData?.formData?.email, itemsCount: pendingOrderData?.items?.length });
 
-    // Generar código único de orden secuencial
-    const code = await generarCodigoOrden();
-
-    // Preparar datos de la orden
+    // Preparar datos de la orden (el código se genera dentro del bloque de save con retry)
     const orderData = {
-      code,
+      code: null, // se asigna en el retry loop
       userId: pendingOrderData.userId || null, // Vincular usuario si está autenticado
       paymentId: paymentData.id || paymentData.paymentId || null, // ID del pago del proveedor (para reembolsos)
       customer: {
@@ -149,9 +138,25 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       })(),
     };
 
-    // Crear la orden en BD
-    const order = new Order(orderData);
-    await order.save();
+    // Crear la orden en BD (con retry en caso de colisión de código)
+    let order;
+    let intentos = 3;
+    while (intentos > 0) {
+      try {
+        orderData.code = await generarCodigoOrden();
+        order = new Order(orderData);
+        await order.save();
+        break;
+      } catch (err) {
+        if (err.code === 11000 && intentos > 1) {
+          // Código duplicado por race condition — reintentar con el siguiente
+          console.warn(`⚠️ Código de orden duplicado (${orderData.code}), reintentando...`);
+          intentos--;
+          continue;
+        }
+        throw err;
+      }
+    }
 
     // ⭐ DESCONTAR STOCK al crear la orden
     // Soporta dos estilos de llamada:
