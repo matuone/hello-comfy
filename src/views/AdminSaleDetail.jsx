@@ -678,6 +678,9 @@ export default function AdminSaleDetail() {
         <div className="detalle-box">
           <h3 className="detalle-title">Cliente</h3>
           <p className="detalle-info-line"><strong>Nombre:</strong> {customer.name}</p>
+          {customer.dni && (
+            <p className="detalle-info-line"><strong>DNI:</strong> {customer.dni}</p>
+          )}
           <p className="detalle-info-line"><strong>Email:</strong> {customer.email}</p>
           {(customer.phone || customer.whatsapp) && (
             <p className="detalle-info-line">
