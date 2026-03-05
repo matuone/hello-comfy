@@ -93,8 +93,15 @@ export const createCheckout = async (req, res) => {
         hasFreeShipping,
       });
       validatedShippingCost = shippingValidation.shippingCost || 0;
+      // Si la validación devolvió $0 pero el cliente envió un costo, usar el del cliente como fallback
+      if (validatedShippingCost === 0 && shippingCost > 0 && metadata?.shippingMethod && metadata.shippingMethod !== 'pickup') {
+        console.warn(`⚠️ validateShippingCost devolvió $0, usando shippingCost del cliente: $${shippingCost}`);
+        validatedShippingCost = shippingCost;
+      }
     } catch (shippingError) {
-      console.warn("⚠️ Error validando envío, usando $0:", shippingError.message);
+      console.warn("⚠️ Error validando envío, usando costo del cliente:", shippingError.message);
+      // Fallback al costo enviado por el frontend
+      if (shippingCost > 0) validatedShippingCost = shippingCost;
     }
 
     // Usar precios validados de la BD + envío validado

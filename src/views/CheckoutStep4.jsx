@@ -190,6 +190,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
       const checkout = await createGocuotasCheckout({
         items: itemsValidos,
         totalPrice: parseFloat(totalPrice) || 0,
+        shippingCost: envio,
         customerData: {
           email: formData.email,
           name: formData.name || "Cliente",
