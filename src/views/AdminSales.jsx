@@ -694,6 +694,8 @@ export default function AdminSales() {
                               <div className="producto-nombre">{item.name}</div>
                               <div className="producto-detalle">
                                 {item.quantity} unid.
+                                {item.size && <span style={{ color: '#e91e8c', fontWeight: 600 }}> — Talle: {item.size}</span>}
+                                {item.color && ` — Color: ${item.color}`}
                               </div>
                               <div className="producto-precio">
                                 ${item.price.toLocaleString("es-AR")} c/u — Total: $

@@ -633,8 +633,10 @@ export default function AdminSaleDetail() {
 
           {items.length ? items.map((item, i) => (
             <div key={i} className="detalle-info-line">
-              <strong>{item.name}</strong> — {item.quantity} unid. — $
-              {item.price?.toLocaleString("es-AR")}
+              <strong>{item.name}</strong> — {item.quantity} unid.
+              {item.size && <span style={{ color: '#e91e8c', fontWeight: 600 }}> — Talle: {item.size}</span>}
+              {item.color && ` — Color: ${item.color}`}
+              {" — "}${item.price?.toLocaleString("es-AR")}
             </div>
           )) : <p className="detalle-info-line">No hay productos en la venta.</p>}
 
