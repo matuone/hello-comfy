@@ -13,8 +13,6 @@ export async function crearIntencionPagoModo({
   metadata = {},
 }) {
   try {
-    console.log("🟢 Creando intención de pago con Modo...");
-
     const response = await fetch(apiPath("/modo/create-payment-intent"), {
       method: "POST",
       headers: {
@@ -35,7 +33,6 @@ export async function crearIntencionPagoModo({
     }
 
     const data = await response.json();
-    console.log("✅ Intención de pago creada:", data);
 
     return data;
   } catch (error) {

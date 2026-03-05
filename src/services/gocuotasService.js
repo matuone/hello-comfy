@@ -29,7 +29,6 @@ export const createGocuotasCheckout = async (checkoutData) => {
     }
 
     const data = await response.json();
-    console.log("✅ Checkout creado:", data);
 
     return data;
   } catch (err) {
@@ -55,7 +54,6 @@ export const getGocuotasCheckoutStatus = async (checkoutId) => {
     }
 
     const data = await response.json();
-    console.log("✅ Estado del checkout:", data);
 
     return data;
   } catch (err) {
@@ -85,7 +83,6 @@ export const processGocuotasPayment = async (checkoutId, orderReference) => {
     }
 
     const data = await response.json();
-    console.log("✅ Pago procesado:", data);
 
     return data;
   } catch (err) {

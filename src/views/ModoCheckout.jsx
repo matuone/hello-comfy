@@ -16,7 +16,6 @@ export default function ModoCheckout() {
 
   useEffect(() => {
     // En producción, aquí se mostraría el QR o se abriría la app de Modo
-    console.log("Checkout de Modo para orden:", reference);
   }, [reference]);
 
   const handleSimularPago = async (status) => {
