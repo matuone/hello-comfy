@@ -62,7 +62,7 @@ export const createCheckout = async (req, res) => {
     }
 
     // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
-    let validatedItems, totals, validationWarnings;
+    let validatedItems, totals, validationWarnings, hasFreeShipping;
     try {
       const validation = await validateCartPrices(items, {
         promoCode: metadata?.promoCode || null,
@@ -70,6 +70,7 @@ export const createCheckout = async (req, res) => {
       validatedItems = validation.validatedItems;
       totals = validation.totals;
       validationWarnings = validation.warnings;
+      hasFreeShipping = validation.hasFreeShipping || false;
 
       if (validationWarnings.length > 0) {
         console.warn("⚠️ Advertencias de validación de carrito (GoCuotas create-checkout):", validationWarnings);
@@ -81,8 +82,23 @@ export const createCheckout = async (req, res) => {
 
     const token = hasApiKey ? null : await getGocuotasToken();
 
-    // Usar precios validados de la BD
-    const totalPriceInCents = Math.round(totals.total * 100);
+    // ⭐ VALIDAR COSTO DE ENVÍO — nunca confiar en el frontend
+    let validatedShippingCost = 0;
+    try {
+      const shippingValidation = await validateShippingCost({
+        shippingMethod: metadata?.shippingMethod || null,
+        postalCode: customerData?.postalCode || null,
+        items: validatedItems,
+        clientShippingCost: shippingCost,
+        hasFreeShipping,
+      });
+      validatedShippingCost = shippingValidation.shippingCost || 0;
+    } catch (shippingError) {
+      console.warn("⚠️ Error validando envío, usando $0:", shippingError.message);
+    }
+
+    // Usar precios validados de la BD + envío validado
+    const totalPriceInCents = Math.round((totals.total + validatedShippingCost) * 100);
     const gocuotasItems = validatedItems.map((item) => {
       const base = item.price;
       const discountPercent = item.discount || 0;
@@ -161,7 +177,8 @@ export const createCheckout = async (req, res) => {
         successToken,
         customerData,
         items: validatedItems,
-        totalPrice: totals.total,
+        totalPrice: totals.total + validatedShippingCost,
+        shippingCost: validatedShippingCost,
         shippingMethod: metadata?.shippingMethod || null,
         postalCode: customerData?.postalCode || null,
         metadata,
