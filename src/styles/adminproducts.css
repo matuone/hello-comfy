@@ -92,12 +92,21 @@
   .admin-shell .products-filters-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
   }
 
   .admin-shell .products-search,
   .admin-shell .products-filter-select {
+    flex: 0 0 auto;
+    min-width: unset;
     max-width: 100%;
     width: 100%;
+    box-sizing: border-box;
+  }
+
+  .admin-shell .products-filter-clear {
+    width: 100%;
+    text-align: center;
   }
 }
 
