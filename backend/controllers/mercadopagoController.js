@@ -6,8 +6,7 @@ import {
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
-import { validateShippingCost } from "../services/validateShippingCost.js";
-
+import { validateShippingCost } from "../services/validateShippingCost.js"; import PendingOrder from "../models/PendingOrder.js";
 /**
  * POST /api/mercadopago/create-preference
  * Crea una preferencia de pago en Mercado Pago
@@ -144,6 +143,27 @@ export const createPreference = async (req, res) => {
       metadata: metadata,
       auto_return: "approved",
     };
+
+    // ⭐ Guardar datos del pedido en MongoDB para recuperarlos si el frontend los pierde
+    try {
+      await PendingOrder.create({
+        paymentMethod: "mercadopago",
+        orderReference: preference.external_reference,
+        customerData: customerData,
+        items: validatedItems,
+        totalPrice: totals.total,
+        shippingCost: validatedShipping,
+        shippingMethod: metadata?.shippingMethod,
+        postalCode: customerData?.postalCode,
+        metadata: {
+          ...metadata,
+          totalsBreakdown: totals,
+        },
+      });
+    } catch (saveErr) {
+      // No bloquear el flujo si falla el guardado en DB
+      console.error("⚠️ No se pudo guardar PendingOrder para MP:", saveErr.message);
+    }
 
     // console.log("🔄 Enviando preferencia a Mercado Pago:", JSON.stringify(preference, null, 2)); // No loggear payloads completos en producción
 
@@ -346,14 +366,58 @@ export const processPayment = async (req, res) => {
 
       order = await crearOrdenDesdePago(paymentData, pendingOrderData);
     } else {
-      console.warn("⚠️ No hay pendingOrderData, intentando actualizar estado de pago existente");
-      // Si no hay datos de orden pendiente, solo actualizar estado
+      // ⭐ Intentar recuperar datos del pedido desde MongoDB (guardados al crear la preferencia)
       const externalReference = paymentData.external_reference;
-      if (externalReference) {
-        // console.log("🔄 Actualizando estado de pago para referencia:", externalReference);
-        order = await actualizarEstadoPago(externalReference, paymentData.status);
+      const savedPending = externalReference
+        ? await PendingOrder.findOne({ orderReference: externalReference }).lean()
+        : null;
+
+      if (savedPending) {
+        console.log("✅ PendingOrder recuperado desde MongoDB para:", externalReference);
+        // Reconstruir pendingOrderData desde el registro guardado
+        let recoveredPendingData = {
+          formData: {
+            ...savedPending.customerData,
+            shippingMethod: savedPending.shippingMethod || savedPending.metadata?.shippingMethod,
+            promoCode: savedPending.metadata?.promoCode || null,
+            paymentMethod: "mercadopago",
+          },
+          items: savedPending.items,
+          totalPrice: savedPending.totalPrice,
+          shippingCost: savedPending.shippingCost,
+          totalsBreakdown: savedPending.metadata?.totalsBreakdown || null,
+          userId: savedPending.metadata?.userId || null,
+        };
+
+        // Re-validar precios contra BD (siempre)
+        try {
+          const cartValidation = await validateCartPrices(
+            recoveredPendingData.items,
+            { promoCode: recoveredPendingData.formData?.promoCode || null }
+          );
+          recoveredPendingData.items = cartValidation.validatedItems;
+          recoveredPendingData.totalPrice = cartValidation.totals.total;
+        } catch (validationError) {
+          console.error("❌ Error re-validando carrito recuperado:", validationError.message);
+          return res.status(400).json({ error: "Error validando productos del carrito" });
+        }
+
+        const montoPagado = paymentData.transaction_amount;
+        const totalItemsValidado = recoveredPendingData.totalPrice;
+        if (montoPagado < totalItemsValidado - 1) {
+          console.error(`❌ MONTO INSUFICIENTE (recovered): pagado $${montoPagado}, ítems $${totalItemsValidado}`);
+          return res.status(400).json({ error: "El monto pagado no cubre el precio real de los productos" });
+        }
+        recoveredPendingData.shippingCost = Math.max(0, Math.round((montoPagado - totalItemsValidado) * 100) / 100);
+
+        order = await crearOrdenDesdePago(paymentData, recoveredPendingData);
       } else {
-        console.error("❌ No hay external_reference y no hay pendingOrderData");
+        console.warn("⚠️ No hay pendingOrderData ni registro en DB, actualizando estado existente");
+        if (externalReference) {
+          order = await actualizarEstadoPago(externalReference, paymentData.status);
+        } else {
+          console.error("❌ No hay external_reference y no hay pendingOrderData");
+        }
       }
     }
 
