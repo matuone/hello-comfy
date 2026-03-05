@@ -84,13 +84,22 @@ async function findOrCreateOrder(payment) {
 }
 
 async function createMinimalOrder(payment) {
-  // Obtener el último código de orden
-  const lastOrder = await Order.findOne({}, { code: 1 }).sort({ createdAt: -1 });
-  let nextCode = "01";
-  if (lastOrder?.code) {
-    const n = parseInt(lastOrder.code, 10);
-    nextCode = isNaN(n) ? `REC-${Date.now()}` : String(n + 1).padStart(2, "0");
+  // Obtener el último código de orden y generar uno único
+  let nextCode;
+  let attempts = 0;
+  while (attempts < 10) {
+    const lastOrder = await Order.findOne({}, { code: 1 }).sort({ createdAt: -1 });
+    const candidate = (() => {
+      if (!lastOrder?.code) return "01";
+      const n = parseInt(lastOrder.code, 10);
+      return isNaN(n) ? `REC-${Date.now()}` : String(n + 1).padStart(2, "0");
+    })();
+    const exists = await Order.findOne({ code: candidate });
+    if (!exists) { nextCode = candidate; break; }
+    attempts++;
+    await new Promise(r => setTimeout(r, 50));
   }
+  if (!nextCode) nextCode = `REC-${Date.now()}`;
 
   const orderData = {
     code: nextCode,
@@ -204,7 +213,11 @@ async function main() {
 
       console.log(`\n⚠️  ${missing.length} pago(s) sin orden. Creando órdenes mínimas de recuperación...\n`);
       for (const p of missing) {
-        await createMinimalOrder(p);
+        try {
+          await createMinimalOrder(p);
+        } catch (err) {
+          console.error(`❌ Error creando orden para payment ${p.id}:`, err.message);
+        }
       }
 
       console.log("\n✅ Recuperación completada.");
