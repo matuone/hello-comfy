@@ -638,9 +638,40 @@ export default function AdminSaleDetail() {
             </div>
           )) : <p className="detalle-info-line">No hay productos en la venta.</p>}
 
-          <p className="detalle-info-line">
-            <strong>Total pagado:</strong> ${(totals.total || 0).toLocaleString("es-AR")}
-          </p>
+          <div className="detalle-totales">
+            {totals.subtotal > 0 && (
+              <p className="detalle-info-line">
+                <span>Subtotal</span>
+                <span>${totals.subtotal.toLocaleString("es-AR")}</span>
+              </p>
+            )}
+            {totals.promo3x2Discount > 0 && (
+              <p className="detalle-info-line detalle-descuento">
+                <span>Descuento 3x2</span>
+                <span>-${totals.promo3x2Discount.toLocaleString("es-AR")}</span>
+              </p>
+            )}
+            {totals.promoDiscount > 0 && (
+              <p className="detalle-info-line detalle-descuento">
+                <span>Cupón{venta?.promoCode ? ` (${venta.promoCode})` : ""}</span>
+                <span>-${totals.promoDiscount.toLocaleString("es-AR")}</span>
+              </p>
+            )}
+            {totals.transferDiscount > 0 && (
+              <p className="detalle-info-line detalle-descuento">
+                <span>Desc. transferencia (10%)</span>
+                <span>-${totals.transferDiscount.toLocaleString("es-AR")}</span>
+              </p>
+            )}
+            <p className="detalle-info-line">
+              <span>Envío</span>
+              <span>{totals.shipping > 0 ? `$${totals.shipping.toLocaleString("es-AR")}` : "Gratis"}</span>
+            </p>
+            <p className="detalle-info-line detalle-total">
+              <strong>Total pagado</strong>
+              <strong>${(totals.total || 0).toLocaleString("es-AR")}</strong>
+            </p>
+          </div>
         </div>
 
         {/* CLIENTE */}

@@ -130,6 +130,30 @@
   color: #000;
 }
 
+.detalle-totales {
+  margin-top: 14px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.detalle-totales .detalle-info-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.detalle-descuento span:last-child {
+  color: #d94f7a;
+}
+
+.detalle-total {
+  border-top: 1px solid #ddd;
+  margin-top: 8px;
+  padding-top: 10px;
+  font-size: 1.05rem;
+}
+
 /* ============================
    BOTONES DESPLEGABLES
 ============================ */

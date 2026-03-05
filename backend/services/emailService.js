@@ -557,6 +557,26 @@ export async function enviarEmailAlAdmin(order) {
               ${productosHtml}
             </tbody>
             <tfoot>
+              ${order.totals?.promo3x2Discount > 0 ? `
+              <tr>
+                <td colspan="3" style="padding: 8px 16px; text-align: right; color: #666;">Descuento 3x2</td>
+                <td style="padding: 8px 16px; text-align: right; color: #d94f7a;">-$${(order.totals.promo3x2Discount).toLocaleString("es-AR")}</td>
+              </tr>` : ''}
+              ${order.totals?.promoDiscount > 0 ? `
+              <tr>
+                <td colspan="3" style="padding: 8px 16px; text-align: right; color: #666;">Cupón${order.promoCode ? ` (${order.promoCode})` : ''}</td>
+                <td style="padding: 8px 16px; text-align: right; color: #d94f7a;">-$${(order.totals.promoDiscount).toLocaleString("es-AR")}</td>
+              </tr>` : ''}
+              ${order.totals?.transferDiscount > 0 ? `
+              <tr>
+                <td colspan="3" style="padding: 8px 16px; text-align: right; color: #666;">Desc. transferencia (10%)</td>
+                <td style="padding: 8px 16px; text-align: right; color: #d94f7a;">-$${(order.totals.transferDiscount).toLocaleString("es-AR")}</td>
+              </tr>` : ''}
+              ${order.totals?.shipping > 0 ? `
+              <tr>
+                <td colspan="3" style="padding: 8px 16px; text-align: right; color: #666;">Envío</td>
+                <td style="padding: 8px 16px; text-align: right; color: #555;">$${(order.totals.shipping).toLocaleString("es-AR")}</td>
+              </tr>` : ''}
               <tr style="background: #f8f8f8; font-weight: 700;">
                 <td colspan="3" style="padding: 16px; text-align: right;">Total</td>
                 <td style="padding: 16px; text-align: right; color: #d94f7a; font-size: 18px;">
