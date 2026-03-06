@@ -3,6 +3,7 @@ import Product from "../models/Product.js";
 import StockColor from "../models/StockColor.js";
 import DiscountRule from "../models/DiscountRule.js";
 import PromoCode from "../models/PromoCode.js";
+import SiteConfig from "../models/SiteConfig.js";
 
 /**
  * Valida y recalcula los precios del carrito usando los datos reales de la BD.
@@ -282,9 +283,13 @@ export async function validateCartPrices(clientItems, options = {}) {
   // Asegurar que el total no sea negativo
   total = Math.max(0, Math.round(total * 100) / 100);
 
-  // 9) Detectar reglas de envío gratis
+  // 9) Detectar envío gratis — dos fuentes:
+  //    a) DiscountRule tipo free_shipping por categoría
+  //    b) SiteConfig threshold: si el total supera el monto mínimo configurado en el panel
+
+  // a) Reglas por categoría
   const freeShippingRules = discountRules.filter((r) => r.type === "free_shipping");
-  const hasFreeShipping = validatedItems.some((item) => {
+  const hasFreeShippingByRule = validatedItems.some((item) => {
     const iCats = Array.isArray(item.category) ? item.category : [item.category];
     const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
     return freeShippingRules.some(
@@ -293,6 +298,24 @@ export async function validateCartPrices(clientItems, options = {}) {
         (r.subcategory === "none" || iSubs.includes(r.subcategory))
     );
   });
+
+  // b) Threshold por monto mínimo (configurado en panel admin → Discounts)
+  let hasFreeShippingByThreshold = false;
+  try {
+    const thresholdConfig = await SiteConfig.findOne({ key: "freeShippingThreshold" }).lean();
+    const thresholdValue = thresholdConfig?.value;
+    if (thresholdValue?.isActive && thresholdValue?.threshold > 0) {
+      // Comparar contra el subtotal antes de promos (igual que lo hace el frontend)
+      hasFreeShippingByThreshold = subtotal >= thresholdValue.threshold;
+      if (hasFreeShippingByThreshold) {
+        console.log(`✅ Envío gratis por monto mínimo: subtotal $${subtotal} >= threshold $${thresholdValue.threshold}`);
+      }
+    }
+  } catch (e) {
+    console.warn("⚠️ No se pudo leer freeShippingThreshold desde SiteConfig:", e.message);
+  }
+
+  const hasFreeShipping = hasFreeShippingByRule || hasFreeShippingByThreshold;
 
   return {
     validatedItems,

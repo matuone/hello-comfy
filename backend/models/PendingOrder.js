@@ -9,7 +9,7 @@ import mongoose from "mongoose";
  */
 const pendingOrderSchema = new mongoose.Schema(
   {
-    checkoutId: { type: String, index: true },
+    checkoutId: { type: String, index: true, sparse: true },
     paymentMethod: { type: String, required: true }, // "gocuotas", etc.
     orderReference: { type: String },
     successToken: { type: String }, // token secreto para verificar que el pago fue real

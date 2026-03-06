@@ -147,6 +147,7 @@ export const createPreference = async (req, res) => {
     // ⭐ Guardar datos del pedido en MongoDB para recuperarlos si el frontend los pierde
     try {
       await PendingOrder.create({
+        checkoutId: preference.external_reference,
         paymentMethod: "mercadopago",
         orderReference: preference.external_reference,
         customerData: customerData,
