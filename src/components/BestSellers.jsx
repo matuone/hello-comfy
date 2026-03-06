@@ -91,6 +91,7 @@ export default function BestSellers() {
           slidesPerView={1.2}
           spaceBetween={14}
           speed={400}
+          touchStartPreventDefault={false}
           breakpoints={{
             480: { slidesPerView: 2.1, spaceBetween: 16 },
             768: { slidesPerView: 3.1, spaceBetween: 18 },
@@ -110,19 +111,21 @@ export default function BestSellers() {
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                   </svg>
                 </button>
-                <img
-                  src={p.images?.[0] || "https://via.placeholder.com/300"}
-                  alt={p.name}
-                  className="productcard__image"
-                />
 
-                {/* Badge 3x2 en esquina superior izquierda */}
-                {has3x2Rule(p, discountRules) && (
-                  <div className="productcard__badge-3x2">
-                    3x2
-                  </div>
-                )}
+                <div className="productcard__image-container">
+                  <img
+                    src={p.images?.[0] || "https://via.placeholder.com/300"}
+                    alt={p.name}
+                    className="productcard__image"
+                  />
 
+                  {/* Badge 3x2 en esquina superior izquierda */}
+                  {has3x2Rule(p, discountRules) && (
+                    <div className="productcard__badge-3x2">
+                      3x2
+                    </div>
+                  )}
+                </div>
                 {p.featured && (
                   <span className="productcard__badge">Destacado</span>
                 )}
@@ -254,6 +257,7 @@ export default function BestSellers() {
                 <div
                   className="productcard__buttons"
                   onClick={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                 >
                   <button
                     className="productcard__btn-buy"

@@ -82,6 +82,7 @@
   visibility: visible !important;
 }
 
+
 /* Asegurar que los slides de swiper igualen la altura del más alto */
 .bestsellers .swiper-slide {
   display: flex !important;
