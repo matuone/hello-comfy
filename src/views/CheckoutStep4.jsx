@@ -21,6 +21,44 @@ const stripItemsForStorage = (items) =>
     productId, size, color, quantity: parseInt(quantity) || 1,
   }));
 
+let modoSdkPromise = null;
+
+function ensureModoSdkLoaded() {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("Entorno sin window"));
+  }
+
+  if (window.ModoSDK?.modoInitPayment) {
+    return Promise.resolve(window.ModoSDK);
+  }
+
+  if (modoSdkPromise) {
+    return modoSdkPromise;
+  }
+
+  modoSdkPromise = new Promise((resolve, reject) => {
+    const existing = document.getElementById("modo-sdk-script");
+    if (existing) {
+      existing.addEventListener("load", () => resolve(window.ModoSDK));
+      existing.addEventListener("error", () => reject(new Error("No se pudo cargar MODO SDK")));
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "modo-sdk-script";
+    script.src = "https://ecommerce-modal.modo.com.ar/bundle.js";
+    script.async = true;
+    script.onload = () => resolve(window.ModoSDK);
+    script.onerror = () => {
+      modoSdkPromise = null;
+      reject(new Error("No se pudo cargar MODO SDK"));
+    };
+    document.body.appendChild(script);
+  });
+
+  return modoSdkPromise;
+}
+
 export default function Step4({ formData, items, totalPrice, shippingPrice = 0, back, clearCheckout, updateField }) {
   const navigate = useNavigate();
   const { clearCart, promoCode, promoCodeData } = useCart();
@@ -97,6 +135,9 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         items: stripItemsForStorage(items),
         createdAt: new Date().toISOString(),
       }));
+
+      // Cargar SDK de MODO solo cuando el usuario elige este medio de pago
+      await ensureModoSdkLoaded();
 
       // Abrir modal SDK de Modo
       if (typeof window.ModoSDK !== "undefined" && window.ModoSDK.modoInitPayment) {
