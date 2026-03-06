@@ -32,7 +32,7 @@ export default function BestSellersMobile() {
     addToCart(product, { size, color: product.color, quantity });
   };
   const handleBuy = (product, size, quantity) => {
-    const API_URL = import.meta.env.VITE_API_URL;
+    handleAddToCart(product, size, quantity);
     navigate("/checkout");
   };
   const handleViewMore = (product) => {
