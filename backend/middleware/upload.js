@@ -2,6 +2,9 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -12,10 +15,12 @@ const UPLOADS_BASE = process.env.UPLOADS_DIR
   ? path.resolve(process.env.UPLOADS_DIR)
   : path.join(__dirname, "../../uploads");
 
-// URL pública base para construir las URLs que se guardan en la BD.
+// Función para obtener la URL pública base (evaluado en runtime, no en load-time)
 // En producción: https://hellocomfy.com.ar (nginx sirve /uploads/ desde UPLOADS_BASE)
 // En desarrollo: http://localhost:5000 (Express sirve /uploads/ como static)
-const UPLOADS_PUBLIC_BASE = (process.env.FRONTEND_URL || "http://localhost:5000").replace(/\/$/, "");
+function getPublicBase() {
+  return (process.env.FRONTEND_URL || "http://localhost:5000").replace(/\/$/, "");
+}
 
 // Crear subcarpetas si no existen
 ["products", "avatars", "banners"].forEach((dir) => {
@@ -73,7 +78,7 @@ export const uploadAvatarMiddleware = multer({
 
 // Obtener la URL pública de un archivo ya guardado por multer en disco
 export function getUploadUrl(file, subfolder) {
-  return `${UPLOADS_PUBLIC_BASE}/uploads/${subfolder}/${file.filename}`;
+  return `${getPublicBase()}/uploads/${subfolder}/${file.filename}`;
 }
 
 // ============================
