@@ -215,6 +215,7 @@ export default function AdminProductDetail() {
       const res = await fetch(apiPath("/products/upload"), {
         method: "POST",
         body: formData,
+        credentials: "include", // Enviar cookies de autenticación
       });
 
       if (!res.ok) throw new Error("Error al subir imagen");
