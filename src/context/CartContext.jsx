@@ -98,7 +98,13 @@ export function CartProvider({ children }) {
             };
           });
 
-        setItems(hydrated);
+        // Preservar items agregados por el usuario DURANTE la hidratación
+        // (el usuario puede hacer clic en "Comprar" antes de que terminen los fetches)
+        setItems((prev) => {
+          const hydratedKeys = new Set(hydrated.map((i) => i.key));
+          const addedDuringLoad = prev.filter((i) => !hydratedKeys.has(i.key));
+          return [...hydrated, ...addedDuringLoad];
+        });
       })
       .catch((err) => {
         console.error("Error hidratando carrito desde API:", err);
