@@ -1,5 +1,7 @@
 import PromoBanner from '../models/PromoBanner.js';
-import cloudinary from '../config/cloudinary.js';
+import fs from 'fs';
+import path from 'path';
+import { getUploadUrl } from '../middleware/upload.js';
 
 // Obtener configuración del banner
 export const getBanner = async (req, res) => {
@@ -90,18 +92,12 @@ export const addImage = async (req, res) => {
       banner = new PromoBanner({ active: true });
     }
 
-    // Subir imagen a Cloudinary usando buffer (memoryStorage)
-    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-
-    const result = await cloudinary.uploader.upload(base64, {
-      folder: 'promo-banners',
-      // Sin transformaciones - la imagen completa se sube para que object-position funcione
-      quality: 'auto'
-    });
+    // Guardar imagen (ya fue guardada en disco por multer)
+    const imageUrl = getUploadUrl(req.file, 'banners');
 
     banner.images.push({
-      url: result.secure_url,
-      publicId: result.public_id,
+      url: imageUrl,
+      publicId: req.file.filename, // usamos el nombre de archivo como identificador
       objectPosition: objectPosition || 'center center'
     });
 
@@ -131,11 +127,15 @@ export const deleteImage = async (req, res) => {
       return res.status(404).json({ message: 'Imagen no encontrada' });
     }
 
-    // Eliminar de Cloudinary
+    // Eliminar archivo local
     try {
-      await cloudinary.uploader.destroy(image.publicId);
-    } catch (cloudError) {
-      console.error('Error al eliminar de Cloudinary');
+      const UPLOADS_BASE = process.env.UPLOADS_DIR
+        ? path.resolve(process.env.UPLOADS_DIR)
+        : path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')), '../../uploads');
+      const filePath = path.join(UPLOADS_BASE, 'banners', image.publicId);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    } catch (deleteError) {
+      console.error('Error al eliminar archivo de imagen local:', deleteError.message);
     }
 
     banner.images.pull(imageId);

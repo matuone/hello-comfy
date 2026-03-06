@@ -7,6 +7,10 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ============================
 // IMPORTS DE RUTAS
@@ -69,6 +73,17 @@ app.use((req, res, next) => {
 });
 
 // ============================
+// ARCHIVOS ESTÁTICOS — UPLOADS
+// Sirve imágenes subidas localmente desde /uploads/
+// En producción nginx también los sirve directamente (más eficiente).
+// Este bloque cubre el entorno de desarrollo y actúa como fallback.
+// ============================
+const UPLOADS_BASE = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : path.join(__dirname, "../uploads");
+app.use("/uploads", express.static(UPLOADS_BASE, { maxAge: "1y" }));
+
+// ============================
 // MIDDLEWARES
 // ============================
 app.use(express.json({ limit: "50mb" }));
@@ -123,7 +138,7 @@ app.use(
         scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "blob:"],
         connectSrc: ["'self'", "https://api.mercadopago.com", "https://api.gocuotas.com"],
       },
     },

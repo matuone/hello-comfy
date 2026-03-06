@@ -40,7 +40,7 @@ import jwt from "jsonwebtoken";
 import validator from "validator";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
-import cloudinary from "../config/cloudinary.js";
+import { getUploadUrl } from "../middleware/upload.js";
 import { enviarEmailVerificacion } from "../services/emailService.js";
 
 // ===============================
@@ -304,15 +304,8 @@ export async function updateUserAvatar(req, res) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Subir a Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "hellocomfy/avatars",
-      resource_type: "auto",
-      quality: "auto",
-    });
-
-    // Actualizar avatar
-    user.avatar = result.secure_url;
+    // Guardar URL local del avatar (ya fue guardado en disco por multer)
+    user.avatar = getUploadUrl(req.file, "avatars");
     await user.save();
 
     // Respuesta

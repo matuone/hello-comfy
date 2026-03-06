@@ -1,46 +1,91 @@
 import multer from "multer";
-import cloudinary from "../config/cloudinary.js";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
-// ============================
-// MULTER → memoryStorage (ideal para Cloudinary)
-// ============================
-const storage = multer.memoryStorage();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB por archivo
+// Directorio base de uploads.
+// En producción se configura vía UPLOADS_DIR en .env (ej: /root/hello-comfy/uploads)
+// En desarrollo, cae en <proyecto>/uploads/ (fuera de backend/)
+const UPLOADS_BASE = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : path.join(__dirname, "../../uploads");
+
+// URL pública base para construir las URLs que se guardan en la BD.
+// En producción: https://hellocomfy.com.ar (nginx sirve /uploads/ desde UPLOADS_BASE)
+// En desarrollo: http://localhost:5000 (Express sirve /uploads/ como static)
+const UPLOADS_PUBLIC_BASE = (process.env.FRONTEND_URL || "http://localhost:5000").replace(/\/$/, "");
+
+// Crear subcarpetas si no existen
+["products", "avatars", "banners"].forEach((dir) => {
+  fs.mkdirSync(path.join(UPLOADS_BASE, dir), { recursive: true });
 });
 
-// ============================
-// SUBIR UNA IMAGEN A CLOUDINARY
-// ============================
-export const uploadToCloudinary = async (file) => {
-  try {
-    const base64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+// Nombre de archivo único
+function makeFilename(file) {
+  const ext = path.extname(file.originalname).toLowerCase() || ".jpg";
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
+}
 
-    const result = await cloudinary.uploader.upload(base64, {
-      folder: "hellocomfy/products",
-    });
+// Factory de diskStorage por subcarpeta
+function diskStorageFor(subfolder) {
+  return multer.diskStorage({
+    destination: (req, file, cb) => cb(null, path.join(UPLOADS_BASE, subfolder)),
+    filename: (req, file, cb) => cb(null, makeFilename(file)),
+  });
+}
 
-    return result.secure_url;
-  } catch (error) {
-    console.error("Error al subir imagen:", error);
-    throw error;
+// Filtro: solo imágenes
+const imageFilter = (req, file, cb) => {
+  if (!file.mimetype.startsWith("image/")) {
+    return cb(new Error("Solo se permiten archivos de imagen"));
   }
+  cb(null, true);
 };
 
 // ============================
-// SUBIR MÚLTIPLES IMÁGENES
+// MIDDLEWARE PARA PRODUCTOS (por defecto)
 // ============================
+const upload = multer({
+  storage: diskStorageFor("products"),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: imageFilter,
+});
+
+// ============================
+// MIDDLEWARE PARA BANNERS (10MB)
+// ============================
+export const uploadBannerMiddleware = multer({
+  storage: diskStorageFor("banners"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imageFilter,
+});
+
+// ============================
+// MIDDLEWARE PARA AVATARES
+// ============================
+export const uploadAvatarMiddleware = multer({
+  storage: diskStorageFor("avatars"),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: imageFilter,
+});
+
+// Obtener la URL pública de un archivo ya guardado por multer en disco
+export function getUploadUrl(file, subfolder) {
+  return `${UPLOADS_PUBLIC_BASE}/uploads/${subfolder}/${file.filename}`;
+}
+
+// ============================
+// Compatibilidad con código anterior (productRoutes usa estos nombres)
+// Ahora son síncronos porque multer ya guardó el archivo en disco
+// ============================
+export const uploadToCloudinary = async (file) => {
+  return getUploadUrl(file, "products");
+};
+
 export const uploadMultipleToCloudinary = async (files) => {
-  const urls = [];
-
-  for (const file of files) {
-    const url = await uploadToCloudinary(file);
-    urls.push(url);
-  }
-
-  return urls;
+  return files.map((f) => getUploadUrl(f, "products"));
 };
 
 export default upload;

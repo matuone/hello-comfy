@@ -16,7 +16,7 @@ async function generarCodigoOrden() {
       { $project: { codeNum: { $toInt: "$code" } } },
       { $sort: { codeNum: -1 } },
       { $limit: 1 },
-    ]);
+    ]).read("primary");
 
     if (result.length === 0) return "01";
 
@@ -139,8 +139,10 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     };
 
     // Crear la orden en BD (con retry en caso de colisión de código)
+    // Se reintentan hasta 10 veces para cubrir escenarios de tests rápidos
+    // o webhooks concurrentes de MP que asignan el mismo código simultáneamente.
     let order;
-    let intentos = 3;
+    let intentos = 10;
     while (intentos > 0) {
       try {
         orderData.code = await generarCodigoOrden();
@@ -150,7 +152,7 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
       } catch (err) {
         if (err.code === 11000 && intentos > 1) {
           // Código duplicado por race condition — reintentar con el siguiente
-          console.warn(`⚠️ Código de orden duplicado (${orderData.code}), reintentando...`);
+          console.warn(`⚠️ Código de orden duplicado (${orderData.code}), reintentando... (${intentos - 1} intentos restantes)`);
           intentos--;
           continue;
         }

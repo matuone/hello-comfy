@@ -2,7 +2,7 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { updateUserProfile, updateUserAvatar, changeUserPassword } from "../controllers/authController.js";
-import upload from "../middleware/upload.js";
+import upload, { uploadAvatarMiddleware } from "../middleware/upload.js";
 import { body, validationResult } from "express-validator";
 
 const router = express.Router();
@@ -57,6 +57,6 @@ router.put(
 // ============================
 // ACTUALIZAR AVATAR DEL USUARIO
 // ============================
-router.put("/:id/avatar", authMiddleware, upload.single("avatar"), updateUserAvatar);
+router.put("/:id/avatar", authMiddleware, uploadAvatarMiddleware.single("avatar"), updateUserAvatar);
 
 export default router;
