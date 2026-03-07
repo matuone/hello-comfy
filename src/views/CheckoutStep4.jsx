@@ -303,16 +303,23 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
       const preferencia = await crearPreferenciaMercadoPago({
         items: itemsValidos,
         totalPrice: parseFloat(totalPrice) || 0,
+        shippingCost: envio,
         customerData: {
           email: formData.email,
           name: formData.name || "Cliente",
           phone: formData.phone || "",
           postalCode: formData.postalCode || "",
+          address: formData.address || "",
+          province: formData.province || "",
+          localidad: formData.localidad || "",
+          selectedAgency: formData.selectedAgency || null,
+          pickPoint: formData.pickPoint || "",
         },
         metadata: {
           orderType: "checkout",
           shippingMethod: formData.shippingMethod,
           promoCode: promoCode || null,
+          userId: user?.id || null,
         },
       });
 

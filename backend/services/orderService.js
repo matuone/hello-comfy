@@ -83,27 +83,56 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         color: item.color || null,
       })),
       totals: (() => {
+        const round2 = (n) => Math.round((Number(n || 0)) * 100) / 100;
+        const shippingFromProcess =
+          typeof pendingOrderData.shippingCost === "number"
+            ? round2(pendingOrderData.shippingCost)
+            : null;
+        const paidAmount =
+          typeof paymentData.transaction_amount === "number"
+            ? round2(paymentData.transaction_amount)
+            : null;
+
         const tb = pendingOrderData.totalsBreakdown;
         if (tb) {
+          const subtotal = round2(tb.subtotal || 0);
+          const promo3x2Discount = round2(tb.promo3x2Discount || 0);
+          const promoDiscount = round2(tb.promoDiscount || 0);
+          const transferDiscount = round2(tb.transferDiscount || 0);
+          const shipping =
+            shippingFromProcess !== null
+              ? shippingFromProcess
+              : round2(tb.shipping || 0);
+          const totalWithoutShipping = round2(
+            subtotal - promo3x2Discount - promoDiscount - transferDiscount
+          );
+
           return {
-            subtotal: tb.subtotal,
-            shipping: tb.shipping || 0,
-            promo3x2Discount: tb.promo3x2Discount || 0,
-            promoDiscount: tb.promoDiscount || 0,
-            transferDiscount: tb.transferDiscount || 0,
-            discount: (tb.promo3x2Discount || 0) + (tb.promoDiscount || 0) + (tb.transferDiscount || 0),
-            total: tb.total,
+            subtotal,
+            shipping,
+            promo3x2Discount,
+            promoDiscount,
+            transferDiscount,
+            discount: round2(promo3x2Discount + promoDiscount + transferDiscount),
+            // Fuente de verdad: monto cobrado por el proveedor de pago
+            total:
+              paidAmount !== null
+                ? paidAmount
+                : round2(totalWithoutShipping + shipping),
           };
         }
-        const shippingFallback = pendingOrderData.shippingCost || 0;
+        const shippingFallback = shippingFromProcess !== null ? shippingFromProcess : 0;
         return {
-          subtotal: pendingOrderData.totalPrice,
+          subtotal: round2(pendingOrderData.totalPrice),
           shipping: shippingFallback,
           promo3x2Discount: 0,
           promoDiscount: 0,
           transferDiscount: 0,
           discount: 0,
-          total: paymentData.transaction_amount || (pendingOrderData.totalPrice + shippingFallback),
+          total:
+            paidAmount !== null
+              ? paidAmount
+              : round2((pendingOrderData.totalPrice || 0) + shippingFallback),
         };
       })(),
       date: new Date().toLocaleString("es-AR"),

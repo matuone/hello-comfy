@@ -14,6 +14,7 @@ import { validateShippingCost } from "../services/validateShippingCost.js"; impo
 export const createPreference = async (req, res) => {
   try {
     const { items, totalPrice, customerData, shippingCost = 0, metadata = {} } = req.body;
+    const shippingMethod = metadata?.shippingMethod;
 
     // Validar que tenemos la access token
     if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
@@ -41,6 +42,16 @@ export const createPreference = async (req, res) => {
       console.error("Customer data incompleto");
       return res.status(400).json({
         error: "Datos del cliente incompletos (email requerido)",
+      });
+    }
+
+    // Si es envío a domicilio, exigir dirección mínima para evitar órdenes incompletas
+    if (
+      (shippingMethod === "correo-home" || shippingMethod === "home") &&
+      (!customerData.address || !customerData.province || !customerData.localidad || !customerData.postalCode)
+    ) {
+      return res.status(400).json({
+        error: "Faltan datos de envío a domicilio (dirección, provincia, localidad o CP)",
       });
     }
 
@@ -150,7 +161,14 @@ export const createPreference = async (req, res) => {
         checkoutId: preference.external_reference,
         paymentMethod: "mercadopago",
         orderReference: preference.external_reference,
-        customerData: customerData,
+        customerData: {
+          ...customerData,
+          address: customerData.address || "",
+          province: customerData.province || "",
+          localidad: customerData.localidad || "",
+          selectedAgency: customerData.selectedAgency || null,
+          pickPoint: customerData.pickPoint || "",
+        },
         items: validatedItems,
         totalPrice: totals.total,
         shippingCost: validatedShipping,
@@ -158,7 +176,11 @@ export const createPreference = async (req, res) => {
         postalCode: customerData?.postalCode,
         metadata: {
           ...metadata,
-          totalsBreakdown: totals,
+          totalsBreakdown: {
+            ...totals,
+            shipping: validatedShipping,
+            total: Math.round((totals.total + validatedShipping) * 100) / 100,
+          },
         },
       });
     } catch (saveErr) {
@@ -382,6 +404,11 @@ export const processPayment = async (req, res) => {
             shippingMethod: savedPending.shippingMethod || savedPending.metadata?.shippingMethod,
             promoCode: savedPending.metadata?.promoCode || null,
             paymentMethod: "mercadopago",
+            address: savedPending.customerData?.address || "",
+            province: savedPending.customerData?.province || "",
+            localidad: savedPending.customerData?.localidad || "",
+            selectedAgency: savedPending.customerData?.selectedAgency || null,
+            pickPoint: savedPending.customerData?.pickPoint || "",
           },
           items: savedPending.items,
           totalPrice: savedPending.totalPrice,
