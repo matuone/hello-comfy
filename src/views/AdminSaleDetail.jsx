@@ -26,8 +26,18 @@ export default function AdminSaleDetail() {
   const [modalError, setModalError] = useState(null);
   const [fechaRetiro, setFechaRetiro] = useState("");
   const [enviandoPickup, setEnviandoPickup] = useState(false);
+  const [enviandoWhatsappPickup, setEnviandoWhatsappPickup] = useState(false);
   const [fechaRetiroFecha, setFechaRetiroFecha] = useState("");
   const [fechaRetiroHora, setFechaRetiroHora] = useState("");
+
+  function formatearFechaRetiro() {
+    if (!fechaRetiroFecha || !fechaRetiroHora) return "";
+    const fecha = new Date(`${fechaRetiroFecha}T${fechaRetiroHora}`);
+    const opciones = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+    const fechaStr = fecha.toLocaleDateString("es-AR", opciones);
+    const horaStr = fecha.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: true });
+    return `${fechaStr} a las ${horaStr}`;
+  }
 
   async function enviarNotificacionPickup() {
     if (!fechaRetiroFecha || !fechaRetiroHora) {
@@ -36,11 +46,7 @@ export default function AdminSaleDetail() {
     }
     setEnviandoPickup(true);
     try {
-      const fecha = new Date(`${fechaRetiroFecha}T${fechaRetiroHora}`);
-      const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const fechaStr = fecha.toLocaleDateString('es-AR', opciones);
-      let horaStr = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const fechaHoraFinal = `${fechaStr} a las ${horaStr}`;
+      const fechaHoraFinal = formatearFechaRetiro();
       const res = await adminFetch(apiPath(`/admin/orders/${id}/pickup-notify`), {
         method: "PATCH",
         headers: {
@@ -57,6 +63,45 @@ export default function AdminSaleDetail() {
       setModalError(err.message || "Error al notificar retiro");
     } finally {
       setEnviandoPickup(false);
+    }
+  }
+
+  async function enviarWhatsappPickup(e) {
+    e.preventDefault();
+    const phone = (customer?.phone || customer?.whatsapp || "").replace(/[^\d]/g, "");
+
+    if (!phone) {
+      setModalError("El cliente no tiene WhatsApp cargado.");
+      return;
+    }
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(getMensajeWhatsapp({
+      nombre: customer.name,
+      fecha: fechaRetiroFecha,
+      hora: fechaRetiroHora,
+      pickPoint: shipping.pickPoint,
+      numeroOrden: venta.code,
+    }))}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+
+    setEnviandoWhatsappPickup(true);
+    try {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/pickup-whatsapp-notify`), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fechaRetiro: formatearFechaRetiro() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo registrar la notificación por WhatsApp");
+      setVenta(data.order);
+      setModalPickup(false);
+    } catch (err) {
+      setModalError(err.message || "No se pudo registrar la notificación por WhatsApp");
+    } finally {
+      setEnviandoWhatsappPickup(false);
     }
   }
 
@@ -659,17 +704,18 @@ export default function AdminSaleDetail() {
                 <a
                   className="factura-modal-btn confirm"
                   style={{ background: "#25d366", color: "white", textAlign: 'center', textDecoration: 'none', opacity: (customer?.phone || customer?.whatsapp) ? 1 : 0.5, pointerEvents: (customer?.phone || customer?.whatsapp) ? 'auto' : 'none' }}
-                  href={(customer?.phone || customer?.whatsapp) ? `https://wa.me/${(customer.phone || customer.whatsapp).replace(/[^\d]/g, '')}?text=${encodeURIComponent(getMensajeWhatsapp({ nombre: customer.name, fecha: fechaRetiroFecha, hora: fechaRetiroHora, pickPoint: shipping.pickPoint, numeroOrden: venta.code }))}` : '#'}
+                  href="#"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={enviarWhatsappPickup}
                   title={(customer?.phone || customer?.whatsapp) ? '' : 'El cliente no tiene WhatsApp'}
                 >
-                  Enviar WhatsApp
+                  {enviandoWhatsappPickup ? "Enviando..." : "Enviar WhatsApp"}
                 </a>
                 <button
                   className="factura-modal-btn cancel"
                   onClick={() => setModalPickup(false)}
-                  disabled={enviandoPickup}
+                  disabled={enviandoPickup || enviandoWhatsappPickup}
                 >
                   Cancelar
                 </button>

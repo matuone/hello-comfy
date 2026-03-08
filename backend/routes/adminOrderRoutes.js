@@ -55,6 +55,39 @@ router.patch("/admin/orders/:id/pickup-notify", verifyAdmin, async (req, res) =>
   }
 });
 
+/* ============================================================
+   ⭐ Marcar notificación de retiro por WhatsApp
+   PATCH /api/admin/orders/:id/pickup-whatsapp-notify
+============================================================ */
+router.patch("/admin/orders/:id/pickup-whatsapp-notify", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { fechaRetiro } = req.body || {};
+
+  try {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+
+    if (order.shipping.method !== "pickup") {
+      return res.status(400).json({ error: "El pedido no es para retiro en punto de pick up" });
+    }
+
+    if (!order.pickupNotificado) {
+      const detalleFecha = typeof fechaRetiro === "string" && fechaRetiro.trim() ? ` (${fechaRetiro.trim()})` : "";
+      order.pickupNotificado = true;
+      order.timeline.push({
+        status: `Cliente notificado para retiro por WhatsApp${detalleFecha}`,
+        date: new Date().toLocaleString("es-AR"),
+      });
+      await order.save();
+    }
+
+    res.json({ message: "Notificación por WhatsApp registrada", order });
+  } catch (err) {
+    console.error("Error registrando notificación de WhatsApp:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
 
 
 /* ============================================================
