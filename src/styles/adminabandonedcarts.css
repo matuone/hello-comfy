@@ -235,6 +235,20 @@
   margin: 0;
 }
 
+.admin-abandoned__converted-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 4px 0 2px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eafaf1;
+  border: 1px solid #bfe8cf;
+  color: #1d7a45;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .admin-abandoned__summary {
   display: flex;
   flex-direction: column;

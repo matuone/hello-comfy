@@ -247,6 +247,9 @@ export default function AdminAbandonedCarts() {
                   <p className="admin-abandoned__email">
                     📧 {cart.email}
                   </p>
+                  {cart.recovered && (
+                    <span className="admin-abandoned__converted-chip">✅ Compra realizada</span>
+                  )}
                   {cart.name && <p className="admin-abandoned__name">👤 {cart.name}</p>}
                   {cart.phone && <p className="admin-abandoned__phone">📱 {cart.phone}</p>}
                 </div>
