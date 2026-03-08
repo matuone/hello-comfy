@@ -1,7 +1,8 @@
 import ResetPassword from "../views/ResetPassword";
 <Route path="/reset-password/:token" element={<ResetPassword />} />
 // src/router/index.jsx
-import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 // Layout público
 import Layout from "../views/Layout";
@@ -83,107 +84,142 @@ import AccountHelp from "../views/account/AccountHelp";
 import AccountWishlist from "../views/account/AccountWishlist";
 
 export default function AppRouter() {
+  function VisitTracker() {
+    const location = useLocation();
+
+    useEffect(() => {
+      const path = location.pathname || "/";
+
+      if (path.startsWith("/admin")) return;
+
+      const key = "hc-last-visit-ping";
+      const now = Date.now();
+      const lastPing = Number(sessionStorage.getItem(key) || 0);
+
+      // Evita ruido excesivo en navegación rápida; cuenta como visita de sesión.
+      if (now - lastPing < 5 * 60 * 1000) return;
+      sessionStorage.setItem(key, String(now));
+
+      const base = import.meta.env.VITE_API_URL || "/api";
+      const url = path.startsWith("/") ? `${base}/visits/track` : `${base}/visits/track`;
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ path }),
+        keepalive: true,
+      }).catch(() => { });
+    }, [location.pathname]);
+
+    return null;
+  }
+
   return (
-    <Routes>
+    <>
+      <VisitTracker />
+      <Routes>
 
-      {/* Públicas */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
+        {/* Públicas */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
 
-        <Route path="/indumentaria/:subcategory" element={<Category section="indumentaria" />} />
-        <Route path="/cute-items/:subcategory" element={<Category section="cute-items" />} />
-        <Route path="/merch/:subcategory" element={<Category section="merch" />} />
+          <Route path="/indumentaria/:subcategory" element={<Category section="indumentaria" />} />
+          <Route path="/cute-items/:subcategory" element={<Category section="cute-items" />} />
+          <Route path="/merch/:subcategory" element={<Category section="merch" />} />
 
-        <Route path="/categorias" element={<Categories />} />
-        <Route path="/talles" element={<SizeGuide />} />
-        <Route path="/algodon" element={<CottonCare />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/medios-de-pago" element={<PaymentMethods />} />
+          <Route path="/categorias" element={<Categories />} />
+          <Route path="/talles" element={<SizeGuide />} />
+          <Route path="/algodon" element={<CottonCare />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/medios-de-pago" element={<PaymentMethods />} />
 
-        <Route path="/mi-cuenta" element={<MyAccount />} />
+          <Route path="/mi-cuenta" element={<MyAccount />} />
 
-        {/* ⭐ NUEVA RUTA DE REGISTRO */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
+          {/* ⭐ NUEVA RUTA DE REGISTRO */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
 
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/checkout/success" element={<CheckoutSuccess />} />
-        <Route path="/checkout/error" element={<CheckoutError />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/checkout/error" element={<CheckoutError />} />
 
-        {/* ⭐ NUEVO: Rutas de pago Mercado Pago */}
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/failure" element={<PaymentFailure />} />
-        <Route path="/payment/pending" element={<PaymentPending />} />
+          {/* ⭐ NUEVO: Rutas de pago Mercado Pago */}
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/failure" element={<PaymentFailure />} />
+          <Route path="/payment/pending" element={<PaymentPending />} />
 
-        {/* ⭐ NUEVO: Ruta de checkout Modo */}
-        <Route path="/payment/modo-checkout" element={<ModoCheckout />} />
+          {/* ⭐ NUEVO: Ruta de checkout Modo */}
+          <Route path="/payment/modo-checkout" element={<ModoCheckout />} />
 
-        <Route path="/seguimiento" element={<OrderTracking />} />
-        <Route path="/orden/:code" element={<OrderDetails />} />
+          <Route path="/seguimiento" element={<OrderTracking />} />
+          <Route path="/orden/:code" element={<OrderDetails />} />
 
-        <Route path="/notfound" element={<NotFound />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
+          <Route path="/notfound" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
 
-      {/* Login admin (sin Layout, accesible siempre) */}
-      <Route path="/admin/login" element={<AdminLogin />} />
+        {/* Login admin (sin Layout, accesible siempre) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-      {/* Admin */}
-      <Route
-        element={
-          <AdminRoute>
-            <AdminLayout />
-          </AdminRoute>
-        }
-      >
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/sales" element={<AdminSales />} />
-        <Route path="/admin/sales/:id" element={<AdminSaleDetail />} />
+        {/* Admin */}
+        <Route
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/sales" element={<AdminSales />} />
+          <Route path="/admin/sales/:id" element={<AdminSaleDetail />} />
 
-        <Route path="/admin/products" element={<AdminProducts />} />
-        <Route path="/admin/products/new" element={<AdminProductDetail />} />
-        <Route path="/admin/products/:id" element={<AdminProductDetail />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/products/new" element={<AdminProductDetail />} />
+          <Route path="/admin/products/:id" element={<AdminProductDetail />} />
 
-        <Route path="/admin/stock" element={<AdminStock />} />
+          <Route path="/admin/stock" element={<AdminStock />} />
 
-        <Route path="/admin/customers" element={<AdminCustomers />} />
-        <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
-        <Route path="/admin/customers/:id/edit" element={<AdminCustomerEdit />} />
+          <Route path="/admin/customers" element={<AdminCustomers />} />
+          <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
+          <Route path="/admin/customers/:id/edit" element={<AdminCustomerEdit />} />
 
-        <Route path="/admin/stats" element={<AdminStats />} />
-        <Route path="/admin/marketing" element={<AdminMarketing />} />
+          <Route path="/admin/stats" element={<AdminStats />} />
+          <Route path="/admin/marketing" element={<AdminMarketing />} />
 
-        <Route path="/admin/discounts" element={<AdminDiscounts />} />
-        <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
-        <Route path="/admin/subcategories" element={<AdminSubcategories />} />
-        <Route path="/admin/sizetables" element={<AdminSizeTables />} />
-        <Route path="/admin/opinions" element={<AdminOpinions />} />
-        <Route path="/admin/abandoned-carts" element={<AdminAbandonedCarts />} />
-      </Route>
+          <Route path="/admin/discounts" element={<AdminDiscounts />} />
+          <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
+          <Route path="/admin/subcategories" element={<AdminSubcategories />} />
+          <Route path="/admin/sizetables" element={<AdminSizeTables />} />
+          <Route path="/admin/opinions" element={<AdminOpinions />} />
+          <Route path="/admin/abandoned-carts" element={<AdminAbandonedCarts />} />
+        </Route>
 
-      {/* Área de cliente */}
-      <Route
-        element={
-          <UserRoute>
-            <AccountLayout />
-          </UserRoute>
-        }
-      >
-        <Route path="/mi-cuenta/compras" element={<AccountPurchases />} />
-        <Route path="/mi-cuenta/perfil" element={<AccountProfile />} />
-        <Route path="/mi-cuenta/envio" element={<AccountShipping />} />
-        <Route path="/mi-cuenta/contacto" element={<AccountContact />} />
-        <Route path="/mi-cuenta/opiniones" element={<AccountOpinions />} />
-        {/* ⭐ NUEVA RUTA DE AYUDA */}
-        <Route path="/mi-cuenta/ayuda" element={<AccountHelp />} />
-        <Route path="/mi-cuenta/favoritos" element={<AccountWishlist />} />
-      </Route>
+        {/* Área de cliente */}
+        <Route
+          element={
+            <UserRoute>
+              <AccountLayout />
+            </UserRoute>
+          }
+        >
+          <Route path="/mi-cuenta/compras" element={<AccountPurchases />} />
+          <Route path="/mi-cuenta/perfil" element={<AccountProfile />} />
+          <Route path="/mi-cuenta/envio" element={<AccountShipping />} />
+          <Route path="/mi-cuenta/contacto" element={<AccountContact />} />
+          <Route path="/mi-cuenta/opiniones" element={<AccountOpinions />} />
+          {/* ⭐ NUEVA RUTA DE AYUDA */}
+          <Route path="/mi-cuenta/ayuda" element={<AccountHelp />} />
+          <Route path="/mi-cuenta/favoritos" element={<AccountWishlist />} />
+        </Route>
 
-    </Routes>
+      </Routes>
+    </>
   );
 }

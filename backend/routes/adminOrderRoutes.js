@@ -5,6 +5,7 @@ const router = express.Router();
 import axios from "axios";
 import Order from "../models/Order.js";
 import Customer from "../models/Customer.js";
+import VisitDaily from "../models/VisitDaily.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
 import {
   enviarEmailRetiroPickup,
@@ -589,8 +590,20 @@ router.get("/admin/stats", verifyAdmin, async (req, res) => {
     ).lean();
 
     const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    const [visitaHoyDoc, visitasMesAgg, visitasTotalAgg] = await Promise.all([
+      VisitDaily.findOne({ day: startOfToday }).lean(),
+      VisitDaily.aggregate([
+        { $match: { day: { $gte: startOfMonth } } },
+        { $group: { _id: null, total: { $sum: "$count" } } },
+      ]),
+      VisitDaily.aggregate([
+        { $group: { _id: null, total: { $sum: "$count" } } },
+      ]),
+    ]);
 
     // KPIs básicos
     const totalVentas = allOrders.length;
@@ -672,12 +685,19 @@ router.get("/admin/stats", verifyAdmin, async (req, res) => {
       .slice(0, 8)
       .map(([nombre, cantidad]) => ({ nombre, cantidad }));
 
+    const visitasHoy = visitaHoyDoc?.count || 0;
+    const visitasMes = visitasMesAgg[0]?.total || 0;
+    const visitasTotal = visitasTotalAgg[0]?.total || 0;
+
     res.json({
       totalVentas,
       totalFacturado,
       facturadoMes,
       ventasEnviadas,
       ventasPendientes,
+      visitasHoy,
+      visitasMes,
+      visitasTotal,
       topClienteMes,
       ventasPorMes,
       ordenesPorMes,

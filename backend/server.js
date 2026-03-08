@@ -40,6 +40,7 @@ import opinionRoutes from "./routes/opinionRoutes.js"; // ⭐ NUEVO
 import feedRoutes from "./routes/feedRoutes.js"; // ⭐ NUEVO FEED
 import instagramRoutes from "./routes/instagramRoutes.js"; // ⭐ SINCRONIZACIÓN INSTAGRAM
 import abandonedCartRoutes from "./routes/abandonedCartRoutes.js"; // ⭐ CARRITOS ABANDONADOS
+import visitRoutes from "./routes/visitRoutes.js"; // ⭐ VISITAS WEB
 import "./services/stockAlertService.js"; // Activa el cron de alerta de stock
 import "./services/instagramSyncService.js"; // Auto-sync feed de Instagram al arrancar y cada 6hs
 
@@ -262,6 +263,11 @@ app.use("/api/instagram", instagramRoutes);
 // RUTAS DE CARRITOS ABANDONADOS (⭐ NUEVO)
 // ============================
 app.use("/api/abandoned-carts", abandonedCartRoutes);
+
+// ============================
+// RUTAS DE VISITAS WEB
+// ============================
+app.use("/api", visitRoutes);
 
 // ============================
 // RUTA DE WHATSAPP (NUEVO)

@@ -85,6 +85,18 @@ export default function AdminDashboard() {
             {loading ? "..." : num(stats?.ventasEnviadas)}
           </p>
         </div>
+        <div className="admin-card">
+          <h3 className="admin-card-title">Visitas hoy</h3>
+          <p className="admin-card-value">
+            {loading ? "..." : num(stats?.visitasHoy)}
+          </p>
+        </div>
+        <div className="admin-card">
+          <h3 className="admin-card-title">Visitas este mes</h3>
+          <p className="admin-card-value">
+            {loading ? "..." : num(stats?.visitasMes)}
+          </p>
+        </div>
       </div>
       {!loading && stats?.topProductos?.length > 0 && (
         <div style={{ marginTop: 32 }}>
