@@ -6,7 +6,14 @@ import axios from "axios";
 import Order from "../models/Order.js";
 import Customer from "../models/Customer.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
-import { enviarEmailRetiroPickup, enviarEmailPagoRecibido, enviarEmailSeguimiento, enviarEmailCancelacion, enviarEmailDevolucion } from "../services/emailService.js";
+import {
+  enviarEmailRetiroPickup,
+  enviarEmailPagoRecibido,
+  enviarEmailSeguimiento,
+  enviarEmailCancelacion,
+  enviarEmailDevolucion,
+  enviarEmailConfirmacionOrden,
+} from "../services/emailService.js";
 
 /* ============================================================
    ⭐ Notificar retiro listo (Pick Up)
@@ -76,6 +83,87 @@ router.patch("/admin/orders/:id/comentario", verifyAdmin, async (req, res) => {
 });
 
 /* ============================================================
+   ⭐ Editar datos del cliente
+   PATCH /api/admin/orders/:id/customer
+============================================================ */
+router.patch("/admin/orders/:id/customer", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { name, email, phone, dni } = req.body || {};
+
+  if (!email || typeof email !== "string") {
+    return res.status(400).json({ error: "email requerido" });
+  }
+
+  try {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+
+    order.customer = {
+      ...order.customer,
+      name: typeof name === "string" ? name.trim() : order.customer?.name,
+      email: email.trim(),
+      phone: typeof phone === "string" ? phone.trim() : order.customer?.phone,
+      dni: typeof dni === "string" ? dni.trim() : order.customer?.dni,
+    };
+
+    order.timeline.push({
+      status: "Datos del cliente editados por admin",
+      date: new Date().toLocaleString("es-AR"),
+    });
+
+    await order.save();
+    res.json({ message: "Datos del cliente actualizados", order });
+  } catch (err) {
+    console.error("Error actualizando datos del cliente:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
+   ⭐ Editar datos de dirección
+   PATCH /api/admin/orders/:id/address
+============================================================ */
+router.patch("/admin/orders/:id/address", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  const {
+    address,
+    localidad,
+    province,
+    postalCode,
+    pickPoint,
+    branchName,
+    branchAddress,
+  } = req.body || {};
+
+  try {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Pedido no encontrado" });
+
+    order.shipping = {
+      ...order.shipping,
+      address: typeof address === "string" ? address.trim() : order.shipping?.address,
+      localidad: typeof localidad === "string" ? localidad.trim() : order.shipping?.localidad,
+      province: typeof province === "string" ? province.trim() : order.shipping?.province,
+      postalCode: typeof postalCode === "string" ? postalCode.trim() : order.shipping?.postalCode,
+      pickPoint: typeof pickPoint === "string" ? pickPoint.trim() : order.shipping?.pickPoint,
+      branchName: typeof branchName === "string" ? branchName.trim() : order.shipping?.branchName,
+      branchAddress: typeof branchAddress === "string" ? branchAddress.trim() : order.shipping?.branchAddress,
+    };
+
+    order.timeline.push({
+      status: "Datos de dirección editados por admin",
+      date: new Date().toLocaleString("es-AR"),
+    });
+
+    await order.save();
+    res.json({ message: "Datos de dirección actualizados", order });
+  } catch (err) {
+    console.error("Error actualizando dirección:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
    ⭐ Lista todas las ventas
    GET /api/admin/orders
 ============================================================ */
@@ -113,6 +201,41 @@ router.get("/admin/orders/:id", verifyAdmin, async (req, res) => {
     res.json(orderObj);
   } catch (err) {
     console.error("Error obteniendo detalle de venta:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
+   ⭐ Reenviar email de confirmación de compra
+   PATCH /api/admin/orders/:id/resend-confirmation-email
+============================================================ */
+router.patch("/admin/orders/:id/resend-confirmation-email", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ error: "Pedido no encontrado" });
+    }
+
+    if (!order.customer?.email) {
+      return res.status(400).json({ error: "La orden no tiene email de cliente" });
+    }
+
+    const emailOk = await enviarEmailConfirmacionOrden(order);
+    if (!emailOk) {
+      return res.status(500).json({ error: "No se pudo reenviar el email de confirmación" });
+    }
+
+    order.timeline.push({
+      status: `Email de confirmación reenviado a ${order.customer.email}`,
+      date: new Date().toLocaleString("es-AR"),
+    });
+    await order.save();
+
+    res.json({ message: "Email de confirmación reenviado", order });
+  } catch (err) {
+    console.error("Error reenviando email de confirmación:", err);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });

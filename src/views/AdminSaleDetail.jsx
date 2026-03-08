@@ -364,6 +364,7 @@ export default function AdminSaleDetail() {
   // ============================
   const [cancelando, setCancelando] = useState(false);
   const [reembolsando, setReembolsando] = useState(false);
+  const [reenviandoEmailCompra, setReenviandoEmailCompra] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ open: false, action: null });
   const [resultModal, setResultModal] = useState(null); // { tipo: "success"|"error", mensaje }
 
@@ -424,12 +425,130 @@ export default function AdminSaleDetail() {
     }
   }
 
+  async function reenviarEmailConfirmacionCompra() {
+    setReenviandoEmailCompra(true);
+    try {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/resend-confirmation-email`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo reenviar el email de compra");
+      setVenta(data.order);
+      setResultModal({ tipo: "success", mensaje: `Email de compra reenviado a ${data.order?.customer?.email || "cliente"}.` });
+    } catch (err) {
+      setResultModal({ tipo: "error", mensaje: err.message || "Error reenviando email de compra" });
+    } finally {
+      setReenviandoEmailCompra(false);
+    }
+  }
+
   // ============================
   // ESTADO Y LÓGICA DE EDICIÓN DE COMENTARIO
   // ============================
+  const [modalEditarCliente, setModalEditarCliente] = useState(false);
+  const [modalEditarDireccion, setModalEditarDireccion] = useState(false);
+  const [guardandoCliente, setGuardandoCliente] = useState(false);
+  const [guardandoDireccion, setGuardandoDireccion] = useState(false);
+  const [clienteForm, setClienteForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    dni: "",
+  });
+  const [direccionForm, setDireccionForm] = useState({
+    address: "",
+    localidad: "",
+    province: "",
+    postalCode: "",
+    pickPoint: "",
+    branchName: "",
+    branchAddress: "",
+  });
+
   const [isEditingComentario, setIsEditingComentario] = useState(false);
   const [comentarioEditado, setComentarioEditado] = useState("");
   const [guardandoComentario, setGuardandoComentario] = useState(false);
+
+  function abrirModalEditarCliente() {
+    setClienteForm({
+      name: venta?.customer?.name || "",
+      email: venta?.customer?.email || "",
+      phone: venta?.customer?.phone || venta?.customer?.whatsapp || "",
+      dni: venta?.customer?.dni || "",
+    });
+    setModalEditarCliente(true);
+  }
+
+  function abrirModalEditarDireccion() {
+    setDireccionForm({
+      address: venta?.shipping?.address || "",
+      localidad: venta?.shipping?.localidad || "",
+      province: venta?.shipping?.province || "",
+      postalCode: venta?.shipping?.postalCode || "",
+      pickPoint: venta?.shipping?.pickPoint || "",
+      branchName: venta?.shipping?.branchName || "",
+      branchAddress: venta?.shipping?.branchAddress || "",
+    });
+    setModalEditarDireccion(true);
+  }
+
+  function handleClienteInputChange(e) {
+    const { name, value } = e.target;
+    setClienteForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function handleDireccionInputChange(e) {
+    const { name, value } = e.target;
+    setDireccionForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function guardarCliente() {
+    if (!clienteForm.email?.trim()) {
+      setModalError("El email del cliente es obligatorio");
+      return;
+    }
+
+    setGuardandoCliente(true);
+    try {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/customer`), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(clienteForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al guardar datos del cliente");
+      setVenta(data.order);
+      setModalEditarCliente(false);
+    } catch (err) {
+      setModalError(err.message || "Error al guardar datos del cliente");
+    } finally {
+      setGuardandoCliente(false);
+    }
+  }
+
+  async function guardarDireccion() {
+    setGuardandoDireccion(true);
+    try {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/address`), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(direccionForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al guardar dirección");
+      setVenta(data.order);
+      setModalEditarDireccion(false);
+    } catch (err) {
+      setModalError(err.message || "Error al guardar dirección");
+    } finally {
+      setGuardandoDireccion(false);
+    }
+  }
 
   async function guardarComentario() {
     setGuardandoComentario(true);
@@ -620,6 +739,15 @@ export default function AdminSaleDetail() {
           </div>
         </div>
 
+        <button
+          className="dropdown-btn"
+          onClick={reenviarEmailConfirmacionCompra}
+          disabled={reenviandoEmailCompra || !customer?.email}
+          title={!customer?.email ? "La orden no tiene email cargado" : "Reenviar email automático de compra"}
+        >
+          {reenviandoEmailCompra ? "Reenviando email..." : "Reenviar email de compra"}
+        </button>
+
       </div>
 
       {/* ============================
@@ -678,7 +806,12 @@ export default function AdminSaleDetail() {
 
         {/* CLIENTE */}
         <div className="detalle-box">
-          <h3 className="detalle-title">Cliente</h3>
+          <div className="detalle-header-row">
+            <h3 className="detalle-title">Cliente</h3>
+            <button className="detalle-edit-btn" onClick={abrirModalEditarCliente}>
+              Editar
+            </button>
+          </div>
           <p className="detalle-info-line"><strong>Nombre:</strong> {customer.name}</p>
           {customer.dni && (
             <p className="detalle-info-line"><strong>DNI:</strong> {customer.dni}</p>
@@ -702,7 +835,12 @@ export default function AdminSaleDetail() {
         {/* DIRECCIÓN */}
         {(shipping.method === "home" || shipping.method === "correo-home") && (
           <div className="detalle-box">
-            <h3 className="detalle-title">Dirección</h3>
+            <div className="detalle-header-row">
+              <h3 className="detalle-title">Dirección</h3>
+              <button className="detalle-edit-btn" onClick={abrirModalEditarDireccion}>
+                Editar
+              </button>
+            </div>
             <p className="detalle-info-line">{shipping.address}</p>
             {shipping.localidad && (
               <p className="detalle-info-line"><strong>Localidad:</strong> {shipping.localidad}</p>
@@ -718,7 +856,12 @@ export default function AdminSaleDetail() {
 
         {shipping.method === "correo-branch" && (
           <div className="detalle-box">
-            <h3 className="detalle-title">Sucursal</h3>
+            <div className="detalle-header-row">
+              <h3 className="detalle-title">Sucursal</h3>
+              <button className="detalle-edit-btn" onClick={abrirModalEditarDireccion}>
+                Editar
+              </button>
+            </div>
             {shipping.branchName && (
               <p className="detalle-info-line"><strong>Nombre:</strong> {shipping.branchName}</p>
             )}
@@ -1046,6 +1189,167 @@ export default function AdminSaleDetail() {
             >
               Aceptar
             </button>
+          </div>
+        </div>
+      )}
+
+      {modalEditarCliente && (
+        <div className="factura-modal-overlay" onClick={() => setModalEditarCliente(false)}>
+          <div className="factura-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="factura-modal-title">Editar datos del cliente</h2>
+            <div className="detalle-modal-form-grid">
+              <label className="detalle-modal-label">
+                Nombre
+                <input
+                  className="detalle-modal-input"
+                  name="name"
+                  value={clienteForm.name}
+                  onChange={handleClienteInputChange}
+                  placeholder="Nombre y apellido"
+                />
+              </label>
+              <label className="detalle-modal-label">
+                Email
+                <input
+                  className="detalle-modal-input"
+                  name="email"
+                  value={clienteForm.email}
+                  onChange={handleClienteInputChange}
+                  placeholder="mail@ejemplo.com"
+                  type="email"
+                />
+              </label>
+              <label className="detalle-modal-label">
+                WhatsApp
+                <input
+                  className="detalle-modal-input"
+                  name="phone"
+                  value={clienteForm.phone}
+                  onChange={handleClienteInputChange}
+                  placeholder="11XXXXXXXX"
+                />
+              </label>
+              <label className="detalle-modal-label">
+                DNI
+                <input
+                  className="detalle-modal-input"
+                  name="dni"
+                  value={clienteForm.dni}
+                  onChange={handleClienteInputChange}
+                  placeholder="Solo numeros"
+                />
+              </label>
+            </div>
+            <div className="factura-modal-actions">
+              <button
+                className="factura-modal-btn cancel"
+                onClick={() => setModalEditarCliente(false)}
+                disabled={guardandoCliente}
+              >
+                Cancelar
+              </button>
+              <button
+                className="factura-modal-btn confirm"
+                onClick={guardarCliente}
+                disabled={guardandoCliente}
+              >
+                {guardandoCliente ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modalEditarDireccion && (
+        <div className="factura-modal-overlay" onClick={() => setModalEditarDireccion(false)}>
+          <div className="factura-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="factura-modal-title">Editar datos de direccion</h2>
+            <div className="detalle-modal-form-grid">
+              {(shipping.method === "home" || shipping.method === "correo-home") && (
+                <label className="detalle-modal-label detalle-modal-label-full">
+                  Direccion
+                  <input
+                    className="detalle-modal-input"
+                    name="address"
+                    value={direccionForm.address}
+                    onChange={handleDireccionInputChange}
+                    placeholder="Calle y altura"
+                  />
+                </label>
+              )}
+
+              {shipping.method === "correo-branch" && (
+                <>
+                  <label className="detalle-modal-label">
+                    Nombre sucursal
+                    <input
+                      className="detalle-modal-input"
+                      name="branchName"
+                      value={direccionForm.branchName}
+                      onChange={handleDireccionInputChange}
+                      placeholder="Sucursal"
+                    />
+                  </label>
+                  <label className="detalle-modal-label">
+                    Direccion sucursal
+                    <input
+                      className="detalle-modal-input"
+                      name="branchAddress"
+                      value={direccionForm.branchAddress}
+                      onChange={handleDireccionInputChange}
+                      placeholder="Direccion de sucursal"
+                    />
+                  </label>
+                </>
+              )}
+
+              <label className="detalle-modal-label">
+                Localidad
+                <input
+                  className="detalle-modal-input"
+                  name="localidad"
+                  value={direccionForm.localidad}
+                  onChange={handleDireccionInputChange}
+                  placeholder="Localidad"
+                />
+              </label>
+              <label className="detalle-modal-label">
+                Provincia
+                <input
+                  className="detalle-modal-input"
+                  name="province"
+                  value={direccionForm.province}
+                  onChange={handleDireccionInputChange}
+                  placeholder="Provincia"
+                />
+              </label>
+              <label className="detalle-modal-label">
+                Codigo postal
+                <input
+                  className="detalle-modal-input"
+                  name="postalCode"
+                  value={direccionForm.postalCode}
+                  onChange={handleDireccionInputChange}
+                  placeholder="CP"
+                />
+              </label>
+            </div>
+            <div className="factura-modal-actions">
+              <button
+                className="factura-modal-btn cancel"
+                onClick={() => setModalEditarDireccion(false)}
+                disabled={guardandoDireccion}
+              >
+                Cancelar
+              </button>
+              <button
+                className="factura-modal-btn confirm"
+                onClick={guardarDireccion}
+                disabled={guardandoDireccion}
+              >
+                {guardandoDireccion ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
           </div>
         </div>
       )}
