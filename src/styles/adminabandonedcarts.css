@@ -322,6 +322,27 @@
   font-size: 0.8rem;
 }
 
+.admin-abandoned__converted-note {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #eafaf1;
+  border: 1px solid #bfe8cf;
+  color: #1d7a45;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-abandoned__converted-note strong {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.admin-abandoned__converted-note span {
+  font-size: 0.82rem;
+}
+
 /* ACTIONS */
 .admin-abandoned__actions {
   display: flex;

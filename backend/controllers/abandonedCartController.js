@@ -56,9 +56,10 @@ export async function recoverCart(req, res) {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email requerido" });
 
+    const recoveredAt = new Date();
     const result = await AbandonedCart.updateMany(
       { email: email.toLowerCase().trim(), recovered: false },
-      { $set: { recovered: true } }
+      { $set: { recovered: true, recoveredAt } }
     );
 
     return res.status(200).json({ ok: true, updated: result.modifiedCount });

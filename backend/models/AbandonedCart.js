@@ -49,6 +49,7 @@ const abandonedCartSchema = new mongoose.Schema(
 
     // Si ya se recuperó (completó la compra después)
     recovered: { type: Boolean, default: false },
+    recoveredAt: { type: Date, default: null },
 
     // Historial de emails enviados
     emailsSent: [

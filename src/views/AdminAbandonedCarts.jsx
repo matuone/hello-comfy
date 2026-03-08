@@ -299,6 +299,16 @@ export default function AdminAbandonedCarts() {
                 </div>
               )}
 
+              {cart.recovered && (
+                <div className="admin-abandoned__converted-note">
+                  <strong>Compra realizada</strong>
+                  <span>
+                    Este carrito abandonado se convirtio en una venta real
+                    {cart.recoveredAt ? ` (${new Date(cart.recoveredAt).toLocaleString("es-AR")})` : ""}.
+                  </span>
+                </div>
+              )}
+
               {/* EMAILS ENVIADOS */}
               {cart.emailsSent && cart.emailsSent.length > 0 && (
                 <div className="admin-abandoned__emails-sent">
