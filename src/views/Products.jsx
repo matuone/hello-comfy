@@ -46,6 +46,7 @@ export default function Products() {
   const discountRules = useDiscountRules();
 
   const filtersRef = useRef(null);
+  const sentinelRef = useRef(null);
 
   const formatLabel = (str) => {
     if (!str) return "";
@@ -158,22 +159,20 @@ export default function Products() {
   }, [selectedGroup, selectedCategory, sortBy, searchTerm]);
 
   // ============================
-  // INFINITE SCROLL
+  // INFINITE SCROLL (IntersectionObserver)
   // ============================
   useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 400 &&
-        hasMore &&
-        !loading
-      ) {
-        setPage((prev) => prev + 1);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
   }, [hasMore, loading]);
 
   // ============================
@@ -665,6 +664,9 @@ export default function Products() {
               <span className="products__loadmore-spinner" aria-hidden="true" />
             </div>
           )}
+
+          {/* Sentinel para IntersectionObserver */}
+          {hasMore && <div ref={sentinelRef} style={{ gridColumn: "1 / -1", height: "1px" }} />}
         </div>
       )}
 
