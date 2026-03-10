@@ -5,6 +5,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Search, Menu, X } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import CategoriesMenuMobile from "./CategoriesMenuMobile";
@@ -29,9 +30,11 @@ export default function NavbarMobile() {
   const { wishlistCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
+  const searchInputRef = useRef(null);
   const menuRef = useRef(null);
   const menuBtnRef = useRef(null);
   const navRef = useRef(null);
@@ -75,8 +78,15 @@ export default function NavbarMobile() {
   }, [searchQuery]);
 
   useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  useEffect(() => {
     function handleClickOutside(e) {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchOpen(false);
         setShowResults(false);
       }
       // Si el click fue en el botón de menú, no cerrar
@@ -94,9 +104,15 @@ export default function NavbarMobile() {
 
   function handleSearchSubmit(e) {
     e.preventDefault();
+    if (!searchOpen) {
+      setSearchOpen(true);
+      return;
+    }
+
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
       setShowResults(false);
+      setSearchOpen(false);
       setSearchQuery("");
     }
   }
@@ -104,6 +120,7 @@ export default function NavbarMobile() {
   function handleProductClick(productId) {
     navigate(`/products/${productId}`);
     setShowResults(false);
+    setSearchOpen(false);
     setSearchQuery("");
   }
 
@@ -121,8 +138,29 @@ export default function NavbarMobile() {
           <Link to="/" className="navbar-mobile__logo" aria-label="Inicio">
             <img src={logoBear} alt="Logo osito" height={36} />
           </Link>
-          <form className="navbar-mobile__search" onSubmit={handleSearchSubmit} ref={searchRef}>
+
+          <form
+            className={`navbar-mobile__search${searchOpen ? " navbar-mobile__search--open" : ""}`}
+            onSubmit={handleSearchSubmit}
+            ref={searchRef}
+          >
+            <button
+              type="button"
+              className="navbar-mobile__search-toggle"
+              aria-label={searchOpen ? "Cerrar búsqueda" : "Abrir búsqueda"}
+              onClick={() => {
+                setSearchOpen((prev) => {
+                  if (prev) {
+                    setShowResults(false);
+                  }
+                  return !prev;
+                });
+              }}
+            >
+              <Search size={18} strokeWidth={2} />
+            </button>
             <input
+              ref={searchInputRef}
               type="text"
               className="navbar-mobile__search-input"
               placeholder="Buscar productos..."
@@ -154,36 +192,39 @@ export default function NavbarMobile() {
               </div>
             )}
           </form>
-          <button
-            ref={menuBtnRef}
-            className="navbar-mobile__menu-btn"
-            onClick={() => {
-              setMenuOpen((v) => (v ? false : true));
-            }}
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={!!menuOpen}
-          >
-            <span className="navbar-mobile__menu-icon">☰</span>
-          </button>
-          <Link to="/mi-cuenta" className="navbar-mobile__icon-btn" aria-label="Mi cuenta">
-            <span className="navbar-mobile__icon-user">
-              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="#e57373" strokeWidth="1.7" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#e57373" strokeWidth="1.7" /></svg>
-            </span>
-          </Link>
-          <Link to="/wishlist" className="navbar-mobile__icon-btn" aria-label="Lista de deseos">
-            <span className="navbar-mobile__icon-wishlist">
-              <svg width="26" height="26" fill="none" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#e57373" strokeWidth="1.7" fill="none" />
-              </svg>
-              {wishlistCount > 0 && <span className="navbar-mobile__cart-badge">{wishlistCount}</span>}
-            </span>
-          </Link>
-          <Link to="/cart" className="navbar-mobile__icon-btn" aria-label="Carrito">
-            <span className="navbar-mobile__icon-cart">
-              <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><path d="M6 7h12l-1 12H7L6 7Z" stroke="#e57373" strokeWidth="1.7" /><path d="M9 7a3 3 0 0 1 6 0" stroke="#e57373" strokeWidth="1.7" /></svg>
-              {count > 0 && <span className="navbar-mobile__cart-badge">{count}</span>}
-            </span>
-          </Link>
+
+          <div className="navbar-mobile__actions">
+            <Link to="/mi-cuenta" className="navbar-mobile__icon-btn" aria-label="Mi cuenta">
+              <span className="navbar-mobile__icon-user">
+                <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="#e57373" strokeWidth="1.7" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#e57373" strokeWidth="1.7" /></svg>
+              </span>
+            </Link>
+            <Link to="/wishlist" className="navbar-mobile__icon-btn" aria-label="Lista de deseos">
+              <span className="navbar-mobile__icon-wishlist">
+                <svg width="26" height="26" fill="none" viewBox="0 0 24 24">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#e57373" strokeWidth="1.7" fill="none" />
+                </svg>
+                {wishlistCount > 0 && <span className="navbar-mobile__cart-badge">{wishlistCount}</span>}
+              </span>
+            </Link>
+            <Link to="/cart" className="navbar-mobile__icon-btn" aria-label="Carrito">
+              <span className="navbar-mobile__icon-cart">
+                <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><path d="M6 7h12l-1 12H7L6 7Z" stroke="#e57373" strokeWidth="1.7" /><path d="M9 7a3 3 0 0 1 6 0" stroke="#e57373" strokeWidth="1.7" /></svg>
+                {count > 0 && <span className="navbar-mobile__cart-badge">{count}</span>}
+              </span>
+            </Link>
+            <button
+              ref={menuBtnRef}
+              className="navbar-mobile__menu-btn"
+              onClick={() => {
+                setMenuOpen((v) => (v ? false : true));
+              }}
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={!!menuOpen}
+            >
+              {menuOpen ? <X size={24} strokeWidth={2.2} /> : <Menu size={24} strokeWidth={2.2} />}
+            </button>
+          </div>
         </div>
         {menuOpen && (
           <div className="navbar-mobile-menu" ref={menuRef}>

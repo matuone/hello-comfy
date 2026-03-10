@@ -20,7 +20,8 @@
     }
 
     .navbar-mobile__icon-user svg,
-    .navbar-mobile__icon-cart svg {
+    .navbar-mobile__icon-cart svg,
+    .navbar-mobile__icon-wishlist svg {
       display: block;
       width: 26px;
       height: 26px;
@@ -160,17 +161,59 @@
         margin-right: 0.3rem;
       }
 
+      .navbar-mobile__actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.1rem;
+      }
+
       .navbar-mobile__search {
-        flex: 0 1 110px;
-        max-width: 120px;
-        min-width: 60px;
+        flex: 0 1 auto;
         position: relative;
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
       }
 
       .navbar-mobile__menu-btn {
-        flex: 0 0 auto;
-        margin-left: auto;
+        background: none;
+        border: none;
+        color: #222;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        transition: background 0.15s;
+      }
+
+      .navbar-mobile__menu-btn:active,
+      .navbar-mobile__menu-btn:focus {
+        background: #ffeaea;
+      }
+
+      .navbar-mobile__search-toggle {
+        background: none;
+        border: none;
+        color: #222;
+        cursor: pointer;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+      }
+
+      .navbar-mobile__search-toggle:active,
+      .navbar-mobile__search-toggle:focus {
+        background: #ffeaea;
       }
 
       .navbar-mobile__logo img {
@@ -180,14 +223,22 @@
 
 
       .navbar-mobile__search-input {
-        width: 100%;
+        width: 0;
+        opacity: 0;
+        pointer-events: none;
         padding: 0.3rem 0.6rem;
         border: 1px solid #ddd;
         border-radius: 18px;
         font-size: 0.85rem;
         outline: none;
         background: #fafafa;
-        transition: border 0.2s;
+        transition: width 0.22s ease, opacity 0.2s ease, border 0.2s;
+      }
+
+      .navbar-mobile__search--open .navbar-mobile__search-input {
+        width: min(47vw, 210px);
+        opacity: 1;
+        pointer-events: auto;
       }
 
       .navbar-mobile__search-input:focus {
@@ -198,9 +249,8 @@
       .navbar-mobile__search-results {
         position: absolute;
         top: 110%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 50vw;
+        left: 0;
+        width: min(78vw, 320px);
         min-width: 180px;
         max-width: 320px;
         background: #fff;
@@ -263,22 +313,6 @@
         font-size: 0.95rem;
         color: #ffb6b3;
         margin: 0;
-      }
-
-      .navbar-mobile__menu-btn {
-        background: none;
-        border: none;
-        font-size: 2rem;
-        color: #222;
-        cursor: pointer;
-        padding: 0 0.2rem;
-        display: flex;
-        align-items: center;
-      }
-
-      .navbar-mobile__menu-icon {
-        font-size: 2rem;
-        line-height: 1;
       }
 
       .navbar-mobile-menu {
