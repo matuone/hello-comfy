@@ -5,6 +5,44 @@ import DiscountRule from "../models/DiscountRule.js";
 import PromoCode from "../models/PromoCode.js";
 import SiteConfig from "../models/SiteConfig.js";
 
+function getItemCategories(value) {
+  return Array.isArray(value) ? value : [value];
+}
+
+function findCategoryPercentageRule(item, discountRules) {
+  const itemCats = getItemCategories(item.category);
+  const itemSubs = getItemCategories(item.subcategory);
+
+  return discountRules.find(
+    (rule) =>
+      itemCats.includes(rule.category) &&
+      (rule.subcategory === "none" || itemSubs.includes(rule.subcategory)) &&
+      rule.type === "percentage"
+  );
+}
+
+function getEffectiveDiscountPercent(item, discountRules) {
+  const categoryRule = findCategoryPercentageRule(item, discountRules);
+  const productDiscount = item.discount || 0;
+
+  if (productDiscount > 0) {
+    return productDiscount;
+  }
+
+  return categoryRule?.discount || 0;
+}
+
+function getDiscountedUnitPrice(item, discountRules) {
+  const discountPercent = getEffectiveDiscountPercent(item, discountRules);
+  const basePrice = item.price;
+
+  if (discountPercent <= 0) {
+    return Math.round(basePrice * 100) / 100;
+  }
+
+  return Math.round((basePrice - (basePrice * discountPercent) / 100) * 100) / 100;
+}
+
 /**
  * Valida y recalcula los precios del carrito usando los datos reales de la BD.
  * NUNCA confiar en los precios enviados desde el frontend.
@@ -37,7 +75,7 @@ export async function validateCartPrices(clientItems, options = {}) {
   const discountRules = await DiscountRule.find({});
 
   // 4) Validar cada item y recalcular con precios reales
-  const validatedItems = [];
+  let validatedItems = [];
 
   for (const clientItem of clientItems) {
     const dbProduct = productMap[clientItem.productId];
@@ -161,34 +199,17 @@ export async function validateCartPrices(clientItems, options = {}) {
     }
   }
 
+  validatedItems = validatedItems.map((item) => ({
+    ...item,
+    appliedDiscount: getEffectiveDiscountPercent(item, discountRules),
+    unitPrice: getDiscountedUnitPrice(item, discountRules),
+  }));
+
   // 5) Calcular subtotal con descuentos de producto y categoría
   let subtotal = 0;
 
   validatedItems.forEach((item) => {
-    const base = item.price;
-
-    // Buscar regla de descuento por categoría/subcategoría
-    const itemCats = Array.isArray(item.category) ? item.category : [item.category];
-    const itemSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-    const categoryRule = discountRules.find(
-      (r) =>
-        itemCats.includes(r.category) &&
-        (r.subcategory === "none" || itemSubs.includes(r.subcategory)) &&
-        r.type === "percentage"
-    );
-
-    // El descuento propio del producto tiene prioridad
-    let discountPercent = item.discount;
-    if (discountPercent === 0 && categoryRule) {
-      discountPercent = categoryRule.discount;
-    }
-
-    const finalPrice =
-      discountPercent > 0
-        ? base - (base * discountPercent) / 100
-        : base;
-
-    subtotal += finalPrice * item.quantity;
+    subtotal += item.unitPrice * item.quantity;
   });
 
   // 6) Aplicar promociones 3x2 — pool unificado entre todas las reglas
@@ -249,19 +270,7 @@ export async function validateCartPrices(clientItems, options = {}) {
 
       const promoSubtotal = applicableItems.reduce(
         (acc, item) => {
-          const base = item.price;
-          const iCats = Array.isArray(item.category) ? item.category : [item.category];
-          const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-          const catRule = discountRules.find(
-            (r) =>
-              iCats.includes(r.category) &&
-              (r.subcategory === "none" || iSubs.includes(r.subcategory)) &&
-              r.type === "percentage"
-          );
-          let discPct = item.discount || 0;
-          if (discPct === 0 && catRule) discPct = catRule.discount;
-          const finalPrice = discPct > 0 ? base - (base * discPct) / 100 : base;
-          return acc + finalPrice * item.quantity;
+          return acc + item.unitPrice * item.quantity;
         },
         0
       );

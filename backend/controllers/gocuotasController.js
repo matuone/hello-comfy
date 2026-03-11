@@ -107,15 +107,9 @@ export const createCheckout = async (req, res) => {
     // Usar precios validados de la BD + envío validado
     const totalPriceInCents = Math.round((totals.total + validatedShippingCost) * 100);
     const gocuotasItems = validatedItems.map((item) => {
-      const base = item.price;
-      const discountPercent = item.discount || 0;
-      const finalPrice = discountPercent > 0
-        ? Math.round((base - (base * discountPercent) / 100) * 100) / 100
-        : base;
-
       return {
         title: item.name || "Producto",
-        unit_price_in_cents: Math.round(finalPrice * 100),
+        unit_price_in_cents: Math.round(item.unitPrice * 100),
         quantity: item.quantity,
       };
     });

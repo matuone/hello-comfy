@@ -75,18 +75,12 @@ export const createPreference = async (req, res) => {
 
     // Construir items para Mercado Pago con PRECIOS VALIDADOS de la BD
     const mercadopagoItems = validatedItems.map((item) => {
-      const base = item.price;
-      const discountPercent = item.discount || 0;
-      const finalPrice = discountPercent > 0
-        ? Math.round((base - (base * discountPercent) / 100) * 100) / 100
-        : base;
-
       return {
         title: item.name || "Producto",
         description: `${Array.isArray(item.category) ? item.category.join(", ") : (item.category || "")}${item.subcategory ? " - " + (Array.isArray(item.subcategory) ? item.subcategory.join(", ") : item.subcategory) : ""}`,
         picture_url: item.image || "",
         quantity: item.quantity,
-        unit_price: finalPrice,
+        unit_price: item.unitPrice,
         currency_id: "ARS",
       };
     });

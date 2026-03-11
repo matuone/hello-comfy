@@ -149,7 +149,7 @@ export const createPaymentIntent = async (req, res) => {
       items: validatedItems.map((item) => ({
         description: (item.name || item.title || "Producto").slice(0, 100),
         quantity: parseInt(item.quantity) || 1,
-        unit_price: parseFloat(item.unit_price || item.price) || 0,
+        unit_price: parseFloat(item.unitPrice || item.unit_price || item.price) || 0,
         image: item.picture_url || item.image || "",
         sku: item.productId || "",
       })),

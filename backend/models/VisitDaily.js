@@ -18,6 +18,4 @@ const VisitDailySchema = new mongoose.Schema(
   }
 );
 
-VisitDailySchema.index({ day: 1 }, { unique: true });
-
 export default mongoose.model("VisitDaily", VisitDailySchema);
