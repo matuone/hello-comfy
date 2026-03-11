@@ -116,6 +116,12 @@ export default function AdminAbandonedCarts() {
     }
   };
 
+  const handleSendEmailClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleSendEmail();
+  };
+
   // ============================
   // ELIMINAR CARRITO
   // ============================
@@ -382,6 +388,7 @@ export default function AdminAbandonedCarts() {
             <div className="admin-abandoned__modal-actions">
               <button
                 className="admin-abandoned__btn-cancel"
+                type="button"
                 onClick={() => setEmailModal(null)}
                 disabled={sending}
               >
@@ -389,7 +396,8 @@ export default function AdminAbandonedCarts() {
               </button>
               <button
                 className="admin-abandoned__btn-send"
-                onClick={handleSendEmail}
+                type="button"
+                onClick={handleSendEmailClick}
                 disabled={sending || !emailSubject.trim() || !emailMessage.trim()}
               >
                 {sending ? "Enviando..." : "Enviar email"}
