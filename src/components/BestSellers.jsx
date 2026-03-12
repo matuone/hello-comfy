@@ -91,7 +91,6 @@ export default function BestSellers() {
           slidesPerView={1.2}
           spaceBetween={14}
           speed={400}
-          touchStartPreventDefault={false}
           breakpoints={{
             480: { slidesPerView: 2.1, spaceBetween: 16 },
             768: { slidesPerView: 3.1, spaceBetween: 18 },

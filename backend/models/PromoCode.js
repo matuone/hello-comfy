@@ -45,6 +45,18 @@ const promoCodeSchema = new mongoose.Schema(
     active: {
       type: Boolean,
       default: true
+    },
+
+    // Si es true, se desactiva automáticamente tras el primer uso exitoso
+    singleUse: {
+      type: Boolean,
+      default: false
+    },
+
+    // Fecha en que fue usado (solo para códigos singleUse)
+    usedAt: {
+      type: Date,
+      default: null
     }
   },
   { timestamps: true }

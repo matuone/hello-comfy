@@ -260,23 +260,28 @@ export async function validateCartPrices(clientItems, options = {}) {
     });
 
     if (promo) {
-      const applicableItems = validatedItems.filter((item) => {
-        const iCats = Array.isArray(item.category) ? item.category : [item.category];
-        const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
-        const matchCategory = promo.category === "all" || iCats.includes(promo.category);
-        const matchSub = promo.subcategory === "all" || iSubs.includes(promo.subcategory);
-        return matchCategory && matchSub;
-      });
+      // Verificar que no sea de un solo uso ya utilizado
+      if (promo.singleUse && promo.usedAt) {
+        warnings.push(`Código promocional "${promoCode}" ya fue utilizado`);
+      } else {
+        const applicableItems = validatedItems.filter((item) => {
+          const iCats = Array.isArray(item.category) ? item.category : [item.category];
+          const iSubs = Array.isArray(item.subcategory) ? item.subcategory : [item.subcategory];
+          const matchCategory = promo.category === "all" || iCats.includes(promo.category);
+          const matchSub = promo.subcategory === "all" || iSubs.includes(promo.subcategory);
+          return matchCategory && matchSub;
+        });
 
-      const promoSubtotal = applicableItems.reduce(
-        (acc, item) => {
-          return acc + item.unitPrice * item.quantity;
-        },
-        0
-      );
+        const promoSubtotal = applicableItems.reduce(
+          (acc, item) => {
+            return acc + item.unitPrice * item.quantity;
+          },
+          0
+        );
 
-      promoDiscount = (promoSubtotal * promo.discount) / 100;
-      total -= promoDiscount;
+        promoDiscount = (promoSubtotal * promo.discount) / 100;
+        total -= promoDiscount;
+      }
     } else {
       warnings.push(`Código promocional "${promoCode}" inválido o expirado`);
     }

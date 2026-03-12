@@ -1,6 +1,8 @@
 // backend/services/orderService.js
 import Order from "../models/Order.js";
 import StockColor from "../models/StockColor.js";
+import Product from "../models/Product.js";
+import PromoCode from "../models/PromoCode.js";
 import { enviarEmailConfirmacionOrden, enviarEmailAlAdmin } from "./emailService.js";
 
 /**
@@ -209,6 +211,32 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     );
     if (stockDecrements.length > 0) {
       console.log(`✅ Stock descontado para orden ${order.code}:`, stockDecrements.map(i => `${i.name} ${i.size} x${i.quantity}`));
+    }
+
+    // ⭐ INCREMENTAR sold en Product para el ranking de bestsellers
+    const soldIncrements = itemsSource.filter(
+      (item) => item.productId && item.quantity > 0
+    );
+    await Promise.all(
+      soldIncrements.map((item) =>
+        Product.findByIdAndUpdate(
+          item.productId,
+          { $inc: { sold: item.quantity } }
+        ).catch((err) =>
+          console.error(`❌ Error incrementando sold para ${item.name}:`, err.message)
+        )
+      )
+    );
+
+    // ⭐ MARCAR código de uso único como utilizado
+    const usedPromoCode = pendingOrderData?.formData?.promoCode || paymentData?.formData?.promoCode || null;
+    if (usedPromoCode) {
+      await PromoCode.findOneAndUpdate(
+        { code: usedPromoCode.toUpperCase(), singleUse: true, usedAt: null },
+        { $set: { usedAt: new Date(), active: false } }
+      ).catch((err) =>
+        console.error(`❌ Error marcando promo code ${usedPromoCode} como usado:`, err.message)
+      );
     }
 
     // console.log("✅ Orden creada exitosamente:", { code: order.code, email: order.customer.email, paymentId: paymentData.id });

@@ -68,6 +68,13 @@ export const validatePromoCode = async (req, res) => {
       });
     }
 
+    if (promo.singleUse && promo.usedAt) {
+      return res.status(400).json({
+        valid: false,
+        message: "Este código ya fue utilizado"
+      });
+    }
+
     res.json({
       valid: true,
       discount: promo.discount,

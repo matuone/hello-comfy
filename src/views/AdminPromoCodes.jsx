@@ -24,6 +24,7 @@ export default function AdminPromoCodes() {
     category: "all",
     subcategory: "all",
     active: true,
+    singleUse: false,
   });
 
   const [editingId, setEditingId] = useState(null);
@@ -104,6 +105,7 @@ export default function AdminPromoCodes() {
       category: "all",
       subcategory: "all",
       active: true,
+      singleUse: false,
     });
     setEditingId(null);
 
@@ -124,6 +126,7 @@ export default function AdminPromoCodes() {
       category: c.category,
       subcategory: c.subcategory,
       active: c.active,
+      singleUse: c.singleUse || false,
     });
   };
 
@@ -247,6 +250,20 @@ export default function AdminPromoCodes() {
               </select>
             </div>
 
+            <div className="admin-form-group">
+              <label>Uso único</label>
+              <select
+                className="admin-input"
+                value={form.singleUse}
+                onChange={(e) =>
+                  setForm({ ...form, singleUse: e.target.value === "true" })
+                }
+              >
+                <option value="false">No (reutilizable)</option>
+                <option value="true">Sí (se desactiva tras el primer uso)</option>
+              </select>
+            </div>
+
             <button className="table-btn table-btn--pink" style={{ width: "fit-content" }}>
               {editingId ? "Guardar cambios" : "Crear código"}
             </button>
@@ -270,6 +287,7 @@ export default function AdminPromoCodes() {
                   <th>Categoría</th>
                   <th>Subcategoría</th>
                   <th>Activo</th>
+                  <th>Uso único</th>
                   <th></th>
                 </tr>
               </thead>
@@ -283,6 +301,14 @@ export default function AdminPromoCodes() {
                     <td>{c.category}</td>
                     <td>{c.subcategory}</td>
                     <td>{c.active ? "Sí" : "No"}</td>
+                    <td>
+                      {c.singleUse
+                        ? c.usedAt
+                          ? <span style={{ color: "#b71c1c", fontWeight: 600 }}>Usado ({new Date(c.usedAt).toLocaleDateString("es-AR")})</span>
+                          : <span style={{ color: "#e67e22", fontWeight: 600 }}>Sí (disponible)</span>
+                        : "No"
+                      }
+                    </td>
                     <td>
                       <button className="table-btn" onClick={() => handleEdit(c)}>
                         Editar
