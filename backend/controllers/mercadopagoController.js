@@ -7,6 +7,7 @@ import {
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
 import { validateShippingCost } from "../services/validateShippingCost.js"; import PendingOrder from "../models/PendingOrder.js";
+import Order from "../models/Order.js";
 /**
  * POST /api/mercadopago/create-preference
  * Crea una preferencia de pago en Mercado Pago
@@ -265,6 +266,12 @@ export const webhookMercadoPago = async (req, res) => {
       const paymentData = paymentDetails.data;
       const externalReference = paymentData.external_reference;
 
+      // Idempotencia: si la orden ya existe para este paymentId, no recrear.
+      const existingOrder = await Order.findOne({ paymentId: String(paymentData.id) }).lean();
+      if (existingOrder) {
+        return res.sendStatus(200);
+      }
+
       // console.log("📊 Detalles del pago:", {
       //   id: paymentData.id,
       //   status: paymentData.status,
@@ -275,6 +282,51 @@ export const webhookMercadoPago = async (req, res) => {
       // Actualizar estado de pago en BD
       if (externalReference) {
         await actualizarEstadoPago(externalReference, paymentData.status);
+
+        // Si no existe orden previa y el pago está aprobado/pendiente,
+        // crear la orden desde PendingOrder para cubrir fallas de retorno mobile.
+        if (["approved", "pending"].includes(paymentData.status)) {
+          const savedPending = await PendingOrder.findOne({ orderReference: externalReference }).lean();
+          if (savedPending) {
+            let recoveredPendingData = {
+              formData: {
+                ...savedPending.customerData,
+                shippingMethod: savedPending.shippingMethod || savedPending.metadata?.shippingMethod,
+                promoCode: savedPending.metadata?.promoCode || null,
+                paymentMethod: "mercadopago",
+                address: savedPending.customerData?.address || "",
+                province: savedPending.customerData?.province || "",
+                localidad: savedPending.customerData?.localidad || "",
+                selectedAgency: savedPending.customerData?.selectedAgency || null,
+                pickPoint: savedPending.customerData?.pickPoint || "",
+              },
+              items: savedPending.items,
+              totalPrice: savedPending.totalPrice,
+              shippingCost: savedPending.shippingCost,
+              totalsBreakdown: savedPending.metadata?.totalsBreakdown || null,
+              userId: savedPending.metadata?.userId || null,
+            };
+
+            try {
+              const cartValidation = await validateCartPrices(
+                recoveredPendingData.items,
+                { promoCode: recoveredPendingData.formData?.promoCode || null }
+              );
+              recoveredPendingData.items = cartValidation.validatedItems;
+              recoveredPendingData.totalPrice = cartValidation.totals.total;
+            } catch (validationError) {
+              console.error("❌ Error re-validando carrito recuperado en webhook:", validationError.message);
+              return res.sendStatus(200);
+            }
+
+            const montoPagado = paymentData.transaction_amount;
+            const totalItemsValidado = recoveredPendingData.totalPrice;
+            if (montoPagado >= totalItemsValidado - 1) {
+              recoveredPendingData.shippingCost = Math.max(0, Math.round((montoPagado - totalItemsValidado) * 100) / 100);
+              await crearOrdenDesdePago(paymentData, recoveredPendingData);
+            }
+          }
+        }
       }
     }
 
@@ -350,6 +402,21 @@ export const processPayment = async (req, res) => {
     );
 
     const paymentData = paymentResponse.data;
+
+    // Idempotencia: si ya existe orden para este pago, devolverla.
+    const existingOrder = await Order.findOne({ paymentId: String(paymentData.id) });
+    if (existingOrder) {
+      return res.json({
+        success: true,
+        message: "Pago ya procesado",
+        order: {
+          code: existingOrder.code,
+          email: existingOrder.customer?.email,
+          status: existingOrder.pagoEstado,
+          total: existingOrder.totals?.total,
+        },
+      });
+    }
 
     // console.log("💳 Procesando pago confirmado:", {
     //   id: paymentData.id,

@@ -18,7 +18,7 @@ export default function PaymentSuccess() {
     const processPayment = async () => {
       try {
         const method = searchParams.get("method");
-        const paymentId = searchParams.get("payment_id");
+        const paymentId = searchParams.get("payment_id") || searchParams.get("collection_id");
         const preferenceId = searchParams.get("preference_id");
         const externalReference = searchParams.get("external_reference");
 
