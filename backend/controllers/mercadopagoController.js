@@ -23,23 +23,30 @@ export const createPreference = async (req, res) => {
       (/^https?:\/\//i.test(normalizedOrigin) ? normalizedOrigin : "") ||
       "https://hellocomfy.com.ar";
 
+    const normalizedEnvApiUrl = (process.env.API_URL || "").trim().replace(/\/$/, "");
+    const apiBaseUrl = normalizedEnvApiUrl || "https://hellocomfy.com.ar";
+    const includePayerInPreference = String(process.env.MERCADOPAGO_INCLUDE_PAYER || "false").toLowerCase() === "true";
+
     const rawPhone = String(customerData?.phone || "");
     const phoneDigits = rawPhone.replace(/\D/g, "");
     const rawPostalCode = String(customerData?.postalCode || "").trim();
     const validPostalCode = rawPostalCode.length >= 3 && rawPostalCode.length <= 12;
 
-    // Mercado Pago en mobile es más estricto: solo enviar campos de payer válidos.
-    const payer = {
-      email: customerData.email,
-      name: customerData.name || "Cliente",
-    };
+    // Mercado Pago mobile puede fallar con payer forzado: por defecto enviamos preferencia mínima.
+    let payer = null;
+    if (includePayerInPreference) {
+      payer = {
+        email: customerData.email,
+        name: customerData.name || "Cliente",
+      };
 
-    if (phoneDigits.length >= 6 && phoneDigits.length <= 15) {
-      payer.phone = { number: phoneDigits };
-    }
+      if (phoneDigits.length >= 6 && phoneDigits.length <= 15) {
+        payer.phone = { number: phoneDigits };
+      }
 
-    if (validPostalCode) {
-      payer.address = { zip_code: rawPostalCode };
+      if (validPostalCode) {
+        payer.address = { zip_code: rawPostalCode };
+      }
     }
 
     // Validar que tenemos la access token
@@ -153,17 +160,20 @@ export const createPreference = async (req, res) => {
     // Crear la preferencia con precios validados
     const preference = {
       items: mercadopagoItems,
-      payer,
       back_urls: {
         success: `${frontendBaseUrl}/payment/success`,
         failure: `${frontendBaseUrl}/payment/failure`,
         pending: `${frontendBaseUrl}/payment/pending`,
       },
-      notification_url: `${process.env.API_URL || "http://localhost:5000"}/api/mercadopago/webhook`,
+      notification_url: `${apiBaseUrl}/api/mercadopago/webhook`,
       external_reference: `order_${Date.now()}`,
       metadata: metadata,
       auto_return: "approved",
     };
+
+    if (payer) {
+      preference.payer = payer;
+    }
 
     // ⭐ Guardar datos del pedido en MongoDB para recuperarlos si el frontend los pierde
     try {
