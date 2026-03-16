@@ -16,6 +16,32 @@ export const createPreference = async (req, res) => {
     const { items, totalPrice, customerData, shippingCost = 0, metadata = {} } = req.body;
     const shippingMethod = metadata?.shippingMethod;
 
+    const normalizedEnvFrontendUrl = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
+    const normalizedOrigin = (req.headers.origin || "").trim().replace(/\/$/, "");
+    const frontendBaseUrl =
+      normalizedEnvFrontendUrl ||
+      (/^https?:\/\//i.test(normalizedOrigin) ? normalizedOrigin : "") ||
+      "https://hellocomfy.com.ar";
+
+    const rawPhone = String(customerData?.phone || "");
+    const phoneDigits = rawPhone.replace(/\D/g, "");
+    const rawPostalCode = String(customerData?.postalCode || "").trim();
+    const validPostalCode = rawPostalCode.length >= 3 && rawPostalCode.length <= 12;
+
+    // Mercado Pago en mobile es más estricto: solo enviar campos de payer válidos.
+    const payer = {
+      email: customerData.email,
+      name: customerData.name || "Cliente",
+    };
+
+    if (phoneDigits.length >= 6 && phoneDigits.length <= 15) {
+      payer.phone = { number: phoneDigits };
+    }
+
+    if (validPostalCode) {
+      payer.address = { zip_code: rawPostalCode };
+    }
+
     // Validar que tenemos la access token
     if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
       console.error("MERCADOPAGO_ACCESS_TOKEN no configurado");
@@ -127,21 +153,11 @@ export const createPreference = async (req, res) => {
     // Crear la preferencia con precios validados
     const preference = {
       items: mercadopagoItems,
-      payer: {
-        email: customerData.email,
-        name: customerData.name || "Cliente",
-        phone: {
-          area_code: customerData.phone?.substring(0, 3) || "11",
-          number: customerData.phone?.substring(3) || "",
-        },
-        address: {
-          zip_code: customerData.postalCode || "",
-        },
-      },
+      payer,
       back_urls: {
-        success: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/success`,
-        failure: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/failure`,
-        pending: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/pending`,
+        success: `${frontendBaseUrl}/payment/success`,
+        failure: `${frontendBaseUrl}/payment/failure`,
+        pending: `${frontendBaseUrl}/payment/pending`,
       },
       notification_url: `${process.env.API_URL || "http://localhost:5000"}/api/mercadopago/webhook`,
       external_reference: `order_${Date.now()}`,
