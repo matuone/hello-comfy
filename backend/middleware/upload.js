@@ -82,14 +82,13 @@ export function getUploadUrl(file, subfolder) {
 }
 
 // ============================
-// Compatibilidad con código anterior (productRoutes usa estos nombres)
-// Ahora son síncronos porque multer ya guardó el archivo en disco
+// Helpers de subida para productos
 // ============================
-export const uploadToCloudinary = async (file) => {
+export const uploadProductImage = async (file) => {
   return getUploadUrl(file, "products");
 };
 
-export const uploadMultipleToCloudinary = async (files) => {
+export const uploadProductImages = async (files) => {
   return files.map((f) => getUploadUrl(f, "products"));
 };
 

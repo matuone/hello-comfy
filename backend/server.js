@@ -139,7 +139,7 @@ app.use(
         scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "blob:"],
+        imgSrc: ["'self'", "data:", "blob:"],
         connectSrc: ["'self'", "https://api.mercadopago.com", "https://api.gocuotas.com"],
       },
     },

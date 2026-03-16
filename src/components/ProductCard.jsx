@@ -9,7 +9,7 @@ export default function ProductCard({ product, discountRules = [] }) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const inWishlist = isInWishlist(product._id);
 
-  // Imagen principal desde MongoDB (Cloudinary)
+  // Imagen principal desde MongoDB
   const mainImage =
     product.images?.[0] ||
     "https://via.placeholder.com/300x300?text=Sin+imagen";

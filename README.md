@@ -35,7 +35,7 @@ El proyecto está diseñado para ser modular, escalable y fácil de extender.
   - /api/stock
   - /api/sales (futuro)
   - /api/customers (futuro)
-- Upload de imágenes con Cloudinary
+- Upload de imágenes locales en /uploads
 
 ## Admin Panel
 - Layout persistente

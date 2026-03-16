@@ -11,7 +11,7 @@ import {
   getCategoriesAndSubcategories,
 } from "../controllers/productController.js";
 
-import upload, { uploadMultipleToCloudinary } from "../middleware/upload.js";
+import upload, { uploadProductImages } from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ router.get("/subcategory/:name", getProductsBySubcategory);
 router.get("/filters/data", getCategoriesAndSubcategories);
 
 // ============================
-// SUBIR IMÁGENES A CLOUDINARY
+// SUBIR IMÁGENES
 // ============================
 router.post("/upload", upload.array("images", 10), async (req, res) => {
   try {
@@ -32,7 +32,7 @@ router.post("/upload", upload.array("images", 10), async (req, res) => {
       return res.status(400).json({ error: "No se enviaron imágenes" });
     }
 
-    const urls = await uploadMultipleToCloudinary(req.files);
+    const urls = await uploadProductImages(req.files);
     res.json({ urls });
   } catch (err) {
     console.error("Error al subir imágenes:", err);

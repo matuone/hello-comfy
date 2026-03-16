@@ -12,7 +12,7 @@
   - `models/`: Mongoose schemas (e.g., User, Product, Order)
   - `controllers/`: Business logic per resource
   - `routes/`: Express routers, one per resource
-  - `services/`: Integrations (AFIP, Cloudinary, shipping, etc.)
+  - `services/`: Integrations (AFIP, shipping, etc.)
 - **Admin panel**: Each section is a view in `src/views/`, with matching CSS in `src/styles/`
 - **State**: Local state per component, no global store
 
@@ -46,7 +46,7 @@
 
 ## Integration Points
 - **AFIP**: Setup in backend/config/, see AFIP_README.md and INSTRUCCIONES_AFIP.md
-- **Cloudinary**: For avatar uploads, needs credentials in backend/.env
+- **Uploads locales**: Imágenes y avatares se guardan en `/uploads` (ver `UPLOADS_DIR` en backend/.env)
 - **GoCuotas, MercadoPago, Correo Argentino**: Each has its own setup/readme in root or backend/
 
 ## Extending the Project

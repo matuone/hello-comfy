@@ -11,7 +11,7 @@ import {
   getProductsBySubcategory, // ⭐ NUEVO CONTROLADOR
 } from "../controllers/productController.js";
 
-import upload, { uploadToCloudinary } from "../middleware/upload.js";
+import upload, { uploadProductImage } from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -33,14 +33,14 @@ router.get("/filters/data", getCategoriesAndSubcategories);
 router.get("/subcategory/:name", getProductsBySubcategory);
 
 // ============================
-// SUBIR MÚLTIPLES IMÁGENES A CLOUDINARY
+// SUBIR MÚLTIPLES IMÁGENES
 // ============================
 router.post("/upload", upload.array("images", 10), async (req, res) => {
   try {
     const urls = [];
 
     for (const file of req.files) {
-      const url = await uploadToCloudinary(file);
+      const url = await uploadProductImage(file);
       urls.push(url);
     }
 
