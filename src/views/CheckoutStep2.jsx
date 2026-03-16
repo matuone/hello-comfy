@@ -258,6 +258,9 @@ export default function Step2({ formData, updateField, next, back, items }) {
                 value={formData.address}
                 onChange={(e) => updateField("address", e.target.value)}
               />
+              <p className="pd-secondary-text" style={{ marginTop: "6px", color: "#e75480" }}>
+                Recordá incluir la altura/número de la dirección.
+              </p>
             </div>
           )}
 

@@ -7,8 +7,10 @@ import {
   deleteFeedPost,
   reorderFeed,
   toggleFeedPost,
+  uploadFeedImage,
 } from "../controllers/feedController.js";
 import { verifyAdmin } from "../middleware/adminMiddleware.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -17,6 +19,7 @@ router.get("/", getFeed);
 
 // Rutas protegidas (solo admin)
 router.get("/admin/all", verifyAdmin, getFeedAdmin);
+router.post("/admin/upload", verifyAdmin, upload.single("image"), uploadFeedImage);
 router.post("/admin", verifyAdmin, createFeedPost);
 router.put("/admin/:id", verifyAdmin, updateFeedPost);
 router.delete("/admin/:id", verifyAdmin, deleteFeedPost);

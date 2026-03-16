@@ -51,25 +51,21 @@ export default function AdminFeed() {
     try {
       setUploadingImage(true);
       const data = new FormData();
-      data.append("file", file);
-      data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+      data.append("image", file);
 
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: data,
-        }
-      );
+      const response = await adminFetch("/api/feed/admin/upload", {
+        method: "POST",
+        body: data,
+      });
 
       if (response.ok) {
         const result = await response.json();
         setFormData((prev) => ({
           ...prev,
-          imageUrl: result.secure_url,
+          imageUrl: result.url,
         }));
       } else {
-        setError("Error subiendo imagen a Cloudinary");
+        setError("Error subiendo imagen");
       }
     } catch (err) {
       setError("Error en carga de imagen");

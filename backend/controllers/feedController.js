@@ -1,4 +1,5 @@
 import Feed from "../models/Feed.js";
+import { getUploadUrl } from "../middleware/upload.js";
 
 // ===============================
 // OBTENER FEED (PÚBLICO)
@@ -58,6 +59,24 @@ export async function createFeedPost(req, res) {
   } catch (error) {
     console.error("Error al crear post:", error);
     res.status(500).json({ error: "Error al crear post" });
+  }
+}
+
+// ===============================
+// SUBIR IMAGEN DE FEED (ADMIN)
+// ===============================
+export async function uploadFeedImage(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No se subió ninguna imagen" });
+    }
+
+    // Reutilizamos almacenamiento local existente para productos.
+    const url = getUploadUrl(req.file, "products");
+    return res.json({ url });
+  } catch (error) {
+    console.error("Error al subir imagen de feed:", error);
+    return res.status(500).json({ error: "Error al subir imagen" });
   }
 }
 

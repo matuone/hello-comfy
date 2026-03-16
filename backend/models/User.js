@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 const DEFAULT_AVATAR =
-  "https://res.cloudinary.com/hellocomfy/image/upload/v173/avatar-default.png";
+  "";
 
 const addressSchema = new mongoose.Schema(
   {
