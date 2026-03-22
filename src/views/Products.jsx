@@ -4,6 +4,7 @@ import "../styles/productgrid.css"; // CSS aislado
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import OpinionsPopup from "../components/OpinionsPopup";
+import NoStockModal from "../components/NoStockModal";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useDiscountRules, calcularPrecios, has3x2Rule } from "../hooks/useDiscountRules";
@@ -39,6 +40,7 @@ export default function Products() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showOpinions, setShowOpinions] = useState(false);
   const [opinionsProductId, setOpinionsProductId] = useState(null);
+  const [showNoStockModal, setShowNoStockModal] = useState(false);
 
   const searchTerm = (searchParams.get("search") || "").trim();
 
@@ -269,6 +271,12 @@ export default function Products() {
 
     const chosenSize = getSelectedSize(product);
     const maxStock = getMaxStockForSize(product, chosenSize);
+
+    if (Number.isFinite(maxStock) && maxStock <= 0) {
+      setShowNoStockModal(true);
+      return;
+    }
+
     const baseQty = quantities[product._id] || 1;
     const quantity = Number.isFinite(maxStock) ? Math.max(1, Math.min(baseQty, maxStock)) : baseQty;
 
@@ -276,6 +284,16 @@ export default function Products() {
   };
 
   const handleBuyNow = (event, product) => {
+    event.stopPropagation();
+
+    const chosenSize = getSelectedSize(product);
+    const maxStock = getMaxStockForSize(product, chosenSize);
+
+    if (Number.isFinite(maxStock) && maxStock <= 0) {
+      setShowNoStockModal(true);
+      return;
+    }
+
     handleAddToCart(event, product);
     navigate("/checkout");
   };
@@ -673,6 +691,8 @@ export default function Products() {
       {showOpinions && opinionsProductId && (
         <OpinionsPopup productId={opinionsProductId} onClose={() => { setShowOpinions(false); setOpinionsProductId(null); }} />
       )}
+
+      <NoStockModal isOpen={showNoStockModal} onClose={() => setShowNoStockModal(false)} />
     </div>
   );
 }

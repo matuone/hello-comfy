@@ -4,6 +4,7 @@ import OpinionsPopup from "../components/OpinionsPopup";
 
 import DynamicSizeTable from "../components/DynamicSizeTable";
 import ImageModal from "../components/ImageModal";
+import NoStockModal from "../components/NoStockModal";
 
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -45,8 +46,8 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-
   const [quantity, setQuantity] = useState(1);
+  const [showNoStockModal, setShowNoStockModal] = useState(false);
 
   const [similares, setSimilares] = useState([]);
   const [loadingSimilares, setLoadingSimilares] = useState(true);
@@ -220,13 +221,19 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = () => {
+    // El producto no tiene ningún talle con stock
+    if (sizesWithStock.length === 0 || (!selectedSize && stockForSelectedSize <= 0)) {
+      setShowNoStockModal(true);
+      return;
+    }
+
     if (!selectedSize) {
       toast.error("Seleccioná un talle disponible antes de agregar al carrito");
       return;
     }
 
     if (stockForSelectedSize <= 0) {
-      toast.error("No hay stock disponible para este talle");
+      setShowNoStockModal(true);
       return;
     }
 
@@ -246,13 +253,19 @@ export default function ProductDetail() {
   };
 
   const handleBuyNow = () => {
+    // El producto no tiene ningún talle con stock
+    if (sizesWithStock.length === 0 || (!selectedSize && stockForSelectedSize <= 0)) {
+      setShowNoStockModal(true);
+      return;
+    }
+
     if (!selectedSize) {
       toast.error("Seleccioná un talle disponible para continuar con la compra");
       return;
     }
 
     if (stockForSelectedSize <= 0) {
-      toast.error("No hay stock disponible para este talle");
+      setShowNoStockModal(true);
       return;
     }
 
@@ -536,12 +549,9 @@ export default function ProductDetail() {
 
           {/* BOTONES */}
           <div className="pd-actions">
-            {selectedSize &&
-              (producto.stockColorId?.talles?.[selectedSize] ?? 0) > 0 && (
-                <button className="pd-btn-buy" onClick={handleBuyNow}>
-                  Comprar ahora
-                </button>
-              )}
+            <button className="pd-btn-buy" onClick={handleBuyNow}>
+              Comprar ahora
+            </button>
 
             <button className="pd-btn-cart" onClick={handleAddToCart}>
               Agregar al carrito
@@ -838,6 +848,8 @@ export default function ProductDetail() {
         isOpen={isImageModalOpen}
         onClose={() => setIsImageModalOpen(false)}
       />
+
+      <NoStockModal isOpen={showNoStockModal} onClose={() => setShowNoStockModal(false)} />
     </div>
   );
 }

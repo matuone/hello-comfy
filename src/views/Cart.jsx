@@ -303,6 +303,12 @@ export default function Cart() {
   const handleIncrease = (item) => {
     const stock = stockMap[item.key];
 
+    // Block immediately when stock is definitively 0 (covers race condition during load)
+    if (stock === 0) {
+      toast.error("No hay stock disponible para este talle");
+      return;
+    }
+
     if (
       stock !== undefined &&
       stock !== Infinity &&
@@ -472,6 +478,7 @@ export default function Cart() {
                       type="button"
                       className="cart-qty-btn"
                       onClick={() => handleIncrease(item)}
+                      disabled={stockForItem !== undefined && stockForItem !== Infinity && item.quantity >= stockForItem}
                     >
                       +
                     </button>
