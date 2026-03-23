@@ -3,6 +3,23 @@ import fs from 'fs';
 import path from 'path';
 import { getUploadUrl } from '../middleware/upload.js';
 
+function isCloudinaryUrl(url) {
+  return typeof url === 'string' && url.includes('res.cloudinary.com');
+}
+
+function isLocalBannerUrl(url) {
+  return typeof url === 'string' && url.includes('/uploads/banners/');
+}
+
+function sanitizeBannerImages(images = []) {
+  return images.filter((img) => {
+    if (!img) return false;
+    if (!img.publicId) return false;
+    if (isCloudinaryUrl(img.url)) return false;
+    return isLocalBannerUrl(img.url);
+  });
+}
+
 // Obtener configuración del banner
 export const getBanner = async (req, res) => {
   try {
@@ -18,6 +35,12 @@ export const getBanner = async (req, res) => {
         fontSize: 64,
         active: true
       });
+      await banner.save();
+    }
+
+    const sanitizedImages = sanitizeBannerImages(banner.images || []);
+    if (sanitizedImages.length !== (banner.images || []).length) {
+      banner.images = sanitizedImages;
       await banner.save();
     }
 
@@ -91,6 +114,9 @@ export const addImage = async (req, res) => {
     if (!banner) {
       banner = new PromoBanner({ active: true });
     }
+
+    // Limpia entradas heredadas que no apuntan a archivos locales.
+    banner.images = sanitizeBannerImages(banner.images || []);
 
     // Guardar imagen (ya fue guardada en disco por multer)
     const imageUrl = getUploadUrl(req.file, 'banners');

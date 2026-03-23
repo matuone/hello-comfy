@@ -15,6 +15,10 @@ export default function PromoBanner(props) {
   const [bannerData, setBannerData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  function isCloudinaryUrl(url) {
+    return typeof url === "string" && url.includes("res.cloudinary.com");
+  }
+
   // Imágenes por defecto (fallback)
   const defaultIMGS = useMemo(function () {
     return [banner1, banner2, banner3];
@@ -47,7 +51,13 @@ export default function PromoBanner(props) {
   // Usar imágenes del backend o fallback a las por defecto
   const IMGS = useMemo(function () {
     if (bannerData && bannerData.images && bannerData.images.length > 0) {
-      return bannerData.images.map(img => img.url);
+      return bannerData.images.map((img, idx) => {
+        const url = img?.url;
+        if (!url || isCloudinaryUrl(url)) {
+          return defaultIMGS[idx % defaultIMGS.length];
+        }
+        return url;
+      });
     }
     return defaultIMGS;
   }, [bannerData, defaultIMGS]);
@@ -63,6 +73,13 @@ export default function PromoBanner(props) {
   const timerRef = useRef(null);
   const hideTimerRef = useRef(null);
   const [showDots, setShowDots] = useState(true);
+
+  function handleImageError(e, idx) {
+    const fallback = defaultIMGS[idx % defaultIMGS.length];
+    if (!fallback || e.currentTarget.dataset.fallbackApplied === "1") return;
+    e.currentTarget.dataset.fallbackApplied = "1";
+    e.currentTarget.src = fallback;
+  }
 
   function next() {
     setI(function (p) {
@@ -188,6 +205,7 @@ export default function PromoBanner(props) {
             key={idx}
             src={src}
             alt=""
+            onError={(e) => handleImageError(e, idx)}
             draggable={false}
             className="promoBanner__slide"
             style={{

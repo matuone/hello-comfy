@@ -5,6 +5,9 @@ import "../styles/adminmarketing.css";
 import NotificationModal from "../components/NotificationModal";
 import ConfirmModal from "../components/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
+import banner1 from "../assets/banner.png";
+import banner2 from "../assets/banner2.png";
+import banner3 from "../assets/banner3.png";
 
 const API_URL = import.meta.env.VITE_API_URL;
 function apiPath(path) {
@@ -70,6 +73,26 @@ export default function AdminMarketing() {
   // Estado para drag & drop de imágenes
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
+
+  function isCloudinaryUrl(url) {
+    return typeof url === "string" && url.includes("res.cloudinary.com");
+  }
+
+  function resolveBannerImageUrl(url, idx) {
+    const fallbackImages = [banner1, banner2, banner3];
+    if (!url || isCloudinaryUrl(url)) {
+      return fallbackImages[idx % fallbackImages.length];
+    }
+    return url;
+  }
+
+  function handleBannerPreviewError(e, idx) {
+    const fallbackImages = [banner1, banner2, banner3];
+    const fallback = fallbackImages[idx % fallbackImages.length];
+    if (!fallback || e.currentTarget.dataset.fallbackApplied === "1") return;
+    e.currentTarget.dataset.fallbackApplied = "1";
+    e.currentTarget.src = fallback;
+  }
 
   // Cargar mensajes guardados y configuración del banner
   useEffect(() => {
@@ -1247,8 +1270,9 @@ export default function AdminMarketing() {
                   </div>
 
                   <img
-                    src={img.url}
+                    src={resolveBannerImageUrl(img.url, index)}
                     alt={`Banner ${index + 1}`}
+                    onError={(e) => handleBannerPreviewError(e, index)}
                     style={{
                       width: '200px',
                       height: '80px',

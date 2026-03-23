@@ -19,6 +19,17 @@ export default function PromoBannerMobile(props) {
   const hideTimerRef = useRef(null);
   const [showDots, setShowDots] = useState(true);
 
+  function isCloudinaryUrl(url) {
+    return typeof url === "string" && url.includes("res.cloudinary.com");
+  }
+
+  function handleImageError(e, idx) {
+    const fallback = defaultIMGS[idx % defaultIMGS.length];
+    if (!fallback || e.currentTarget.dataset.fallbackApplied === "1") return;
+    e.currentTarget.dataset.fallbackApplied = "1";
+    e.currentTarget.src = fallback;
+  }
+
   // Imágenes por defecto (fallback)
   const defaultIMGS = useMemo(() => [banner1, banner2, banner3], []);
 
@@ -38,7 +49,13 @@ export default function PromoBannerMobile(props) {
   // Usar imágenes del backend o fallback a las por defecto
   const IMGS = useMemo(() => {
     if (bannerData && bannerData.images && bannerData.images.length > 0) {
-      return bannerData.images.map(img => img.url);
+      return bannerData.images.map((img, idx) => {
+        const url = img?.url;
+        if (!url || isCloudinaryUrl(url)) {
+          return defaultIMGS[idx % defaultIMGS.length];
+        }
+        return url;
+      });
     }
     return defaultIMGS;
   }, [bannerData, defaultIMGS]);
@@ -121,6 +138,7 @@ export default function PromoBannerMobile(props) {
               key={idx}
               src={src}
               alt=""
+              onError={(e) => handleImageError(e, idx)}
               draggable={false}
               className="promoBannerMobile__slide"
               style={{
