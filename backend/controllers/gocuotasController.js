@@ -7,6 +7,7 @@ import {
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
 import { validateShippingCost } from "../services/validateShippingCost.js";
+import { assertValidCheckoutShipping } from "../services/validateCheckoutShipping.js";
 import PendingOrder from "../models/PendingOrder.js";
 
 // ============================
@@ -60,6 +61,12 @@ export const createCheckout = async (req, res) => {
     if (!customerData || !customerData.email) {
       return res.status(400).json({ error: "Email del cliente requerido" });
     }
+
+    assertValidCheckoutShipping({
+      shippingMethod: metadata?.shippingMethod,
+      pickPoint: customerData?.pickPoint,
+      selectedAgency: customerData?.selectedAgency,
+    });
 
     // ⭐ VALIDAR PRECIOS CONTRA LA BD — nunca confiar en el frontend
     let validatedItems, totals, validationWarnings, hasFreeShipping;
@@ -198,7 +205,7 @@ export const createCheckout = async (req, res) => {
     const apiData = err.response?.data;
     console.error("Error creando checkout Go Cuotas");
 
-    res.status(apiStatus || 500).json({
+    res.status(err.statusCode || apiStatus || 500).json({
       error: "Error al crear checkout",
       detail: apiData || err.message,
     });
@@ -296,6 +303,7 @@ export const webhookGocuotas = async (req, res) => {
               province: wcd.province || null,
               localidad: wcd.localidad || null,
               selectedAgency: wcd.selectedAgency || null,
+              pickPoint: wcd.pickPoint || null,
               shippingMethod: orderData.shippingMethod || orderData.metadata?.shippingMethod || null,
               paymentMethod: "gocuotas",
               promoCode: orderData.metadata?.promoCode || null,

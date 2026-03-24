@@ -6,7 +6,9 @@ import {
   obtenerOrdenPorCodigo,
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
-import { validateShippingCost } from "../services/validateShippingCost.js"; import PendingOrder from "../models/PendingOrder.js";
+import { validateShippingCost } from "../services/validateShippingCost.js";
+import { assertValidCheckoutShipping } from "../services/validateCheckoutShipping.js";
+import PendingOrder from "../models/PendingOrder.js";
 import Order from "../models/Order.js";
 /**
  * POST /api/mercadopago/create-preference
@@ -78,6 +80,12 @@ export const createPreference = async (req, res) => {
         error: "Datos del cliente incompletos (email requerido)",
       });
     }
+
+    assertValidCheckoutShipping({
+      shippingMethod,
+      pickPoint: customerData?.pickPoint,
+      selectedAgency: customerData?.selectedAgency,
+    });
 
     // Si es envío a domicilio, exigir dirección mínima para evitar órdenes incompletas
     if (
@@ -232,7 +240,7 @@ export const createPreference = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error creando preferencia Mercado Pago:", error.response?.data || error.message);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       error: "Error al crear preferencia de pago",
       message: error.response?.data?.message || error.message,
       details: error.response?.data || null,

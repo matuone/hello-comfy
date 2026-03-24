@@ -4,6 +4,7 @@ import StockColor from "../models/StockColor.js";
 import Product from "../models/Product.js";
 import PromoCode from "../models/PromoCode.js";
 import { enviarEmailConfirmacionOrden, enviarEmailAlAdmin } from "./emailService.js";
+import { assertValidCheckoutShipping } from "./validateCheckoutShipping.js";
 
 /**
  * Generar el siguiente código de orden secuencial
@@ -42,6 +43,8 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
     // console.log("📋 PaymentData:", { id: paymentData.id, status: paymentData.status, email: paymentData.payer?.email });
     // console.log("📋 PendingOrderData:", { email: pendingOrderData?.formData?.email, itemsCount: pendingOrderData?.items?.length });
 
+    assertValidCheckoutShipping(pendingOrderData?.formData);
+
     // Preparar datos de la orden (el código se genera dentro del bloque de save con retry)
     const orderData = {
       code: null, // se asigna en el retry loop
@@ -65,7 +68,9 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         postalCode: pendingOrderData.formData?.postalCode || null,
         province: pendingOrderData.formData?.province || null,
         localidad: pendingOrderData.formData?.localidad || null,
-        pickPoint: pendingOrderData.formData?.pickPoint,
+        pickPoint: typeof pendingOrderData.formData?.pickPoint === "string"
+          ? pendingOrderData.formData.pickPoint.trim()
+          : pendingOrderData.formData?.pickPoint,
         branchCode: pendingOrderData.formData?.selectedAgency?.code || null,
         branchName: pendingOrderData.formData?.selectedAgency?.name || null,
         branchAddress: pendingOrderData.formData?.selectedAgency

@@ -6,6 +6,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import { crearOrdenDesdePago } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
 import { validateShippingCost } from "../services/validateShippingCost.js";
+import { assertValidCheckoutShipping } from "../services/validateCheckoutShipping.js";
 
 /* ============================================================
    ⭐ RUTA PRIVADA — Mis órdenes (usuario autenticado)
@@ -158,6 +159,8 @@ router.post("/orders/create-transfer", async (req, res) => {
       return res.status(400).json({ error: "Email y nombre requeridos" });
     }
 
+    assertValidCheckoutShipping(formData);
+
     // ⭐ VALIDAR PRECIOS EN LA BD — nunca confiar en el frontend
     const { validatedItems, totals, warnings, hasFreeShipping } = await validateCartPrices(items, {
       promoCode: formData.promoCode || null,
@@ -225,6 +228,7 @@ router.post("/orders/create-transfer", async (req, res) => {
     console.error("Error creando orden por transferencia:", error);
     // Errores de validación de stock/precio → 400 (problema del cliente, no del servidor)
     const isValidationError =
+      error.statusCode === 400 ||
       error.message.includes("Stock insuficiente") ||
       error.message.includes("no tiene stock") ||
       error.message.includes("Cantidad inválida") ||

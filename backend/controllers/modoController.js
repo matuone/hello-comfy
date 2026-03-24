@@ -8,6 +8,7 @@ import {
 } from "../services/orderService.js";
 import { validateCartPrices } from "../services/validateCartPrices.js";
 import { validateShippingCost } from "../services/validateShippingCost.js";
+import { assertValidCheckoutShipping } from "../services/validateCheckoutShipping.js";
 
 // ============================================================
 // Modo API v2 (PlayDigital) - OAuth2 Token + Payment Requests
@@ -95,6 +96,12 @@ export const createPaymentIntent = async (req, res) => {
     if (!customerData || !customerData.email) {
       return res.status(400).json({ error: "Datos del cliente incompletos (email requerido)" });
     }
+
+    assertValidCheckoutShipping({
+      shippingMethod: metadata?.shippingMethod,
+      pickPoint: customerData?.pickPoint,
+      selectedAgency: customerData?.selectedAgency,
+    });
 
     // ⭐ VALIDAR PRECIOS CONTRA LA BD
     let validatedItems, totals, cartValidation;
@@ -188,7 +195,7 @@ export const createPaymentIntent = async (req, res) => {
       console.warn("⚠️ Token de Modo expirado, se renovará en el próximo intento");
     }
     console.error("❌ Error creando Payment Request en Modo:", error?.response?.data || error.message);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       error: "Error al crear intención de pago con Modo",
       details: error?.response?.data?.message || error.message,
     });
@@ -206,6 +213,8 @@ export const confirmPayment = async (req, res) => {
     if (!pendingOrderData) {
       return res.status(400).json({ error: "Datos de orden pendiente requeridos" });
     }
+
+    assertValidCheckoutShipping(pendingOrderData?.formData);
 
     // ⭐ VALIDAR PRECIOS EN LA BD
     let validatedItems, cartValidation;
@@ -260,7 +269,7 @@ export const confirmPayment = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error confirmando pago de Modo:", error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: "Error al confirmar pago",
       details: error.message,
