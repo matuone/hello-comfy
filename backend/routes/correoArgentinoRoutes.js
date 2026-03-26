@@ -163,18 +163,32 @@ const provinceNameToCode = (name) => {
   return map[normalized] || null;
 };
 
-const resolveProvinceCode = (orderShipping) => {
+const normalizeProvinceCode = (value) => {
+  const code = (value || "").toString().trim().toUpperCase();
+  return /^[A-Z]$/.test(code) ? code : null;
+};
+
+const resolveProvinceCode = (orderShipping, orderCode = "N/A") => {
   if (!orderShipping) return null;
+  const explicitCode = normalizeProvinceCode(orderShipping.provinceCode);
+  const fromProvinceName = provinceNameToCode(orderShipping.province);
   const fromPostal = cpToProvinceCode(orderShipping.postalCode);
+
+  if (fromProvinceName && fromPostal && fromProvinceName !== fromPostal) {
+    console.warn(
+      `[Correo Argentino] Conflicto provincia/CP en orden ${orderCode}: province="${orderShipping.province}", postalCode="${orderShipping.postalCode}", provinceByName=${fromProvinceName}, provinceByCP=${fromPostal}`
+    );
+  }
+
   return (
-    orderShipping.provinceCode ||
-    fromPostal ||
-    provinceNameToCode(orderShipping.province)
+    explicitCode ||
+    fromProvinceName ||
+    fromPostal
   );
 };
 
 const buildOrderData = async (order) => {
-  const orderProvinceCode = resolveProvinceCode(order.shipping) || "C";
+  const orderProvinceCode = resolveProvinceCode(order.shipping, order.code) || "C";
   const productIds = (order.items || []).map((i) => i.productId).filter(Boolean);
   const products = await Product.find({ _id: { $in: productIds } }).lean();
   const productMap = {};
