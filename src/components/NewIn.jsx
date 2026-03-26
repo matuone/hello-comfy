@@ -20,7 +20,55 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-export default function NewIn() {
+const GEEK_KEYWORDS = [
+  "geek",
+  "anime",
+  "manga",
+  "pokemon",
+  "naruto",
+  "dragon",
+  "goku",
+  "one piece",
+  "attack",
+  "marvel",
+  "dc",
+  "gaming",
+  "gamer",
+  "arcade",
+  "pixel",
+  "retro",
+  "otaku"
+];
+
+const normalizeText = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+
+const isGeekProduct = (product) => {
+  const haystack = normalizeText(
+    [
+      product?.name,
+      product?.category,
+      product?.subcategory,
+      product?.description
+    ].join(" ")
+  );
+
+  return GEEK_KEYWORDS.some((keyword) => haystack.includes(keyword));
+};
+
+const buildGeekList = (products) => {
+  const geekOnly = products.filter(isGeekProduct);
+  return geekOnly;
+};
+
+export default function NewIn({
+  title = "Nuevos ingresos:",
+  mode = "new",
+  usePixelTitle = false,
+}) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -35,11 +83,22 @@ export default function NewIn() {
   const discountRules = useDiscountRules();
 
   useEffect(() => {
-    fetch(apiPath("/products/new"))
+    const endpoint = mode === "geek" ? "/products" : "/products/new";
+
+    fetch(apiPath(endpoint))
       .then((res) => res.json())
-      .then((data) => setProductos(Array.isArray(data) ? data : []))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [];
+        const sorted = [...list].sort((a, b) => {
+          const aKey = a?.createdAt || a?._id || "";
+          const bKey = b?.createdAt || b?._id || "";
+          return aKey < bKey ? 1 : aKey > bKey ? -1 : 0;
+        });
+
+        setProductos(mode === "geek" ? buildGeekList(sorted) : sorted);
+      })
       .catch(() => setProductos([]));
-  }, []);
+  }, [mode]);
 
   const getAvailableSizes = (product) => {
     if (!product?.stockColorId?.talles) return [];
@@ -78,9 +137,9 @@ export default function NewIn() {
   };
 
   return (
-    <section className="newin">
+    <section className={`newin ${mode === "geek" ? "newin--geek" : ""}`}>
       <div className="newin__container">
-        <h2 className="newin__title">Nuevos ingresos:</h2>
+        <h2 className={`newin__title ${usePixelTitle ? "newin__title--pixel" : ""}`}>{title}</h2>
 
         {/* HINT VISUAL */}
         <div className="carousel-hint">

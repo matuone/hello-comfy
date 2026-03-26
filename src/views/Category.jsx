@@ -43,6 +43,18 @@ export default function Category() {
   const formatTitle = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1).replace("-", " ");
 
+  const normalizeLabel = (value) =>
+    String(value || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "");
+
+  const isComfyGeekCategory = (() => {
+    const normalized = normalizeLabel(subcategory);
+    return normalized === "comfy geek" || normalized === "comfy geek!";
+  })();
+
   const getSortLabel = (s) => {
     if (s === "newest") return "Nuevo";
     if (s === "price_desc") return "Mayor precio";
@@ -133,8 +145,10 @@ export default function Category() {
   });
 
   return (
-    <section className="category-view">
-      <h1 className="category-title">{formatTitle(subcategory)}</h1>
+    <section className={`category-view ${isComfyGeekCategory ? "category-view--geek" : ""}`.trim()}>
+      <h1 className={`category-title ${isComfyGeekCategory ? "category-title--geek" : ""}`.trim()}>
+        {formatTitle(subcategory)}
+      </h1>
 
       {/* FILTRO */}
       {!loading && products.length > 0 && (

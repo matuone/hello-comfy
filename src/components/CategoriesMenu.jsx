@@ -16,6 +16,18 @@ const catSlug = {
   "Merch": "merch",
 };
 
+const normalizeLabel = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+
+const isComfyGeekLabel = (value) => {
+  const normalized = normalizeLabel(value);
+  return normalized === "comfy geek" || normalized === "comfy geek!";
+};
+
 export default function CategoriesMenu({ className = "", onSelect }) {
   const [grouped, setGrouped] = useState(null); // null = loading
   const [error, setError] = useState(false);
@@ -74,7 +86,7 @@ export default function CategoriesMenu({ className = "", onSelect }) {
                 className="modern-menu__link"
                 onClick={onSelect}
               >
-                {sub}
+                {isComfyGeekLabel(sub) ? `${sub} 👾` : sub}
               </Link>
             ))}
           </div>

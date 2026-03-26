@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
 /* ============================
    SECCIÓN NEW IN
 ============================ */
@@ -23,6 +25,30 @@
   margin-bottom: 24px;
   color: var(--hc-text);
   text-align: center;
+}
+
+.newin__title--pixel {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(18px, 2vw, 24px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2f3f8f;
+  text-shadow: 2px 2px 0 #ffd166;
+  line-height: 1.4;
+}
+
+.newin--geek {
+  padding-top: 16px;
+  background:
+    linear-gradient(to bottom,
+      #ffffff 0,
+      #f7fcff 56px,
+      #eef9ff 120px,
+      #eaf7ff 220px,
+      #eaf7ff calc(100% - 220px),
+      #eef9ff calc(100% - 120px),
+      #f7fcff calc(100% - 56px),
+      #ffffff 100%);
 }
 
 /* HINT VISUAL */

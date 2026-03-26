@@ -12,7 +12,51 @@ function apiPath(path) {
   return `${API_URL}${path}`;
 }
 
-export default function NewInMobile() {
+const GEEK_KEYWORDS = [
+  "geek",
+  "anime",
+  "manga",
+  "pokemon",
+  "naruto",
+  "dragon",
+  "goku",
+  "one piece",
+  "attack",
+  "marvel",
+  "dc",
+  "gaming",
+  "gamer",
+  "arcade",
+  "pixel",
+  "retro",
+  "otaku"
+];
+
+const normalizeText = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+
+const isGeekProduct = (product) => {
+  const haystack = normalizeText(
+    [
+      product?.name,
+      product?.category,
+      product?.subcategory,
+      product?.description
+    ].join(" ")
+  );
+
+  return GEEK_KEYWORDS.some((keyword) => haystack.includes(keyword));
+};
+
+const buildGeekList = (products) => {
+  const geekOnly = products.filter(isGeekProduct);
+  return geekOnly;
+};
+
+export default function NewInMobile({ mode = "new" }) {
   const [productos, setProductos] = useState([]);
   const [showOpinions, setShowOpinions] = useState(false);
   const [opinionsProductId, setOpinionsProductId] = useState(null);
@@ -21,7 +65,9 @@ export default function NewInMobile() {
   const { addToCart } = useCart();
   const discountRules = useDiscountRules();
   useEffect(() => {
-    fetch(apiPath(`/products/new?limit=12&t=${Date.now()}`))
+    const endpoint = mode === "geek" ? `/products?t=${Date.now()}` : `/products/new?limit=12&t=${Date.now()}`;
+
+    fetch(apiPath(endpoint))
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : [];
@@ -30,10 +76,10 @@ export default function NewInMobile() {
           const bKey = b?.createdAt || b?._id || "";
           return aKey < bKey ? 1 : aKey > bKey ? -1 : 0;
         });
-        setProductos(list);
+        setProductos(mode === "geek" ? buildGeekList(list) : list);
       })
       .catch(() => setProductos([]));
-  }, []);
+  }, [mode]);
 
   const handleAddToCart = (product, size, quantity) => {
     addToCart(product, { size, color: product.stockColorId?.color, quantity });

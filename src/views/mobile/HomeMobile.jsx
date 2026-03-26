@@ -64,6 +64,8 @@ export default function HomeMobile() {
         <BestSellersMobile />
         <h2 className="newin__title">Nuevos ingresos:</h2>
         <NewInMobile />
+        <h2 className="newin__title newin__title--pixel">Comfy Geek! 👾</h2>
+        <NewInMobile mode="geek" />
       </section>
       <FloatingBearMobile />
     </>

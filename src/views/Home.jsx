@@ -77,6 +77,11 @@ export default function Home() {
 
       <BestSellers />
       <NewIn />
+      <NewIn
+        title="Comfy Geek! 👾"
+        mode="geek"
+        usePixelTitle
+      />
     </>
   );
 }

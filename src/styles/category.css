@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
 /* 📦 Vista general */
 .category-view {
   width: 100%;
@@ -9,6 +11,32 @@
   box-sizing: border-box;
 }
 
+.category-view--geek {
+  position: relative;
+  isolation: isolate;
+}
+
+.category-view--geek::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100%;
+  z-index: -1;
+  background:
+    linear-gradient(to bottom,
+      #ffffff 0,
+      #f7fcff 56px,
+      #eef9ff 120px,
+      #eaf7ff 220px,
+      #eaf7ff calc(100% - 220px),
+      #eef9ff calc(100% - 120px),
+      #f7fcff calc(100% - 56px),
+      #ffffff 100%);
+}
+
 /* 🏷️ Título */
 .category-title {
   font-size: 2.4rem;
@@ -16,6 +44,77 @@
   color: #d94f7a;
   margin-bottom: 8px;
   text-transform: capitalize;
+}
+
+.category-title--geek {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(1.3rem, 2.2vw, 2.05rem);
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: transparent;
+  background: linear-gradient(180deg, #ffffff 0%, #bdf2ff 18%, #7dd3ff 34%, #6a7bff 56%, #3d49d1 76%, #1b256f 100%);
+  background-size: 100% 180%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow:
+    0 0 0 #1b256f,
+    3px 3px 0 rgba(255, 209, 102, 0.98),
+    0 0 18px rgba(79, 140, 255, 0.42),
+    0 0 38px rgba(72, 224, 255, 0.34),
+    0 0 54px rgba(96, 130, 255, 0.22);
+  filter: drop-shadow(0 12px 20px rgba(36, 64, 142, 0.2));
+  line-height: 1.45;
+  position: relative;
+  will-change: transform, background-position, filter;
+  animation: geekTitleArcade 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes geekTitleArcade {
+
+  0%,
+  100% {
+    background-position: 50% 0%;
+    transform: translateY(0) scale(1);
+    text-shadow:
+      0 0 0 #1b256f,
+      3px 3px 0 rgba(255, 209, 102, 0.98),
+      0 0 18px rgba(79, 140, 255, 0.42),
+      0 0 38px rgba(72, 224, 255, 0.34),
+      0 0 54px rgba(96, 130, 255, 0.22);
+    filter: drop-shadow(0 12px 20px rgba(36, 64, 142, 0.2));
+  }
+
+  35% {
+    background-position: 50% 36%;
+    transform: translateY(-2px) scale(1.015);
+    text-shadow:
+      0 0 0 #1b256f,
+      3px 3px 0 rgba(255, 209, 102, 1),
+      0 0 26px rgba(79, 140, 255, 0.58),
+      0 0 48px rgba(72, 224, 255, 0.45),
+      0 0 72px rgba(96, 130, 255, 0.32);
+    filter: drop-shadow(0 16px 26px rgba(36, 64, 142, 0.28));
+  }
+
+  65% {
+    background-position: 50% 100%;
+    transform: translateY(1px) scale(0.995);
+    text-shadow:
+      0 0 0 #1b256f,
+      3px 3px 0 rgba(255, 209, 102, 0.94),
+      0 0 22px rgba(79, 140, 255, 0.5),
+      0 0 42px rgba(72, 224, 255, 0.38),
+      0 0 62px rgba(96, 130, 255, 0.26);
+    filter: drop-shadow(0 14px 22px rgba(36, 64, 142, 0.24));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-title--geek {
+    animation: none;
+  }
 }
 
 /* ============================
