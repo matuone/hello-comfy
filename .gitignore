@@ -35,6 +35,8 @@ backend/.env
 
 # Manual de instrucciones (documentación local)
 manual de instrucciones/
+# Bruno local requests with credentials
+HelloComfy/Login-token admin.bru
 # Uploads locales (se manejan en servidor, no en repo)
 uploads/
 nul
