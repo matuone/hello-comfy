@@ -16,7 +16,7 @@ export async function fetchInstagramPosts(accessToken, businessAccountId) {
   try {
     // Obtener media de la cuenta de negocio
     const response = await fetch(
-      `${INSTAGRAM_GRAPH_API}/${businessAccountId}/media?fields=id,caption,media_type,media_url,thumbnail_url,timestamp,permalink&access_token=${accessToken}`
+      `${INSTAGRAM_GRAPH_API}/${businessAccountId}/media?fields=id,caption,media_type,media_url,thumbnail_url,timestamp,permalink,children{media_type,media_url,thumbnail_url}&access_token=${accessToken}`
     );
 
     if (!response.ok) {
@@ -32,24 +32,44 @@ export async function fetchInstagramPosts(accessToken, businessAccountId) {
     // Normalizar posts para que sean compatibles con nuestro sistema
     const normalizedPosts = data.data
       .filter((post) => {
-        // Solo videos e imágenes, no carousel por ahora
-        return post.media_type === "IMAGE" || post.media_type === "VIDEO";
+        // Incluir imágenes, videos y carruseles para no perder los últimos posteos.
+        return (
+          post.media_type === "IMAGE" ||
+          post.media_type === "VIDEO" ||
+          post.media_type === "CAROUSEL_ALBUM"
+        );
       })
-      .map((post) => ({
-        id: post.id,
-        title: post.caption ? post.caption.substring(0, 100) : "Sin título",
-        caption: post.caption || "",
-        description: post.caption || "",
-        imageUrl:
-          post.media_type === "VIDEO"
-            ? post.thumbnail_url || post.media_url
-            : post.media_url || post.thumbnail_url,
-        instagramUrl: post.permalink,
-        order: 0, // Se asignará dinámicamente
-        active: true,
-        timestamp: post.timestamp,
-        externalId: post.id, // Para rastrear si ya existe en BD
-      }))
+      .map((post) => {
+        const firstChild = post?.children?.data?.[0] || null;
+
+        let imageUrl = post.media_url || post.thumbnail_url || "";
+
+        if (post.media_type === "VIDEO") {
+          imageUrl = post.thumbnail_url || post.media_url || imageUrl;
+        }
+
+        if (post.media_type === "CAROUSEL_ALBUM") {
+          imageUrl =
+            firstChild?.media_url ||
+            firstChild?.thumbnail_url ||
+            post.media_url ||
+            post.thumbnail_url ||
+            imageUrl;
+        }
+
+        return {
+          id: post.id,
+          title: post.caption ? post.caption.substring(0, 100) : "Sin título",
+          caption: post.caption || "",
+          description: post.caption || "",
+          imageUrl,
+          instagramUrl: post.permalink,
+          order: 0, // Se asignará dinámicamente
+          active: true,
+          timestamp: post.timestamp,
+          externalId: post.id, // Para rastrear si ya existe en BD
+        };
+      })
       // Ordenar por más reciente primero
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 

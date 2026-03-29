@@ -16,6 +16,15 @@ export default function InstagramFeed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const sortByNewest = (posts) => {
+    if (!Array.isArray(posts)) return [];
+    return [...posts].sort((a, b) => {
+      const aDate = new Date(a?.timestamp || a?.createdAt || 0);
+      const bDate = new Date(b?.timestamp || b?.createdAt || 0);
+      return bDate - aDate;
+    });
+  };
+
   useEffect(() => {
     fetchFeed();
   }, []);
@@ -23,13 +32,22 @@ export default function InstagramFeed() {
   async function fetchFeed() {
     try {
       setLoading(true);
-      // Usar siempre el feed de la DB (sincronizado cada 6hs con Instagram)
-      const response = await fetch(apiPath("/feed"));
-      if (!response.ok) {
+      // Intentar feed en tiempo real para priorizar los últimos posteos.
+      const realtimeResponse = await fetch(apiPath("/instagram/feed?limit=12"));
+      if (realtimeResponse.ok) {
+        const realtimeData = await realtimeResponse.json();
+        setFeed(sortByNewest(realtimeData));
+        setError(null);
+        return;
+      }
+
+      // Fallback: feed de DB sincronizado.
+      const dbResponse = await fetch(apiPath("/feed"));
+      if (!dbResponse.ok) {
         throw new Error("Error al cargar el feed");
       }
-      const data = await response.json();
-      setFeed(data);
+      const dbData = await dbResponse.json();
+      setFeed(sortByNewest(dbData));
       setError(null);
     } catch (err) {
       console.error("Error fetching feed:", err);

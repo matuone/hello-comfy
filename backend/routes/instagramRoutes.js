@@ -103,8 +103,15 @@ router.get("/feed", async (req, res) => {
       businessAccountId
     );
 
-    // Limitar a los últimos 12 posts
-    const limitedPosts = instagramPosts.slice(0, 12);
+    const limit = Number(req.query.limit) || 12;
+
+    // Orden defensivo por fecha por si la API cambia el orden por defecto.
+    const orderedPosts = [...instagramPosts].sort(
+      (a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)
+    );
+
+    // Limitar a los últimos posts
+    const limitedPosts = orderedPosts.slice(0, limit);
 
     res.json(limitedPosts);
   } catch (error) {
