@@ -153,7 +153,12 @@ export function AuthProvider({ children }) {
   const [showInactivityModal, setShowInactivityModal] = useState(false);
   const [showTokenExpiredModal, setShowTokenExpiredModal] = useState(false);
   const [showUserExpiredModal, setShowUserExpiredModal] = useState(false);
-  const [isValidatingAdminToken, setIsValidatingAdminToken] = useState(false);
+  // Inicializar en true si hay token admin guardado, para que AdminRoute espere
+  // la validación antes de redirigir al login (evita redirect en F5)
+  const [isValidatingAdminToken, setIsValidatingAdminToken] = useState(() => {
+    const saved = localStorage.getItem("adminToken");
+    return !!(saved && saved !== "undefined");
+  });
   const logoutTimer = useRef(null);
   const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 minutos en ms
 
@@ -229,10 +234,10 @@ export function AuthProvider({ children }) {
             }
           })
           .catch(() => {
-            // Error al validar, hacer logout por seguridad
-            localStorage.removeItem("authUser");
-            localStorage.removeItem("adminToken");
-            localStorage.removeItem("userToken");
+            // Error de red: mantener sesión cacheada, el token podría ser válido.
+            // Solo se desloguea ante una respuesta 401 explícita del servidor.
+            setUser(parsedUser);
+            setToken(tokenToUse);
             setIsValidatingAdminToken(false);
           });
         return;

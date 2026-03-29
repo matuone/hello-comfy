@@ -4,7 +4,12 @@ import { Navigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 export default function AdminRoute({ children }) {
-  const { user } = useContext(AuthContext);
+  const { user, isValidatingAdminToken } = useContext(AuthContext);
+
+  // Mientras se valida el token guardado (F5 / nueva pestaña), no redirigir
+  if (isValidatingAdminToken) {
+    return null;
+  }
 
   // Si no hay usuario → redirigir a login de admin
   if (!user) {
