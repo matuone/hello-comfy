@@ -8,6 +8,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     assetsInlineLimit: 0,
+    emptyOutDir: false,
   },
   server: {
     host: 'localhost',

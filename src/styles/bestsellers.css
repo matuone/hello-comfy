@@ -23,6 +23,25 @@
   text-align: center;
 }
 
+.bestsellers__title {
+  width: fit-content;
+  margin: 0 auto 24px auto;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 2px solid #ffc8dc;
+  background: linear-gradient(180deg, #fff8fd 0%, #ffeef6 100%);
+  box-shadow: 0 8px 18px rgba(217, 79, 122, 0.16);
+  letter-spacing: 0.01em;
+}
+
+.bestsellers__title::before {
+  content: "🔥 ";
+}
+
+.bestsellers__title::after {
+  content: " 💖";
+}
+
 /* HINT VISUAL */
 .carousel-hint {
   text-align: right;

@@ -2,12 +2,14 @@
 // Versión mobile/tablet del Home
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "../../styles/mobile/home.css";
 import BestSellersMobile from "../../components/mobile/BestSellersMobile";
 import NewInMobile from "../../components/mobile/NewInMobile";
 import FloatingBearMobile from "../../components/mobile/FloatingBearMobile";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const COMFY_GEEK_ROUTE = "/indumentaria/Comfy%20geek!";
 function apiPath(path) {
   return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
 }
@@ -64,7 +66,11 @@ export default function HomeMobile() {
         <BestSellersMobile />
         <h2 className="newin__title">Nuevos ingresos:</h2>
         <NewInMobile />
-        <h2 className="newin__title newin__title--pixel">Comfy Geek! 👾</h2>
+        <h2 className="newin__title newin__title--pixel">
+          <Link className="newin__title-link" to={COMFY_GEEK_ROUTE}>
+            Comfy Geek! 👾
+          </Link>
+        </h2>
         <NewInMobile mode="geek" />
       </section>
       <FloatingBearMobile />

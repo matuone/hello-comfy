@@ -2,7 +2,7 @@
 import "../styles/newin.css";
 import "../styles/productgrid.css";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OpinionsPopup from "./OpinionsPopup";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -20,48 +20,32 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-const GEEK_KEYWORDS = [
-  "geek",
-  "anime",
-  "manga",
-  "pokemon",
-  "naruto",
-  "dragon",
-  "goku",
-  "one piece",
-  "attack",
-  "marvel",
-  "dc",
-  "gaming",
-  "gamer",
-  "arcade",
-  "pixel",
-  "retro",
-  "otaku"
-];
+const HOME_CAROUSEL_LIMIT = 12;
+const COMFY_GEEK_ROUTE = "/indumentaria/Comfy%20geek!";
 
 const normalizeText = (value) =>
   String(value || "")
+    .trim()
     .toLowerCase()
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "");
 
-const isGeekProduct = (product) => {
-  const haystack = normalizeText(
-    [
-      product?.name,
-      product?.category,
-      product?.subcategory,
-      product?.description
-    ].join(" ")
-  );
-
-  return GEEK_KEYWORDS.some((keyword) => haystack.includes(keyword));
+const isComfyGeekLabel = (value) => {
+  const normalized = normalizeText(value);
+  return normalized === "comfy geek" || normalized === "comfy geek!";
 };
+
+const hasComfyGeekTag = (values) => {
+  if (!Array.isArray(values)) return false;
+  return values.some(isComfyGeekLabel);
+};
+
+const isGeekProduct = (product) =>
+  hasComfyGeekTag(product?.category) || hasComfyGeekTag(product?.subcategory);
 
 const buildGeekList = (products) => {
   const geekOnly = products.filter(isGeekProduct);
-  return geekOnly;
+  return geekOnly.slice(0, HOME_CAROUSEL_LIMIT);
 };
 
 export default function NewIn({
@@ -139,7 +123,15 @@ export default function NewIn({
   return (
     <section className={`newin ${mode === "geek" ? "newin--geek" : ""}`}>
       <div className="newin__container">
-        <h2 className={`newin__title ${usePixelTitle ? "newin__title--pixel" : ""}`}>{title}</h2>
+        <h2 className={`newin__title ${usePixelTitle ? "newin__title--pixel" : ""}`}>
+          {mode === "geek" ? (
+            <Link className="newin__title-link" to={COMFY_GEEK_ROUTE}>
+              {title}
+            </Link>
+          ) : (
+            title
+          )}
+        </h2>
 
         {/* HINT VISUAL */}
         <div className="carousel-hint">
