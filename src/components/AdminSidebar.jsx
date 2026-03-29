@@ -3,14 +3,46 @@
     ============================ */}
 
 // src/components/AdminSidebar.jsx
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useMaintenance } from "../context/MaintenanceContext";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function AdminSidebar({ onNavigate }) {
-  const { logout } = useAuth();
+  const { logout, adminFetch } = useAuth();
   const { isMaintenanceMode, toggleMaintenanceMode } = useMaintenance();
   const navigate = useNavigate();
+  const [isSyncingInstagram, setIsSyncingInstagram] = useState(false);
+  const [instagramSyncMessage, setInstagramSyncMessage] = useState("");
+
+  async function handleInstagramSync() {
+    try {
+      setIsSyncingInstagram(true);
+      setInstagramSyncMessage("Sincronizando Instagram...");
+
+      const response = await adminFetch(apiPath("/instagram/sync"), {
+        method: "POST",
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.message || data?.error || "No se pudo sincronizar Instagram");
+      }
+
+      setInstagramSyncMessage(data?.message || "Instagram sincronizado correctamente");
+    } catch (error) {
+      console.error("Error sincronizando Instagram:", error);
+      setInstagramSyncMessage(error?.message || "Error al sincronizar Instagram");
+    } finally {
+      setIsSyncingInstagram(false);
+    }
+  }
 
   function handleLogout() {
     logout();
@@ -265,6 +297,19 @@ export default function AdminSidebar({ onNavigate }) {
             <span className={`toggle-switch ${isMaintenanceMode ? "toggle-switch--paused" : ""}`}></span>
           </label>
         </div>
+
+        <button
+          className="admin-sidebar-action-btn instagram-sync-btn"
+          onClick={handleInstagramSync}
+          disabled={isSyncingInstagram}
+          title="Sincronizar últimos posteos de Instagram"
+        >
+          {isSyncingInstagram ? "⏳ Sincronizando Instagram..." : "📸 Sincronizar Instagram ahora"}
+        </button>
+
+        {instagramSyncMessage && (
+          <p className="instagram-sync-feedback">{instagramSyncMessage}</p>
+        )}
 
         <button
           className="admin-sidebar-action-btn home-btn"

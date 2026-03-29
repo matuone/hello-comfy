@@ -312,6 +312,28 @@
   color: #0284c7;
 }
 
+.admin-shell .instagram-sync-btn {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+.admin-shell .instagram-sync-btn:hover {
+  background: #fce7f3;
+}
+
+.admin-shell .instagram-sync-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.admin-shell .instagram-sync-feedback {
+  margin: -2px 2px 4px;
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
 .admin-shell .home-btn:hover {
   background: #e0f2fe;
 }
