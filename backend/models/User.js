@@ -108,6 +108,15 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
+    privacyPolicyAccepted: {
+      type: Boolean,
+      default: false,
+    },
+    privacyPolicyAcceptedAt: {
+      type: Date,
+      default: null,
+    },
+
     // Wishlist (favoritos)
     wishlist: [{
       type: mongoose.Schema.Types.ObjectId,

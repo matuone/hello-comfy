@@ -28,6 +28,7 @@ export default function Register() {
       province: "",
       postalCode: "",
     },
+    privacyPolicyAccepted: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -37,7 +38,7 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   function handleChange(e) {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
     if (name.startsWith("address.")) {
       const field = name.split(".")[1];
@@ -46,7 +47,10 @@ export default function Register() {
         address: { ...prev.address, [field]: value },
       }));
     } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+      setForm((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
     }
   }
 
@@ -67,6 +71,12 @@ export default function Register() {
       return;
     }
 
+    if (!form.privacyPolicyAccepted) {
+      setError("Debés aceptar la Política de Privacidad para crear la cuenta");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: "POST",
@@ -77,7 +87,7 @@ export default function Register() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Error al crear la cuenta");
+        setError(data.error || data?.errors?.[0]?.msg || "Error al crear la cuenta");
         setLoading(false);
         return;
       }
@@ -290,6 +300,20 @@ export default function Register() {
           onChange={handleChange}
           required
         />
+
+        <label className="register-privacy-check">
+          <input
+            type="checkbox"
+            name="privacyPolicyAccepted"
+            checked={form.privacyPolicyAccepted}
+            onChange={handleChange}
+            required
+          />
+          <span>
+            Acepto la Política de Privacidad y el tratamiento de mis datos personales
+            conforme a la Ley 25.326.
+          </span>
+        </label>
 
         {error && <p className="register-error">{error}</p>}
 

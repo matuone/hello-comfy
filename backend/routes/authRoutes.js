@@ -25,6 +25,9 @@ router.post(
     body("address.city").trim().notEmpty().withMessage("La ciudad es obligatoria").escape(),
     body("address.province").trim().notEmpty().withMessage("La provincia es obligatoria").escape(),
     body("address.postalCode").trim().notEmpty().withMessage("El código postal es obligatorio").escape(),
+    body("privacyPolicyAccepted")
+      .custom((value) => value === true)
+      .withMessage("Debés aceptar la Política de Privacidad"),
   ],
   (req, res, next) => {
     const errors = validationResult(req);

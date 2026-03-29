@@ -56,6 +56,7 @@ export async function registerUser(req, res) {
       whatsapp,
       address,
       birthdate,
+      privacyPolicyAccepted,
     } = req.body;
 
     // Validaciones básicas
@@ -69,6 +70,12 @@ export async function registerUser(req, res) {
 
     if (password.length < 6) {
       return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+    }
+
+    if (privacyPolicyAccepted !== true) {
+      return res.status(400).json({
+        error: "Debés aceptar la Política de Privacidad para crear la cuenta",
+      });
     }
 
     // Validar dirección
@@ -108,6 +115,8 @@ export async function registerUser(req, res) {
         postalCode: validator.escape(address.postalCode),
       },
       method: "email",
+      privacyPolicyAccepted: true,
+      privacyPolicyAcceptedAt: new Date(),
       emailVerified: false,
       emailVerificationToken: verificationToken,
       emailVerificationExpires: verificationExpires,

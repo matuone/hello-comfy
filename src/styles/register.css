@@ -111,6 +111,25 @@
   box-shadow: 0 0 0 3px rgba(217, 79, 122, 0.25);
 }
 
+.register-privacy-check {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.register-privacy-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: #d94f7a;
+  flex-shrink: 0;
+}
+
 /* BOTÓN */
 .register-form button[type="submit"] {
   margin-top: 10px;
