@@ -18,12 +18,12 @@ export default function AdminSidebar({ onNavigate }) {
   const { isMaintenanceMode, toggleMaintenanceMode } = useMaintenance();
   const navigate = useNavigate();
   const [isSyncingInstagram, setIsSyncingInstagram] = useState(false);
-  const [instagramSyncMessage, setInstagramSyncMessage] = useState("");
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [syncModalMessage, setSyncModalMessage] = useState({ text: "", success: true });
 
   async function handleInstagramSync() {
     try {
       setIsSyncingInstagram(true);
-      setInstagramSyncMessage("Sincronizando Instagram...");
 
       const response = await adminFetch(apiPath("/instagram/sync"), {
         method: "POST",
@@ -35,12 +35,13 @@ export default function AdminSidebar({ onNavigate }) {
         throw new Error(data?.message || data?.error || "No se pudo sincronizar Instagram");
       }
 
-      setInstagramSyncMessage(data?.message || "Instagram sincronizado correctamente");
+      setSyncModalMessage({ text: data?.message || "Instagram sincronizado correctamente", success: true });
     } catch (error) {
       console.error("Error sincronizando Instagram:", error);
-      setInstagramSyncMessage(error?.message || "Error al sincronizar Instagram");
+      setSyncModalMessage({ text: error?.message || "Error al sincronizar Instagram", success: false });
     } finally {
       setIsSyncingInstagram(false);
+      setShowSyncModal(true);
     }
   }
 
@@ -304,11 +305,24 @@ export default function AdminSidebar({ onNavigate }) {
           disabled={isSyncingInstagram}
           title="Sincronizar últimos posteos de Instagram"
         >
-          {isSyncingInstagram ? "⏳ Sincronizando Instagram..." : "📸 Sincronizar Instagram ahora"}
+          {isSyncingInstagram ? "⏳ Sincronizando Instagram..." : "📸 Sincronizar Instagram"}
         </button>
 
-        {instagramSyncMessage && (
-          <p className="instagram-sync-feedback">{instagramSyncMessage}</p>
+        {showSyncModal && (
+          <div className="instagram-sync-modal-overlay" onClick={() => setShowSyncModal(false)}>
+            <div className="instagram-sync-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="instagram-sync-modal__icon">
+                {syncModalMessage.success ? "✅" : "❌"}
+              </div>
+              <p className="instagram-sync-modal__message">{syncModalMessage.text}</p>
+              <button
+                className="instagram-sync-modal__close"
+                onClick={() => setShowSyncModal(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
         )}
 
         <button
