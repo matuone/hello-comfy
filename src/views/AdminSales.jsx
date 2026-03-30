@@ -54,6 +54,11 @@ export default function AdminSales() {
   // ============================
   const [ventasData, setVentasData] = useState([]);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [pagina, setPagina] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalVentas, setTotalVentas] = useState(0);
+  const LIMIT = 20;
 
   // Redirigir si no hay token
   useEffect(() => {
@@ -62,16 +67,20 @@ export default function AdminSales() {
     }
   }, [token, navigate]);
 
-  // Fetch de ventas
+  // Fetch de ventas con paginación y búsqueda server-side
   useEffect(() => {
     if (!token) return;
 
-    async function fetchVentas() {
+    const timer = setTimeout(async () => {
+      setLoading(true);
       try {
-        const res = await fetch(apiPath("/admin/orders"), {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const params = new URLSearchParams({
+          page: pagina,
+          limit: LIMIT,
+          ...(busqueda ? { search: busqueda } : {}),
+        });
+        const res = await fetch(apiPath(`/admin/orders?${params}`), {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!res.ok) {
@@ -80,27 +89,20 @@ export default function AdminSales() {
         }
 
         const data = await res.json();
-        setVentasData(data);
+        setVentasData(data.orders);
+        setTotalVentas(data.total);
+        setTotalPaginas(data.totalPages);
       } catch (err) {
         setError(true);
+      } finally {
+        setLoading(false);
       }
-    }
+    }, busqueda ? 400 : 0);
 
-    fetchVentas();
-  }, [token]);
+    return () => clearTimeout(timer);
+  }, [token, pagina, busqueda]);
 
-  // Filtrado
-  const ventasFiltradas = ventasData.filter((venta) =>
-    [
-      venta._id,
-      venta.customer?.name,
-      venta.customer?.email,
-      venta.totals?.total,
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(busqueda.toLowerCase())
-  );
+  const ventasFiltradas = ventasData;
 
   // Selección individual
   function toggleSeleccion(id) {
@@ -428,7 +430,7 @@ export default function AdminSales() {
   return (
     <div className="admin-section">
       <h2 className="admin-section-title">
-        Ventas <span className="sales-count">({ventasData.length})</span>
+        Ventas <span className="sales-count">({totalVentas})</span>
       </h2>
 
       <p className="admin-section-text">
@@ -441,7 +443,7 @@ export default function AdminSales() {
         placeholder="Buscar por cliente, email, teléfono o número..."
         className="sales-search"
         value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
+        onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
       />
 
       {/* Toolbar */}
@@ -514,6 +516,9 @@ export default function AdminSales() {
         onCancel={() => setCorreoConfirmOpen(false)}
       />
 
+      {/* Loading */}
+      {loading && <p className="sales-loading">Cargando ventas...</p>}
+
       {/* Tabla */}
       <div className="admin-table-container">
         <table className="admin-table">
@@ -556,6 +561,14 @@ export default function AdminSales() {
                             {venta.giftMessage}
                           </div>
                         )}
+                      </span>
+                    )}
+                    {venta.comentarios && (
+                      <span className="comment-indicator-inline">
+                        <span className="comment-icon">✍️</span>
+                        <div className="comment-message-bubble">
+                          {venta.comentarios}
+                        </div>
                       </span>
                     )}
                   </td>
@@ -713,6 +726,31 @@ export default function AdminSales() {
           </tbody>
         </table>
       </div>
+
+      {/* Paginación */}
+      {totalPaginas > 1 && (
+        <div className="sales-pagination">
+          <button
+            className="pagination-btn"
+            onClick={() => setPagina((p) => Math.max(1, p - 1))}
+            disabled={pagina === 1 || loading}
+          >
+            ← Anterior
+          </button>
+
+          <span className="pagination-info">
+            Página {pagina} de {totalPaginas}
+          </span>
+
+          <button
+            className="pagination-btn"
+            onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+            disabled={pagina === totalPaginas || loading}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
 
       {popupAbierto && (
         <div className="popup-overlay">

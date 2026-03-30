@@ -203,8 +203,37 @@ router.patch("/admin/orders/:id/address", verifyAdmin, async (req, res) => {
 ============================================================ */
 router.get("/admin/orders", verifyAdmin, async (req, res) => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 });
-    res.json(orders);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+    const search = (req.query.search || "").trim();
+
+    const query = search
+      ? {
+        $or: [
+          { "customer.name": { $regex: search, $options: "i" } },
+          { "customer.email": { $regex: search, $options: "i" } },
+          { code: { $regex: search, $options: "i" } },
+        ],
+      }
+      : {};
+
+    const [orders, total] = await Promise.all([
+      Order.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select("-paymentProof -paymentProofName")
+        .lean(),
+      Order.countDocuments(query),
+    ]);
+
+    res.json({
+      orders,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (err) {
     console.error("Error obteniendo ventas:", err);
     res.status(500).json({ error: "Error interno del servidor" });

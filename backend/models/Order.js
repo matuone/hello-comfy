@@ -199,4 +199,7 @@ const OrderSchema = new mongoose.Schema({
   }
 );
 
+OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({ "customer.name": "text", "customer.email": "text", code: "text" });
+
 export default mongoose.model("Order", OrderSchema);
