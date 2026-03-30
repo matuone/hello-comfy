@@ -246,16 +246,20 @@ router.get("/admin/orders", verifyAdmin, async (req, res) => {
 ============================================================ */
 router.get("/admin/orders/:id", verifyAdmin, async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    // Evita enviar payloads pesados al abrir el detalle (ej. comprobante base64)
+    const orderObj = await Order.findById(req.params.id)
+      .select("-paymentProof -paymentProofName")
+      .lean();
 
-    if (!order) {
+    if (!orderObj) {
       return res.status(404).json({ error: "Pedido no encontrado" });
     }
 
     // Enriquecer con whatsapp del Customer si la orden no tiene phone
-    const orderObj = order.toObject();
     if (!orderObj.customer?.phone && orderObj.customer?.email) {
-      const customer = await Customer.findOne({ email: orderObj.customer.email });
+      const customer = await Customer.findOne({ email: orderObj.customer.email })
+        .select("whatsapp")
+        .lean();
       if (customer?.whatsapp) {
         orderObj.customer.whatsapp = customer.whatsapp;
       }
@@ -264,6 +268,37 @@ router.get("/admin/orders/:id", verifyAdmin, async (req, res) => {
     res.json(orderObj);
   } catch (err) {
     console.error("Error obteniendo detalle de venta:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+/* ============================================================
+   ⭐ Obtener comprobante de pago de una venta
+   GET /api/admin/orders/:id/payment-proof
+============================================================ */
+router.get("/admin/orders/:id/payment-proof", verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findById(id)
+      .select("paymentProof paymentProofName paymentMethod")
+      .lean();
+
+    if (!order) {
+      return res.status(404).json({ error: "Pedido no encontrado" });
+    }
+
+    if (!order.paymentProof) {
+      return res.status(404).json({ error: "Esta venta no tiene comprobante adjunto" });
+    }
+
+    res.json({
+      paymentProof: order.paymentProof,
+      paymentProofName: order.paymentProofName || null,
+      paymentMethod: order.paymentMethod || null,
+    });
+  } catch (err) {
+    console.error("Error obteniendo comprobante de pago:", err);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });

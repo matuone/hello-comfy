@@ -133,6 +133,12 @@ export default function AdminSaleDetail() {
   const [modalFactura, setModalFactura] = useState(null);
   const [cargandoFactura, setCargandoFactura] = useState(false);
   const [modalExito, setModalExito] = useState(null);
+  const [proofModal, setProofModal] = useState({
+    isOpen: false,
+    loading: false,
+    dataUrl: "",
+    fileName: "",
+  });
   const [correoLoading, setCorreoLoading] = useState(false);
   const [agencyCodeInput, setAgencyCodeInput] = useState("");
   const [correoModal, setCorreoModal] = useState({
@@ -251,6 +257,38 @@ export default function AdminSaleDetail() {
       setModalFactura(null);
     } finally {
       setCargandoFactura(false);
+    }
+  }
+
+  function mimeByFileName(fileName = "") {
+    const ext = (fileName.split(".").pop() || "").toLowerCase();
+    if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+    if (ext === "png") return "image/png";
+    if (ext === "webp") return "image/webp";
+    if (ext === "gif") return "image/gif";
+    if (ext === "pdf") return "application/pdf";
+    return "application/octet-stream";
+  }
+
+  async function verComprobante() {
+    setProofModal({ isOpen: true, loading: true, dataUrl: "", fileName: "" });
+    try {
+      const res = await adminFetch(apiPath(`/admin/orders/${id}/payment-proof`));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo obtener el comprobante");
+
+      const mime = mimeByFileName(data.paymentProofName || "");
+      const dataUrl = `data:${mime};base64,${data.paymentProof}`;
+
+      setProofModal({
+        isOpen: true,
+        loading: false,
+        dataUrl,
+        fileName: data.paymentProofName || "comprobante",
+      });
+    } catch (err) {
+      setProofModal({ isOpen: false, loading: false, dataUrl: "", fileName: "" });
+      setModalError(err.message || "No se pudo cargar el comprobante");
     }
   }
 
@@ -1027,6 +1065,12 @@ export default function AdminSaleDetail() {
           {venta.facturaNumero ? "Facturado" : "Pendiente"}
         </p>
 
+        {(["transfer", "cuentadni"].includes(venta.paymentMethod)) && (
+          <button className="factura-btn" onClick={verComprobante}>
+            Ver comprobante de pago
+          </button>
+        )}
+
         {venta.facturaNumero && (
           <>
             <p className="detalle-info-line">
@@ -1394,6 +1438,58 @@ export default function AdminSaleDetail() {
                 disabled={guardandoDireccion}
               >
                 {guardandoDireccion ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {proofModal.isOpen && (
+        <div className="factura-modal-overlay" onClick={() => setProofModal({ isOpen: false, loading: false, dataUrl: "", fileName: "" })}>
+          <div className="factura-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="factura-modal-title">Comprobante de pago</h2>
+
+            {proofModal.loading ? (
+              <p className="factura-modal-message">Cargando comprobante...</p>
+            ) : (
+              <>
+                {proofModal.dataUrl.startsWith("data:image/") && (
+                  <img
+                    src={proofModal.dataUrl}
+                    alt="Comprobante"
+                    style={{ width: "100%", maxHeight: 480, objectFit: "contain", borderRadius: 10 }}
+                  />
+                )}
+
+                {proofModal.dataUrl.startsWith("data:application/pdf") && (
+                  <iframe
+                    title="Comprobante PDF"
+                    src={proofModal.dataUrl}
+                    style={{ width: "100%", height: 520, border: "1px solid #ddd", borderRadius: 10 }}
+                  />
+                )}
+
+                {!proofModal.dataUrl.startsWith("data:image/") && !proofModal.dataUrl.startsWith("data:application/pdf") && (
+                  <p className="factura-modal-message">Formato no previsualizable. Podés descargar el archivo.</p>
+                )}
+
+                <a
+                  className="factura-modal-btn confirm"
+                  href={proofModal.dataUrl}
+                  download={proofModal.fileName || "comprobante"}
+                  style={{ display: "inline-block", textAlign: "center", textDecoration: "none", marginTop: 12 }}
+                >
+                  Descargar comprobante
+                </a>
+              </>
+            )}
+
+            <div className="factura-modal-actions">
+              <button
+                className="factura-modal-btn cancel"
+                onClick={() => setProofModal({ isOpen: false, loading: false, dataUrl: "", fileName: "" })}
+              >
+                Cerrar
               </button>
             </div>
           </div>
