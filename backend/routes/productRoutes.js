@@ -7,6 +7,7 @@ import {
   deleteProduct,
   getBestSellers,
   getNewProducts,
+  getGeekProducts,
   getCategoriesAndSubcategories,
   getProductsBySubcategory, // ⭐ NUEVO CONTROLADOR
 } from "../controllers/productController.js";
@@ -20,6 +21,7 @@ const router = express.Router();
 // ============================
 router.get("/bestsellers", getBestSellers);
 router.get("/new", getNewProducts);
+router.get("/geek", getGeekProducts);
 
 // ============================
 // RUTA PARA FILTROS (categorías y subcategorías)

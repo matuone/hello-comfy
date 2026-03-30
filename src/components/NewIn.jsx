@@ -9,9 +9,9 @@ import { useWishlist } from "../context/WishlistContext";
 import { useDiscountRules, calcularPrecios, has3x2Rule } from "../hooks/useDiscountRules";
 
 // Configuración global de API para compatibilidad local/producción
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 function apiPath(path) {
-  return `${API_URL}${path}`;
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
 }
 
 // Swiper
@@ -67,7 +67,9 @@ export default function NewIn({
   const discountRules = useDiscountRules();
 
   useEffect(() => {
-    const endpoint = mode === "geek" ? "/products" : "/products/new";
+    const endpoint = mode === "geek"
+      ? `/products/geek?limit=${HOME_CAROUSEL_LIMIT}`
+      : "/products/new";
 
     fetch(apiPath(endpoint))
       .then((res) => res.json())
@@ -81,7 +83,26 @@ export default function NewIn({
 
         setProductos(mode === "geek" ? buildGeekList(sorted) : sorted);
       })
-      .catch(() => setProductos([]));
+      .catch(async () => {
+        // Fallback para evitar pantalla vacía si frontend/backend quedan desfasados
+        if (mode === "geek") {
+          try {
+            const res = await fetch(apiPath("/products"));
+            const allData = await res.json();
+            const allList = Array.isArray(allData) ? allData : [];
+            const sorted = [...allList].sort((a, b) => {
+              const aKey = a?.createdAt || a?._id || "";
+              const bKey = b?.createdAt || b?._id || "";
+              return aKey < bKey ? 1 : aKey > bKey ? -1 : 0;
+            });
+            setProductos(buildGeekList(sorted));
+            return;
+          } catch {
+            // noop
+          }
+        }
+        setProductos([]);
+      });
   }, [mode]);
 
   const getAvailableSizes = (product) => {

@@ -175,6 +175,37 @@ export const getNewProducts = async (req, res) => {
 };
 
 // ============================
+// GET -> productos Comfy Geek para Home
+// ============================
+export const getGeekProducts = async (req, res) => {
+  try {
+    const limit = Number(req.query.limit) || 12;
+    const geekRegex = /comfy\s*geek!?/i;
+
+    let productos = await Product.find({
+      $or: [
+        { category: { $elemMatch: { $regex: geekRegex } } },
+        { subcategory: { $elemMatch: { $regex: geekRegex } } },
+      ],
+    })
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(limit)
+      .populate("stockColorId");
+
+    productos = productos.map((p) => {
+      p = p.toObject({ flattenMaps: true });
+      p.sizes = extraerSizes(p);
+      return p;
+    });
+
+    res.json(productos);
+  } catch (err) {
+    console.error("Error al obtener productos Comfy Geek");
+    res.status(500).json({ error: "Error al obtener productos Comfy Geek" });
+  }
+};
+
+// ============================
 // GET → obtener productos por subcategoría
 // ============================
 export const getProductsBySubcategory = async (req, res) => {
