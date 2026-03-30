@@ -55,7 +55,7 @@ export const getAllProducts = async (req, res) => {
     }
 
     // ORDEN
-    let sortOption = {};
+    let sortOption = { createdAt: -1 };
     if (sort === "price_asc") sortOption = { price: 1 };
     else if (sort === "price_desc") sortOption = { price: -1 };
     else if (sort === "sold_desc") sortOption = { sold: -1 };
@@ -64,10 +64,10 @@ export const getAllProducts = async (req, res) => {
     if (!page || !limit) {
       let products = await Product.find(filtros)
         .sort(sortOption)
-        .populate("stockColorId");
+        .populate("stockColorId")
+        .lean({ flattenMaps: true });
 
       products = products.map((p) => {
-        p = p.toObject({ flattenMaps: true });
         p.sizes = extraerSizes(p);
         return p;
       });
@@ -85,13 +85,13 @@ export const getAllProducts = async (req, res) => {
         .sort(sortOption)
         .skip(skip)
         .limit(limitNum)
-        .populate("stockColorId"),
+        .populate("stockColorId")
+        .lean({ flattenMaps: true }),
 
       Product.countDocuments(filtros),
     ]);
 
     products = products.map((p) => {
-      p = p.toObject({ flattenMaps: true });
       p.sizes = extraerSizes(p);
       return p;
     });

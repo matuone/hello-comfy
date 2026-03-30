@@ -84,4 +84,9 @@ productSchema.pre("save", async function () {
   }
 });
 
+productSchema.index({ createdAt: -1 });
+productSchema.index({ category: 1 });
+productSchema.index({ subcategory: 1 });
+productSchema.index({ name: "text" });
+
 export default mongoose.model("Product", productSchema);

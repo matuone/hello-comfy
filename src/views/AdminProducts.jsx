@@ -21,6 +21,11 @@ export default function AdminProducts() {
   const [busqueda, setBusqueda] = useState(() => sessionStorage.getItem(SK_BUSQUEDA) || "");
   const [filtroCat, setFiltroCat] = useState(() => sessionStorage.getItem(SK_CAT) || "");
   const [filtroSub, setFiltroSub] = useState(() => sessionStorage.getItem(SK_SUB) || "");
+  const [pagina, setPagina] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalProductos, setTotalProductos] = useState(0);
+  const [loadingProductos, setLoadingProductos] = useState(false);
+  const LIMIT = 20;
   const [groupedSubcategories, setGroupedSubcategories] = useState({});
   const [expandedRows, setExpandedRows] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -64,19 +69,23 @@ export default function AdminProducts() {
   const categoriasDisponibles = Object.keys(groupedSubcategories);
 
   // ============================
-  // CARGAR PRODUCTOS
+  // CARGAR PRODUCTOS (paginado + server-side filters)
   // ============================
   useEffect(() => {
-    fetch(apiPath("/products"))
-      .then((res) => res.json())
-      .then((data) => {
-        // Ordenar por fecha de creación descendente (más reciente primero)
-        const sorted = [...data].sort((a, b) => {
-          const fechaA = new Date(a.createdAt || a.fechaCreacion || 0);
-          const fechaB = new Date(b.createdAt || b.fechaCreacion || 0);
-          return fechaB - fechaA;
+    const timer = setTimeout(async () => {
+      setLoadingProductos(true);
+      try {
+        const params = new URLSearchParams({
+          page: pagina,
+          limit: LIMIT,
+          ...(busqueda ? { search: busqueda } : {}),
+          ...(filtroCat ? { category: filtroCat } : {}),
+          ...(filtroSub ? { subcategory: filtroSub } : {}),
         });
-        const adaptados = sorted.map((p) => ({
+        const res = await fetch(apiPath(`/products?${params}`));
+        const data = await res.json();
+        const lista = data.products || [];
+        const adaptados = lista.map((p) => ({
           id: p._id,
           nombre: p.name,
           categoria: Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []),
@@ -89,9 +98,17 @@ export default function AdminProducts() {
           stockColorId: p.stockColorId?._id || null,
         }));
         setProductos(adaptados);
-      })
-      .catch((err) => console.error("Error al cargar productos:", err));
-  }, []);
+        setTotalProductos(data.total || 0);
+        setTotalPaginas(Math.ceil((data.total || 0) / LIMIT));
+      } catch (err) {
+        console.error("Error al cargar productos:", err);
+      } finally {
+        setLoadingProductos(false);
+      }
+    }, busqueda ? 400 : 0);
+
+    return () => clearTimeout(timer);
+  }, [pagina, busqueda, filtroCat, filtroSub]);
 
   // ============================
   // MODIFICACIÓN MASIVA DE PRECIOS
@@ -119,28 +136,8 @@ export default function AdminProducts() {
     });
   }
 
-  // ============================
-  // FILTRADO
-  // ============================
-  const productosFiltrados = productos.filter((p) => {
-    const cats = Array.isArray(p.categoria) ? p.categoria : (p.categoria ? [p.categoria] : []);
-    const subs = Array.isArray(p.subcategoria) ? p.subcategoria : (p.subcategoria ? [p.subcategoria] : []);
-
-    // Busqueda texto
-    const textoMatch = busqueda.trim() === "" || [
-      p.nombre,
-      cats.join(" "),
-      subs.join(" "),
-    ].join(" ").toLowerCase().includes(busqueda.toLowerCase());
-
-    // Filtro categoría
-    const catMatch = !filtroCat || cats.some((c) => c.toLowerCase() === filtroCat.toLowerCase());
-
-    // Filtro subcategoría
-    const subMatch = !filtroSub || subs.some((s) => s.toLowerCase() === filtroSub.toLowerCase());
-
-    return textoMatch && catMatch && subMatch;
-  });
+  // Filtrado server-side: productos ya viene filtrado y paginado
+  const productosFiltrados = productos;
 
   // ============================
   // ELIMINAR
@@ -295,7 +292,7 @@ export default function AdminProducts() {
   // ============================
   return (
     <div className="admin-section">
-      <h2 className="admin-section-title">Productos</h2>
+      <h2 className="admin-section-title">Productos <span className="sales-count">({totalProductos})</span></h2>
       <p className="admin-section-text">
         Gestión de catálogo, precios, talles y fotos.
       </p>
@@ -307,13 +304,13 @@ export default function AdminProducts() {
           placeholder="Buscar por nombre o categoría..."
           className="products-search"
           value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+          onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
         />
 
         <select
           className="products-filter-select"
           value={filtroCat}
-          onChange={(e) => { setFiltroCat(e.target.value); setFiltroSub(""); }}
+          onChange={(e) => { setFiltroCat(e.target.value); setFiltroSub(""); setPagina(1); }}
         >
           <option value="">Todas las categorías</option>
           {categoriasDisponibles.map((cat) => (
@@ -324,7 +321,7 @@ export default function AdminProducts() {
         <select
           className="products-filter-select"
           value={filtroSub}
-          onChange={(e) => setFiltroSub(e.target.value)}
+          onChange={(e) => { setFiltroSub(e.target.value); setPagina(1); }}
           disabled={subcategoriasDisponibles.length === 0}
         >
           <option value="">Todas las subcategorías</option>
@@ -336,7 +333,7 @@ export default function AdminProducts() {
         {(busqueda || filtroCat || filtroSub) && (
           <button
             className="products-filter-clear"
-            onClick={() => { setBusqueda(""); setFiltroCat(""); setFiltroSub(""); }}
+            onClick={() => { setBusqueda(""); setFiltroCat(""); setFiltroSub(""); setPagina(1); }}
           >
             ✕ Limpiar
           </button>
@@ -385,6 +382,9 @@ export default function AdminProducts() {
           </div>
         </div>
       )}
+
+      {/* LOADING */}
+      {loadingProductos && <p className="sales-loading">Cargando productos...</p>}
 
       {/* TABLA */}
       <div className="admin-table-container">
@@ -552,6 +552,29 @@ export default function AdminProducts() {
           </tbody>
         </table>
       </div>
+
+      {/* PAGINACIÓN */}
+      {totalPaginas > 1 && (
+        <div className="sales-pagination">
+          <button
+            className="pagination-btn"
+            onClick={() => setPagina((p) => Math.max(1, p - 1))}
+            disabled={pagina === 1 || loadingProductos}
+          >
+            ← Anterior
+          </button>
+          <span className="pagination-info">
+            Página {pagina} de {totalPaginas}
+          </span>
+          <button
+            className="pagination-btn"
+            onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+            disabled={pagina === totalPaginas || loadingProductos}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
 
       {/* NOTIFICACIÓN */}
       {noti && (
