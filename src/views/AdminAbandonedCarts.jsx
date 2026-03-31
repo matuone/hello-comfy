@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../styles/adminabandonedcarts.css";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 function apiPath(path) {
-  return `${API_URL}${path}`;
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
 }
 
 function timeAgo(date) {
@@ -40,6 +40,7 @@ export default function AdminAbandonedCarts() {
   const [emailSubject, setEmailSubject] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const sendAbortRef = useRef(null);
 
   // Expandir productos
   const [expandedId, setExpandedId] = useState(null);
@@ -87,17 +88,25 @@ export default function AdminAbandonedCarts() {
 
     setSending(true);
     try {
+      const controller = new AbortController();
+      sendAbortRef.current = controller;
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
       const res = await fetch(apiPath(`/abandoned-carts/${emailModal._id}/send-email`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        signal: controller.signal,
         body: JSON.stringify({
           subject: emailSubject,
           message: emailMessage,
         }),
       });
+
+      clearTimeout(timeout);
+      sendAbortRef.current = null;
 
       if (res.ok) {
         setEmailModal(null);
@@ -109,11 +118,24 @@ export default function AdminAbandonedCarts() {
         alert(data.error || "Error al enviar email");
       }
     } catch (err) {
-      console.error("Error sending email:", err);
-      alert("Error al enviar email");
+      if (err.name === "AbortError") {
+        alert("El envio tardo demasiado. Intenta nuevamente.");
+      } else {
+        console.error("Error sending email:", err);
+        alert("Error al enviar email");
+      }
     } finally {
+      sendAbortRef.current = null;
       setSending(false);
     }
+  };
+
+  const closeEmailModal = () => {
+    if (sendAbortRef.current) {
+      sendAbortRef.current.abort();
+    }
+    setSending(false);
+    setEmailModal(null);
   };
 
   const handleSendEmailClick = (e) => {
@@ -353,7 +375,7 @@ export default function AdminAbandonedCarts() {
 
       {/* MODAL EMAIL */}
       {emailModal && (
-        <div className="admin-abandoned__modal-overlay" onClick={() => setEmailModal(null)}>
+        <div className="admin-abandoned__modal-overlay" onClick={closeEmailModal}>
           <div className="admin-abandoned__modal" onClick={(e) => e.stopPropagation()}>
             <h3>Enviar email de recuperación</h3>
             <p className="admin-abandoned__modal-to">
@@ -389,10 +411,9 @@ export default function AdminAbandonedCarts() {
               <button
                 className="admin-abandoned__btn-cancel"
                 type="button"
-                onClick={() => setEmailModal(null)}
-                disabled={sending}
+                onClick={closeEmailModal}
               >
-                Cancelar
+                {sending ? "Cancelar envio" : "Cancelar"}
               </button>
               <button
                 className="admin-abandoned__btn-send"
