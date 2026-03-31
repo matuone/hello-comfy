@@ -233,9 +233,34 @@ export default function Step2({ formData, updateField, next, back, items }) {
             onChange={(e) => updateField("pickPoint", e.target.value)}
           >
             <option value="">Seleccioná un punto</option>
-            <option value="aquelarre">Pick Up Point Aquelarre — CABA</option>
-            <option value="temperley">Pick Up Point Temperley — ZS-GBA</option>
+            <option value="aquelarre">Pick Up Point Aquelarre - CABA</option>
+            <option value="temperley">Pick Up Point Temperley - ZS-GBA</option>
           </select>
+
+          {formData.pickPoint === "aquelarre" && (
+            <div
+              className="pd-secondary-text"
+              style={{ marginTop: "8px", lineHeight: "1.5", background: "#fff7fb", border: "1px solid #f3c3d2", borderRadius: "10px", padding: "10px 12px" }}
+            >
+              <p style={{ margin: 0, fontWeight: 700 }}>Aquelarre Showroom</p>
+              <p style={{ margin: "4px 0 0 0" }}>Lavalle 2086, CABA. Gratis.</p>
+              <p style={{ margin: "4px 0 0 0" }}>Lunes a domingos de 10:00 a 19:00.</p>
+              <p style={{ margin: "6px 0 0 0" }}>Los pedidos tardan entre 24-48 hs habiles en estar listos.</p>
+              <p style={{ margin: "6px 0 0 0", fontWeight: 600 }}>No concurrir sin haber recibido confirmacion de retiro.</p>
+            </div>
+          )}
+
+          {formData.pickPoint === "temperley" && (
+            <div
+              className="pd-secondary-text"
+              style={{ marginTop: "8px", lineHeight: "1.5", background: "#fff7fb", border: "1px solid #f3c3d2", borderRadius: "10px", padding: "10px 12px" }}
+            >
+              <p style={{ margin: 0, fontWeight: 700 }}>Pick Up Point Temperley</p>
+              <p style={{ margin: "4px 0 0 0" }}>Avenida Almirante Brown al 4300, con cita previa.</p>
+              <p style={{ margin: "4px 0 0 0" }}>Lunes a viernes de 15:00 a 19:00.</p>
+              <p style={{ margin: "6px 0 0 0" }}>Una vez realizada la compra se enviara la direccion exacta.</p>
+            </div>
+          )}
 
           <p className="pd-secondary-text" style={{ marginTop: "4px" }}>
             Retiro sin costo. Te avisamos cuando esté listo.

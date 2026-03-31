@@ -3,6 +3,7 @@ import Order from "../models/Order.js";
 import StockColor from "../models/StockColor.js";
 import Product from "../models/Product.js";
 import PromoCode from "../models/PromoCode.js";
+import AbandonedCart from "../models/AbandonedCart.js";
 import { enviarEmailConfirmacionOrden, enviarEmailAlAdmin } from "./emailService.js";
 import { assertValidCheckoutShipping } from "./validateCheckoutShipping.js";
 
@@ -184,6 +185,18 @@ export async function crearOrdenDesdePago(paymentData, pendingOrderData) {
         orderData.code = await generarCodigoOrden();
         order = new Order(orderData);
         await order.save();
+
+        // Marcar carritos abandonados como recuperados al crear una orden real.
+        const normalizedEmail = String(order.customer?.email || "").toLowerCase().trim();
+        if (normalizedEmail) {
+          await AbandonedCart.updateMany(
+            { email: normalizedEmail, recovered: false },
+            { $set: { recovered: true, recoveredAt: new Date() } }
+          ).catch((err) =>
+            console.error(`❌ Error marcando carrito abandonado como recuperado (${normalizedEmail}):`, err.message)
+          );
+        }
+
         break;
       } catch (err) {
         if (err.code === 11000 && intentos > 1) {

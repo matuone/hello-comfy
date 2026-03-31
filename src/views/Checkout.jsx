@@ -10,6 +10,11 @@ import Step4 from "./CheckoutStep4";
 
 import "../styles/checkout.css";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function Checkout() {
   const { items, totalPrice } = useCart();
   const { user } = useContext(AuthContext);
@@ -67,7 +72,6 @@ export default function Checkout() {
   // ============================
   // TRACKING DE CARRITO ABANDONADO
   // ============================
-  const API_URL = import.meta.env.VITE_API_URL;
   const trackAbandoned = (nextStep) => {
     // Solo trackear si ya tenemos email e items
     if (formData.email && items.length > 0) {
@@ -80,7 +84,7 @@ export default function Checkout() {
         color: i.color,
         quantity: i.quantity,
       }));
-      fetch(`${API_URL}/abandoned-carts/track`, {
+      fetch(apiPath("/abandoned-carts/track"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -96,6 +100,13 @@ export default function Checkout() {
       }).catch(() => { }); // Silencioso, no debe bloquear
     }
   };
+
+  // Refuerzo: al llegar al paso 4, registrar estado actual aunque no avance a otro paso.
+  useEffect(() => {
+    if (step === 4) {
+      trackAbandoned(4);
+    }
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const next = () => {
     setStep((s) => {

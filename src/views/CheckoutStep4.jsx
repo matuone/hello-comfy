@@ -551,14 +551,46 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
         )}
 
         {formData.shippingMethod === "pickup" && (
-          <p>
-            <strong>Punto de retiro:</strong>{" "}
-            {formData.pickPoint === "aquelarre"
-              ? "Aquelarre — CABA"
-              : formData.pickPoint === "temperley"
-                ? "Temperley — ZS-GBA"
-                : "No seleccionado"}
-          </p>
+          <div style={{ marginTop: "8px" }}>
+            <p style={{ marginBottom: "6px" }}><strong>Punto de retiro:</strong></p>
+
+            {formData.pickPoint === "aquelarre" && (
+              <div
+                style={{
+                  background: "#fff7fb",
+                  border: "1px solid #f3c3d2",
+                  borderRadius: "10px",
+                  padding: "10px 12px",
+                  lineHeight: 1.5,
+                }}
+              >
+                <p style={{ margin: 0, fontWeight: 700 }}>Aquelarre Showroom</p>
+                <p style={{ margin: "4px 0 0 0" }}>Lavalle 2086, CABA. Gratis.</p>
+                <p style={{ margin: "4px 0 0 0" }}>Lunes a domingos de 10:00 a 19:00.</p>
+                <p style={{ margin: "6px 0 0 0" }}>Los pedidos tardan entre 24-48 hs habiles en estar listos.</p>
+                <p style={{ margin: "6px 0 0 0", fontWeight: 600 }}>No concurrir sin haber recibido confirmacion de retiro.</p>
+              </div>
+            )}
+
+            {formData.pickPoint === "temperley" && (
+              <div
+                style={{
+                  background: "#fff7fb",
+                  border: "1px solid #f3c3d2",
+                  borderRadius: "10px",
+                  padding: "10px 12px",
+                  lineHeight: 1.5,
+                }}
+              >
+                <p style={{ margin: 0, fontWeight: 700 }}>Pick Up Point Temperley</p>
+                <p style={{ margin: "4px 0 0 0" }}>Avenida Almirante Brown al 4300, con cita previa.</p>
+                <p style={{ margin: "4px 0 0 0" }}>Lunes a viernes de 15:00 a 19:00.</p>
+                <p style={{ margin: "6px 0 0 0" }}>Una vez realizada la compra se enviara la direccion exacta.</p>
+              </div>
+            )}
+
+            {!formData.pickPoint && <p>No seleccionado</p>}
+          </div>
         )}
 
         <h3>Pago</h3>
@@ -670,7 +702,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
               e.target.style.transform = "translateY(0)";
             }}
           >
-            Confirmar compra
+            Ver datos para pagar
           </button>
         )}
 
@@ -702,7 +734,7 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
               e.target.style.transform = "translateY(0)";
             }}
           >
-            Confirmar transferencia
+            Ver datos para pagar
           </button>
         )}
 
@@ -722,6 +754,20 @@ export default function Step4({ formData, items, totalPrice, shippingPrice = 0, 
           <h3 style={{ color: "#d94f7a" }}>
             {formData.paymentMethod === "transfer" ? "Comprobante de transferencia" : "Comprobante de Cuenta DNI"}
           </h3>
+
+          <p
+            style={{
+              fontSize: "0.9rem",
+              color: "#9c2f4f",
+              background: "#fff1f6",
+              border: "1px solid #f2bfd0",
+              borderRadius: "8px",
+              padding: "10px 12px",
+              marginBottom: "12px",
+            }}
+          >
+            Importante: tu compra queda registrada recien cuando presionas el boton "Enviar pedido" de abajo.
+          </p>
 
           {formData.paymentMethod === "transfer" && (
             <div style={{ background: "#fff7fb", borderRadius: "10px", padding: "16px", marginBottom: "16px", lineHeight: "1.8" }}>

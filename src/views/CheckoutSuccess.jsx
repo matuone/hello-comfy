@@ -3,6 +3,11 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "../styles/checkoutsuccess.css";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+function apiPath(path) {
+  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+}
+
 export default function CheckoutSuccess() {
   const [orderCode, setOrderCode] = useState(null);
   const [customerName, setCustomerName] = useState("");
@@ -41,8 +46,7 @@ export default function CheckoutSuccess() {
       try {
         const fd = JSON.parse(savedForm);
         if (fd.email) {
-          const API_URL = import.meta.env.VITE_API_URL;
-          fetch(`${API_URL}/abandoned-carts/recover`, {
+          fetch(apiPath("/abandoned-carts/recover"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: fd.email }),
