@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { useWishlist } from "../context/WishlistContext";
+import { getCachedCategoryFilters, getCategoryFilters } from "../services/categoryFilters";
 import "../styles/mobile-header.css";
 
 // Configuración global de API para compatibilidad local/producción
@@ -94,18 +95,22 @@ export default function MobileHeader() {
     "Merch": "merch",
   };
 
-  const [grouped, setGrouped] = useState(null);
+  const cachedFilters = getCachedCategoryFilters();
+  const [grouped, setGrouped] = useState(() => cachedFilters?.groupedSubcategories || null);
 
   useEffect(() => {
-    fetch(apiPath("/products/filters/data"))
-      .then((res) => res.json())
+    if (grouped) {
+      return;
+    }
+
+    getCategoryFilters()
       .then((data) => {
         if (data?.groupedSubcategories) {
           setGrouped(data.groupedSubcategories);
         }
       })
       .catch(() => { });
-  }, []);
+  }, [grouped]);
 
   const COLS = grouped
     ? Object.keys(catSlug)

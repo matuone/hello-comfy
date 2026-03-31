@@ -2,13 +2,8 @@
 
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getCachedCategoryFilters, getCategoryFilters } from "../services/categoryFilters";
 import "../styles/categoriesmenu.css";
-
-// Configuración global de API para compatibilidad local/producción
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-function apiPath(path) {
-  return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
-}
 
 const catSlug = {
   "Indumentaria": "indumentaria",
@@ -29,13 +24,17 @@ const isComfyGeekLabel = (value) => {
 };
 
 export default function CategoriesMenu({ className = "", onSelect }) {
-  const [grouped, setGrouped] = useState(null); // null = loading
+  const cachedFilters = getCachedCategoryFilters();
+  const [grouped, setGrouped] = useState(() => cachedFilters?.groupedSubcategories || null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    fetch(apiPath("/products/filters/data"))
-      .then((res) => res.json())
+    if (grouped) {
+      return () => { mounted = false; };
+    }
+
+    getCategoryFilters()
       .then((data) => {
         if (mounted) {
           if (data?.groupedSubcategories) {
@@ -51,7 +50,7 @@ export default function CategoriesMenu({ className = "", onSelect }) {
         }
       });
     return () => { mounted = false; };
-  }, []);
+  }, [grouped]);
 
   const columns = ["Indumentaria", "Cute items", "Merch"];
 

@@ -1,5 +1,10 @@
 import Product from "../models/Product.js";
 import Subcategory from "../models/Subcategory.js";
+import {
+  clearCategoryFiltersCache,
+  getCachedCategoryFilters,
+  setCachedCategoryFilters,
+} from "../services/categoryFiltersCache.js";
 
 // ============================
 // Helper → Normalizar strings
@@ -260,6 +265,7 @@ export const createProduct = async (req, res) => {
     });
 
     await product.save();
+    clearCategoryFiltersCache();
     res.json(product);
   } catch (err) {
     console.error("Error al crear producto");
@@ -305,6 +311,7 @@ export const updateProduct = async (req, res) => {
     updated = updated.toObject();
     updated.sizes = extraerSizes(updated);
 
+    clearCategoryFiltersCache();
     res.json(updated);
   } catch (err) {
     console.error("Error al actualizar producto");
@@ -323,6 +330,7 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
+    clearCategoryFiltersCache();
     res.json({ message: "Producto eliminado" });
   } catch (err) {
     console.error("Error al eliminar producto");
@@ -335,78 +343,114 @@ export const deleteProduct = async (req, res) => {
 // ============================
 export const getCategoriesAndSubcategories = async (req, res) => {
   try {
-    const categoriasDeProductos = await Product.distinct("category");
-    const categorias = Array.from(new Set([...ALLOWED_CATEGORIES, ...categoriasDeProductos]));
+    const cachedResponse = getCachedCategoryFilters();
+    if (cachedResponse) {
+      res.set("Cache-Control", "public, max-age=300");
+      return res.json(cachedResponse);
+    }
 
-    const grouped = {};
-    categorias.forEach((cat) => {
-      grouped[cat] = [];
-    });
-
-    const [productos, subsManual, subsHidden] = await Promise.all([
-      Product.find(),
-      Subcategory.find({ hidden: { $ne: true } }).sort({ category: 1, order: 1, name: 1 }),
-      Subcategory.find({ hidden: true }),
+    const [productos, subcategories] = await Promise.all([
+      Product.find({}, { category: 1, subcategory: 1, _id: 0 }).lean(),
+      Subcategory.find({}, { category: 1, name: 1, order: 1, hidden: 1, _id: 0 })
+        .sort({ category: 1, order: 1, name: 1 })
+        .lean(),
     ]);
 
-    // Set de subcategorías ocultas para excluirlas
-    const hiddenSet = new Set(
-      subsHidden.map((s) => `${s.category}||${s.name}`)
-    );
+    const categoriasSet = new Set(ALLOWED_CATEGORIES);
+    const hiddenSet = new Set();
+    const grouped = {};
+    const subToCategoryMap = {};
 
-    // Recopilar subcategorías únicas de productos y resolver su categoría correcta
-    // usando la tabla Subcategory como fuente de verdad (evita cross-join de arrays)
-    const allSubcategories = await Subcategory.find();
-    const subToCategoryMap = {}; // { normalizedSubName: category }
-    allSubcategories.forEach((s) => {
-      subToCategoryMap[s.name] = s.category;
+    subcategories.forEach((sub) => {
+      const categoryName = normalize(sub.category);
+      const subcategoryName = normalize(sub.name);
+
+      categoriasSet.add(categoryName);
+
+      if (sub.hidden) {
+        hiddenSet.add(`${categoryName}||${subcategoryName}`);
+        return;
+      }
+
+      subToCategoryMap[subcategoryName] = categoryName;
+
+      if (!grouped[categoryName]) {
+        grouped[categoryName] = [];
+      }
+
+      if (!grouped[categoryName].includes(subcategoryName)) {
+        grouped[categoryName].push(subcategoryName);
+      }
     });
 
-    const productSubsMap = {}; // { category: Set<name> }
-    productos.forEach((p) => {
-      const subs = Array.isArray(p.subcategory) ? p.subcategory : (p.subcategory ? [p.subcategory] : []);
-      subs.forEach((sub) => {
-        if (!sub) return;
+    const productSubsMap = {};
+    productos.forEach((product) => {
+      const categories = Array.isArray(product.category)
+        ? product.category
+        : (product.category ? [product.category] : []);
+      const subcategoriesFromProduct = Array.isArray(product.subcategory)
+        ? product.subcategory
+        : (product.subcategory ? [product.subcategory] : []);
+
+      categories.forEach((category) => {
+        if (category) {
+          categoriasSet.add(normalize(category));
+        }
+      });
+
+      subcategoriesFromProduct.forEach((sub) => {
+        if (!sub) {
+          return;
+        }
+
         const normalizedSub = normalize(sub);
-        // Usar la tabla Subcategory para saber la categoría real
         const realCategory = subToCategoryMap[normalizedSub];
+
         if (realCategory) {
-          if (!productSubsMap[realCategory]) productSubsMap[realCategory] = new Set();
+          if (!productSubsMap[realCategory]) {
+            productSubsMap[realCategory] = new Set();
+          }
+
           productSubsMap[realCategory].add(normalizedSub);
-        } else {
-          // Fallback: si la subcategoría no está en la tabla, asignarla a las categorías del producto
-          const cats = Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []);
-          cats.forEach((cat) => {
-            if (!cat) return;
-            if (!productSubsMap[cat]) productSubsMap[cat] = new Set();
-            productSubsMap[cat].add(normalizedSub);
-          });
+          return;
         }
+
+        categories.forEach((category) => {
+          if (!category) {
+            return;
+          }
+
+          const normalizedCategory = normalize(category);
+          if (!productSubsMap[normalizedCategory]) {
+            productSubsMap[normalizedCategory] = new Set();
+          }
+
+          productSubsMap[normalizedCategory].add(normalizedSub);
+        });
       });
     });
 
-    // Construir resultado: primero las manuales (respetando order), luego las de productos no registradas ni ocultas
-    categorias.forEach((cat) => {
-      const manualNames = subsManual
-        .filter((s) => s.category === cat)
-        .map((s) => s.name);
+    const categorias = Array.from(categoriasSet);
+    categorias.forEach((category) => {
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
 
-      // Empezar con las manuales en su orden
-      grouped[cat] = [...manualNames];
-
-      // Agregar las de productos que no estén ya en manuales ni ocultas
-      const fromProducts = productSubsMap[cat] || new Set();
+      const fromProducts = productSubsMap[category] || new Set();
       fromProducts.forEach((sub) => {
-        if (!grouped[cat].includes(sub) && !hiddenSet.has(`${cat}||${sub}`)) {
-          grouped[cat].push(sub);
+        if (!grouped[category].includes(sub) && !hiddenSet.has(`${category}||${sub}`)) {
+          grouped[category].push(sub);
         }
       });
     });
 
-    res.json({
+    const response = setCachedCategoryFilters({
       categories: categorias,
       groupedSubcategories: grouped,
     });
+
+    res.set("Cache-Control", "public, max-age=300");
+    res.json(response);
   } catch (err) {
     console.error("Error al obtener categorías");
     res.status(500).json({ error: "Error al obtener categorías" });

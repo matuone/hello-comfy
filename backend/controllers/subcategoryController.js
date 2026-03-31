@@ -1,5 +1,6 @@
 import Subcategory from "../models/Subcategory.js";
 import Product from "../models/Product.js";
+import { clearCategoryFiltersCache } from "../services/categoryFiltersCache.js";
 
 const normalize = (str = "") => {
   const clean = str.trim().replace(/\s*\/\s*/g, " / ");
@@ -45,6 +46,7 @@ export const createSubcategory = async (req, res) => {
       order: nextOrder,
     });
 
+    clearCategoryFiltersCache();
     res.status(201).json(created);
   } catch (err) {
     if (err.code === 11000) {
@@ -81,6 +83,7 @@ export const updateSubcategory = async (req, res) => {
       return res.status(404).json({ error: "Subcategoría no encontrada" });
     }
 
+    clearCategoryFiltersCache();
     res.json(updated);
   } catch (err) {
     if (err.code === 11000) {
@@ -104,6 +107,7 @@ export const deleteSubcategory = async (req, res) => {
       return res.status(404).json({ error: "Subcategoría no encontrada" });
     }
 
+    clearCategoryFiltersCache();
     res.json({ message: "Subcategoría oculta del menú" });
   } catch (err) {
     console.error("Error al ocultar subcategoría");
@@ -124,6 +128,7 @@ export const restoreSubcategory = async (req, res) => {
       return res.status(404).json({ error: "Subcategoría no encontrada" });
     }
 
+    clearCategoryFiltersCache();
     res.json({ message: "Subcategoría restaurada", subcategory: sub });
   } catch (err) {
     console.error("Error al restaurar subcategoría");
@@ -140,6 +145,7 @@ export const permanentDeleteSubcategory = async (req, res) => {
       return res.status(404).json({ error: "Subcategoría no encontrada" });
     }
 
+    clearCategoryFiltersCache();
     res.json({ message: "Subcategoría eliminada permanentemente" });
   } catch (err) {
     console.error("Error al eliminar subcategoría permanentemente");
@@ -170,6 +176,7 @@ export const reorderSubcategories = async (req, res) => {
 
     await Promise.all(updates);
 
+    clearCategoryFiltersCache();
     res.json({ message: "Orden actualizado" });
   } catch (err) {
     console.error("Error al reordenar subcategorías");
@@ -248,6 +255,7 @@ export const syncSubcategories = async (_req, res) => {
       created = await Subcategory.insertMany(toCreate, { ordered: false });
     }
 
+    clearCategoryFiltersCache();
     res.json({
       message: `Sincronización completa. ${created.length} subcategorías nuevas creadas.`,
       created: created.length,

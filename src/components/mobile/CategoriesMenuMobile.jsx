@@ -1,6 +1,7 @@
 // CategoriesMenuMobile.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getCachedCategoryFilters, getCategoryFilters } from "../../services/categoryFilters";
 
 const catSlug = {
   "Indumentaria": "indumentaria",
@@ -9,24 +10,23 @@ const catSlug = {
 };
 
 export default function CategoriesMenuMobile({ onClose }) {
-  const [grouped, setGrouped] = useState(null);
+  const cachedFilters = getCachedCategoryFilters();
+  const [grouped, setGrouped] = useState(() => cachedFilters?.groupedSubcategories || null);
   const [openCat, setOpenCat] = useState(null);
 
   useEffect(() => {
-    // Configuración global de API para compatibilidad local/producción
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-    function apiPath(path) {
-      return API_URL.endsWith("/api") ? `${API_URL}${path}` : `${API_URL}/api${path}`;
+    if (grouped) {
+      return;
     }
-    fetch(apiPath('/products/filters/data'))
-      .then((res) => res.json())
+
+    getCategoryFilters()
       .then((data) => {
         if (data?.groupedSubcategories) {
           setGrouped(data.groupedSubcategories);
         }
       })
       .catch(() => { });
-  }, []);
+  }, [grouped]);
 
   const columns = ["Indumentaria", "Cute items", "Merch"];
 
