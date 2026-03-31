@@ -9,6 +9,30 @@ export default defineConfig({
     assetsDir: 'assets',
     assetsInlineLimit: 0,
     emptyOutDir: false,
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+
+          if (id.includes('chart.js') || id.includes('react-chartjs-2')) {
+            return 'vendor-charts';
+          }
+
+          if (id.includes('react-quill-new') || id.includes('quill')) {
+            return 'vendor-editor';
+          }
+
+          if (
+            id.includes('react-slick') ||
+            id.includes('slick-carousel') ||
+            id.includes('swiper')
+          ) {
+            return 'vendor-slider';
+          }
+        },
+      },
+    },
   },
   server: {
     host: 'localhost',

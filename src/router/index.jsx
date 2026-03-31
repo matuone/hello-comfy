@@ -1,7 +1,7 @@
 import ResetPassword from "../views/ResetPassword";
 <Route path="/reset-password/:token" element={<ResetPassword />} />
 // src/router/index.jsx
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 // Layout público
@@ -45,27 +45,25 @@ import OrderTracking from "../views/OrderTracking";
 // Order Details (PÚBLICO)
 import OrderDetails from "../views/OrderDetails";
 
-// Admin
-import AdminLayout from "../views/AdminLayout";
-import AdminDashboard from "../views/AdminDashboard";
-import AdminSales from "../views/AdminSales";
-import AdminSaleDetail from "../views/AdminSaleDetail";
-import AdminProducts from "../views/AdminProducts";
-import AdminProductDetail from "../views/AdminProductDetail";
-import AdminStock from "../views/AdminStock";
-import AdminCustomers from "../views/AdminCustomers";
-import AdminCustomerDetail from "../views/AdminCustomerDetail";
-import AdminCustomerEdit from "../views/AdminCustomerEdit";
-import AdminStats from "../views/AdminStats";
-import AdminOpinions from "../views/AdminOpinions";
-import AdminMarketing from "../views/AdminMarketing";
-import AdminSubcategories from "../views/AdminSubcategories";
-
-// Nuevos imports admin
-import AdminDiscounts from "../views/AdminDiscounts";
-import AdminPromoCodes from "../views/AdminPromoCodes";
-import AdminSizeTables from "../views/AdminSizeTables";
-import AdminAbandonedCarts from "../views/AdminAbandonedCarts";
+// Admin (lazy)
+const AdminLayout = lazy(() => import("../views/AdminLayout"));
+const AdminDashboard = lazy(() => import("../views/AdminDashboard"));
+const AdminSales = lazy(() => import("../views/AdminSales"));
+const AdminSaleDetail = lazy(() => import("../views/AdminSaleDetail"));
+const AdminProducts = lazy(() => import("../views/AdminProducts"));
+const AdminProductDetail = lazy(() => import("../views/AdminProductDetail"));
+const AdminStock = lazy(() => import("../views/AdminStock"));
+const AdminCustomers = lazy(() => import("../views/AdminCustomers"));
+const AdminCustomerDetail = lazy(() => import("../views/AdminCustomerDetail"));
+const AdminCustomerEdit = lazy(() => import("../views/AdminCustomerEdit"));
+const AdminStats = lazy(() => import("../views/AdminStats"));
+const AdminOpinions = lazy(() => import("../views/AdminOpinions"));
+const AdminMarketing = lazy(() => import("../views/AdminMarketing"));
+const AdminSubcategories = lazy(() => import("../views/AdminSubcategories"));
+const AdminDiscounts = lazy(() => import("../views/AdminDiscounts"));
+const AdminPromoCodes = lazy(() => import("../views/AdminPromoCodes"));
+const AdminSizeTables = lazy(() => import("../views/AdminSizeTables"));
+const AdminAbandonedCarts = lazy(() => import("../views/AdminAbandonedCarts"));
 // Protección admin
 import AdminRoute from "./AdminRoute";
 import AdminLogin from "../views/AdminLogin";
@@ -84,6 +82,10 @@ import AccountHelp from "../views/account/AccountHelp";
 import AccountWishlist from "../views/account/AccountWishlist";
 
 export default function AppRouter() {
+  const adminFallback = (
+    <div style={{ padding: "24px", textAlign: "center" }}>Cargando panel...</div>
+  );
+
   function VisitTracker() {
     const location = useLocation();
 
@@ -172,7 +174,9 @@ export default function AppRouter() {
         <Route
           element={
             <AdminRoute>
-              <AdminLayout />
+              <Suspense fallback={adminFallback}>
+                <AdminLayout />
+              </Suspense>
             </AdminRoute>
           }
         >
