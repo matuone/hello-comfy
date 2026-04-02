@@ -34,6 +34,7 @@ export default function Navbar() {
   const [showResults, setShowResults] = useState(false);
 
   const searchRef = useRef(null);
+  const MAX_SEARCH_RESULTS = 18;
 
   useEffect(() => {
     const onScroll = () => {
@@ -65,10 +66,38 @@ export default function Navbar() {
     const fetchResults = async () => {
       try {
         const res = await fetch(
-          apiPath(`/products?search=${encodeURIComponent(searchQuery)}`)
+          apiPath(
+            `/products?search=${encodeURIComponent(searchQuery)}&sort=sold_desc`
+          )
         );
         const data = await res.json();
-        setSearchResults(Array.isArray(data) ? data.slice(0, 6) : []);
+
+        if (!Array.isArray(data)) {
+          setSearchResults([]);
+          setShowResults(false);
+          return;
+        }
+
+        const normalizedQuery = searchQuery.trim().toLowerCase();
+
+        const ranked = [...data]
+          .sort((a, b) => {
+            const aName = (a?.name || "").toLowerCase();
+            const bName = (b?.name || "").toLowerCase();
+
+            const aStartsWith = aName.startsWith(normalizedQuery) ? 1 : 0;
+            const bStartsWith = bName.startsWith(normalizedQuery) ? 1 : 0;
+            if (aStartsWith !== bStartsWith) return bStartsWith - aStartsWith;
+
+            const aIncludes = aName.includes(normalizedQuery) ? 1 : 0;
+            const bIncludes = bName.includes(normalizedQuery) ? 1 : 0;
+            if (aIncludes !== bIncludes) return bIncludes - aIncludes;
+
+            return (b?.sold || 0) - (a?.sold || 0);
+          })
+          .slice(0, MAX_SEARCH_RESULTS);
+
+        setSearchResults(ranked);
         setShowResults(true);
       } catch (err) {
         console.error("Error en búsqueda:", err);
@@ -91,6 +120,13 @@ export default function Navbar() {
 
   function handleProductClick(productId) {
     navigate(`/products/${productId}`);
+    setShowResults(false);
+    setSearchQuery("");
+  }
+
+  function handleViewAllResults() {
+    if (!searchQuery.trim()) return;
+    navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
     setShowResults(false);
     setSearchQuery("");
   }
@@ -142,6 +178,13 @@ export default function Navbar() {
                         </div>
                       </div>
                     ))}
+                    <button
+                      type="button"
+                      className="navbar__search-view-all"
+                      onClick={handleViewAllResults}
+                    >
+                      Ver todos los resultados
+                    </button>
                   </div>
                 )}
               </form>

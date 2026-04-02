@@ -16,6 +16,8 @@ const normalize = (str) => {
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
 
+const escapeRegex = (str = "") => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const ALLOWED_CATEGORIES = ["Indumentaria", "Cute items", "Merch"];
 
 // ============================
@@ -52,10 +54,15 @@ export const getAllProducts = async (req, res) => {
 
     // Búsqueda por nombre o descripción
     if (search) {
+      const safeSearch = escapeRegex(search.trim());
+      const searchRegex = new RegExp(safeSearch, "i");
+
       filtros.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { cardDescription: { $regex: search, $options: "i" } },
+        { name: { $regex: searchRegex } },
+        { description: { $regex: searchRegex } },
+        { cardDescription: { $regex: searchRegex } },
+        { category: { $elemMatch: { $regex: searchRegex } } },
+        { subcategory: { $elemMatch: { $regex: searchRegex } } },
       ];
     }
 
