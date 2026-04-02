@@ -11,6 +11,7 @@ import {
   getTracking
 } from "../services/shipping/correoArgentinoApi.js";
 import { calculatePackage } from "../services/shipping/utils.js";
+import { cpToProvinceCode, validateCpProvinceRanges } from "../services/shipping/cpProvinceMap.js";
 
 /**
  * POST /api/correo-argentino/quote
@@ -58,73 +59,10 @@ router.get("/correo-argentino/agencies", async (req, res) => {
   }
 });
 
-/**
- * Mapa de rangos de código postal → código de provincia (letra ISO)
- * Fuente: Correo Argentino — tabla oficial de códigos postales
- */
-const cpToProvinceCode = (cp) => {
-  const n = parseInt(cp, 10);
-  if (isNaN(n)) return null;
-
-  // Priorizar rangos específicos para evitar solapamientos.
-
-  // Tierra del Fuego
-  if (n >= 9400 && n <= 9499) return "V";
-
-  // CABA
-  if (n >= 1000 && n <= 1499) return "C";
-  // Buenos Aires
-  if (n >= 1500 && n <= 1999) return "B";
-  if (n >= 2800 && n <= 2999) return "B";
-  // Catamarca
-  if (n >= 4700 && n <= 4751) return "K";
-  // Chaco
-  if (n >= 3500 && n <= 3749) return "H";
-  // Chubut
-  if (n >= 9000 && n <= 9220) return "U";
-  // Corrientes
-  if (n >= 3400 && n <= 3499) return "W";
-  // Entre Ríos
-  if (n >= 3100 && n <= 3299) return "E";
-  // Formosa
-  if (n >= 3600 && n <= 3699) return "P";
-  // Jujuy
-  if (n >= 4600 && n <= 4699) return "Y";
-  // La Pampa
-  if (n >= 6200 && n <= 6399) return "L";
-  // La Rioja
-  if (n >= 5300 && n <= 5399) return "F";
-  // Mendoza
-  if (n >= 5500 && n <= 5699) return "M";
-  // Misiones
-  if (n >= 3300 && n <= 3399) return "N";
-  // Neuquén
-  if (n >= 8300 && n <= 8399) return "Q";
-  // Río Negro
-  if (n >= 8400 && n <= 8599) return "R";
-  // Salta
-  if (n >= 4400 && n <= 4599) return "A";
-  // San Juan
-  if (n >= 5400 && n <= 5499) return "J";
-  // San Luis
-  if (n >= 5700 && n <= 5799) return "D";
-  // Santa Cruz
-  if (n >= 9300 && n <= 9399) return "Z";
-  // Santa Fe
-  if (n >= 2000 && n <= 2699) return "S";
-  if (n >= 3000 && n <= 3099) return "S";
-  // Santiago del Estero
-  if (n >= 4200 && n <= 4399) return "G";
-  // Tucumán
-  if (n >= 4000 && n <= 4199) return "T";
-  // Córdoba
-  if (n >= 5000 && n <= 5999) return "X";
-  // Buenos Aires (rango general)
-  if (n >= 6000 && n <= 8199) return "B";
-  // Fallback Buenos Aires (rango general)
-  if (n >= 1500 && n < 2000) return "B";
-  return null;
-};
+const cpMapValidation = validateCpProvinceRanges();
+if (!cpMapValidation.ok) {
+  console.error("[Correo Argentino] CP map invalido", cpMapValidation);
+}
 
 const normalizeProvince = (value) =>
   (value || "")

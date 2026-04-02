@@ -4,7 +4,8 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "check:cp-map": "node scripts/checkCpProvinceMap.js"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
