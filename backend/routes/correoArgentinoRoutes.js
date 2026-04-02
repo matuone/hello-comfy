@@ -63,22 +63,25 @@ router.get("/correo-argentino/agencies", async (req, res) => {
  * Fuente: Correo Argentino — tabla oficial de códigos postales
  */
 const cpToProvinceCode = (cp) => {
-  const n = parseInt(cp);
+  const n = parseInt(cp, 10);
   if (isNaN(n)) return null;
+
+  // Priorizar rangos específicos para evitar solapamientos.
+
+  // Tierra del Fuego
+  if (n >= 9400 && n <= 9499) return "V";
+
   // CABA
   if (n >= 1000 && n <= 1499) return "C";
   // Buenos Aires
   if (n >= 1500 && n <= 1999) return "B";
   if (n >= 2800 && n <= 2999) return "B";
-  if (n >= 6000 && n <= 8199) return "B";
   // Catamarca
   if (n >= 4700 && n <= 4751) return "K";
   // Chaco
   if (n >= 3500 && n <= 3749) return "H";
   // Chubut
   if (n >= 9000 && n <= 9220) return "U";
-  // Córdoba
-  if (n >= 5000 && n <= 5999) return "X";
   // Corrientes
   if (n >= 3400 && n <= 3499) return "W";
   // Entre Ríos
@@ -106,17 +109,18 @@ const cpToProvinceCode = (cp) => {
   // San Luis
   if (n >= 5700 && n <= 5799) return "D";
   // Santa Cruz
-  if (n >= 9300 && n <= 9499) return "Z";
+  if (n >= 9300 && n <= 9399) return "Z";
   // Santa Fe
   if (n >= 2000 && n <= 2699) return "S";
   if (n >= 3000 && n <= 3099) return "S";
   // Santiago del Estero
   if (n >= 4200 && n <= 4399) return "G";
-  // Tierra del Fuego
-  if (n >= 9400 && n <= 9499) return "V";
-  if (n >= 9410 && n <= 9420) return "V";
   // Tucumán
   if (n >= 4000 && n <= 4199) return "T";
+  // Córdoba
+  if (n >= 5000 && n <= 5999) return "X";
+  // Buenos Aires (rango general)
+  if (n >= 6000 && n <= 8199) return "B";
   // Fallback Buenos Aires (rango general)
   if (n >= 1500 && n < 2000) return "B";
   return null;
